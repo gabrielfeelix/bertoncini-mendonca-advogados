@@ -9,3 +9,6 @@ Thumbs.db
 # Segredos, se algum dia existir um aqui
 .env
 .env.local
+
+# clones de referência (estudo, não versionar)
+refs/

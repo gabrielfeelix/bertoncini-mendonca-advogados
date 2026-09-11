@@ -256,9 +256,7 @@ descrito com clareza, não a fala do cliente.
 
 ---
 
-### 8. Bergeson (be-law) — https://be-law.com
-
-*(o endereço `www.be-law.com` falha em DNS; só responde sem o `www`)*
+### 8. Bergeson (be-law) — https://www.be-law.com
 
 **Abas:** Firm Profile → People → Practice Areas → Careers → News → Contact
 **Onde:** San Jose, San Francisco e Beverly Hills, CA · **10 advogados**
@@ -277,11 +275,14 @@ carrega mais rápido e não depende de terceiro.
 
 **O que não gostei.** Catorze áreas de atuação para dez advogados — a matemática
 não fecha e o visitante percebe. Depoimentos de cliente e citações de prêmio
-ocupam duas seções. E o **`www` quebrado** é falha básica: metade das pessoas
-digita com `www`, e para elas o site não existe.
+ocupam duas seções.
 
-**Para o B&M.** O molde da headline e a fonte self-hosted. E um item de
-checklist: **testar `www` e sem `www` antes de publicar.**
+**Nota técnica.** O site roda em WP Engine e devolve **403 para user-agent de
+robô**, respondendo normalmente a navegador. `www.be-law.com` resolve certo (dois
+registros A) — uma primeira leitura automatizada indicou falha de DNS, e estava
+errada.
+
+**Para o B&M.** O molde da headline e a fonte self-hosted.
 
 ---
 
