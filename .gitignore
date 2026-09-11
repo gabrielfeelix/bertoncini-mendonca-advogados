@@ -1,0 +1,11 @@
+# Lixo do WSL: o Windows marca arquivo baixado da internet com um fluxo
+# alternativo que vira arquivo solto quando visto do Linux.
+*:Zone.Identifier
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Segredos, se algum dia existir um aqui
+.env
+.env.local
