@@ -19,6 +19,7 @@ está publicado esperando resposta dos sócios.
 | `docs/CONTEXTO-CLIENTE.md` | Quem são, o que já foi conversado, como o trabalho é conduzido |
 | `docs/PLANEJAMENTO.md` | Paleta, CMS reaproveitável, lacunas, 33 passos em 6 fases |
 | `docs/PESQUISA.md` | Regras da OAB, padrões do setor no Brasil, referências internacionais |
+| `docs/REFERENCIAS.md` | Ficha de 36 sites de advocacia, um a um: abas, paleta, tipografia, o que funciona |
 | `docs/PERGUNTAS.md` | Conteúdo do questionário de briefing |
 | `docs/ESCOPO.md` | As 7 frentes de trabalho |
 | `docs/supabase-briefing.sql` | Tabela que guarda as respostas do formulário |

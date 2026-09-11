@@ -20,6 +20,7 @@ questionário de briefing está pronto e publicado, esperando resposta.
 | **`CONTEXTO-CLIENTE.md`** | Quem são, acordo comercial em aberto, o que o cliente pensa sobre marca, **e como o Gabriel trabalha** (§6 — leia antes de escrever qualquer texto) |
 | **`PLANEJAMENTO.md`** | Estado do projeto, paleta oficial, CMS reaproveitável, lacunas, 33 passos em 6 fases, riscos |
 | **`PESQUISA.md`** | Regras da OAB, padrões do setor BR, referências internacionais, dados de conversão |
+| **`REFERENCIAS.md`** | Ficha individual de 36 sites: abas do menu, paleta com hex, tipografia, crítica |
 | **`PERGUNTAS.md`** | Conteúdo do questionário (o formulário web é a versão viva) |
 | `ESCOPO.md` | As 7 frentes de trabalho, sem valores |
 

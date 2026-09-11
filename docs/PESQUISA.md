@@ -3,6 +3,11 @@
 > Consolidado de quatro pesquisas paralelas em 10/09/2026: advocacia brasileira,
 > advocacia internacional premiada, regras da OAB, e boas práticas de conversão.
 > Fontes citadas com URL. Onde uma informação veio de uma fonte só, está marcado.
+>
+> **Revisado em 11/09/2026.** Um segundo levantamento leu o HTML e o CSS de 36 sites
+> e produziu a ficha por link em `docs/REFERENCIAS.md`. Quatro afirmações deste
+> documento foram corrigidas com base nele e estão marcadas como *Correção de
+> 11/09/2026* ao longo do texto.
 
 ---
 
@@ -101,10 +106,18 @@ Meyer e Cescon Barrieu bloquearam acesso (403).
   Demarest, Souto Correa, Stocche Forbes e Trench Rossi seguem isso quase sem variação.
 - **Coletivo acima do indivíduo.** As grandes evitam destacar sócios na home — comunicam
   "200+ advogados", nunca um rosto. Só os boutiques invertem isso.
-- **Azul-marinho + branco + cinza** domina esmagadoramente. Exceções: Trench Rossi
-  (vermelho/bordô) e Machado Schütz (verde).
-- **Sans-serif é hegemônica.** Nenhum site pesquisado usa serifada como fonte de
-  interface — serifada aparece no máximo em logotipo.
+- **Azul-marinho + branco + cinza é frequente, mas não domina.** *Correção de
+  11/09/2026:* a leitura de CSS em `docs/REFERENCIAS.md` mostra Machado Meyer com
+  amarelo `#fae100` sobre grafite, Souto Correa com laranja `#ff5527`, BMA com fundo
+  bege `#f7f4f2`, Pinheiro Neto com terracota `#c12f1e` de acento e TozziniFreire com
+  coral `#f2665e` sobre bege. O Mattos Filho foi rebrandeado em laranja e roxo. Fora do
+  Brasil: Slaughter and May é roxo, Freshfields é bege-oliva, Latham é vermelho.
+- **Sans-serif predomina, mas serifada em título é caminho legítimo.** *Correção de
+  11/09/2026:* este documento afirmava que nenhum site usava serifada como fonte de
+  interface. O CSS desmente. No Brasil, Pinheiro Neto declara `capitolium-2` para h1–h6
+  e Veirano usa Merriweather nos títulos com Open Sans no corpo. Fora, o mesmo padrão
+  em Cravath (Bembo), Paul Weiss (Untitled Serif), Freshfields (serifada proprietária),
+  Slaughter and May e Clifford Chance (New Baskerville itálico nos destaques).
 - **Newsletter como CTA principal**, não "fale conosco".
 - **Selos de premiação** (Chambers, Legal 500) em carrossel é quase universal.
 - **Diretório de advogados pesquisável** com filtros é padrão técnico consistente.
@@ -129,8 +142,10 @@ Meyer e Cescon Barrieu bloquearam acesso (403).
    mídia, com podcast.
 2. **TozziniFreire** — sub-marcas internas com identidade própria: TFInclusão e
    ThinkFuture são nomeadas e tratadas como produtos, não seções de texto.
-3. **Souto Correa** — usa fotografia abstrata com texto sobreposto em vez de pessoas de
-   terno. É a saída mais elegante encontrada para ilustrar advocacia sem clichê.
+3. **Souto Correa** — seis abas limpas, lema com voz própria ("Ir longe, chegar juntos")
+   e uma única família tipográfica (Avenir) variando só o peso. *Correção de 11/09/2026:*
+   esta entrada elogiava uma suposta fotografia abstrata com texto sobreposto; o site
+   usa banners com pessoas e headshots posados individuais.
 4. **Trench Rossi** — único fora do azul, e único a expor dado de diversidade de gênero
    (45%/55%) na home.
 5. **Vieira Sacco** (boutique) — resolve bem a tensão pequeno/credível: fundadora com
@@ -175,9 +190,11 @@ Wordstone (descrita pelo estúdio como fuga deliberada da formalidade, buscando
 em movimento, conversando, em ambiente real — **nunca olhando fixo para a câmera de
 braços cruzados**.
 
-**C — Retrato formal com tratamento gráfico que o desfria.** Kanzlei am Kai converte
-tudo para preto e branco, criando coerência editorial. Kümmerlein usa acento amarelo
-ao redor do grid uniforme.
+**C — Retrato formal com tratamento gráfico que o desfria.** Kümmerlein usa acento
+amarelo ao redor do grid uniforme. *Correção de 11/09/2026:* a Kanzlei am Kai era citada
+aqui como exemplo de conversão integral para preto e branco. Na verificação, o site fica
+em `kanzlei-am-kai.at` (Viena, não Zurique) e usa retratos coloridos com divisores
+gráficos em dourado.
 
 **Nenhum site premiado usa banco de imagens ou aperto de mão.** É o divisor de águas
 mais claro.
@@ -190,10 +207,14 @@ estratégia B. Vale mandar essa direção antes do ensaio.
 - Sans-serif geométrica ou humanista domina — Freshfields, Clifford Chance, Kümmerlein,
   Bersay, Highbridge.
 - Quando há serifa, é em título contrastando com sans no corpo. O par mais documentado:
-  **Source Serif Pro + IBM Plex Sans** (Minerva Advocaten).
+  **Source Serif Pro + IBM Plex Sans** (Minerva Advocaten — boutique de Roterdã, não de
+  Amsterdã; em 11/09/2026 o site estava inacessível por certificado SSL vencido, então o
+  par não pôde ser reconfirmado).
 - Playfair Display e Garamond aparecem em boutiques que querem tom erudito.
-- Fontes proprietárias nas casas mais investidas em identidade (Kanzlei am Kai usa
-  "Voltaire").
+- Fontes proprietárias nas casas mais investidas em identidade. Confirmadas no CSS em
+  11/09/2026: Freshfields ("FreshfieldsHeadline" e "FreshfieldsText"), TozziniFreire
+  ("Author"), Slaughter and May ("Feature Deck") e Paul Weiss (ABC Diatype + Untitled
+  Serif). A atribuição da fonte "Voltaire" à Kanzlei am Kai não se confirmou.
 - Regra geral: **título grande e ousado + corpo discreto e legível.** Hierarquia por
   escala e peso, raramente por ornamento.
 
