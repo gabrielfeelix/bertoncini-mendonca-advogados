@@ -1,0 +1,444 @@
+// Scripts specifically for the homepage
+(function ($) {
+	// Homepage-specific global variables
+	var enablePreloader = false;
+	var preloaderDuration = 3800;
+
+	// Document Ready = DOM is ready but content is not necessarily loaded
+	$(function () {
+		// Handle preloader
+		if (enablePreloader && $("#preloader").exists() && !localStorage.getItem("preloaderFinished")) {
+			startPreloader();
+		} else {
+			// Preloader not enabled; remove the element, if it exists
+			$("#preloader").remove();
+		}
+
+		// Loop through home slides and select images based on screen size
+		if ($(".home-slider-single").exists()) {
+			$(".home-slider-single").each(function () {
+				var slideImageURL = $(this).attr("data-mobile-image");
+
+				// Desktop alternate
+				if (window.innerWidth >= 1025) {
+					slideImageURL = $(this).attr("data-desktop-image");
+				}
+
+				$(this).css("background-image", "url(" + slideImageURL + ")");
+			});
+		}
+
+		// Begins preloader functionality and animations
+		function startPreloader() {
+			$("#preloader, .preloader-part").addActive();
+
+			anime({
+				targets: ".preloader-part-right p",
+				opacity: [0, 1],
+				translateY: [60, 0],
+				duration: 1200,
+				loop: false,
+				easing: "easeOutSine",
+				delay: anime.stagger(500, { start: 700 }),
+			});
+
+			setTimeout(finishPreloader, preloaderDuration);
+		}
+
+		// Begins preloader exit; ensures it does not reappear in the session
+		function finishPreloader() {
+			// Set localStorage variable for this session
+			localStorage.setItem("preloaderFinished", 1);
+
+			// Begin preloader exit
+			$("#preloader").addClass("preloader-remove");
+
+			setTimeout(function () {
+				// At this point, preloader fade-out must be complete
+				$("#preloader").remove();
+			}, 1500);
+		}
+	});
+
+	$(window).on("load", function () {
+		// Check for replay parameter for continuous animation loop
+		var isReplayMode = window.location.search.includes("replay=1");
+
+		if (isReplayMode) {
+			startAnimationLoop();
+		} else {
+			startHomeAnimations();
+		}
+
+		setupTeamSectionScrollEffects();
+	});
+
+	function startHomeAnimations() {
+		// If not on the homepage, leave this function
+		if (!$("body").hasClass("home")) {
+			return;
+		}
+
+		// Block all animations on mobile - handled by inline template JS instead
+		if (isMobileScreen()) {
+			console.log("Mobile detected: Skipping homepage animations (handled by template)");
+			return;
+		}
+
+		// Hero Section Animations - Sequential with timers (40% longer + increased tagline gap)
+		setTimeout(function () {
+			// 1. Hero background fade in
+			$("#hero-background").addActive();
+		}, 50);
+
+		setTimeout(function () {
+			// 2. Small tagline slide in from left
+			$("#hero-tagline-small").addActive();
+		}, 800);
+
+		setTimeout(function () {
+			// 3. Large tagline slide in from left (increased gap from small tagline)
+			$("#hero-tagline-large").addActive();
+		}, 1300);
+
+		setTimeout(function () {
+			// 3b. Second line of large tagline with slight delay
+			$("#hero-tagline-second-line").addActive();
+		}, 1600);
+
+		setTimeout(function () {
+			// 4. Vertical line extends down
+			$("#hero-text-container").addClass("vertical-line-active");
+		}, 2000);
+
+		setTimeout(function () {
+			// 5. Horizontal line extends right (after vertical completes)
+			$("#hero-text-container").addClass("horizontal-line-active");
+		}, 2700);
+
+		setTimeout(function () {
+			// 6. Connect CTA button fades up
+			$("#hero-connect-cta").addActive();
+		}, 3600);
+
+		// Setup scroll-based animations for main content sections
+		setupMainContentAnimations();
+
+		// Setup practices section animations (desktop only)
+		if (!isMobileScreen()) {
+			setupPracticesSectionAnimations();
+			setupQuotesSectionAnimations();
+			setupRecognitionSectionAnimations();
+		}
+
+		// Remove any opacity0 elements for mobile fallback
+		if (isMobileScreen()) {
+			$(".opacity0").removeClass("opacity0");
+		}
+	}
+
+	// Animation loop for replay mode
+	function startAnimationLoop() {
+		console.log("Animation replay mode activated - animations will loop continuously");
+
+		function runAnimationCycle() {
+			// Reset all animations first
+			resetAllAnimations();
+
+			// Start the animation sequence
+			startHomeAnimations();
+
+			// Schedule next cycle (total animation time + pause)
+			setTimeout(runAnimationCycle, 7000); // 7 second cycle for longer animations
+		}
+
+		// Start the loop
+		runAnimationCycle();
+	}
+
+	// Reset hero animations to initial state (replay mode only)
+	function resetAllAnimations() {
+		// Remove hero active classes only
+		$(
+			"#hero-background, #hero-tagline-small, #hero-tagline-large, #hero-tagline-second-line, #hero-connect-cta"
+		).removeClass("active");
+		$("#hero-text-container").removeClass("vertical-line-active horizontal-line-active");
+
+		// Force reflow to ensure styles are reset
+		$("#hero-text-container")[0].offsetHeight;
+	}
+
+	// Utility function to check if element is actually visible in viewport
+	function isElementInViewport(element, triggerMargin) {
+		if (!element.exists()) return false;
+
+		var windowTop = $(window).scrollTop();
+		var windowBottom = windowTop + $(window).height();
+		var elementTop = element.offset().top;
+		var elementBottom = elementTop + element.outerHeight();
+
+		// Element must be at least partially visible in viewport
+		// and past the trigger margin
+		return windowBottom > elementTop + (triggerMargin || 100) && windowTop < elementBottom;
+	}
+
+	// Setup scroll-based animations using scroll detection
+	function setupMainContentAnimations() {
+		// Block animations on mobile - handled by inline template JS instead
+		if (isMobileScreen()) {
+			console.log("Mobile detected: Skipping main content scroll animations");
+			return;
+		}
+
+		// Check if elements exist
+		var mainTextElement = $("#homepage-main-text");
+		var mainDescElement = $("#homepage-main-description");
+
+		if (!mainTextElement.exists() || !mainDescElement.exists()) {
+			console.log("Main content elements not found for animations");
+			return;
+		}
+
+		console.log("Setting up main content scroll animations");
+
+		var textAnimated = false;
+		var descAnimated = false;
+
+		function checkMainContentInView() {
+			// Check main text - only animate if actually visible
+			if (!textAnimated && isElementInViewport(mainTextElement, 100)) {
+				console.log("Animating main text");
+				textAnimated = true;
+				mainTextElement.addActive();
+			}
+
+			// Check description with delay - only animate if actually visible
+			if (!descAnimated && isElementInViewport(mainDescElement, 100)) {
+				console.log("Animating main description");
+				descAnimated = true;
+				setTimeout(function () {
+					mainDescElement.addActive();
+				}, 300);
+			}
+		}
+
+		// Bind scroll event
+		$(window).on("scroll", checkMainContentInView);
+
+		// Check immediately in case already in view
+		checkMainContentInView();
+	}
+
+	// Setup practices section scroll animations (desktop only)
+	function setupPracticesSectionAnimations() {
+		// Check if elements exist
+		var practicesOfficeImage = $(".practices-office-image");
+		var practiceBoxColumns = $(".practice-box-column");
+
+		if (!practicesOfficeImage.exists() && !practiceBoxColumns.exists()) {
+			console.log("Practices section elements not found for animations");
+			return;
+		}
+
+		console.log("Setting up practices section scroll animations");
+
+		var officeImageAnimated = false;
+		var columnAnimationFlags = {};
+
+		function checkPracticesSectionInView() {
+			// Animate office image - only if actually visible
+			if (!officeImageAnimated && isElementInViewport(practicesOfficeImage, 100)) {
+				console.log("Animating practices office image");
+				officeImageAnimated = true;
+				practicesOfficeImage.addActive();
+			}
+
+			// Animate practice box columns with staggered delays - only if visible
+			practiceBoxColumns.each(function (index) {
+				var column = $(this);
+				var columnKey = "column_" + index;
+
+				if (!columnAnimationFlags[columnKey] && isElementInViewport(column, 100)) {
+					console.log("Animating practice column " + index);
+					columnAnimationFlags[columnKey] = true;
+
+					// Stagger each column by 150ms
+					setTimeout(function () {
+						column.addActive();
+					}, index * 150);
+				}
+			});
+		}
+
+		// Bind scroll event
+		$(window).on("scroll", checkPracticesSectionInView);
+
+		// Check immediately in case already in view
+		checkPracticesSectionInView();
+	}
+
+	// Setup quotes section scroll animations (desktop only)
+	function setupQuotesSectionAnimations() {
+		// Check if elements exist
+		var quoteItems = $(".quote-item");
+
+		if (!quoteItems.exists()) {
+			console.log("Quote items not found for animations");
+			return;
+		}
+
+		console.log("Setting up quotes section scroll animations");
+
+		var quotesAnimated = false;
+
+		function checkQuotesSectionInView() {
+			if (quotesAnimated) return;
+
+			var quotesSection = $(".quotes-section");
+
+			// Only animate if quotes section is actually visible
+			if (isElementInViewport(quotesSection, 200)) {
+				console.log("Animating quotes section");
+				quotesAnimated = true;
+
+				// Animate each quote item's elements with staggered delays
+				quoteItems.each(function (index) {
+					var quoteItem = $(this);
+					var blockquote = quoteItem.find("blockquote");
+					var cite = quoteItem.find("cite");
+
+					// Stagger quote items by 200ms each
+					var baseDelay = index * 200;
+
+					// Blockquote appears first
+					setTimeout(function () {
+						blockquote.addActive();
+					}, baseDelay);
+
+					// Cite appears 100ms after blockquote
+					setTimeout(function () {
+						cite.addActive();
+					}, baseDelay + 100);
+				});
+			}
+		}
+
+		// Bind scroll event
+		$(window).on("scroll", checkQuotesSectionInView);
+
+		// Check immediately in case already in view
+		checkQuotesSectionInView();
+	}
+
+	// Setup recognition section scroll animations (desktop only)
+	function setupRecognitionSectionAnimations() {
+		// Check if elements exist
+		var recognitionCityImage = $(".recognition-city-image");
+		var recognitionHeading = $(".recognition-section .homepage-section-heading");
+
+		if (!recognitionCityImage.exists() && !recognitionHeading.exists()) {
+			console.log("Recognition section elements not found for animations");
+			return;
+		}
+
+		console.log("Setting up recognition section scroll animations");
+
+		var cityImageAnimated = false;
+		var headingAnimated = false;
+
+		function checkRecognitionSectionInView() {
+			// Animate city image (fadeInLeft) - only if actually visible
+			if (!cityImageAnimated && isElementInViewport(recognitionCityImage, 100)) {
+				console.log("Animating recognition city image (fadeInLeft)");
+				cityImageAnimated = true;
+				recognitionCityImage.addActive();
+			}
+
+			// Animate heading (fadeInRight) with slight delay - only if actually visible
+			if (!headingAnimated && isElementInViewport(recognitionHeading, 100)) {
+				console.log("Animating recognition heading (fadeInRight)");
+				headingAnimated = true;
+				setTimeout(function () {
+					recognitionHeading.addActive();
+				}, 200);
+			}
+		}
+
+		// Bind scroll event
+		$(window).on("scroll", checkRecognitionSectionInView);
+
+		// Check immediately in case already in view
+		checkRecognitionSectionInView();
+	}
+
+	// Homepage specific JavaScript
+	document.addEventListener("DOMContentLoaded", function () {
+		// Initialize Quotes Swiper
+		if (document.querySelector(".quotes-swiper")) {
+			const quotesSwiper = new Swiper(".quotes-swiper", {
+				slidesPerView: 1,
+				spaceBetween: 40,
+				loop: true,
+				speed: 600,
+				effect: "slide",
+				autoplay: {
+					delay: 8000,
+					disableOnInteraction: false,
+				},
+				pagination: {
+					el: ".swiper-pagination",
+					clickable: true,
+					dynamicBullets: false,
+				},
+				navigation: {
+					nextEl: ".swiper-button-next",
+					prevEl: ".swiper-button-prev",
+				},
+				breakpoints: {
+					1025: {
+						slidesPerView: 3,
+						spaceBetween: 60,
+					},
+				},
+			});
+		}
+	});
+
+	// Team section scroll effects for desktop mixed rows
+	function setupTeamSectionScrollEffects() {
+		// Only run on desktop and if team section exists
+		if (isMobileScreen() || !$(".team-section-mixed").exists()) {
+			return;
+		}
+
+		var teamSection = $(".team-section-mixed");
+		var maxTranslateX = 30; // Maximum pixels to translate
+
+		$(window).on("scroll", function () {
+			var teamSectionTop = teamSection.offset().top;
+			var teamSectionHeight = teamSection.outerHeight();
+			var scrollTop = $(window).scrollTop();
+			var windowHeight = $(window).height();
+
+			// Check if team section is in viewport
+			var sectionStart = teamSectionTop - windowHeight;
+			var sectionEnd = teamSectionTop + teamSectionHeight;
+
+			if (scrollTop >= sectionStart && scrollTop <= sectionEnd) {
+				// Calculate scroll progress through the section (0 to 1)
+				var scrollProgress = (scrollTop - sectionStart) / (sectionEnd - sectionStart);
+				scrollProgress = Math.max(0, Math.min(1, scrollProgress));
+
+				// Apply transforms to each row
+				$(".team-mixed-row").each(function (index) {
+					var direction = index % 2 === 0 ? 1 : -1; // Alternate direction
+					var translateX = Math.sin(scrollProgress * Math.PI * 1.5) * maxTranslateX * direction;
+					$(this).css("transform", "translateX(" + translateX + "px)");
+				});
+			} else {
+				// Reset transforms when section is out of view
+				$(".team-mixed-row").css("transform", "translateX(0px)");
+			}
+		});
+	}
+})(jQuery);

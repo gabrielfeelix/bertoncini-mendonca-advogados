@@ -1,0 +1,1009 @@
+/* Homepage specific styling goes here. Excluded on all subpages */
+/* For most builds, this stylesheet should be wiped and started fresh */
+/* MOBILE-FIRST APPROACH - Base styles are for mobile, then enhanced with min-width media queries */
+
+/* HOMEPAGE ANIMATIONS */
+/* Initial states for hero animations */
+#hero-background {
+	opacity: 0.5;
+	transition: opacity 800ms ease-out;
+}
+
+.hero-bg-image {
+	transform: scale(1.05);
+	transition: transform 5000ms ease-out, opacity 800ms ease-out;
+}
+
+#hero-tagline-small,
+#hero-tagline-large {
+	opacity: 0;
+	transform: translateX(-30px);
+	transition: opacity 1000ms ease-out, transform 600ms ease-out;
+}
+
+#hero-tagline-second-line {
+	display: block;
+	opacity: 0;
+	transform: translateX(-30px);
+	transition: opacity 1000ms ease-out, transform 600ms ease-out;
+}
+
+#hero-connect-cta {
+	opacity: 0;
+	transform: translateY(30px);
+	transition: opacity 1000ms ease-out, transform 900ms ease-out;
+}
+
+/* L-shaped lines animation - split into vertical and horizontal */
+#hero-text-container::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 7px;
+	height: 100%;
+	max-height: 340px;
+	background-color: var(--color-secondary);
+	transform: scaleY(0);
+	transform-origin: top;
+	transition: transform 700ms cubic-bezier(0, 0, 0.1, 0.92);
+}
+
+#hero-text-container::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	max-width: 310px;
+	height: 7px;
+	background-color: var(--color-secondary);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 700ms ease-out;
+}
+
+/* Limit L-shaped lines to container size on mobile */
+@media screen and (min-width: 1025px) {
+	#hero-text-container::before {
+		height: 315px;
+		max-height: none;
+	}
+
+	#hero-text-container::after {
+		width: 470px;
+		max-width: none;
+	}
+}
+
+/* Main content animations */
+#homepage-main-text,
+#homepage-main-description {
+	opacity: 0;
+	transform: translateY(30px);
+	transition: opacity 1120ms ease-out, transform 1120ms ease-out;
+}
+
+/* Practices section animations (desktop only) */
+@media screen and (min-width: 1025px) {
+	.practices-office-image {
+		opacity: 0;
+		transform: translateY(40px);
+		transition: opacity 800ms ease-out, transform 800ms ease-out;
+	}
+
+	.practice-box-column {
+		opacity: 0;
+		transform: translateY(40px);
+		transition: opacity 800ms ease-out, transform 800ms ease-out;
+	}
+
+	/* Quotes section animations */
+	.quote-item blockquote,
+	.quote-item cite {
+		opacity: 0;
+		transform: translateY(30px);
+		transition: opacity 700ms ease-out, transform 700ms ease-out;
+	}
+
+	/* Recognition section animations */
+	.recognition-city-image {
+		opacity: 0;
+		transform: translateX(-60px);
+		transition: opacity 800ms ease-out, transform 800ms ease-out;
+	}
+
+	.recognition-section .homepage-section-heading {
+		opacity: 0;
+		transform: translateX(60px);
+		transition: opacity 800ms ease-out, transform 800ms ease-out;
+	}
+}
+
+/* Active states */
+#hero-background.active {
+	opacity: 1;
+}
+
+#hero-background.active .hero-bg-image {
+	transform: scale(1);
+}
+
+#hero-tagline-small.active,
+#hero-tagline-large.active {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+#hero-tagline-second-line.active {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+#hero-connect-cta.active {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+#hero-text-container.vertical-line-active::before {
+	transform: scaleY(1);
+}
+
+#hero-text-container.horizontal-line-active::after {
+	transform: scaleX(1);
+}
+
+#homepage-main-text.active,
+#homepage-main-description.active {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* Practices section active states (desktop only) */
+@media screen and (min-width: 1025px) {
+	.practices-office-image.active {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	.practice-box-column.active {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	/* Quotes section active states */
+	.quote-item blockquote.active,
+	.quote-item cite.active {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	/* Recognition section active states */
+	.recognition-city-image.active {
+		opacity: 1;
+		transform: translateX(0);
+	}
+
+	.recognition-section .homepage-section-heading.active {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+/* HOMEPAGE MOBILE LOGO CONTROL */
+/* Show light logo by default on homepage mobile */
+.home .header-mobile-inner .logo-white {
+	display: block !important;
+}
+
+.home .header-mobile-inner .logo-dark {
+	display: none !important;
+}
+
+/* Switch to dark logo when scrolled on homepage mobile */
+body.scrolled.home .header-mobile-inner .logo-white {
+	display: none !important;
+}
+
+body.scrolled.home .header-mobile-inner .logo-dark {
+	display: block !important;
+}
+
+/* HERO SECTION */
+.hero-section {
+	position: relative;
+	min-height: 450px;
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+	background: #000e28;
+}
+
+.hero-background {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+}
+
+.hero-bg-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+}
+
+.hero-content {
+	position: relative;
+	z-index: 2;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.hero-text-container {
+	color: white;
+	text-align: left;
+	position: relative;
+	padding-left: 20px;
+	padding-bottom: 15px;
+	max-width: 320px;
+	margin: 0 auto;
+}
+
+.hero-text-container::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 3px;
+	height: 0;
+	background-color: var(--color-secondary);
+	transition: height 600ms ease-out;
+}
+
+.hero-tagline-small {
+	font-size: 0.7rem;
+	font-weight: 700;
+	margin-bottom: 10px;
+	text-transform: uppercase;
+	letter-spacing: 4px;
+	color: white;
+}
+
+.hero-tagline-large {
+	font-size: 2.8rem;
+	font-weight: 500;
+	line-height: 1.1;
+	margin: 0;
+	color: white;
+}
+
+.hero-connect-cta {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	z-index: 3;
+}
+
+.hero-connect-button {
+	background-color: var(--color-secondary);
+	color: white;
+	padding: 15px 25px;
+	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.hero-connect-button:hover {
+	background-color: var(--color-secondary-dark);
+	color: white;
+}
+
+.hero-connect-button i {
+	font-size: 0.9rem;
+}
+
+@media screen and (min-width: 760px) {
+	.hero-text-container {
+		max-width: 550px;
+	}
+}
+
+@media screen and (min-width: 1025px) {
+	.hero-text-container {
+		max-width: none;
+		margin-left: 0;
+	}
+}
+
+/* SHARED HEADING STYLES */
+.homepage-section-heading {
+	font-size: 2.1rem;
+	margin-bottom: 20px;
+	color: var(--color-primary);
+	font-weight: 600;
+}
+
+/* HOMEPAGE MAIN SECTION */
+.homepage-main {
+	padding: 60px 0;
+	background-color: white;
+}
+
+.homepage-main-content {
+	display: block;
+}
+
+.homepage-main-text {
+	margin-bottom: 40px;
+}
+
+.homepage-main-text h1 {
+	line-height: 1.3;
+	margin-bottom: 0;
+}
+
+.homepage-main-description p {
+	font-size: 1.3rem;
+	line-height: 1.6;
+	margin-bottom: 30px;
+	color: var(--color-body-text);
+}
+
+/* TEAM SECTION */
+.team-section-text {
+	text-align: center;
+}
+
+.team-section-description {
+	text-align: center;
+	margin: 40px 0;
+}
+
+.team-section-description p {
+	font-size: 1rem;
+	line-height: 1.6;
+	margin-bottom: 30px;
+	color: var(--color-body-text);
+}
+
+/* Hide mixed grid on mobile, show traditional layout */
+.team-section-mixed {
+	display: none;
+}
+
+.team-section-traditional {
+	display: block;
+}
+
+/* PRACTICES SECTION */
+.team-section,
+.practices-section {
+	background-color: #f2f4f7;
+}
+
+.practices-section {
+	padding: 20px 0 60px;
+}
+
+.practices-office-image {
+	text-align: center;
+	margin-bottom: 40px;
+}
+
+.practices-office-image .office-image {
+	width: 100%;
+	height: auto;
+	max-width: 800px;
+	margin: 0 auto;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.practices-section-header {
+	text-align: center;
+	margin-bottom: 40px;
+}
+
+.practices-section-header h2 {
+}
+
+.practices-section-header p {
+	font-size: 1rem;
+	line-height: 1.6;
+	color: var(--color-body-text);
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+@media screen and (min-width: 1025px) {
+	.practices-office-image .office-image {
+		margin-top: -120px;
+	}
+}
+
+/* QUOTES SECTION */
+.quotes-section {
+	padding: 60px 0;
+	background-color: #0f326c;
+	position: relative;
+}
+
+.quotes-slider-container {
+	margin: 0 auto;
+	position: relative;
+}
+
+.quotes-swiper {
+	overflow: hidden;
+	padding-bottom: 80px;
+}
+
+.quotes-swiper .swiper-wrapper {
+	transition-timing-function: ease-in-out;
+}
+
+.quotes-swiper .swiper-slide {
+	transition: transform 0.8s ease-in-out;
+}
+
+.quote-item {
+	text-align: center;
+	padding: 25px 0 75px;
+	position: relative;
+	max-width: 80%;
+	margin: 0 auto;
+}
+
+.quote-item::before {
+	content: "";
+	background-image: url(../images/quote_lg.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 52px;
+	height: 41px;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.quote-item blockquote {
+	font-size: 1.6rem;
+	line-height: 1.4;
+	padding: 0;
+	font-style: normal;
+	margin: 40px 0 30px 0;
+	color: white;
+	font-weight: 400;
+}
+
+.quote-item blockquote::before {
+	display: none !important;
+}
+
+.quote-item blockquote p {
+	color: var(--color-white);
+	font-size: 1.5rem;
+	font-weight: 300;
+}
+
+.quote-item cite {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--color-white);
+	font-style: normal;
+	text-transform: none;
+	letter-spacing: 1px;
+	position: relative;
+	padding-left: 40px;
+}
+
+.quote-item cite::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 25px;
+	height: 2px;
+	background-color: var(--color-secondary);
+}
+
+/* Swiper Navigation - Dots */
+.quotes-section .swiper-horizontal > .swiper-pagination-bullets,
+.quotes-section .swiper-pagination-bullets.swiper-pagination-horizontal {
+	bottom: 0;
+}
+
+.quotes-swiper .swiper-pagination {
+	bottom: 20px;
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+}
+
+.quotes-swiper .swiper-pagination-bullet {
+	background-color: #bcbec0;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	transition: all 0.3s ease;
+	cursor: pointer;
+}
+
+.quotes-swiper .swiper-pagination-bullet:hover {
+	transform: scale(1.1);
+}
+
+.quotes-swiper .swiper-pagination-bullet-active {
+	background-color: var(--color-secondary);
+}
+
+.quotes-swiper .swiper-button-next,
+.quotes-swiper .swiper-button-prev {
+	display: none;
+}
+
+/* RECOGNITION SECTION */
+.recognition-section {
+	position: relative;
+	min-height: auto;
+	display: block;
+	background-color: white;
+}
+
+.recognition-city-image {
+	position: relative;
+	width: 100%;
+	height: 250px;
+	margin-bottom: 0;
+	z-index: 1;
+}
+
+.city-overhead-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+}
+
+.recognition-background {
+	position: relative;
+	z-index: 2;
+	margin-left: 0;
+	width: 100%;
+	background-image: url(../images/background_orange.webp);
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+	padding-bottom: var(--gutter-size);
+}
+
+.recognition-content {
+	background-color: white;
+	padding: 40px 0 40px 30px;
+	margin: 0;
+	position: relative;
+}
+
+.recognition-content::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: -100vw;
+	width: 100vw;
+	height: 100%;
+	background-color: white;
+	z-index: -1;
+}
+
+.recognition-content h2 {
+	margin-bottom: 30px;
+}
+
+.recognition-content p {
+	font-size: 1rem;
+	line-height: 1.6;
+	margin-bottom: 40px;
+	color: var(--color-body-text);
+}
+
+.recognition-badges {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	gap: 20px;
+	flex-wrap: wrap;
+}
+
+.recognition-badges-single {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.badge-image {
+	width: auto;
+	transition: opacity 0.3s ease;
+}
+
+.badge-image:hover {
+	opacity: 0.85;
+}
+
+/* Small Mobile to Large Mobile */
+@media screen and (min-width: 680px) {
+	.hero-tagline-small {
+		font-size: 1rem;
+	}
+
+	.hero-tagline-large {
+		font-size: 3.5rem;
+	}
+}
+
+/* Tablet Portrait and Up */
+@media screen and (min-width: 700px) {
+	.hero-section {
+		min-height: 600px;
+	}
+}
+
+/* Tablet Landscape and Up */
+@media screen and (min-width: 1025px) {
+	/* Hero Section Desktop */
+	.hero-section {
+		height: 100vh;
+		min-height: auto;
+	}
+
+	.hero-text-container {
+		padding-left: 50px;
+		padding-bottom: 40px;
+	}
+
+	.hero-text-container::before {
+		width: 5px;
+	}
+
+	.hero-text-container::after {
+		width: 200px;
+	}
+
+	.hero-tagline-large {
+		font-size: 4.7rem;
+		line-height: 1.05;
+	}
+
+	.hero-tagline-small {
+		font-size: 1.2rem;
+		letter-spacing: 5px;
+	}
+
+	/* Shared Heading Desktop */
+	.homepage-section-heading {
+		font-size: 2.6rem;
+	}
+
+	/* Homepage Main Desktop */
+	.homepage-main {
+		padding: 80px 0;
+	}
+
+	.homepage-main-content {
+		display: flex;
+		align-items: flex-start;
+		gap: 80px;
+	}
+
+	.homepage-main-text {
+		flex: 1;
+		margin-bottom: 0;
+	}
+
+	.homepage-main-description {
+		flex: 1;
+	}
+
+	/* Team Section Desktop */
+	.team-section,
+	.practices-section {
+		padding: 80px 0;
+	}
+
+	.practices-section {
+		padding-bottom: 0;
+	}
+
+	/* Hide traditional layout on desktop, show mixed grid */
+	.team-section-traditional {
+		display: none;
+	}
+
+	.team-section-mixed {
+		display: block;
+	}
+
+	/* Mixed Grid Layout - Row Based */
+	.team-mixed-grid {
+		display: flex;
+		flex-direction: column;
+		gap: 35px;
+	}
+
+	/* Individual Row Styling */
+	.team-mixed-row {
+		display: grid;
+		gap: 35px;
+		transition: transform 0.1s ease-out;
+	}
+
+	/* Row-specific grid columns and transforms */
+	.team-row-1 {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	.team-row-2 {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	.team-row-3 {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	.team-row-4 {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	/* Text Items Styling */
+	.team-text-item {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: transparent;
+	}
+
+	.team-text-word {
+		font-size: 7rem;
+		font-weight: 600;
+		color: var(--color-primary);
+		margin: 0;
+		text-align: center;
+		line-height: 1;
+		padding: 0 10px;
+		white-space: nowrap;
+	}
+
+	.team-row-3 .team-text-word {
+		padding-left: 50px;
+	}
+
+	/* Attorney Items - Use existing attorney showcase box styles */
+	.team-attorney-item {
+		display: flex;
+		align-items: stretch;
+	}
+
+	.team-attorney-item .attorney-showcase-box {
+		width: 100%;
+		height: 100%;
+	}
+
+	/* Team Section Description Desktop */
+	.team-section-description {
+		text-align: left;
+		max-width: 650px;
+		margin: 60px auto 0;
+	}
+
+	.team-section-description p {
+		font-size: 1.1rem;
+		margin: 0 0 30px;
+	}
+
+	.practices-office-image {
+		margin-bottom: 60px;
+	}
+
+	.practices-section-header {
+		margin-bottom: 60px;
+	}
+
+	.practices-section-header p {
+		font-size: 1.1rem;
+	}
+
+	/* Quotes Section Desktop */
+	.quotes-section {
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.quotes-slider-container {
+		width: 130%;
+		margin-left: -15%;
+		position: relative;
+	}
+
+	.quotes-swiper {
+		padding-bottom: 50px !important;
+	}
+
+	/* Quotes Swiper - 3 slides visible with edge slides at reduced opacity */
+	.quotes-swiper .swiper-slide {
+		opacity: 1;
+		transition: opacity 400ms ease-out;
+	}
+
+	/* Left edge slide (cut off) - has swiper-slide-active class */
+	.quotes-swiper .swiper-slide-active {
+		opacity: 0.3;
+	}
+
+	/* Right edge slide (cut off) - typically 2 slides after active */
+	.quotes-swiper .swiper-slide-active + .swiper-slide + .swiper-slide {
+		opacity: 0.3;
+	}
+
+	/* Middle slide (fully visible) should remain at full opacity */
+	.quotes-swiper .swiper-slide-active + .swiper-slide {
+		opacity: 1;
+	}
+
+	.quote-item {
+		padding: 140px 0 90px;
+		max-width: 100%;
+		text-align: left;
+	}
+
+	.quote-item::before {
+		width: 52px;
+		height: 41px;
+		left: 30px;
+		top: 80px;
+	}
+
+	.quote-item blockquote {
+		margin: 0 0 40px 0;
+	}
+
+	.quote-item blockquote p {
+		font-size: 1.8rem;
+	}
+
+	.quote-item cite {
+		font-size: 1.1rem;
+		padding-left: 40px;
+	}
+
+	.quote-item cite::before {
+		width: 25px;
+	}
+
+	/* Vertical lines between quote items */
+	.quote-item::after {
+		content: "";
+		position: absolute;
+		right: -15px;
+		top: auto;
+		bottom: auto;
+		transform: translateY(-50%);
+		width: 1px;
+		height: 500vh;
+		background-color: #43587a;
+		z-index: 61;
+		opacity: 1;
+	}
+
+	.quotes-swiper .swiper-pagination {
+		bottom: 20px;
+		justify-content: flex-end;
+		left: auto !important;
+		right: 25vw !important;
+	}
+
+	.quotes-swiper .swiper-pagination-bullet {
+		width: 12px;
+		height: 12px;
+	}
+
+	.quotes-swiper .swiper-button-next,
+	.quotes-swiper .swiper-button-prev {
+		display: flex;
+		color: var(--color-secondary);
+		background: rgba(255, 255, 255, 0.1);
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		margin-top: -25px;
+	}
+
+	.quotes-swiper .swiper-button-next:hover,
+	.quotes-swiper .swiper-button-prev:hover {
+		background: rgba(255, 255, 255, 0.2);
+	}
+
+	.quotes-swiper .swiper-button-next::after,
+	.quotes-swiper .swiper-button-prev::after {
+		font-size: 18px;
+		font-weight: bold;
+	}
+
+	/* Recognition Section Desktop */
+	.recognition-section {
+		min-height: 600px;
+		display: flex;
+		align-items: center;
+		padding-top: 350px;
+	}
+
+	.recognition-city-image {
+		position: absolute;
+		left: 0;
+		top: -60px;
+		max-width: 956px;
+		height: auto;
+		margin-bottom: 0;
+		z-index: 3;
+	}
+
+	.recognition-background {
+		padding: 0 0 150px;
+	}
+
+	.recognition-content {
+		padding: 100px;
+		padding-top: 130px;
+	}
+
+	.recognition-content p {
+		font-size: 1.1rem;
+	}
+
+	.recognition-badges {
+		justify-content: space-between;
+		gap: 20px;
+	}
+
+	.badge-image {
+		max-width: none;
+	}
+
+	.quotes-section .swiper-horizontal > .swiper-pagination-bullets,
+	.quotes-section .swiper-pagination-bullets.swiper-pagination-horizontal {
+		bottom: var(--swiper-pagination-bottom, 8px);
+	}
+}
+
+/* Wide Desktop */
+@media screen and (min-width: 1380px) {
+	.team-text-word {
+		padding: 0 40px;
+	}
+
+	.team-row-3 .team-text-word {
+		padding-left: 110px;
+	}
+}
+
+/* Large Desktop */
+@media screen and (min-width: 1380px) {
+	.hero-tagline-large {
+		font-size: 5.5rem;
+	}
+
+	.quote-item blockquote p {
+		font-size: 2.2rem;
+	}
+
+	.recognition-city-image {
+		top: -90px;
+	}
+}

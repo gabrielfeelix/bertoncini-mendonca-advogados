@@ -1,0 +1,150 @@
+/* Practice Box Styling */
+/* Used on homepage and practices landing page */
+
+.practice-box {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 15px 0;
+	border-bottom: 1px solid #e0e0e0;
+	color: var(--color-body-text);
+	text-decoration: none;
+	transition: color 200ms ease-out;
+}
+
+.practice-box:hover,
+.practice-box:focus {
+	color: var(--color-secondary);
+}
+
+.practice-box span {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 500;
+	flex: 1;
+}
+
+.practice-box::after {
+	content: "\f061";
+	font-family: "Font Awesome 6 Pro";
+	font-weight: 400;
+	color: var(--color-secondary);
+	font-size: 1rem;
+	margin-left: 15px;
+}
+
+.practice-box-column {
+	width: 100%;
+}
+
+@media screen and (min-width: 768px) {
+	.practice-box-list {
+		display: flex;
+		gap: 40px;
+		max-width: 860px;
+		margin: 0 auto;
+	}
+
+	.practice-box-column {
+		flex: 1;
+	}
+
+	.practice-box {
+		margin-bottom: 0;
+	}
+}
+
+@media screen and (min-width: 1025px) {
+	.practice-box:last-child {
+		border-bottom: none;
+	}
+}
+
+/* Practice Box List Accordion Overrides */
+.practice-box-list .accordion-item {
+	border-bottom: 1px solid #e0e0e0;
+	margin-bottom: 0 !important;
+}
+
+.practice-box-list .accordion-item-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 15px 0;
+	font-size: 1rem;
+	width: 100%;
+	margin: 0;
+	cursor: pointer;
+	font-weight: 500;
+	color: var(--color-body-text);
+	background: none;
+	border: none;
+	text-align: left;
+	transition: color 200ms ease-out;
+	line-height: normal;
+	gap: 0;
+}
+
+.practice-box-list .accordion-item-title::after {
+	content: "\f067";
+	font-family: "Font Awesome 6 Pro";
+	font-weight: 400;
+	color: var(--color-secondary);
+	font-size: 1rem;
+	margin-left: 15px;
+	line-height: normal;
+	width: auto;
+	height: auto;
+	text-align: left;
+}
+
+.practice-box-list .accordion-item-title span {
+	flex: 1;
+	text-align: left;
+}
+
+.practice-box-list .accordion-item-title:hover,
+.practice-box-list .accordion-item-title:focus {
+	color: var(--color-secondary);
+	background: none;
+}
+
+.practice-box-list .accordion-item.active .accordion-item-title::after {
+	content: "\f068";
+}
+
+.practice-box-list .accordion-item-content > *:first-child {
+	margin-top: 15px;
+}
+
+.practice-box-list .accordion-item-content > *:last-child {
+	margin-bottom: 20px;
+}
+
+.practice-box-list .accordion-item-content ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.practice-box-list .accordion-item-content ul li {
+	padding: 8px 0;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.practice-box-list .accordion-item-content ul li:last-child {
+	border-bottom: none;
+}
+
+.practice-box-list .accordion-item-content ul li a {
+	color: var(--color-body-text);
+	text-decoration: none;
+	font-size: 0.95rem;
+	display: block;
+	padding-left: 15px;
+}
+
+.practice-box-list .accordion-item-content ul li a:hover,
+.practice-box-list .accordion-item-content ul li a:focus {
+	color: var(--color-secondary);
+}

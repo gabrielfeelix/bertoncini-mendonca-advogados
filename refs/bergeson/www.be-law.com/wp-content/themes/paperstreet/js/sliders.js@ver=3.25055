@@ -1,0 +1,321 @@
+// Wrap all custom JS in an anonymous function that passes the alias "$" to everything so that "jQuery" doesn't have to be used
+(function ($) {
+	// Global variables
+	var autoplayDelay = 6000;
+
+	$(window).on("load", function () {
+		initializeSliders();
+	});
+
+	// Sets up all sliders present on the page
+	function initializeSliders() {
+		// Initialize each slider with the shared function
+		setupSwiper("#slider-results", {
+			loop: true,
+			autoplay: false,
+			effect: "fade",
+			fadeEffect: {
+				crossFade: true,
+			},
+			speed: 500,
+			autoHeight: true,
+			pagination: {
+				el: "#slider-results-pagination",
+				clickable: true,
+			},
+		});
+
+		setupSwiper("#slider-posts", {
+			loop: true,
+			autoplay: false,
+			effect: "fade",
+			fadeEffect: {
+				crossFade: true,
+			},
+			speed: 500,
+			navigation: {
+				prevEl: "#slider-posts-prev",
+				nextEl: "#slider-posts-next",
+			},
+		});
+
+		setupSwiper("#slider-attorneys-e", {
+			loop: true,
+			autoplay: false,
+			effect: "slide",
+			speed: 500,
+			slidesPerView: 1,
+			navigation: {
+				prevEl: "#slider-attorneys-e-prev",
+				nextEl: "#slider-attorneys-e-next",
+			},
+			breakpoints: {
+				768: {
+					slidesPerView: 2,
+					spaceBetween: 15,
+				},
+				1024: {
+					slidesPerView: 3,
+				},
+				1320: {
+					slidesPerView: 4,
+					spaceBetween: 20,
+				},
+			},
+		});
+
+		setupSwiper("#slider-testimonials-a", {
+			loop: true,
+			autoplay: {
+				delay: autoplayDelay,
+				disableOnInteraction: false,
+			},
+			effect: "fade",
+			fadeEffect: {
+				crossFade: true,
+			},
+			speed: 500,
+			pagination: {
+				el: "#slider-testimonials-a-pagination",
+				clickable: true,
+			},
+		});
+
+		setupSwiper("#slider-testimonials-b", {
+			loop: true,
+			autoplay: {
+				delay: autoplayDelay,
+				disableOnInteraction: false,
+			},
+			effect: "slide",
+			speed: 500,
+			navigation: {
+				prevEl: "#slider-testimonials-b-prev",
+				nextEl: "#slider-testimonials-b-next",
+			},
+		});
+
+		setupSwiper("#slider-practices-g", {
+			loop: true,
+			autoplay: {
+				delay: autoplayDelay,
+				disableOnInteraction: false,
+			},
+			effect: "slide",
+			speed: 500,
+			slidesPerView: 1,
+			slidesToScroll: 1,
+			navigation: {
+				prevEl: "#slider-practices-g-prev",
+				nextEl: "#slider-practices-g-next",
+			},
+			breakpoints: {
+				768: {
+					slidesPerView: 2,
+					spaceBetween: 35,
+				},
+			},
+		});
+
+		setupSwiper("#slider-blog-c", {
+			loop: true,
+			autoplay: {
+				delay: autoplayDelay,
+				disableOnInteraction: false,
+			},
+			effect: "slide",
+			speed: 300,
+			slidesPerView: 1,
+			navigation: {
+				prevEl: "#slider-blog-c-prev",
+				nextEl: "#slider-blog-c-next",
+			},
+			breakpoints: {
+				640: {
+					slidesPerView: 3,
+					spaceBetween: 40,
+				},
+			},
+		});
+
+		setupSwiper("#slider-blog-d", {
+			loop: true,
+			autoplay: {
+				delay: autoplayDelay,
+				disableOnInteraction: false,
+			},
+			effect: "fade",
+			fadeEffect: {
+				crossFade: true,
+			},
+			speed: 500,
+		});
+
+		setupSwiper("#slider-results-a", {
+			loop: true,
+			autoplay: {
+				delay: autoplayDelay,
+				disableOnInteraction: false,
+			},
+			effect: "slide",
+			speed: 300,
+			slidesPerView: 1,
+			navigation: {
+				prevEl: "#slider-results-a-prev",
+				nextEl: "#slider-results-a-next",
+			},
+			breakpoints: {
+				780: {
+					slidesPerView: 3,
+					spaceBetween: 20,
+				},
+			},
+		});
+
+		setupSwiper("#slider-results-b", {
+			loop: true,
+			autoplay: false,
+			effect: "slide",
+			speed: 300,
+			slidesPerView: 1,
+			navigation: {
+				prevEl: "#slider-results-b-prev",
+				nextEl: "#slider-results-b-next",
+			},
+			breakpoints: {
+				639: {
+					slidesPerView: 1,
+				},
+				768: {
+					slidesPerView: 2,
+				},
+				1024: {
+					slidesPerView: 3,
+				},
+				1200: {
+					slidesPerView: 4,
+				},
+			},
+		});
+
+		setupSwiper("#slider-badges-a", {
+			loop: true,
+			autoplay: false,
+			effect: "slide",
+			speed: 300,
+			slidesPerView: 1,
+			navigation: {
+				prevEl: "#slider-badges-a-prev",
+				nextEl: "#slider-badges-a-next",
+			},
+			breakpoints: {
+				640: {
+					slidesPerView: 1,
+				},
+				1024: {
+					slidesPerView: 3,
+					spaceBetween: 20,
+				},
+				1200: {
+					slidesPerView: 5,
+				},
+			},
+		});
+
+		// Child theme homepage sliders with arrow-based navigation
+		setupSwiper("#slider-home-arrows", {
+			loop: true,
+			autoplay: {
+				delay: autoplayDelay,
+				disableOnInteraction: false,
+			},
+			effect: "fade",
+			fadeEffect: {
+				crossFade: true,
+			},
+			speed: 500,
+			navigation: {
+				prevEl: "#slider-home-arrows-prev",
+				nextEl: "#slider-home-arrows-next",
+			},
+		});
+
+		// Child theme homepage sliders with dot-based pagination
+		setupSwiper("#slider-home-dots", {
+			loop: true,
+			autoplay: {
+				delay: autoplayDelay,
+				disableOnInteraction: false,
+			},
+			effect: "fade",
+			fadeEffect: {
+				crossFade: true,
+			},
+			speed: 500,
+			pagination: {
+				el: "#slider-home-dots .swiper-pagination",
+				clickable: true,
+			},
+		});
+
+		// Add pause/play buttons after initializing all sliders
+		addPauseButtons();
+	}
+
+	// Add pause/play control to all Swiper instances
+	function addPauseButtons() {
+		$(".swiper").each(function () {
+			// No button if the swiper has the class "no-pause"
+			if ($(this).hasClass("no-pause")) {
+				return;
+			}
+
+			const swiperID = $(this).attr("id");
+			// Check if swiperID exists before proceeding
+			if (!swiperID) {
+				return;
+			}
+
+			const swiperElement = `#${swiperID}`;
+			const swiperInstance = $(swiperElement)[0].swiper;
+
+			// Check if the Swiper instance is actively autoplaying
+			if (swiperInstance && swiperInstance.autoplay && swiperInstance.autoplay.running) {
+				const $toggleButton = $("<button>")
+					.addClass("swiper-autoplay-toggle no-button")
+					.attr("data-swiper-id", swiperID)
+					.html('<i class="fas fa-pause"></i><span class="visually-hidden">Pause</span>');
+
+				$(this).append($toggleButton);
+			}
+		});
+	}
+
+	// Event delegation for pause/play buttons
+	$("body").on("click", ".swiper-autoplay-toggle", function () {
+		const swiperID = $(this).attr("data-swiper-id");
+		// Check if swiperID exists before proceeding
+		if (!swiperID) {
+			return;
+		}
+
+		const swiperSelector = `#${swiperID}`;
+		const swiperElement = $(swiperSelector)[0];
+
+		// Check if element and swiper instance exist
+		if (!swiperElement || !swiperElement.swiper) {
+			console.warn(`Swiper instance not found for ID: ${swiperID}`);
+			return;
+		}
+
+		const swiper = swiperElement.swiper;
+
+		if (swiper.autoplay.running) {
+			swiper.autoplay.stop();
+			$(this).html('<i class="fas fa-play"></i><span class="visually-hidden">Play</span>');
+		} else {
+			swiper.autoplay.start();
+			$(this).html('<i class="fas fa-pause"></i><span class="visually-hidden">Pause</span>');
+		}
+	});
+})(jQuery);

@@ -1,0 +1,169 @@
+const header = document.querySelector('.main-header')
+function isScrolling() {
+  window.addEventListener('scroll', e => {
+    header.classList.toggle('active', window.scrollY > 0)
+  })
+}
+isScrolling()
+
+// Menu mobile
+const btnMenuMobile = header.querySelector('.btn-mobile')
+const mobileMenu = header.querySelector('.modal-menu-mobile')
+const body = document.querySelector('body')
+btnMenuMobile.addEventListener('click', e => {
+  e.preventDefault()
+  btnMenuMobile.classList.toggle('active')
+  mobileMenu.classList.toggle('active')
+  body.classList.toggle('hide')
+});
+
+
+function aviso(string, titulo, tipo) {
+    cSwal.fire({
+        title: titulo,
+        text: string,
+        icon: tipo,
+    });
+}
+
+function callRecaptcha() {
+    grecaptcha.ready(function () {
+        grecaptcha.execute(public_recaptcha, {action: ""}).then(function (e) {
+            $(".g-recaptcha-response").val(e);
+        });
+    });
+    $(".formsubmit").show();
+}
+
+
+var options = {
+    type: "delay",
+    time: "7000",
+    scripts: ["https://www.google.com/recaptcha/api.js?render=" + public_recaptcha],
+    success: function () {
+
+        visitaPagina(PAGINA_VISITADA);
+
+        callRecaptcha();
+        setInterval(function () {
+            callRecaptcha();
+        }, 1e5);
+        //    carregaVideo();    
+    }
+};
+
+$.lazyscript(options);
+
+
+function aceitaCookie() {
+    setCookie('aceitou', '1', 30);
+    $("#aviso-cookies").addClass("hideCookie")
+    setTimeout(() => {
+        $("#aviso-cookies").hide()
+    }, 400)
+}
+
+function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function visitaPagina(pagina) {
+    $.post(PATHSITE + "utils/visitaPagina/", {pagina: pagina}, function (e) {
+    });
+}
+
+function contadorWhatsapp(whatsappFK) {
+    $.post(PATHSITE + "utils/contadorWhatsapp/", {whatsappFK: whatsappFK}, function (e) { });
+}
+
+function contadorBanner(id) {
+    $.post(PATHSITE + "utils/contadorBanner/", {bannerFK: id}, function (e) { });
+}
+
+function toggleFormWpp() {
+    const formWpp = document.querySelector(".form-wpp");
+    formWpp.classList.toggle("active");
+}
+
+function startWpp(url) {
+    const formContent = document.querySelector("#form1");
+    const inputs = formContent.querySelectorAll("input");
+    const dataSerialized = {};
+
+    inputs.forEach(input => {
+        dataSerialized[input.name] = input.value;
+    });
+
+    if (!$('#terms-3').is(':checked')) {
+        e.preventDefault(); // Impede o envio do formulÃ¡rio
+        return;
+    }
+
+    $.post(PATHSITE + "utils/startWpp/", dataSerialized, function (data) {
+        const response = jQuery.parseJSON(data);
+        if (response.success) {
+            contadorWhatsapp(1);
+            cliqueWhatsapp();
+            $("#form1")[0].reset();
+            window.open(url);
+        }
+    })
+}
+
+
+function scrollToAnchor(aid) {
+
+    var aTag = $(aid);
+    $('html, body').animate({scrollTop: aTag.offset().top - 120}, 'slow');
+}
+
+lazyframe(".lazyframe");
+
+
+function assinarNews() {
+    const formContent = document.querySelector("#formNews");
+    const inputs = formContent.querySelectorAll("input");
+    const dataSerialized = {};
+
+    inputs.forEach(input => {
+        dataSerialized[input.name] = input.value;
+    });
+    
+     if (!$('#terms-newsletter').is(':checked')) {
+       // e.preventDefault(); // Impede o envio do formulÃ¡rio
+     return;
+    }
+
+    $.post(PATHSITE + "utils/assinarNews/", dataSerialized, function (data) {
+        const response = jQuery.parseJSON(data);
+      
+        if (response.success) {          
+            $("#terms-newsletter").val('');      
+             aviso("Cadastrado com sucesso!", "Sucesso!", "success");
+        } else {       
+            aviso(response.aviso, "Aviso", "warning");
+        }
+    })
+}
+
+ function watchInput(element) {
+      element.parentElement.classList.add('show');
+    }
+    function watchInputBlur(element) {
+      if (element.value === '') {
+        element.parentElement.classList.remove('show');
+      }
+    }
+    
+       if($("#insta").length) {
+        
+          $.post(PATHSITE + "utils/instagram", {
+    }, function(e) {
+        dados = jQuery.parseJSON(e);  
+        console.log(dados);
+        $('#insta').html(dados.html);
+    });
+        }

@@ -1,0 +1,692 @@
+// Wrap all custom JS in an anonymous function that passes the alias "$" to everything so that "jQuery" doesn't have to be used
+(function ($) {
+	// Global variables
+	var megaMenuTarget = $(".menu-item-360"); // Where the mega menu is placed - remove if no mega menu
+
+	// Begin JavaScript/jQuery setup
+	// The "on ready"
+	$(function () {
+		checkScroll();
+		setupYouTube();
+		makeListenersPassive();
+		setHeaderHeight();
+
+		// Initialize geolocation tracking cookie (if needed)
+		setupGeolocation();
+
+		// Banner title fade-in animation
+		setTimeout(function () {
+			$(".banner-title").addActive();
+		}, 100);
+
+		// Prepare links within the body content with the scroll-to class if they point to internal ID anchors
+		$('.content a[href^="#"]').each(function () {
+			// Add class 'scroll-to' to the link
+			$(this).addClass("scroll-to");
+
+			// Extract the anchor target and set it as a data attribute, minus the hashtag
+			var anchorTarget = $(this).attr("href").substring(1);
+			$(this).attr("data-scroll-to-id", anchorTarget);
+		});
+
+		// Reposition Gravity Forms labels so the HTML structure works with label CSS
+		$(".gfield").each(function () {
+			var label = $(this).find("label.gfield_label");
+			var formControl = $(this).find(".ginput_container").children().first();
+			label.detach().insertAfter(formControl);
+		});
+
+		// Video gallery category filter
+		if ($("#video-category-filter").exists()) {
+			$("#video-category-filter").on("change", function () {
+				var selectedCategory = $(this).val();
+
+				$(".videos-single").each(function () {
+					var categories = $(this).data("category").split(" ");
+					if (selectedCategory == "" || categories.includes(selectedCategory)) {
+						$(this).show();
+					} else {
+						$(this).hide();
+					}
+				});
+
+				animateScroll("videos-container");
+			});
+		}
+
+		// Prevent empty searches on forms with the "prevent-blank-search" class
+		document.querySelectorAll(".prevent-blank-search").forEach(function (element) {
+			element.addEventListener(
+				"submit",
+				function (e) {
+					var value = $(this).find("input").val().trim();
+
+					// Test for whitespace values
+					if (!value || !/\S/.test(value)) {
+						alert("Please enter a search term.");
+
+						e.preventDefault();
+					}
+				},
+				{ passive: false }
+			);
+		});
+
+		// Initialize mega menu (if needed)
+		if (megaMenuTarget && isDesktopScreen()) {
+			$(megaMenuTarget).addClass("static");
+			$("#mega-menu").detach().appendTo(megaMenuTarget);
+		}
+
+		// Scroll to ID from a select dropdown. Useful on mobile
+		$(".scroll-to-select").on("change", function (e) {
+			// Get selected option then scroll to it
+			var selectedOption = $(this).find(":selected").val();
+			animateScroll($(selectedOption).offset().top);
+		});
+
+		// Copies content from a selected area to a target; used only on some modules
+		$(".content-selector").on("click", function () {
+			$(this).toggleClass("active");
+			$(this).siblings().removeActive();
+
+			$("#content-selector-target").removeClass("animated fast fadeIn");
+			$("#content-selector-target").html($(this).html());
+
+			setTimeout(function () {
+				$("#content-selector-target").addClass("animated fast fadeIn");
+			}, 200);
+		});
+
+		// Accessibility: Ensures main navigation dropdowns remain open for keyboard focus
+		$(".main-navigation-menu li, .mega-menu li")
+			.on("focusin mouseover", function () {
+				$(this).addActive();
+				$(this).siblings().removeActive();
+			})
+			.on("mouseleave", function () {
+				$(this).removeActive();
+			});
+
+		// Blog Grid - Masonry and move pagination
+		if ($("#blog-grid").exists()) {
+			if (isDesktopScreen()) {
+				// Initializes Masonry layout; see: https://masonry.desandro.com/options.html
+				$("#blog-grid-inner").masonry({
+					fitWidth: true,
+					gutter: 30, // Horizontal space between layout items
+					itemSelector: ".post", // Target specific class to avoid other elements being repositioned
+				});
+			}
+
+			// Move pagination to final position, outside of grid
+			$(".blog-grid .wp-pagenavi").detach().appendTo("#blog-grid-pagination");
+		}
+
+		// LAZY LOADING WITH LOZAD
+		// Use class "lazy-img" and attribute "data-img-src" to lazy load an <img> and "data-animation-class" to animate
+		// To randomly pick an image from a set, use attribute "data-img-srcs" like so: data-img-srcs="imageurl.jpg, imageurl.jpg"
+		var imageLazyLoader = lozad(".lazy-img", {
+			rootMargin: "10px 0px",
+			threshold: 0.1,
+			load: function (elementInView) {
+				if ($(elementInView).attr("data-img-srcs")) {
+					var imagesList = $(elementInView).attr("data-img-srcs").split(",");
+					var imageToLoad = imagesList[Math.floor(Math.random() * imagesList.length)];
+					console.log("Lazy loading a randomly-selected image: " + imageToLoad);
+				} else {
+					var imageToLoad = $(elementInView).attr("data-img-src");
+					console.log("Lazy loading an image: " + imageToLoad);
+				}
+
+				$(elementInView).attr("src", imageToLoad);
+
+				// Optionally, add animation classes at the same time
+				if ($(elementInView).attr("data-animation-class")) {
+					var animateClass = "animated " + $(elementInView).attr("data-animation-class");
+					$(elementInView).addClass(animateClass);
+				}
+			},
+		});
+		imageLazyLoader.observe();
+
+		// Use class "lazy-bg" and attribute "data-bg-src" on any element using a CSS background image lazy load
+		// To randomly pick background image from a set, use attribute "data-bg-srcs" like so: data-bg-srcs="imageurl.jpg, imageurl.jpg"
+		var backgroundImageLazyLoader = lozad(".lazy-bg", {
+			rootMargin: "10px 0px",
+			threshold: 0.1,
+			load: function (elementInView) {
+				if ($(elementInView).attr("data-bg-srcs")) {
+					var imagesList = $(elementInView).attr("data-bg-srcs").split(",");
+					var imageToLoad = imagesList[Math.floor(Math.random() * imagesList.length)];
+					console.log("Lazy loading a randomly-selected background image: " + imageToLoad);
+				} else {
+					var imageToLoad = $(elementInView).attr("data-bg-src");
+					console.log("Lazy loading a background image: " + imageToLoad);
+				}
+
+				$(elementInView).css("background-image", "url(" + imageToLoad + ")");
+			},
+		});
+		backgroundImageLazyLoader.observe();
+
+		// Add an active class to an element when it enters view
+		// Optionally, add a "data-delay" attribute equal to milliseconds, e.g. 500 for 0.5 seconds
+		var activeInViewTrigger = lozad(".active-in-view", {
+			rootMargin: "10px 0px",
+			threshold: 0.1,
+			load: function (elementInView) {
+				var delayActive = 0;
+
+				if ($(elementInView).attr("data-delay")) {
+					delayActive = $(elementInView).attr("data-delay");
+				}
+
+				setTimeout(function () {
+					$(elementInView).addActive();
+					$(elementInView).removeClass("active-in-view");
+				}, delayActive);
+			},
+		});
+		activeInViewTrigger.observe();
+
+		// Trigger animate in view with a specific animation class added
+		// TO USE: Add class "animate-in-view" to an element plus a data attribute "data-animation-class" equal to an animation class name
+		var specificAnimateInViewTrigger = lozad(".animate-in-view", {
+			rootMargin: "10px 0px",
+			threshold: 0.1,
+			load: function (elementInView) {
+				var animToUse = $(elementInView).attr("data-animation-class");
+				$(elementInView).addClass("animated " + animToUse);
+			},
+		});
+		specificAnimateInViewTrigger.observe();
+
+		// Lazy load Google Map
+		// Requires data attribute "data-embed-map-link" to be set
+		var mapLoadInViewTrigger = lozad(".load-map-in-view", {
+			rootMargin: "10px 0px",
+			threshold: 0.1,
+			load: function (elementInView) {
+				var embedMapWidth = $(elementInView).attr("data-embed-map-width")
+					? $(elementInView).attr("data-embed-map-width")
+					: 600;
+				var embedMapHeight = $(elementInView).attr("data-embed-map-height")
+					? $(elementInView).attr("data-embed-map-height")
+					: 450;
+
+				// Add live <iframe> containing Google Map once the element is in view
+				$(elementInView).append(
+					'<iframe src="' +
+						$(elementInView).attr("data-embed-map-link") +
+						'" width="' +
+						embedMapWidth +
+						'" height="' +
+						embedMapHeight +
+						'" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>'
+				);
+			},
+		});
+		mapLoadInViewTrigger.observe();
+
+		// On page print, download images
+		window.onbeforeprint = function () {
+			$(".lazy-img").each(function () {
+				var src = $(this).attr("data-img-src");
+				$(this).attr("src", src);
+			});
+
+			$(".lazy-bg").each(function () {
+				var src = $(this).attr("data-bg-src");
+				$(this).css("background-image", src);
+			});
+		};
+
+		// END LAZY LOADING WITH LOZAD
+	});
+
+	// Window *Load = Entire page including the DOM is loaded
+	$(window).on("load", function () {
+		prepareLinks();
+
+		// On page load, check inputs for text to add active
+		$("input, textarea").each(function () {
+			activateInputLabel($(this).attr("id"));
+		});
+
+		// INPUT ACTIVE CLASS CONTROL
+		// On text inputs, add class when the field holds a value
+		$("input, textarea").on("input change", function () {
+			activateInputLabel($(this).attr("id"));
+		});
+
+		// Detects text inside inputs to activate or deactivate label styling
+		function activateInputLabel(inputElementSelector) {
+			if (!inputElementSelector) {
+				return;
+			}
+
+			thisInput = $("#" + inputElementSelector);
+			thisInputValue = $(thisInput).val();
+
+			if (thisInput && thisInputValue && $(thisInput).isActive() == false) {
+				$(thisInput).addActive();
+			} else if (thisInputValue == "") {
+				$(thisInput).removeActive();
+			}
+		}
+
+		// On dropdowns, add class when <select> is used
+		$("select").on("change", function () {
+			$(this).addActive();
+		});
+
+		$("select").on("focusin focusout", function () {
+			$(this).closest(".select-wrapper").toggleClass("active");
+		});
+		// END INPUT ACTIVE CLASS CONTROL
+
+		// ATTORNEY SEARCH HELPERS
+		// Prevent empty-value form inputs from sending data
+		$("#attorney-search-form").submit(function () {
+			$('input[value=""]:not(.active)').attr("disabled", true);
+			$('option[value=""]').attr("disabled", true);
+		});
+
+		// If attorney search results are present, scroll to the section
+		if ($("#attorney-search-bar").exists()) {
+			animateScroll("attorney-search-bar", 300);
+			$("#attorney-search-inner").attr("tabindex", "0");
+			$("#attorney-search-inner").focus();
+		}
+		// END ATTORNEY SEARCH HELPERS
+
+		// SIDEBAR JUMP LINKS
+		// Generate list for table of contents and select options for mobile
+		if ($("#sidebar-jump-links-list").exists()) {
+			var headings = $(".content h2");
+
+			if (headings.length <= 1) {
+				// If there's only one heading or none, don't create the sidebar jump links
+				$("#sidebar-jump-links").remove();
+			} else {
+				headings.each(function () {
+					// Get text from heading
+					var thisHeadingText = $(this).text();
+
+					// Convert text to lowercase, replace spaces with dashes, get rid of everything else
+					thisHeadingID =
+						"jump-" +
+						thisHeadingText
+							.toLowerCase()
+							.replace(/ /g, "-")
+							.replace(/[^\w-]+/g, "");
+
+					// Give each heading a unique identifier
+					$(this).attr("id", thisHeadingID);
+
+					// Dynamically create list item within table of contents
+					// Select is used on mobile
+					$("#sidebar-jump-links-list").append(
+						'<li><button class="scroll-to no-button" data-scroll-to-id="' +
+							thisHeadingID +
+							'">' +
+							thisHeadingText +
+							"</button></li>"
+					);
+					$("#sidebar-jump-links-select").append(
+						'<option value="#' + thisHeadingID + '">' + thisHeadingText + "</option>"
+					);
+				});
+			}
+		}
+		// END SIDEBAR JUMP LINKS
+
+		// CONTENT TAB BUTTONS
+		// Used on attorney bios - desktop only
+		$(".content-tab-activate:not(.mobile-tab)").on("click", function () {
+			$(".content-tab-activate, .content-tab").removeActive();
+			$("[data-content-tab='" + $(this).attr("data-content-tab") + "']").addActive();
+			$(this).addActive();
+		});
+
+		// Check URL parameters for tab activation on page load
+		var tabParam = getURLParameter("tab");
+
+		if (tabParam) {
+			// Check if a tab with this parameter exists
+			if ($("[data-content-tab='" + tabParam + "']").length) {
+				// Remove active class from all tabs and content
+				$(".content-tab-activate, .content-tab").removeActive();
+				// Activate the requested tab and its content
+				$("[data-content-tab='" + tabParam + "']").addActive();
+
+				// Also update the mobile select dropdown if it exists
+				if ($("#select-content-skip").length) {
+					$("#select-content-skip").val(tabParam);
+				}
+			}
+		}
+
+		// Mobile accordion tab functionality
+		$(".mobile-tab").on("click", function () {
+			var targetTab = $(this).attr("data-content-tab");
+			var targetContent = $(".content-tab[data-content-tab='" + targetTab + "']");
+
+			// Toggle the clicked tab
+			if ($(this).hasClass("active")) {
+				$(this).removeClass("active");
+				targetContent.removeClass("active");
+			} else {
+				// Close other mobile tabs
+				$(".mobile-tab").removeClass("active");
+				$(".content-tab").removeClass("active");
+
+				// Open clicked tab
+				$(this).addClass("active");
+				targetContent.addClass("active");
+			}
+		});
+
+		$(".mobile-tab").on("click", function () {
+			animateScroll("main");
+		});
+		// END CONTENT TAB BUTTONS
+
+		// ACCORDION CONTROL
+		// Toggle accordion open and closed
+		if ($(".accordion-item").length) {
+			// If there are accordions on this page, set their ARIA properties
+			$(".accordion-item-title").attr("aria-expanded", "false");
+
+			// Event listener for accordion items
+			$(".accordion-item-title").on("click", function () {
+				var parentAccordionItem = $(this).closest(".accordion-item");
+
+				// Check data attribute values on the clicked accordion
+				var closeSiblings = $(this).data("close-siblings") !== false;
+
+				// Close sibling accordions, if the data attribute allows it
+				if (closeSiblings) {
+					parentAccordionItem.siblings().removeClass("active");
+					parentAccordionItem
+						.siblings()
+						.find(".accordion-item-title")
+						.attr("aria-expanded", "false");
+				}
+
+				if (!parentAccordionItem.hasClass("active")) {
+					// Open the clicked accordion
+					parentAccordionItem.addClass("active");
+					$(this).attr("aria-expanded", "true");
+				} else {
+					// Close the clicked accordion
+					parentAccordionItem.removeClass("active");
+					$(this).attr("aria-expanded", "false");
+				}
+			});
+		}
+
+		// Open first accordion on load
+		if ($(".open-first").exists()) {
+			$(".open-first").each(function () {
+				$(this)
+					.find(".accordion-item:first-of-type .accordion-item-title")
+					.addClass("active")
+					.attr("aria-expanded", true);
+			});
+		}
+		// END ACCORDION CONTROL
+	});
+
+	///////////////////////////////////
+	// Scrolls and On-Screen Reveals //
+	///////////////////////////////////
+
+	// Gradually scrolls window to element on click of any element with the "scroll-to" class
+	$("body").on("click", ".scroll-to", function (e) {
+		e.preventDefault();
+		var elementToScrollToID = $(this).attr("data-scroll-to-id");
+
+		if (!elementToScrollToID) {
+			return;
+		}
+
+		animateScroll(elementToScrollToID);
+
+		if (elementToScrollToID == "main") {
+			// After scrolling completes, temporarily add tabindex and focus #main
+			$(elementToScrollToID).attr("tabindex", "-1").focus().removeAttr("tabindex");
+		}
+	});
+
+	// Scrolls window back to top of page
+	$(".scroll-to-top").on("click", function (e) {
+		e.preventDefault();
+		animateScroll(0);
+	});
+
+	// Recurring events on scroll
+	$(window).on("scroll", function () {
+		// Control frequency of scroll checks for performance
+		let scrollDebounceTimer;
+		clearTimeout(scrollDebounceTimer);
+		scrollDebounceTimer = setTimeout(checkScroll, 5);
+	});
+
+	function checkScroll() {
+		// Add class to body when scrolled beyond top of page
+		if ($(window).scrollTop() > 50) {
+			$("body").addClass("scrolled");
+		} else {
+			$("body").removeClass("scrolled");
+		}
+
+		// Check elements that are revealed on scroll
+		$(".scroll-reveal").each(function () {
+			// If element is on screen and not yet revealed, add classes
+			var cur = $(this);
+			if (cur.isOnScreen()) {
+				if (!cur.hasClass("animated")) {
+					cur.addClass("animated fadeInUp");
+				}
+			}
+		});
+	}
+
+	/////////////////////
+	//  YouTube Embeds //
+	/////////////////////
+
+	function setupYouTube() {
+		// Prepare YouTube video placeholders that turn into iframe on click
+		if ($(".youtube-player").length == 0) {
+			return;
+		}
+
+		var div;
+		var n;
+		var v = document.getElementsByClassName("youtube-player");
+
+		for (n = 0; n < v.length; n++) {
+			div = document.createElement("div");
+			div.setAttribute("data-id", v[n].dataset.id);
+			div.setAttribute("data-list", v[n].dataset.list);
+			div.innerHTML =
+				'<img src="https://img.youtube.com/vi/' + v[n].dataset.id + '/hqdefault.jpg" alt="">';
+
+			// Add attributes and classes to the div to make interactive
+			$(div).addClass("youtube-player-inner").attr("tabindex", "0");
+			$(div).addClass("youtube-player-inner").attr("aria-label", "Play video");
+			$(div).on("click keypress", getYouTubeFrame);
+
+			// Add div to this player
+			v[n].appendChild(div);
+		}
+	}
+
+	function getYouTubeFrame() {
+		var iframe = document.createElement("iframe");
+		var embed = "https://www.youtube.com/embed/ID?autoplay=1&rel=0";
+
+		iframe.setAttribute("src", embed.replace("ID", this.dataset.id));
+		iframe.setAttribute("frameborder", "0");
+		iframe.setAttribute("allow", "autoplay;");
+		iframe.setAttribute("allowfullscreen", "1");
+
+		this.parentNode.replaceChild(iframe, this);
+	}
+
+	////////////////////////
+	//  Passive Listeners //
+	////////////////////////
+
+	// Informs browser that event listeners will never prevent scrolling
+	// https://web.dev/uses-passive-event-listeners/
+	function makeListenersPassive() {
+		var supportsPassive = eventListenerOptionsSupported();
+
+		if (supportsPassive) {
+			var addEvent = EventTarget.prototype.addEventListener;
+			overwriteAddEvent(addEvent);
+		}
+	}
+
+	function overwriteAddEvent(superMethod) {
+		var defaultOptions = {
+			passive: true,
+			capture: false,
+		};
+
+		EventTarget.prototype.addEventListener = function (type, listener, options) {
+			var usesListenerOptions = typeof options === "object";
+			var useCapture = usesListenerOptions ? options.capture : options;
+
+			options = usesListenerOptions ? options : {};
+			options.passive = options.passive !== undefined ? options.passive : defaultOptions.passive;
+			options.capture = useCapture !== undefined ? useCapture : defaultOptions.capture;
+
+			superMethod.call(this, type, listener, options);
+		};
+	}
+
+	function eventListenerOptionsSupported() {
+		var supported = false;
+
+		try {
+			var opts = Object.defineProperty({}, "passive", {
+				get: function () {
+					supported = true;
+				},
+			});
+			window.addEventListener("test", null, opts);
+		} catch (e) {}
+
+		return supported;
+	}
+
+	////////////
+	//  Misc. //
+	////////////
+
+	// Returns true if on homepage
+	// Requires WordPress body classes to be in effect
+	function isHomepage() {
+		if (jQuery("body.home").length) {
+			return true;
+		}
+		return false;
+	}
+
+	// Returns true no homepage class is present
+	function isSubpage() {
+		if (jQuery("body.home").length) {
+			return false;
+		}
+		return true;
+	}
+
+	// Returns true if element is on screen
+	// Usage: element.isOnScreen()
+	function isOnScreen() {
+		var viewport = {};
+		viewport.top = jQuery(window).scrollTop();
+		viewport.bottom = viewport.top + jQuery(window).height();
+		var bounds = {};
+		bounds.top = this.offset().top;
+		bounds.bottom = bounds.top + this.outerHeight();
+		return bounds.top <= viewport.bottom && bounds.bottom >= viewport.top;
+	}
+
+	// Prepare all links with appropriate attributes and classes
+	function prepareLinks() {
+		// External links: Add attributes for external links
+		$("a")
+			.filter(function () {
+				return this.hostname && this.hostname !== location.hostname;
+			})
+			.attr("target", "_blank")
+			.attr("rel", "noopener")
+			.addClass("external-link");
+
+		// PDF links: Open PDFs in new tab
+		$('a[href$=".pdf"]').each(function () {
+			$(this).attr("target", "_blank");
+		});
+
+		// Accessibility: Alert the user that a link will open in a new tab
+		$('a[target="_blank"]').each(function () {
+			// Check if the link already has an aria-label
+			var ariaLabel = $(this).attr("aria-label");
+
+			if (ariaLabel) {
+				// If the link already has an aria-label, append the new text
+				$(this).attr("aria-label", ariaLabel + " (Opens in a new tab)");
+			} else {
+				// If no aria-label exists, add a new one with the "Opens in a new tab" text
+				$(this).attr("aria-label", "Opens in a new tab");
+			}
+		});
+
+		// Identify telephone links
+		$('a[href^="tel:"]').each(function () {
+			$(this).addClass("tel-link");
+		});
+	}
+
+	// Recurring events on resize
+	window.addEventListener("resize", function () {
+		setHeaderHeight();
+	});
+
+	// Update CSS value equal to header height
+	function setHeaderHeight() {
+		const headerID = "header";
+		var header = document.getElementById(headerID);
+
+		if (header) {
+			const headerHeight = header.offsetHeight;
+			document.documentElement.style.setProperty("--header-height", `${headerHeight}px`);
+		}
+	}
+
+	// Optional geolocation feature
+	// Adds geolocation and other information to contact emails
+	function setupGeolocation() {
+		if (sessionStorage.geolocationReady) {
+			return;
+		}
+
+		// Make AJAX request to store PHP SESSION variables containing geolocation data; requires API key
+		setTimeout(function () {
+			jQuery.ajax({
+				type: "get",
+				url: "/wp-content/themes/paperstreet/includes/include-geolocation.php",
+				success: function (response) {},
+			});
+
+			console.log("Geolocation data saved for this session.");
+			sessionStorage.geolocationReady = "true";
+		}, 2000);
+	}
+})(jQuery);

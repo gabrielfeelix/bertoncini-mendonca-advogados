@@ -1,0 +1,283 @@
+/* =========================================
+   CSS Custom Properties (set via inline PHP)
+   ========================================= */
+
+:root {
+	--ps-sm-bg: #1a1a1a;
+	--ps-sm-font: #ffffff;
+	--ps-sm-btn: #0073aa;
+	--ps-sm-btn-text: #ffffff;
+	--ps-sm-radius: 4px;
+	--ps-sm-padding: 14px 16px;
+	--ps-sm-z: 99999;
+}
+
+/* =========================================
+		 Banner Base
+		 ========================================= */
+
+#ps-sm-banner {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: var(--ps-sm-z);
+	background-color: var(--ps-sm-bg);
+	color: var(--ps-sm-font);
+	font-family: inherit;
+	font-size: 14px;
+	line-height: 1.5;
+	box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.ps-sm-banner-inner {
+	margin: 0 auto;
+	padding: var(--ps-sm-padding);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+
+/* =========================================
+		 Upper Row: Message + Close
+		 ========================================= */
+
+.ps-sm-banner-upper {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.ps-sm-banner-message {
+	margin: 0;
+	flex: 1;
+	color: var(--ps-sm-font);
+	font-size: 0.9rem;
+}
+
+.ps-sm-banner-close {
+	background: none;
+	line-height: 1;
+	padding: 5px;
+	position: absolute;
+	top: 10px;
+	right: 12px;
+}
+
+/* =========================================
+		 Lower Row: Buttons
+		 ========================================= */
+
+.ps-sm-banner-lower {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+}
+
+.ps-sm-banner-btn {
+	font-size: 13px;
+	font-weight: 600;
+	padding: 8px 18px;
+	white-space: nowrap;
+}
+
+.ps-sm-banner-btn:hover {
+	opacity: 0.85;
+}
+
+.ps-sm-banner-btn-accept {
+	background-color: var(--ps-sm-btn);
+	color: var(--ps-sm-btn-text);
+}
+
+.ps-sm-banner-btn-reject {
+	background-color: transparent;
+	color: var(--ps-sm-font);
+	border-color: var(--ps-sm-font);
+	opacity: 0.8;
+}
+
+.ps-sm-banner-btn-reject:hover {
+	opacity: 1;
+}
+
+/* =========================================
+	 Compact variant
+	 ========================================= */
+
+#ps-sm-banner.ps-sm-banner-style-compact {
+	left: 0;
+	right: auto;
+	max-width: 450px;
+}
+
+#ps-sm-banner.ps-sm-banner-style-compact .ps-sm-banner-inner {
+	gap: 20px;
+}
+
+#ps-sm-banner.ps-sm-banner-style-compact .ps-sm-banner-lower {
+	justify-content: flex-start;
+}
+
+/* =========================================
+	 Full-width variant
+	 ========================================= */
+
+#ps-sm-banner.ps-sm-banner-style-full .ps-sm-banner-lower {
+	justify-content: flex-start;
+}
+
+/* =========================================
+		 Tablet and up
+		 ========================================= */
+
+@media (min-width: 600px) {
+	.ps-sm-banner-inner {
+		padding: 16px 0;
+	}
+
+	.ps-sm-banner-message {
+		font-size: 1rem;
+	}
+
+	.ps-sm-banner-btn {
+		font-size: 14px;
+		padding: 9px 22px;
+	}
+}
+
+@media (min-width: 768px) {
+	#ps-sm-banner.ps-sm-banner-style-full .ps-sm-banner-inner {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: center;
+		column-gap: 40px;
+		row-gap: 12px;
+	}
+
+	#ps-sm-banner.ps-sm-banner-style-full .ps-sm-banner-upper {
+		min-width: 0;
+	}
+
+	#ps-sm-banner.ps-sm-banner-style-full .ps-sm-banner-message {
+		min-width: 0;
+		overflow-wrap: break-word;
+	}
+
+	#ps-sm-banner.ps-sm-banner-style-full .ps-sm-banner-lower {
+		flex-shrink: 0;
+		justify-self: end;
+	}
+}
+
+/* =========================================
+		 Desktop
+		 ========================================= */
+
+@media (min-width: 1025px) {
+	.ps-sm-banner-inner {
+		padding: 25px 0;
+	}
+
+	#ps-sm-banner.ps-sm-banner-style-full .ps-sm-banner-lower {
+		gap: 12px;
+	}
+}
+
+/* =============================================================================
+		 WP Admin Styles
+		 ============================================================================= */
+
+.ps-sm-admin-toggle-row {
+	margin-bottom: 0;
+}
+
+#ps-sm-banner-setup {
+	margin-top: 16px;
+}
+
+.ps-sm-admin-box {
+	background: #fff;
+	border-left: 5px solid #ccc;
+	border-radius: 3px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	margin-bottom: 20px;
+	padding: 16px 20px 4px;
+}
+
+.ps-sm-admin-box h2 {
+	font-size: 18px;
+	font-weight: 600;
+	margin: 0 0 12px;
+	padding: 0;
+}
+
+.ps-sm-admin-box .form-table {
+	margin-top: 0;
+}
+
+.ps-sm-admin-box-info {
+	border-left-color: #72aee6;
+}
+
+.ps-sm-admin-box-ga {
+	border-left-color: #4285f4;
+}
+
+.ps-sm-admin-box-gads {
+	border-left-color: #34a853;
+}
+
+.ps-sm-admin-box-fb {
+	border-left-color: #1877f2;
+}
+
+.ps-sm-admin-box-bing {
+	border-left-color: #ffb900;
+}
+
+.ps-sm-admin-box-chat {
+	border-left-color: #8b5cf6;
+}
+
+.ps-sm-admin-box-misc {
+	border-left-color: #e0440e;
+}
+
+.ps-sm-admin-box-testing {
+	border-left-color: #f0b849;
+}
+
+.ps-sm-admin-box-testing #ps-sm-clear-consent-status {
+	color: #3c763d;
+	font-style: italic;
+	margin-left: 10px;
+}
+
+.ps-sm-script-count {
+	background: #f0f6fc;
+	border: 1px solid #72aee6;
+	border-radius: 3px;
+	font-size: 13px;
+	margin-bottom: 20px;
+	padding: 10px 14px;
+}
+
+.ps-sm-form-table-indented th.scope {
+	padding-left: 0;
+}
+
+.ps-sm-form-table-indented td {
+	padding-left: 32px;
+}
+
+.ps-sm-form-table-indented th {
+	padding-left: 32px;
+	color: #666;
+}
+
+#ps-sm-more-services {
+	margin-top: 16px;
+}

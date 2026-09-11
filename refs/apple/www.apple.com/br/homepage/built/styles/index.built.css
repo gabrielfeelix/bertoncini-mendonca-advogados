@@ -1,0 +1,61 @@
+html .section-september-event [data-tile-id="hero-september-2026-apple-event"] {
+	background-color: #42679e;
+}
+
+@media only screen and (max-width: 734px) {
+	.section-september-event
+		[data-component-list~="SeptemberEvent2026"]
+		.tile-subhead {
+		max-width: 405px;
+	}
+}
+
+@media only screen and (max-width: 450px) {
+	.section-september-event
+		[data-component-list~="SeptemberEvent2026"]
+		.tile-ctas {
+		display: flex;
+		flex-direction: column;
+	}
+	.section-september-event
+		[data-component-list~="SeptemberEvent2026"]
+		.tile-ctas
+		.button-secondary-neutral {
+		margin-top: 20px;
+	}
+}
+
+@media only screen and (max-width: 420px) {
+	.section-september-event
+		[data-component-list~="SeptemberEvent2026"]
+		.tile-subhead {
+		max-width: 350px;
+	}
+}
+
+.section-iphone-duo .tile-callout.typography-tile-callout,
+.section-airpods-5 .tile-callout.typography-tile-callout {
+	max-width: 265px;
+}
+
+@media only screen and (max-width: 500px) {
+	.section-september-event
+		[data-component-list~="SeptemberEvent2026"]
+		.tile-ctas {
+		display: flex;
+		flex-direction: column;
+	}
+	.section-september-event
+		[data-component-list~="SeptemberEvent2026"]
+		.tile-ctas
+		.button-neutral {
+		max-width: 160px;
+		text-wrap: unset;
+	}
+	.section-september-event
+		[data-component-list~="SeptemberEvent2026"]
+		.tile-ctas
+		.button-secondary-neutral {
+		margin-top: 20px;
+	}
+}

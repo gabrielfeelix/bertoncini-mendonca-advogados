@@ -1,0 +1,105 @@
+/**
+ * PaperStreet Script Manager — Banner JS
+ * Manages cookie consent banner display and stores user preference in localStorage.
+ *
+ * localStorage key: ps_cookie_consent
+ * Values:          "accepted" | "rejected"
+ *
+ * window.psCookieConsent is set for use by delayed.js or other scripts.
+ */
+
+(function () {
+	var STORAGE_KEY = "ps_cookie_consent";
+	var banner = document.getElementById("ps-sm-banner");
+	var settings = window.psSMSettings || {};
+	var californiaMode = settings.californiaMode === true || settings.californiaMode === "1";
+
+	/**
+	 * Store consent, expose globally, and hide the banner.
+	 * When accepted, immediately trigger delayedScripts so tracking
+	 * fires on the same page load without requiring a reload.
+	 */
+	function setConsent(value) {
+		localStorage.setItem(STORAGE_KEY, value);
+		window.psCookieConsent = value;
+		hideBanner();
+
+		if (value === "accepted" && typeof delayedScripts === "function") {
+			delayedScripts();
+		}
+	}
+
+	function hideBanner() {
+		if (banner) {
+			banner.style.display = "none";
+		}
+	}
+
+	function showBanner() {
+		if (banner) {
+			banner.style.display = "";
+		}
+	}
+
+	/**
+	 * Inject the correct banner message from PHP settings.
+	 */
+	function setMessage() {
+		var messageEl = banner ? banner.querySelector(".ps-sm-banner-message") : null;
+		if (messageEl && settings.message) {
+			messageEl.textContent = settings.message;
+		}
+	}
+
+	/**
+	 * On load: read existing consent.
+	 * If already set, expose the value and bail — no banner shown.
+	 * If not set, show the banner.
+	 */
+	function init() {
+		var existing = localStorage.getItem(STORAGE_KEY);
+
+		if (existing === "accepted" || existing === "rejected") {
+			window.psCookieConsent = existing;
+			return;
+		}
+
+		setMessage();
+		showBanner();
+		bindEvents();
+	}
+
+	/**
+	 * Bind all banner interactions.
+	 */
+	function bindEvents() {
+		var acceptBtn = document.getElementById("ps-sm-accept");
+		var rejectBtn = document.getElementById("ps-sm-reject");
+		var closeBtn = document.getElementById("ps-sm-close");
+
+		if (acceptBtn) {
+			acceptBtn.addEventListener("click", function () {
+				setConsent("accepted");
+			});
+		}
+
+		if (rejectBtn) {
+			rejectBtn.addEventListener("click", function () {
+				setConsent("rejected");
+			});
+		}
+
+		if (closeBtn) {
+			closeBtn.addEventListener("click", function (e) {
+				e.stopPropagation();
+				setConsent(californiaMode ? "rejected" : "accepted");
+			});
+		}
+	}
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", init);
+	} else {
+		init();
+	}
+})();

@@ -1,0 +1,54 @@
+/* For Google Fonts, strongly recommend use of: https://google-webfonts-helper.herokuapp.com/fonts */
+
+/* 1. Upload the .woff and .woff2 fonts to your theme folder /fonts/ */
+/* 2. Generate CSS for "Modern Browsers" and paste it here */
+/* 3. Add a font-display property each @font-face: https://css-tricks.com/almanac/properties/f/font-display/ */
+/* 4. Preload your most commonly used .woff2 file in functions.php */
+
+/* font-display: swap favors a FOUT (Flash of Unstyled Text); it requests the browser use a fallback font until our font loads */
+/* font-display: optional favors a FOIT (Flash of Invisible Text); it hides text, but quickly decides whether to allow our font to load */
+
+/* outfit-300 - latin */
+@font-face {
+	font-display: swap;
+	font-family: "Outfit";
+	font-style: normal;
+	font-weight: 300;
+	src: url("../fonts/outfit-v14-latin-300.woff2") format("woff2");
+}
+
+/* outfit-regular - latin */
+@font-face {
+	font-display: swap;
+	font-family: "Outfit";
+	font-style: normal;
+	font-weight: 400;
+	src: url("../fonts/outfit-v14-latin-regular.woff2") format("woff2");
+}
+
+/* outfit-500 - latin */
+@font-face {
+	font-display: swap;
+	font-family: "Outfit";
+	font-style: normal;
+	font-weight: 500;
+	src: url("../fonts/outfit-v14-latin-500.woff2") format("woff2");
+}
+
+/* outfit-600 - latin */
+@font-face {
+	font-display: swap;
+	font-family: "Outfit";
+	font-style: normal;
+	font-weight: 600;
+	src: url("../fonts/outfit-v14-latin-600.woff2") format("woff2");
+}
+
+/* outfit-700 - latin */
+@font-face {
+	font-display: swap;
+	font-family: "Outfit";
+	font-style: normal;
+	font-weight: 700;
+	src: url("../fonts/outfit-v14-latin-700.woff2") format("woff2");
+}
