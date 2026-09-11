@@ -5,6 +5,61 @@ topo. Decisão revogada não é apagada — é marcada como revogada, com a data
 
 ---
 
+## 11/09/2026 (tarde) — A textura é a personalidade do site
+
+Decisão do Gabriel ao revisar o segundo protótipo: **a textura granulada aplicada
+sobre o azul é o elemento de identidade do site** e vai se repetir em vários
+momentos. Não é enfeite de uma seção, é assinatura.
+
+### O que é, tecnicamente
+
+Ruído gerado em SVG, sem imagem e sem arquivo externo:
+
+```html
+<filter id="grao">
+  <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3"/>
+  <feColorMatrix type="saturate" values="0"/>
+</filter>
+```
+
+Aplicado como `filter:url(#grao)` numa camada sobreposta ao gradiente azul, com
+opacidade entre `.22` e `.42` conforme o fundo. Custo zero de rede, escala em
+qualquer tela, e não pixela como textura em PNG.
+
+### Onde já está em uso
+
+- Seção de áreas de atuação, sobre o gradiente azul (`opacity:.26`)
+- Hero, sobre o vídeo (`opacity:.22`)
+- Barra de navegação no estado preso (`opacity:.42`, com `mix-blend-mode:overlay`)
+
+### Regra de uso
+
+Textura só sobre superfície azul escura. Em fundo branco ela suja a leitura, que
+foi exatamente a crítica que matou o off-white `#F8F7F2`. Sobre branco, o
+contraste vem do vazio, não da textura.
+
+### Decorrência
+
+O off-white `#F8F7F2` da paleta oficial **sai do site**. A crítica foi que lê como
+bege encardido ao lado do branco puro. Contraste do site passa a ser branco contra
+chapa azul texturizada, sem meio-termo. A paleta oficial continua válida no
+material impresso; esta decisão vale para a web.
+
+---
+
+## 11/09/2026 (tarde) — Registro de linguagem
+
+O site fala em primeira pessoa do plural, sem gíria e sem informalidade forçada.
+"A gente" foi removido de todo o texto: um escritório de advocacia escrevendo
+"o que a gente faz" perde a autoridade que o resto do design constrói.
+
+A régua: **formal no registro, simples no vocabulário.** Nem juridiquês, nem
+conversa de rede social. "Áreas de atuação", não "O que a gente faz".
+"As perguntas que mais recebemos", não "Perguntas que a gente ouve sempre".
+"Explicamos antes de agir", não "a gente explica".
+
+---
+
 ## 11/09/2026 — Direção de design definida pelo Gabriel
 
 Fonte: mensagem do Gabriel após a leitura das referências do Juscelino

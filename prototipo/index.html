@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bertoncini &amp; Mendonça Advogados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,200;0,6..72,300;0,6..72,400;1,6..72,200;1,6..72,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --branco:#FFFFFF;
+  --tinta:#0B1E3F;
+  --apoio:#004369;
+  --secundario:#517493;
+  --linha:#E3E6EA;
+  --imperial:#9B1C2E;
+  --serif:"Newsreader",Georgia,serif;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --gutter:clamp(20px,5vw,88px);
+  --bloco:clamp(84px,10vw,168px);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--branco);color:var(--tinta);font-family:var(--sans);
+  font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{margin:0;font-weight:400;letter-spacing:-.025em}
+p{margin:0}
+a{color:inherit}
+video{display:block}
+:focus-visible{outline:2px solid var(--imperial);outline-offset:4px;border-radius:4px}
+.env{max-width:1340px;margin:0 auto;padding-inline:var(--gutter)}
+.secao{padding-block:var(--bloco)}
+.display{font-family:var(--serif);font-weight:200;line-height:1.02;letter-spacing:-.03em}
+
+/* nav */
+.nav{position:fixed;z-index:60;top:0;left:0;right:0;display:flex;align-items:center;
+  justify-content:space-between;gap:24px;padding:20px var(--gutter);color:#fff;
+  transition:padding .45s cubic-bezier(.2,.8,.2,1),color .45s}
+.nav::before{content:"";position:absolute;inset:0;z-index:-2;opacity:0;
+  background:linear-gradient(160deg,#102A50,#0B1E3F);transition:opacity .45s}
+.nav::after{content:"";position:absolute;inset:0;z-index:-1;opacity:0;
+  background:#8AA0BC;mix-blend-mode:overlay;filter:url(#grao);transition:opacity .45s}
+.nav .risco{position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
+  opacity:.16;transform:scaleX(0);transform-origin:left;transition:transform 1.1s cubic-bezier(.2,.8,.2,1) .5s}
+.js .nav .risco{transform:scaleX(1)}
+.nav.presa{padding:13px var(--gutter);box-shadow:0 10px 40px rgba(11,30,63,.28)}
+.nav.presa::before{opacity:1}
+.nav.presa::after{opacity:.42}
+.nav.presa .risco{opacity:0}
+.marca{display:flex;align-items:center;gap:11px;font-family:var(--serif);font-weight:300;
+  font-size:clamp(17px,1.5vw,21px);letter-spacing:-.01em;white-space:nowrap}
+.marca .amp{font-style:italic;opacity:.72}
+.menu{display:flex;align-items:center;gap:clamp(14px,2vw,32px)}
+.menu a{font-family:var(--serif);font-weight:300;font-size:17px;text-decoration:none;
+  position:relative;padding-block:4px;opacity:.82;transition:opacity .3s}
+.menu a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--imperial);
+  transform:scaleX(0);transform-origin:right;transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.menu a:hover{opacity:1}
+.menu a:hover::after{transform:scaleX(1);transform-origin:left}
+.nav .fala{border:1px solid rgba(255,255,255,.42);color:#fff;padding:11px 20px;border-radius:999px;
+  font-family:var(--sans);font-size:14.5px;text-decoration:none;white-space:nowrap;
+  transition:background .3s,border-color .3s,color .3s}
+.nav .fala:hover{background:#fff;border-color:#fff;color:var(--tinta)}
+@media(max-width:1000px){.menu{display:none}}
+@media(max-width:520px){.nav .fala{padding:10px 15px;font-size:13.5px}}
+
+/* botao */
+.botao{display:inline-flex;align-items:center;gap:12px;padding:15px 16px 15px 24px;border-radius:999px;
+  background:var(--tinta);color:#fff;text-decoration:none;font-size:16px;transition:background .3s;border:0}
+.botao:hover{background:var(--apoio)}
+.botao .disco{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);
+  display:grid;place-items:center;transition:transform .35s}
+.botao:hover .disco{transform:translate(3px,-3px)}
+.botao.vidro{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.34);backdrop-filter:blur(8px)}
+.botao.vidro:hover{background:rgba(255,255,255,.22)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;height:100svh;min-height:620px;overflow:hidden;background:#0B1E3F}
+.hero .filme{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.16) brightness(.86)}
+.hero .lavagem{position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(11,30,63,.52) 0%,rgba(11,30,63,.22) 32%,rgba(11,30,63,.78) 100%),
+             radial-gradient(70% 60% at 78% 26%,rgba(0,67,105,.42),transparent 66%)}
+.hero .grao{position:absolute;inset:0;opacity:.22;pointer-events:none}
+.hero .env{position:relative;z-index:3;height:100%;display:flex;flex-direction:column;
+  justify-content:flex-end;padding-bottom:clamp(40px,7vh,84px);color:#fff}
+.hero h1{font-size:clamp(52px,9.2vw,146px);max-width:15ch}
+.hero h1 .linha{display:block;overflow:hidden}
+.hero h1 .linha i{display:block;font-style:normal}
+.hero h1 em{font-style:italic;font-weight:200}
+.hero .pe{margin-top:clamp(28px,4vh,44px);display:flex;justify-content:space-between;
+  align-items:flex-end;gap:32px;flex-wrap:wrap}
+.hero .diz{max-width:40ch;color:rgba(255,255,255,.78);font-size:17.5px}
+.hero .diz b{color:#fff;font-weight:500}
+.marcas{position:absolute;z-index:3;left:var(--gutter);right:var(--gutter);top:clamp(84px,12vh,120px);
+  display:flex;justify-content:space-between;color:rgba(255,255,255,.58);font-size:13px}
+@media(max-width:760px){.marcas{display:none}}
+
+/* ---------- declaração ---------- */
+.declaracao .env{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(30px,6vw,110px);align-items:start}
+@media(max-width:940px){.declaracao .env{grid-template-columns:1fr;gap:28px}}
+.declaracao h2{font-size:clamp(30px,4.4vw,60px);max-width:20ch}
+.declaracao .corpo{color:var(--secundario);max-width:48ch;font-size:17.5px}
+.declaracao .corpo p+p{margin-top:18px}
+
+/* ---------- áreas ---------- */
+.areas{position:relative;background:var(--tinta);color:#fff;overflow:hidden;
+  clip-path:polygon(0 3.6vw,100% 0,100% 100%,0 calc(100% - 3.6vw));
+  padding-block:calc(var(--bloco) + 3.6vw)}
+.areas .lastro{position:absolute;inset:-16% -8%;
+  background:radial-gradient(40% 46% at 16% 24%,rgba(81,116,147,.52),transparent 64%),
+             radial-gradient(44% 42% at 84% 70%,rgba(155,28,46,.32),transparent 62%),
+             linear-gradient(158deg,#102A50,#0B1E3F)}
+.areas .grao{position:absolute;inset:0;opacity:.26;pointer-events:none}
+.areas .env{position:relative;z-index:3}
+.areas .topo{display:flex;justify-content:space-between;align-items:baseline;gap:24px;
+  flex-wrap:wrap;margin-bottom:clamp(38px,5vw,66px)}
+.areas h2{font-size:clamp(30px,4.2vw,54px)}
+.areas .topo p{color:rgba(255,255,255,.55);font-size:15px;max-width:32ch}
+.grade{border-top:1px solid rgba(255,255,255,.16)}
+.item{display:block;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.16);
+  padding:clamp(22px,3vw,38px) 0;position:relative}
+.item .fila{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.item h3{font-family:var(--serif);font-weight:200;font-size:clamp(32px,6vw,76px);letter-spacing:-.03em;
+  line-height:1;transition:transform .5s cubic-bezier(.22,.75,.2,1),opacity .4s}
+.item .glosa{color:rgba(255,255,255,.62);font-size:16.5px;max-width:34ch;
+  opacity:0;transform:translateY(8px);transition:opacity .45s,transform .45s}
+.item:hover h3,.item:focus-visible h3{transform:translateX(clamp(10px,1.6vw,26px))}
+.item:hover .glosa,.item:focus-visible .glosa{opacity:1;transform:none}
+.item .seta{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.28);
+  flex:none;display:grid;place-items:center;transition:background .35s,transform .35s}
+.item:hover .seta{background:var(--imperial);border-color:var(--imperial);transform:rotate(-45deg)}
+.item.aberto{pointer-events:none}
+.item.aberto h3{color:rgba(255,255,255,.34)}
+.item .pendente{font-size:12px;color:#fff;background:var(--imperial);padding:4px 11px;border-radius:999px}
+.espia{position:fixed;z-index:50;width:min(280px,26vw);aspect-ratio:16/11;border-radius:14px;
+  overflow:hidden;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.86);
+  transition:opacity .35s,transform .45s cubic-bezier(.22,.75,.2,1);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.espia video{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.2)}
+.espia.viva{opacity:1;transform:translate(-50%,-50%) scale(1)}
+@media(max-width:900px){
+  .espia{display:none}
+  .item .fila{flex-wrap:wrap}
+  .item .glosa{opacity:1;transform:none;margin-top:12px;font-size:15.5px}
+}
+
+/* ---------- sócios ---------- */
+.socios .env{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,80px)}
+@media(max-width:900px){.socios .env{grid-template-columns:1fr;gap:64px}}
+.socios .par:nth-child(2){margin-top:clamp(0px,9vw,132px)}
+.par figure{margin:0;position:relative}
+.par .moldura{aspect-ratio:3/4;border-radius:18px;overflow:hidden;position:relative;
+  background:linear-gradient(168deg,#DDE2E8,#F2F4F6)}
+.par .moldura .chapa{position:absolute;inset:0;
+  background:radial-gradient(44% 40% at 50% 26%,rgba(81,116,147,.34),transparent 68%),
+             radial-gradient(76% 54% at 50% 108%,rgba(11,30,63,.42),transparent 70%)}
+.par .moldura .aviso{position:absolute;left:14px;bottom:14px;font-size:12.5px;color:var(--secundario);
+  background:rgba(255,255,255,.92);padding:6px 12px;border-radius:999px}
+.par .assina{font-family:var(--serif);font-weight:200;font-size:clamp(30px,4.6vw,58px);
+  letter-spacing:-.03em;line-height:.96;margin-top:-.42em;margin-left:-.02em;position:relative;z-index:2;
+  mix-blend-mode:normal;padding-left:clamp(12px,2vw,26px)}
+.par .oab{margin-top:14px;font-size:14px;color:var(--imperial);font-variant-numeric:tabular-nums;
+  padding-left:clamp(12px,2vw,26px)}
+.par .bio{margin-top:12px;color:var(--secundario);font-size:16.5px;max-width:36ch;
+  padding-left:clamp(12px,2vw,26px)}
+
+/* ---------- faixa de vídeo ---------- */
+.corte{position:relative;overflow:hidden;background:#0B1E3F;color:#fff;
+  clip-path:polygon(0 0,100% 3.6vw,100% calc(100% - 3.6vw),0 100%)}
+.corte .filme{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.2) brightness(.62)}
+.corte .lavagem{position:absolute;inset:0;background:linear-gradient(120deg,rgba(11,30,63,.86),rgba(11,30,63,.32))}
+.corte .env{position:relative;z-index:3;padding-block:calc(var(--bloco) + 3.6vw)}
+.corte h2{font-size:clamp(32px,5.4vw,72px);max-width:16ch}
+.corte .apoio{margin-top:24px;color:rgba(255,255,255,.74);max-width:42ch;font-size:17.5px}
+.corte .cantos{position:absolute;z-index:3;left:var(--gutter);right:var(--gutter);
+  bottom:calc(3.6vw + 26px);display:flex;justify-content:space-between;color:rgba(255,255,255,.5);font-size:13px}
+@media(max-width:760px){.corte .cantos{display:none}}
+
+/* ---------- perguntas ---------- */
+.perguntas .env{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(28px,5vw,90px);align-items:start}
+@media(max-width:900px){.perguntas .env{grid-template-columns:1fr;gap:34px}}
+.perguntas h2{font-size:clamp(30px,4.2vw,54px);max-width:14ch}
+.q{border-top:1px solid var(--linha)}
+.q:last-child{border-bottom:1px solid var(--linha)}
+.q summary{cursor:pointer;list-style:none;padding:24px 0;display:flex;gap:22px;
+  justify-content:space-between;align-items:center;font-size:clamp(18px,2.1vw,23px);
+  font-family:var(--serif);font-weight:300;letter-spacing:-.02em;transition:color .3s}
+.q summary:hover{color:var(--apoio)}
+.q summary::-webkit-details-marker{display:none}
+.q .cruz{width:20px;height:20px;flex:none;position:relative}
+.q .cruz::before,.q .cruz::after{content:"";position:absolute;background:var(--imperial);border-radius:2px;transition:transform .3s}
+.q .cruz::before{left:0;right:0;top:9px;height:2px}
+.q .cruz::after{top:0;bottom:0;left:9px;width:2px}
+.q[open] .cruz::after{transform:scaleY(0)}
+.q .resposta{padding:0 0 26px;color:var(--secundario);max-width:60ch;font-size:16.5px}
+
+/* ---------- contato ---------- */
+.contato .env{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(30px,5vw,88px);align-items:start}
+@media(max-width:900px){.contato .env{grid-template-columns:1fr;gap:38px}}
+.contato h2{font-size:clamp(34px,5.4vw,72px);max-width:13ch}
+.contato .acao{margin-top:34px;display:flex;gap:12px;flex-wrap:wrap}
+.contato .horario{margin-top:20px;font-size:15px;color:var(--secundario)}
+.contato .horario .ponto{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2C8A5B;margin-right:8px}
+.dados{border-top:1px solid var(--linha);margin:0}
+.dado{display:grid;grid-template-columns:132px 1fr;gap:16px;padding:18px 0;border-bottom:1px solid var(--linha);font-size:16.5px}
+.dado dt{color:var(--secundario);font-size:15px}
+.dado dd{margin:0}
+.dado a{text-decoration:none;border-bottom:1px solid var(--linha)}
+.dado a:hover{border-color:var(--tinta)}
+
+.rodape{border-top:1px solid var(--linha);padding-block:46px;font-size:14.5px;color:var(--secundario)}
+.rodape .env{display:flex;justify-content:space-between;gap:26px;flex-wrap:wrap}
+.rodape .registro{max-width:46ch;line-height:1.55}
+
+/* ---------- motion ---------- */
+.js .linha i{transform:translateY(104%)}
+.js .hero.pronta .linha i{transform:none;transition:transform 1.05s cubic-bezier(.2,.8,.2,1)}
+.js .hero.pronta .linha:nth-child(2) i{transition-delay:.1s}
+.js .hero.pronta .linha:nth-child(3) i{transition-delay:.2s}
+.js .sobe{opacity:0;transform:translateY(20px)}
+.js .sobe.visivel{opacity:1;transform:none;transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+.js .hero .filme{transform:scale(1.12)}
+.js .hero.pronta .filme{transform:scale(1);transition:transform 2.4s cubic-bezier(.2,.8,.2,1)}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .js .linha i,.js .sobe{transform:none!important;opacity:1!important}
+  .js .hero .filme{transform:none!important}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="grao"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3"/>
+  <feColorMatrix type="saturate" values="0"/></filter>
+</svg>
+
+<nav class="nav" id="nav" aria-label="Principal">
+  <span class="risco"></span>
+  <a class="marca" href="#hero" style="text-decoration:none">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 3v18M5 8h14M8.5 8 5.6 14.4a3.2 3.2 0 0 0 5.8 0L8.5 8ZM15.5 8l-2.9 6.4a3.2 3.2 0 0 0 5.8 0L15.5 8Z"
+        stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+    Bertoncini <span class="amp">&amp;</span> Mendonça</a>
+  <div class="menu">
+    <a href="#areas">Áreas de atuação</a>
+    <a href="#socios">Sócios</a>
+    <a href="#perguntas">Perguntas</a>
+  </div>
+  <a class="fala" href="#contato">Falar com o escritório</a>
+</nav>
+
+<header class="hero" id="hero">
+  <video class="filme" src="media/hero.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <div class="lavagem"></div>
+  <div class="grao" style="filter:url(#grao)"></div>
+  <div class="marcas"><span>Sociedade de advogados</span><span>Maringá, Paraná</span></div>
+  <div class="env">
+    <h1 class="display">
+      <span class="linha"><i>Você vai</i></span>
+      <span class="linha"><i><em>entender</em> cada</i></span>
+      <span class="linha"><i>passo do seu caso.</i></span>
+    </h1>
+    <div class="pe">
+      <p class="diz"><b>Juscelino Bertoncini e Beatriz Mendonça.</b> Explicamos o que está acontecendo
+        antes de agir, e seguimos explicando depois.</p>
+      <a class="botao vidro" href="#contato">Falar pelo WhatsApp
+        <span class="disco"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg></span></a>
+    </div>
+  </div>
+</header>
+
+<section class="secao declaracao">
+  <div class="env">
+    <h2 class="display sobe">A parte difícil raramente é a lei. É não saber o que vai acontecer com a sua vida.</h2>
+    <div class="corpo sobe">
+      <p>Quem procura um advogado chega com medo de duas coisas: perder algo que importa e não
+        conseguir acompanhar o que estão decidindo por você.</p>
+      <p>A segunda se resolve já na primeira conversa. Você recebe em português claro o que existe,
+        o que é possível fazer, quanto tempo costuma levar e quanto custa. Só depois disso o caso anda.</p>
+    </div>
+  </div>
+</section>
+
+<section class="areas" id="areas">
+  <div class="lastro"></div>
+  <div class="grao" style="filter:url(#grao)"></div>
+  <div class="env">
+    <div class="topo">
+      <h2 class="display sobe">Áreas de atuação</h2>
+      <p class="sobe">Duas áreas confirmadas com os sócios. As demais entram quando eles definirem.</p>
+    </div>
+    <div class="grade">
+      <a class="item sobe" href="#contato" data-espia="media/faixa.mp4">
+        <div class="fila">
+          <h3>Família</h3>
+          <span class="glosa">Divórcio, guarda, pensão e inventário, conduzidos com discrição.</span>
+          <span class="seta"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+      </a>
+      <a class="item sobe" href="#contato" data-espia="media/hero.mp4">
+        <div class="fila">
+          <h3>Compliance</h3>
+          <span class="glosa">Estruturas de conformidade para empresas que preferem prevenir a remediar.</span>
+          <span class="seta"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+      </a>
+      <div class="item aberto sobe">
+        <div class="fila"><h3>Terceira área</h3><span class="pendente">a confirmar</span></div>
+      </div>
+      <div class="item aberto sobe">
+        <div class="fila"><h3>Quarta área</h3><span class="pendente">a confirmar</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="espia" id="espia" aria-hidden="true"><video muted loop playsinline></video></div>
+
+<section class="secao socios" id="socios">
+  <div class="env">
+    <article class="par sobe">
+      <figure>
+        <div class="moldura"><div class="chapa"></div><span class="aviso">Foto do ensaio entra aqui</span></div>
+        <h3 class="assina">Juscelino<br>Bertoncini</h3>
+      </figure>
+      <p class="oab">OAB/PR 000.000</p>
+      <p class="bio">Direito de família e compliance. Monta as regras internas que evitam
+        que o problema chegue ao tribunal.</p>
+    </article>
+    <article class="par sobe">
+      <figure>
+        <div class="moldura"><div class="chapa"></div><span class="aviso">Foto do ensaio entra aqui</span></div>
+        <h3 class="assina">Beatriz<br>Mendonça</h3>
+      </figure>
+      <p class="oab">OAB/PR 000.000</p>
+      <p class="bio">Bio a escrever com ela, depois da conversa que ainda não aconteceu.</p>
+    </article>
+  </div>
+</section>
+
+<section class="corte">
+  <video class="filme" src="media/faixa.mp4" autoplay muted loop playsinline preload="none"></video>
+  <div class="lavagem"></div>
+  <div class="env">
+    <h2 class="display sobe">Quem atende na primeira conversa é quem assina a petição.</h2>
+    <p class="apoio sobe">Não existe camada intermediária entre você e o seu processo. São dois
+      sócios, e o contato é direto com eles, do começo ao fim.</p>
+  </div>
+  <div class="cantos"><span>Bertoncini &amp; Mendonça</span><span>Maringá, Paraná</span></div>
+</section>
+
+<section class="secao perguntas" id="perguntas">
+  <div class="env">
+    <h2 class="display sobe">As perguntas que mais recebemos</h2>
+    <div class="sobe">
+      <details class="q"><summary>Quanto custa uma consulta?<span class="cruz"></span></summary>
+        <p class="resposta">Depende do caso. Na primeira conversa entendemos a situação e informamos o
+          valor antes de você assumir qualquer compromisso.</p></details>
+      <details class="q"><summary>Como funciona do primeiro contato até o processo andar?<span class="cruz"></span></summary>
+        <p class="resposta">Você envia uma mensagem contando o que aconteceu. Respondemos marcando uma
+          conversa, por vídeo ou no escritório. Nela você recebe as opções, os prazos e o custo. Se
+          decidir seguir, assumimos o caso e informamos cada movimentação, inclusive quando a notícia
+          é que nada mudou.</p></details>
+      <details class="q"><summary>Preciso ir até o escritório?<span class="cruz"></span></summary>
+        <p class="resposta">Não necessariamente. Boa parte se resolve por mensagem e vídeo. Quando a
+          presença ajudar, marcamos no escritório, em Maringá.</p></details>
+      <details class="q"><summary>Quanto tempo demora um processo?<span class="cruz"></span></summary>
+        <p class="resposta">Varia com a vara e com a complexidade. Você recebe uma estimativa realista,
+          com a ressalva de que prazo de tribunal não depende de advogado.</p></details>
+      <details class="q"><summary>Vocês atendem fora de Maringá?<span class="cruz"></span></summary>
+        <p class="resposta">Sim. O processo tramita online na maior parte do tempo, então atendemos
+          clientes de outras cidades do Paraná.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="secao contato" id="contato">
+  <div class="env">
+    <div>
+      <h2 class="display sobe">Conte o que está acontecendo.</h2>
+      <div class="acao sobe">
+        <a class="botao" href="https://wa.me/5544000000000?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20sobre%20um%20caso.">
+          Abrir conversa no WhatsApp
+          <span class="disco"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg></span></a>
+      </div>
+      <p class="horario sobe"><span class="ponto"></span>Segunda a sexta, das 9h às 18h. Fora do horário a mensagem fica registrada.</p>
+    </div>
+    <dl class="dados sobe">
+      <div class="dado"><dt>Endereço</dt><dd>Rua a definir, Maringá, PR</dd></div>
+      <div class="dado"><dt>Telefone</dt><dd><a href="tel:+5544000000000">(44) 0000 0000</a></dd></div>
+      <div class="dado"><dt>E-mail</dt><dd><a href="mailto:contato@exemplo.adv.br">contato@exemplo.adv.br</a></dd></div>
+      <div class="dado"><dt>Atendimento</dt><dd>Presencial em Maringá, online para todo o Paraná</dd></div>
+    </dl>
+  </div>
+</section>
+
+<footer class="rodape">
+  <div class="env">
+    <p class="registro">Bertoncini &amp; Mendonça Sociedade de Advogados<br>
+      OAB/PR nº 0.000 · CNPJ 00.000.000/0001-00<br>
+      <span style="color:var(--imperial)">Inscrições são placeholder. Entram as reais antes de publicar.</span></p>
+    <p>© <span id="ano">2026</span></p>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+document.getElementById('ano').textContent = new Date().getFullYear();
+var calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var hero = document.getElementById('hero');
+
+requestAnimationFrame(function(){ hero.classList.add('pronta'); });
+
+/* nav ganha a textura ao sair do hero */
+(function(){
+  var nav = document.getElementById('nav');
+  var marca = function(){ nav.classList.toggle('presa', scrollY > innerHeight - 90); };
+  marca(); addEventListener('scroll', marca, {passive:true});
+})();
+
+if (!calmo && 'IntersectionObserver' in window) {
+  var olho = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visivel'); olho.unobserve(e.target);} });
+  }, {threshold:.15, rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('.sobe').forEach(function(n){ olho.observe(n); });
+} else {
+  document.querySelectorAll('.sobe').forEach(function(n){ n.classList.add('visivel'); });
+}
+
+/* parallax do vídeo do hero */
+if (!calmo) {
+  var passo = false;
+  addEventListener('scroll', function(){
+    if (passo) return; passo = true;
+    requestAnimationFrame(function(){
+      var y = scrollY;
+      if (y < innerHeight * 1.2) hero.querySelector('.filme').style.translate = '0 ' + (y * .18).toFixed(1) + 'px';
+      passo = false;
+    });
+  }, {passive:true});
+}
+
+/* espia: vídeo segue o cursor sobre as áreas */
+(function(){
+  var caixa = document.getElementById('espia');
+  if (!caixa || calmo || matchMedia('(pointer:coarse)').matches) return;
+  var tv = caixa.querySelector('video'), atual = '';
+  document.querySelectorAll('.item[data-espia]').forEach(function(it){
+    it.addEventListener('mouseenter', function(){
+      var src = it.dataset.espia;
+      if (src !== atual) { tv.src = src; atual = src; tv.play().catch(function(){}); }
+      caixa.classList.add('viva');
+    });
+    it.addEventListener('mouseleave', function(){ caixa.classList.remove('viva'); });
+    it.addEventListener('mousemove', function(e){
+      caixa.style.left = e.clientX + 'px';
+      caixa.style.top  = e.clientY + 'px';
+    });
+  });
+})();
+</script>
+</body>
+</html>
