@@ -647,10 +647,44 @@ video{display:block}
   </div>
 </footer>
 
+<script src="vendor/gsap.min.js" defer></script>
+<script src="vendor/ScrollTrigger.min.js" defer></script>
+<script src="vendor/lenis.min.js" defer></script>
 <script>
+document.addEventListener("DOMContentLoaded", function(){
 document.documentElement.classList.add('js');
 document.getElementById('ano').textContent = new Date().getFullYear();
 var calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* rolagem suave: inércia leve, desligada para quem pediu menos movimento.
+   Lenis usa a rolagem nativa, então âncoras, teclado e leitores de tela
+   continuam funcionando; ele só suaviza o caminho. */
+var lenis = null;
+if (!calmo && window.Lenis){
+  lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.9, smoothWheel: true });
+  document.documentElement.classList.add("lenis");
+  function tique(t){ lenis.raf(t); requestAnimationFrame(tique); }
+  requestAnimationFrame(tique);
+  // âncoras do menu passam pelo Lenis para não pular
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener("click", function(e){
+      var alvo = document.querySelector(a.getAttribute("href"));
+      if (!alvo) return;
+      e.preventDefault();
+      lenis.scrollTo(alvo, { offset: -24, duration: 1.1 });
+    });
+  });
+}
+
+/* GSAP só quando há movimento. `aoRolar(fn)` entrega gsap e ScrollTrigger
+   prontos, ou não chama nada. As tarefas seguintes usam isso. */
+function aoRolar(fn){
+  if (calmo || !window.gsap || !window.ScrollTrigger) return;
+  gsap.registerPlugin(ScrollTrigger);
+  if (lenis) lenis.on("scroll", ScrollTrigger.update);
+  fn(gsap, ScrollTrigger);
+}
+
 var hero = document.getElementById('hero');
 
 requestAnimationFrame(function(){ hero.classList.add('pronta'); });
@@ -759,6 +793,7 @@ if (!calmo) {
     });
   });
 })();
+});
 </script>
 </body>
 </html>
