@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 import sitemap from '@astrojs/sitemap';
+import mdx from '@astrojs/mdx';
 
 export default defineConfig({
   // Placeholder: o domínio final ainda não foi confirmado com o escritório.
@@ -9,6 +10,8 @@ export default defineConfig({
   output: 'static',
   adapter: vercel(),
   integrations: [
+    // Conteúdo do blog (Tarefas 10-12) será escrito em MDX, como na Isabella.
+    mdx(),
     /* O painel do CMS (Tarefa 12) é área de trabalho interna, não conteúdo:
        fora do sitemap. As páginas dele também devem mandar `noindex`, e o
        robots.txt deve proibir — três camadas, porque uma URL de painel
