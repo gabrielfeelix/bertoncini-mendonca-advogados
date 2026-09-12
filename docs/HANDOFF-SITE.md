@@ -49,7 +49,7 @@ cliente em silêncio.
 | 9. Página do escritório | pronta, revisada | `d7f0355` |
 | 10. Banco e CMS | pronta, sem revisão formal | `9400474` |
 | 11. Páginas do blog | pronta, **re-revisada** | `c583849`, `4816a1e` |
-| 12. Painel de publicação | **NÃO FEITA** | — |
+| 12. Painel de publicação | pronta, **sem revisão formal** | `73c7520` |
 | 13. Contato, newsletter, legal | pronta, **re-revisada** | `2e7756f`, `c1dfa6e`, `80d67a9`, `d0fe974` |
 | — Correção das áreas (briefing) | pronta, **sem revisão formal** | `dcca41d` |
 | 14. Verificação automatizada | **NÃO FEITA** | — |
@@ -234,16 +234,18 @@ foram reescritas contra o briefing (sede própria e "todo o Paraná").
 **Falta revisão formal.** E falta a decisão de 18px (ver abaixo): a home é
 justamente a página que o Gabriel reservou para si.
 
-### Tarefa 12: o painel
-Leia as armadilhas em `docs/PLANO-SITE.md`, seção "Armadilhas conhecidas do CMS
-da Isabella". Duas que importam muito:
-- **O editor de texto rico (Tiptap) entra no dia 1.** No projeto da Isabella ele
-  nunca ficou pronto e os sócios escreviam `<p>` à mão; o handoff dela diz que é
-  o que mais atrapalhou o uso diário.
-- **Teste no celular cedo.** Lá isso nunca foi feito.
-- O loader da tarefa 10 fala PostgREST por `fetch`, sem `@supabase/supabase-js`.
-  O painel provavelmente vai querer a biblioteca de verdade, por causa da
-  autenticação.
+### ~~Tarefa 12: o painel~~ — FEITA (`73c7520`)
+Tiptap no dia 1 (armadilha nº 5) e testado a 390px (armadilha nº 6), as duas
+que o plano marcava. `@supabase/supabase-js` entrou, como previsto, por causa
+da autenticação — o loader do blog continua falando PostgREST por `fetch`.
+
+A conversão HTML↔markdown é a fronteira de segurança e roda **no servidor**
+(`src/lib/markdown-editor.ts`, testada por `npm run testa:markdown`).
+
+**Falta revisão formal, e falta o principal: a RLS continua sem prova.** Todo
+o teste do painel rodou contra um Supabase falso, que responde o contrato mas
+não aplica política nenhuma. Não havia Docker neste ambiente para subir um
+Postgres de verdade.
 
 ### Tarefa 5: a camada de movimento
 Foi adiada a pedido do Gabriel ("o movimento fica para depois"), porque é
@@ -351,7 +353,10 @@ quando houver credencial.
 - **Variáveis de ambiente necessárias antes de qualquer deploy:**
   `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `BREVO_API_KEY`,
   `BREVO_REMETENTE_EMAIL`, `BREVO_DESTINO_EMAIL`, `BREVO_LISTA_NEWSLETTER_ID`.
-  Opcionais: `BREVO_REMETENTE_NOME`, `BREVO_LISTA_CONTATOS_ID`. Nenhuma chave no
+  Opcionais: `BREVO_REMETENTE_NOME`, `BREVO_LISTA_CONTATOS_ID`, e
+  **`VERCEL_DEPLOY_HOOK`** (Tarefa 12: sem ela o painel salva no banco e avisa
+  no log que o site não será reconstruído sozinho — o texto publicado não
+  aparece até o próximo build). Nenhuma chave no
   repositório. Elas precisam existir na Vercel **antes** do push, senão o blog sai
   vazio e ninguém percebe.
 - **Um defeito de segurança foi encontrado no projeto da Isabella** e corrigido
