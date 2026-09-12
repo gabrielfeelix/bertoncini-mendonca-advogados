@@ -33,9 +33,12 @@
 //  5. um <h1> por página, e hierarquia de títulos sem degrau pulado
 //  6. <title> e meta description presentes, únicos e dentro do tamanho
 //  7. imagem sem alt
-//  8. links quebrados (internos, resolvidos de verdade por requisição)
-//  9. a página funciona com JavaScript desligado
-// 10. reduced-motion: vídeo pausado, nada escondido, sem Lenis
+//  8. contraste AA (4.5:1, ou 3:1 em texto grande) — só onde o fundo é
+//     cor sólida; texto sobre imagem/vídeo/degradê não é medível daqui
+//  9. a OAB visível e no piso da rota (19px na home, 22px em /escritorio/)
+// 10. links quebrados (internos, resolvidos de verdade por requisição)
+// 11. a página funciona com JavaScript desligado
+// 12. reduced-motion: vídeo pausado, nada escondido, sem Lenis
 //
 // Sai com 1 se qualquer coisa falhar. Capturas em tools/shots/.
 import { chromium } from 'playwright';
@@ -205,6 +208,125 @@ for (const rota of rotas) {
         [...document.querySelectorAll('img')].filter((i) => i.getAttribute('alt') === null).length,
       );
       checa(semAlt === 0, `${rota}: ${semAlt} imagens sem atributo alt`);
+
+      /* ── contraste AA ────────────────────────────────────────────────
+         O público tem 70 anos: contraste é requisito, não estética. A
+         norma (WCAG 2.1, 1.4.3) pede 4.5:1 para texto normal e 3:1 para
+         texto grande (>=24px, ou >=18.66px em negrito).
+
+         O que NÃO dá para medir daqui, e por isso é ignorado de propósito:
+         texto sobre imagem, vídeo ou degradê. `getComputedStyle` devolve
+         a cor declarada do elemento, não o pixel que está atrás dele —
+         medir isso exigiria ler o canvas, e um falso negativo num gate
+         que ninguém confia é pior do que uma lacuna declarada. Por isso
+         só entram elementos cuja pilha de fundo termina numa cor opaca
+         sólida.
+
+         `--imperial` (#9B1C2E) sobre branco dá 8.6:1, e é a cor da OAB:
+         essa combinação precisa continuar passando depois do redesenho. */
+      const ruins = await pg.evaluate(() => {
+        const canal = (c) => {
+          const v = c / 255;
+          return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        };
+        const lum = ([r, g, b]) => 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+        const rgb = (s) => {
+          const m = s.match(/rgba?\(([^)]+)\)/);
+          if (!m) return null;
+          const p = m[1].split(/[,\s/]+/).filter(Boolean).map(Number);
+          return { cor: p.slice(0, 3), alfa: p.length > 3 ? p[3] : 1 };
+        };
+        /* sobe a árvore até achar um fundo opaco; devolve null se algum
+           ancestral tiver imagem/degradê (aí a medida não é confiável) */
+        const fundoDe = (el) => {
+          for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+            const cs = getComputedStyle(n);
+            if (cs.backgroundImage && cs.backgroundImage !== 'none') return null;
+            const f = rgb(cs.backgroundColor);
+            if (f && f.alfa === 1) return f.cor;
+          }
+          const cs = getComputedStyle(document.documentElement);
+          if (cs.backgroundImage && cs.backgroundImage !== 'none') return null;
+          const f = rgb(cs.backgroundColor);
+          return f && f.alfa === 1 ? f.cor : [255, 255, 255];
+        };
+
+        const achados = [];
+        for (const el of document.querySelectorAll(
+          'p, li, a, span, h1, h2, h3, h4, h5, h6, dt, dd, button, label, summary, figcaption, strong, em, small, td, th',
+        )) {
+          /* só quem tem texto próprio e está visível */
+          const texto = [...el.childNodes]
+            .filter((n) => n.nodeType === 3)
+            .map((n) => n.textContent.trim())
+            .join('')
+            .trim();
+          if (!texto) continue;
+          const r = el.getBoundingClientRect();
+          if (r.width === 0 || r.height === 0) continue;
+          const cs = getComputedStyle(el);
+          if (cs.visibility === 'hidden' || Number(cs.opacity) < 0.95) continue;
+
+          const frente = rgb(cs.color);
+          const atras = fundoDe(el);
+          if (!frente || !atras || frente.alfa < 1) continue;
+
+          const a = lum(frente.cor) + 0.05;
+          const b = lum(atras) + 0.05;
+          const razao = a > b ? a / b : b / a;
+
+          const px = parseFloat(cs.fontSize);
+          const negrito = Number(cs.fontWeight) >= 700;
+          const grande = px >= 24 || (negrito && px >= 18.66);
+          const exigido = grande ? 3 : 4.5;
+
+          if (razao < exigido - 0.05) {
+            achados.push(
+              `"${texto.slice(0, 24)}" ${razao.toFixed(2)}:1 (mín ${exigido}, ${px}px)`,
+            );
+          }
+        }
+        return [...new Set(achados)].slice(0, 8);
+      });
+      checa(ruins.length === 0, `${rota}: contraste abaixo de AA: ${ruins.join(' | ')}`);
+
+      /* ── a OAB visível e legível ─────────────────────────────────────
+         É a tese do projeto e é exigência do Provimento 205/2021, art. 3º:
+         a inscrição de cada sócio tem de estar visível. O levantamento de
+         44 escritórios não achou UM que a exibisse.
+
+         Por que um piso por rota: na home ela é 19px e em /escritorio/ é
+         22px, porque lá é a página de quem foi conferir quem somos. Já
+         houve uma regressão de especificidade que derrubou a do escritório
+         para 19px (ver Socios.astro, nota sobre `.par .oab.grande`) — foi
+         achada medindo no navegador, que é o que esta checagem passa a
+         fazer sozinha.
+
+         O redesenho vai mexer no layout das duas páginas. Este é o ponto
+         que não pode encolher no caminho. */
+      const PISO_OAB = { '/': 19, '/escritorio/': 22 };
+      if (PISO_OAB[rota]) {
+        const oabs = await pg.evaluate(() =>
+          [...document.querySelectorAll('.oab-numero')].map((n) => {
+            const cs = getComputedStyle(n);
+            const r = n.getBoundingClientRect();
+            return {
+              px: parseFloat(cs.fontSize),
+              texto: (n.textContent || '').trim().slice(0, 30),
+              visivel:
+                r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && Number(cs.opacity) > 0.5,
+            };
+          }),
+        );
+        checa(oabs.length >= 2, `${rota}: ${oabs.length} inscrições na OAB exibidas (esperado 2)`);
+        for (const o of oabs) {
+          checa(o.visivel, `${rota}: OAB "${o.texto}" não está visível`);
+          checa(
+            o.px >= PISO_OAB[rota],
+            `${rota}: OAB "${o.texto}" em ${o.px}px, mínimo ${PISO_OAB[rota]}`,
+          );
+        }
+      }
 
       /* guarda os links internos para conferir depois */
       const hrefs = await pg.evaluate(() =>

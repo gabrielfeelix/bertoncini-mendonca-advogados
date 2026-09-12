@@ -32,7 +32,13 @@ const ano = new Date().getFullYear();
           </>
         ))}
         <br />
-        <span style="color:var(--imperial)">Inscrições são placeholder. Entram as reais antes de publicar.</span>
+        {/* Este aviso é texto de trabalho: sai quando as inscrições reais
+            chegarem. Ficava em `--imperial` (#9B1C2E), que sobre o azul do
+            rodapé dá contraste 2.04:1 — reprovado em AA e mal legível.
+            Vermelho escuro só funciona sobre branco (lá dá 8.6:1, e é como
+            a OAB aparece nas páginas). Sobre chapa escura, o destaque vem
+            do branco cheio contra o texto a 55% em volta. */}
+        <span class="aviso-placeholder">Inscrições são placeholder. Entram as reais antes de publicar.</span>
       </p>
     </div>
 
@@ -123,6 +129,11 @@ const ano = new Date().getFullYear();
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.72);
     margin: 0;
+  }
+  /* Aviso temporário de placeholder. Branco cheio sobre o azul do rodapé
+     (15.9:1); destaca-se do texto em volta, que está a 72%. */
+  .aviso-placeholder {
+    color: #fff;
   }
   .pe-nav {
     display: grid;

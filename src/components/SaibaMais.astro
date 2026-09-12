@@ -19,7 +19,17 @@ interface Props {
   children?: unknown;
   /** Alinhamento dentro da faixa. */
   alinhamento?: 'esquerda' | 'centro';
-  /** Fundo escuro (seções em chapa azul) inverte as cores. */
+  /**
+   * Fundo escuro (seções em chapa azul) inverte as cores.
+   *
+   * ATENÇÃO: quem passa `escuro` precisa garantir que a faixa esteja de
+   * fato sobre azul. O componente pinta o próprio fundo (`--tinta`)
+   * justamente por isso: antes ele só trocava a cor do texto para branco e
+   * herdava o fundo de quem o contivesse — na home isso era o branco da
+   * página, e o link "Ver as áreas em detalhe" ficava branco sobre branco,
+   * com contraste 1.00:1. Era invisível a olho nu, e ninguém tinha visto
+   * porque a seção azul termina num corte diagonal logo acima.
+   */
   escuro?: boolean;
 }
 
@@ -63,6 +73,11 @@ const { href, alinhamento = 'esquerda', escuro = false } = Astro.props;
   .saiba a:hover {
     border-color: var(--tinta);
     background: var(--linha);
+  }
+  /* O fundo vem junto com a inversão de cor: sem ele o texto branco herda
+     o branco da página. Ver a nota em Props. */
+  .saiba.escuro {
+    background: var(--tinta);
   }
   .saiba.escuro a {
     color: #fff;
