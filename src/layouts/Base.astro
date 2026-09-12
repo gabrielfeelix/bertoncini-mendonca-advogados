@@ -44,7 +44,8 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <meta property="og:title" content={titulo} />
     <meta property="og:description" content={descricao} />
     <meta property="og:url" content={urlCanonica.toString()} />
-    <meta property="og:image" content={new URL(site.imagemPadrao, site.url).toString()} />
+    <!-- placeholder: og:image ainda é arte genérica, não aprovada pelo cliente (ver src/lib/site.ts) -->
+    <meta property="og:image" content={new URL(site.imagemPadrao.valor, site.url).toString()} />
     <meta property="og:locale" content={site.locale} />
     <meta name="twitter:card" content="summary_large_image" />
 
@@ -67,7 +68,16 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
 
     <Navbar paginaAtual={paginaAtual} />
 
-    <main id="conteudo">
+    <!-- tabindex="-1" é obrigatório aqui: o navegador só move o foco real
+         para elementos nativamente focáveis ao seguir uma âncora, e
+         <main> fica de fora dessa lista (mesmo problema que o protótipo
+         resolve em tempo de execução nas linhas 903-918 — ali via JS,
+         porque o alvo variava por seção; aqui o alvo é sempre este mesmo
+         elemento, então o atributo pode ir direto no HTML, funcionando
+         sem depender de nenhum script). Sem isso, o Enter no link "Pular
+         para o conteúdo" rola a página mas o foco real fica no <body>,
+         que é o defeito que a revisão anterior encontrou. -->
+    <main id="conteudo" tabindex="-1">
       <slot />
     </main>
 

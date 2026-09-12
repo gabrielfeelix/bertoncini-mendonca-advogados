@@ -60,7 +60,7 @@ const ano = new Date().getFullYear();
       </div>
       <div>
         <h4>Onde</h4>
-        <p>{site.cidade}, {site.estado}<br />Atendimento {site.atendimento.toLowerCase()}</p>
+        <p>{site.cidade}, {site.estado}<br />{site.atendimentoRodape}</p>
         <a href={site.redes.instagram.valor} data-placeholder={site.redes.instagram.placeholder ? '1' : undefined}>
           Instagram
         </a>
@@ -165,6 +165,9 @@ const ano = new Date().getFullYear();
   }
   .pe-fim a {
     color: inherit;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
   }
   @media (max-width: 900px) {
     .pe-nav {

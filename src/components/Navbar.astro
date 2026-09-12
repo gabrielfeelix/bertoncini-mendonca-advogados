@@ -64,7 +64,7 @@ const { paginaAtual } = Astro.props;
     </a>
 
     <details class="movel" id="movel">
-      <summary class="abre" id="abre" aria-label="Abrir menu">Menu</summary>
+      <summary class="abre" id="abre" aria-label="Abrir menu" aria-expanded="false">Menu</summary>
       <div class="painel-menu" id="painel-menu">
         {navegacao.map((item) => (
           <a href={item.href} aria-current={paginaAtual === item.href ? 'page' : undefined}>
@@ -203,12 +203,19 @@ const { paginaAtual } = Astro.props;
 
   /*
     Menu de celular com <details>/<summary>: widget nativo do HTML, abre e
-    fecha sem nenhum JavaScript (o navegador já implementa o toggle, o
-    aria-expanded implícito e, na maioria dos navegadores, o fechamento com
-    Escape). O script no fim do arquivo só adiciona duas melhorias que o
-    <details> não dá de graça: fechar ao clicar num link e mover o foco
-    para o primeiro link ao abrir. Nenhuma delas é necessária para o menu
-    funcionar — são só refinamentos.
+    fecha por clique sem nenhum JavaScript (o navegador já implementa o
+    toggle). Duas coisas que o <details> NÃO dá de graça, verificadas com
+    Playwright real depois que a revisão pegou a suposição errada:
+      - aria-expanded: o <summary> não tem papel de botão nativo com esse
+        atributo gerenciado pelo navegador. Escrevemos "false" no HTML (sem
+        JS, o painel de fato começa fechado, então o valor é correto desde
+        o primeiro paint) e o script troca para "true"/"false" a cada toggle.
+      - Escape: um <details> comum (sem o atributo experimental `popover`)
+        não fecha com Escape em nenhum motor — testado em Chromium. O script
+        adiciona o handler.
+    Sem JS, o usuário ainda abre e fecha clicando no <summary> — só não tem
+    o atalho de teclado nem o aria-expanded dinâmico, o que é aceitável como
+    degradação (o elemento continua operável, só perde refinamento).
   */
   .movel {
     display: none;
@@ -243,6 +250,8 @@ const { paginaAtual } = Astro.props;
   .painel-menu a {
     padding: 15px 4px;
     min-height: 44px;
+    min-width: 44px;
+    width: 100%;
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -299,11 +308,18 @@ const { paginaAtual } = Astro.props;
   const elBarra = document.getElementById('barra');
   const elMovel = document.getElementById('movel');
   const elPainel = document.getElementById('painel-menu');
+  const elAbre = document.getElementById('abre');
 
-  if (elBarra instanceof HTMLElement && elMovel instanceof HTMLDetailsElement && elPainel) {
+  if (
+    elBarra instanceof HTMLElement &&
+    elMovel instanceof HTMLDetailsElement &&
+    elPainel &&
+    elAbre
+  ) {
     const barra = elBarra;
     const movel = elMovel;
     const painel = elPainel;
+    const abre = elAbre;
     const calma = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let ultimoY = 0;
 
@@ -326,9 +342,12 @@ const { paginaAtual } = Astro.props;
       barra.classList.remove('oculta');
     });
 
-    // Melhorias sobre o comportamento nativo do <details>: focar o
-    // primeiro link ao abrir, e fechar o painel ao escolher um link.
+    // aria-expanded: o <summary> não gerencia isso sozinho, o navegador não
+    // dá esse atributo de graça. Mantém sincronizado com o estado real do
+    // <details> a cada toggle (clique, teclado, ou o fechamento por Escape
+    // logo abaixo).
     movel.addEventListener('toggle', () => {
+      abre.setAttribute('aria-expanded', String(movel.open));
       if (movel.open) {
         const primeiroLink = painel.querySelector('a');
         if (primeiroLink instanceof HTMLElement) primeiroLink.focus();
@@ -337,6 +356,18 @@ const { paginaAtual } = Astro.props;
 
     painel.addEventListener('click', (evento) => {
       if ((evento.target as HTMLElement)?.tagName === 'A') movel.open = false;
+    });
+
+    // Um <details> comum (sem o atributo `popover`) não fecha com Escape em
+    // nenhum motor — confirmado com teste real, a suposição anterior de que
+    // "fecha na maioria dos navegadores" estava errada. O handler cobre o
+    // foco em qualquer lugar (documento inteiro), inclusive dentro do
+    // próprio painel ou no summary, e devolve o foco ao botão que abriu.
+    document.addEventListener('keydown', (evento) => {
+      if (evento.key === 'Escape' && movel.open) {
+        movel.open = false;
+        abre.focus();
+      }
     });
   }
 </script>

@@ -30,11 +30,20 @@ export const site = {
     'Compliance. Atendimento presencial e online para todo o Paraná.',
   idioma: 'pt-BR',
   locale: 'pt_BR',
-  imagemPadrao: '/og-padrao.jpg',
+  // Placeholder: imagem de Open Graph genérica (fundo azul + nome em texto),
+  // criada só para a tag og:image nunca apontar para um arquivo inexistente
+  // (o WhatsApp é o canal principal do escritório e usa essa prévia). Não é
+  // arte aprovada pelo cliente — troca por uma foto/arte real antes de
+  // publicar.
+  imagemPadrao: { valor: '/og-padrao.jpg', placeholder: true } satisfies CampoPlaceholder,
 
   cidade: 'Maringá',
   estado: 'PR',
   atendimento: 'Online, para todo o Paraná',
+  // Mesma informação de `atendimento`, já na forma de frase para o rodapé
+  // (protótipo, linha 862): escrita à mão para não depender de
+  // .toLowerCase()/.toUpperCase() em cima de "Paraná", que é nome próprio.
+  atendimentoRodape: 'Atendimento online para todo o estado',
 
   // Placeholders do protótipo (`(44) 0000 0000`, `contato@exemplo.adv.br`).
   telefone: { valor: '(44) 0000 0000', placeholder: true } satisfies CampoPlaceholder,
