@@ -22,7 +22,15 @@ interface Props {
 const { paginaAtual } = Astro.props;
 ---
 
-<header class="barra" id="barra">
+{/* `data-contraste="externo"` só quando a barra fica SOBRE o hero: ali o
+    fundo real é a foto escura, não o branco do <body>, e o verificador de
+    contraste não tem como medir isso sozinho. Em página comum a barra é
+    opaca e entra na medição normalmente. Ver a nota em tools/verifica.mjs. */}
+<header
+  class="barra"
+  id="barra"
+  data-contraste={paginaAtual === '/' ? 'externo' : undefined}
+>
   <div class="env barra-env">
     <a class="marca" href="/">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -95,6 +103,21 @@ const { paginaAtual } = Astro.props;
     tempo todo; pointer-events:none só impede clique/hover visual enquanto
     oculta.
   */
+  /*
+    A barra é SOBREPOSTA ao conteúdo, não empilhada acima dele.
+
+    Era este o defeito da primeira dobra: a barra tinha fundo `--tinta`
+    sólido e o `<main>` reservava 88px para ela, de modo que o hero
+    começava abaixo de uma faixa branca. A causa raiz não era a cor — era
+    tratar a barra como um bloco acima do conteúdo em vez de algo por
+    cima dele.
+
+    Agora ela nasce transparente sobre o hero e só ganha fundo quando a
+    página rola (`.barra.pousada`, escrita pelo script abaixo). Sem JS ela
+    nasce com fundo, porque aí não há como saber onde a rolagem está e uma
+    barra transparente sobre conteúdo claro seria ilegível — o padrão
+    seguro é o fundo, e o script o remove quando pode garantir o contexto.
+  */
   .barra {
     position: fixed;
     z-index: 60;
@@ -103,7 +126,18 @@ const { paginaAtual } = Astro.props;
     right: 0;
     background: var(--tinta);
     color: #fff;
-    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s,
+      background-color 0.45s ease;
+  }
+  /* Com JS, a barra começa transparente em cima do hero... */
+  :global(.js) .barra.solta {
+    background: transparent;
+  }
+  /* ...e ganha fundo assim que a página desce. */
+  :global(.js) .barra.pousada {
+    background: rgba(11, 30, 63, 0.86);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
   }
   .barra.oculta {
     transform: translateY(-100%);
@@ -323,17 +357,31 @@ const { paginaAtual } = Astro.props;
     const calma = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let ultimoY = 0;
 
+    /* A barra só pode ficar transparente onde há um hero escuro atrás
+       dela. Em página sem hero (políticas, contato, blog), transparente
+       significaria texto branco sobre fundo branco. `data-sobreposta` no
+       <body> é quem autoriza — ver Base.astro. */
+    const podeSoltar = document.body.dataset.sobreposta === '1';
+
+    function pousa() {
+      if (!podeSoltar) return;
+      /* solta enquanto a primeira dobra ainda domina a tela */
+      const emCima = window.scrollY < window.innerHeight * 0.6;
+      barra.classList.toggle('solta', emCima);
+      barra.classList.toggle('pousada', !emCima);
+    }
+
     function passo() {
-      if (calma) return; // não altera nada sob reduced-motion: barra sempre visível.
+      pousa();
+      if (calma) return; // não esconde sob reduced-motion: barra sempre visível.
       const y = window.scrollY;
       const podeEsconder = y > ultimoY && y > 120 && !movel.open;
       barra.classList.toggle('oculta', podeEsconder);
       ultimoY = y;
     }
     passo();
-    if (!calma) {
-      addEventListener('scroll', passo, { passive: true });
-    }
+    addEventListener('scroll', passo, { passive: true });
+    addEventListener('resize', pousa);
 
     // Se o foco entra na barra escondida, tira a classe .oculta de vez (o
     // :focus-within do CSS já reexibe na hora; isso evita que a próxima

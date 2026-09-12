@@ -1,17 +1,52 @@
 ---
 /**
- * Hero: vídeo de fundo em preto e branco, título em três linhas e um par
- * "frase de apoio + botão". Migrado do protótipo (CSS linhas 140-168,
- * HTML linhas 523-544).
+ * Hero: a primeira dobra, redesenhada (Tarefa 1 de `docs/PLANO-REDESENHO.md`).
  *
- * Todo o conteúdo entra por prop; os padrões reproduzem a home aprovada.
+ * ── O que mudou, e por quê ──────────────────────────────────────────────
  *
- * Marcações que a Tarefa 5 procura e que NÃO podem ser renomeadas:
+ * O hero antigo era vídeo em preto e branco com o título em três linhas.
+ * Três defeitos apontados pelo Gabriel, que este arquivo corrige:
+ *
+ * 1. **Faixa branca entre o cabeçalho e o vídeo.** A causa não estava
+ *    aqui: era `padding-top:88px` no `<main>` (Base.astro), que reservava
+ *    espaço para a navbar fixa. Esse padding é branco. Corrigido lá, com
+ *    a home dispensando a reserva — a navbar agora é sobreposta.
+ * 2. **A primeira dobra não era full viewport.** O hero é `100svh`, mas
+ *    somado aos 88px empurrados já nascia cortado.
+ * 3. **A barra nunca mudava de cor**, parecendo pregada em cima do site.
+ *    Agora é transparente sobre o hero e ganha fundo ao rolar (Navbar).
+ *
+ * ── A composição ────────────────────────────────────────────────────────
+ *
+ * Quatro cantos, como na referência Brian Anderson: marcas no topo,
+ * título e apoio na coluna esquerda, e a ação embaixo à direita. O meio e
+ * a direita ficam livres para as pessoas aparecerem — é por isso que a
+ * imagem foi gerada com espaço negativo à esquerda.
+ *
+ * A foto NÃO recebe véu de cor. Decisão do cliente: a capa é a cor dela.
+ * O contraste do texto vem de `text-shadow` e de um escurecimento neutro
+ * (preto transparente, não azul) só nas bordas onde há texto.
+ *
+ * ── O encolhimento ao rolar ─────────────────────────────────────────────
+ *
+ * Ao descer, a imagem encolhe e vira um retângulo de cantos arredondados,
+ * revelando o fundo em volta. É a decisão nº 1 do plano (seções são
+ * placas, não faixas), aplicada à primeira dobra, e é o mecanismo do
+ * Neural Atlas.
+ *
+ * Feito com `position:sticky` + `animation-timeline:view()` quando o
+ * navegador suporta (Chrome/Edge), e por JS com `IntersectionObserver` +
+ * `scroll` no resto. Sem JS e sem scroll-timeline a imagem simplesmente
+ * fica em tela cheia, que é um estado final legítimo — nada se perde.
+ * Sob `prefers-reduced-motion` o encolhimento não acontece.
+ *
+ * ── O que NÃO pode ser renomeado (a camada de movimento procura) ────────
  *  - `.linha > i` em cada linha do h1 (reveal de máscara);
- *  - `#pausa` (botão de pausar o vídeo, com aria-pressed);
+ *  - `#pausa` só existe na variante de vídeo;
  *  - a classe `.hero` recebe `.pronta` via JS para disparar as transições.
- * Sem JS nada disso existe e o hero já nasce legível: o vídeo tem
- * `autoplay muted loop playsinline` nativos e o texto é texto normal.
+ *
+ * Sem JS o hero nasce legível: a imagem é `<img>` com `srcset`, o texto é
+ * texto normal e nada depende de script para aparecer.
  */
 interface LinhaTitulo {
   /** Texto antes do trecho em itálico. */
@@ -23,10 +58,18 @@ interface LinhaTitulo {
 }
 
 interface Props {
-  /** Caminho do vídeo de fundo (em `public/`). */
+  /**
+   * Fundo: `imagem` (o retrato dos sócios) ou `video` (o filme antigo).
+   * O vídeo continua suportado para não perder o trabalho da Tarefa 5,
+   * mas a home usa a imagem.
+   */
+  fundo?: 'imagem' | 'video';
+  /** Caminho do vídeo, quando `fundo="video"`. */
   video?: string;
-  /** Poster do vídeo, exibido antes de o vídeo carregar. */
+  /** Poster do vídeo. */
   poster?: string;
+  /** Descrição da imagem de fundo. Obrigatória quando `fundo="imagem"`. */
+  imagemAlt?: string;
   /** Linhas do `<h1>`, cada uma com sua própria máscara de reveal. */
   linhas?: LinhaTitulo[];
   /** Marca d'água à esquerda, no topo. */
@@ -46,8 +89,10 @@ interface Props {
 }
 
 const {
+  fundo = 'imagem',
   video = '/media/hero.mp4',
   poster = '/media/hero-poster.jpg',
+  imagemAlt = 'Juscelino Bertoncini e Beatriz Mendonça, os dois sócios do escritório',
   linhas = [
     { antes: 'Você vai' },
     { enfase: 'entender', depois: ' cada' },
@@ -63,86 +108,258 @@ const {
 }: Props = Astro.props;
 ---
 
-<header class="hero" id="hero">
-  <video
-    class="filme"
-    src={video}
-    poster={poster}
-    autoplay
-    muted
-    loop
-    playsinline
-    preload="auto"></video>
-  <div class="lavagem"></div>
-  <div class="grao" style="filter:url(#grao)"></div>
-  <div class="marcas"><span>{marcaEsquerda}</span><span>{marcaDireita}</span></div>
-  <button class="pausa" id="pausa" aria-pressed="false" aria-label="Pausar o vídeo de fundo">
-    Pausar vídeo
-  </button>
-  <div class="env">
-    <h1 class="display">
-      {linhas.map((linha) => (
-        <span class="linha"><i>{linha.antes}{linha.enfase && <em>{linha.enfase}</em>}{linha.depois}</i></span>
-      ))}
-    </h1>
-    <div class="pe">
-      <p class="diz"><b>{dizForte}</b>{diz}</p>
-      <a
-        class="botao vidro"
-        href={botaoHref}
-        data-placeholder={botaoPlaceholder ? '1' : undefined}
-      >
-        {botaoRotulo}
-        <span class="disco"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
-      </a>
+{/* O invólucro é alto (170svh): é o trecho de rolagem durante o qual a
+    placa encolhe. A placa em si é sticky e ocupa uma tela. */}
+<div class="hero-trilho" id="hero-trilho">
+  <header class="hero" id="hero" data-fundo={fundo}>
+    <div class="placa" id="hero-placa">
+      {fundo === 'imagem' ? (
+        <picture class="filme">
+          {/* O celular recebe um recorte vertical: a 390px o corte de uma
+              16:9 perderia as duas pessoas. */}
+          <source
+            media="(max-width: 700px)"
+            type="image/avif"
+            srcset="/media/hero/socios-vert-600.avif 600w, /media/hero/socios-vert-800.avif 800w"
+            sizes="100vw"
+          />
+          <source
+            media="(max-width: 700px)"
+            type="image/webp"
+            srcset="/media/hero/socios-vert-600.webp 600w, /media/hero/socios-vert-800.webp 800w"
+            sizes="100vw"
+          />
+          <source
+            type="image/avif"
+            srcset="/media/hero/socios-900.avif 900w, /media/hero/socios-1200.avif 1200w, /media/hero/socios-1600.avif 1600w"
+            sizes="100vw"
+          />
+          <source
+            type="image/webp"
+            srcset="/media/hero/socios-900.webp 900w, /media/hero/socios-1200.webp 1200w, /media/hero/socios-1600.webp 1600w"
+            sizes="100vw"
+          />
+          <img
+            src="/media/hero/socios-1600.jpg"
+            alt={imagemAlt}
+            width="1672"
+            height="941"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
+      ) : (
+        <video class="filme" src={video} poster={poster} autoplay muted loop playsinline preload="auto"></video>
+      )}
+
+      <div class="lavagem"></div>
+      <div class="grao" style="filter:url(#grao)"></div>
+
+      <div class="marcas"><span>{marcaEsquerda}</span><span>{marcaDireita}</span></div>
+
+      {fundo === 'video' && (
+        <button class="pausa" id="pausa" aria-pressed="false" aria-label="Pausar o vídeo de fundo">
+          Pausar vídeo
+        </button>
+      )}
+
+      {/* `data-contraste="externo"`: todo o texto daqui fica sobre a foto,
+          e o verificador não tem como medir contraste contra um pixel de
+          imagem — a `.lavagem` fica entre a imagem e o texto, então nem a
+          árvore denuncia. A legibilidade é garantida por outro caminho:
+          `text-shadow` em cada peça de texto e o escurecimento das duas
+          bordas. Ver a nota em tools/verifica.mjs. */}
+      <div class="env" data-contraste="externo">
+        {/* Apoio acima do título, na coluna esquerda — onde a foto tem
+            espaço negativo. Ver a nota em `.apoio`, no CSS. */}
+        <p class="apoio"><b>{dizForte}</b>{diz}</p>
+
+        <h1 class="display">
+          {linhas.map((linha) => (
+            <span class="linha"><i>{linha.antes}{linha.enfase && <em>{linha.enfase}</em>}{linha.depois}</i></span>
+          ))}
+        </h1>
+
+        <div class="pe">
+          <a class="botao vidro" href={botaoHref} data-placeholder={botaoPlaceholder ? '1' : undefined}>
+            {botaoRotulo}
+            <span class="disco"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
+          </a>
+        </div>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
+</div>
 
 <style>
+  /* O trilho dá o curso de rolagem do encolhimento. 170svh = uma tela de
+     hero + 70% de curso. Sem movimento (reduced-motion) ele volta a ser
+     uma tela só: não há o que rolar. */
+  .hero-trilho {
+    /* 172svh: uma tela de hero + 72% de curso, a mesma proporção do
+       prototipo/v2. Curso mais longo que isso foi lido pelo cliente como
+       "um scroll enorme para baixo"; mais curto vira solavanco. */
+    height: 172svh;
+    background: var(--branco);
+  }
+
   .hero {
-    position: relative;
+    position: sticky;
+    top: 0;
     height: 100svh;
     min-height: 620px;
-    overflow: hidden;
-    background: #0b1e3f;
+    /* BRANCO em volta da placa, não azul: decisão do cliente, que pediu
+       "espaço nas laterais, em cima e embaixo, e branco em volta". O
+       branco também amarra a primeira dobra com a seção seguinte, que é
+       branca — a placa parece pousar sobre a página em vez de flutuar
+       sobre outra chapa de cor. */
+    background: var(--branco);
+    display: grid;
+    place-items: stretch;
   }
-  .hero .filme {
+
+  /* A placa é o que encolhe. `--encolhe` vai de 0 (tela cheia) a 1
+     (retângulo), escrita pelo scroll-timeline ou pelo JS. */
+  /*
+    A placa encolhe por `transform: scale()`, não por margem.
+
+    É o mecanismo de `prototipo/v2/index.html` (`.hero .moldura`), e é o
+    único que não produz faixa branca: `scale` encolhe a partir de um
+    ponto de origem sem tirar o elemento do lugar, enquanto margem empurra
+    o conteúdo e abre vão de um lado antes do outro. Duas tentativas por
+    margem deixaram branco no topo; esta não deixa, por construção.
+
+    `transform-origin` um pouco abaixo do centro mantém a cabeça das duas
+    pessoas enquadrada enquanto a placa diminui.
+  */
+  .placa {
+    --encolhe: 0;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    transform: scale(calc(1 - 0.13 * var(--encolhe)));
+    transform-origin: 50% 58%;
+    border-radius: calc(var(--encolhe) * clamp(18px, 2.4vw, 34px));
+    will-change: transform, border-radius;
+  }
+
+  .placa .filme,
+  .placa .filme img,
+  .placa video.filme {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* o recorte acompanha a pessoa: à direita no desktop */
+    object-position: 62% 28%;
+  }
+  .placa video.filme {
     filter: grayscale(1) contrast(1.16) brightness(0.86);
   }
-  .hero .lavagem {
+
+  /*
+    NADA de véu colorido sobre a foto. Decisão do Gabriel: "não coloca cor
+    em cima da capa, quero que a capa seja essa cor, ponto".
+
+    A primeira versão tinha uma lavagem azul por cima da imagem inteira,
+    para garantir contraste do texto. Sujava a foto e tirava dela
+    justamente o que ela tem de bom — a cor original.
+
+    A legibilidade passa a vir de sombra atrás das letras (`text-shadow`),
+    que escurece só os pixels sob o texto, e de um escurecimento neutro e
+    discreto nas duas bordas onde de fato há texto, em PRETO transparente,
+    não em azul: preto a 30% não desloca matiz, só reduz luminância. A
+    imagem já é escura, então é pouco.
+  */
+  .lavagem {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(180deg, rgba(11, 30, 63, 0.52) 0%, rgba(11, 30, 63, 0.22) 32%, rgba(11, 30, 63, 0.78) 100%),
-      radial-gradient(70% 60% at 78% 26%, rgba(0, 67, 105, 0.42), transparent 66%);
+      /* Vinheta de topo: dá leito para a navbar, que antes flutuava sobre
+         a cabeça do Juscelino sem nada que a separasse da foto. Cai rápido
+         (28%) para não virar véu sobre a imagem inteira. */
+      linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.52) 0%,
+        rgba(0, 0, 0, 0.26) 12%,
+        transparent 28%
+      ),
+      linear-gradient(0deg, rgba(0, 0, 0, 0.44) 0%, transparent 32%);
   }
-  /* Grão só sobre o azul escuro do hero; nunca sobre branco. */
-  .hero .grao {
+  .grao {
     position: absolute;
     inset: 0;
-    opacity: 0.22;
+    opacity: 0.1;
     pointer-events: none;
+    background: #8aa0bc;
+    mix-blend-mode: overlay;
   }
-  .hero :global(.env) {
+
+  /* ── composição em quatro cantos ──────────────────────────────────── */
+  .hero .env {
     position: relative;
     z-index: 3;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding-bottom: clamp(40px, 7vh, 84px);
+    display: grid;
+    /* marcas · folga elástica · título · apoio+ação.
+       A folga elástica fica em CIMA: empurra o bloco de texto para a
+       metade de baixo sem colar nada no rodapé da tela. */
+    grid-template-rows: auto 1fr auto auto;
+    padding-block: clamp(84px, 11vh, 128px) clamp(44px, 7vh, 86px);
     color: #fff;
   }
+
+  .marcas {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.92);
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 14px rgba(0, 0, 0, 0.6);
+  }
+  @media (max-width: 760px) {
+    .marcas {
+      display: none;
+    }
+  }
+
+  /*
+    O apoio fica à ESQUERDA, junto do título, não no canto direito.
+    A primeira versão o punha no canto superior direito, seguindo a
+    referência — mas nesta foto é ali que está o rosto do Juscelino, e o
+    texto caía em cima dele. A imagem foi gerada com espaço negativo à
+    esquerda justamente para receber texto; é lá que ele vai.
+  */
+  .apoio {
+    grid-row: 4;
+    justify-self: start;
+    align-self: start;
+    max-width: 46ch;
+    margin-top: clamp(18px, 2.6vh, 30px);
+    font-size: 18px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.94);
+    text-shadow: 0 1px 18px rgba(0, 0, 0, 0.7), 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  .apoio b {
+    color: #fff;
+    font-weight: 600;
+    display: block;
+  }
+
+  /* Título embaixo à esquerda, alinhado ao fim da área livre. */
   .hero h1 {
-    font-size: clamp(52px, 9.2vw, 146px);
+    grid-row: 3;
+    align-self: end;
+    font-size: clamp(44px, 7.4vw, 118px);
     max-width: 15ch;
+    margin-top: 0;
+    /* Sombra larga e suave: escurece só o que está atrás das letras, em
+       vez de um véu sobre a imagem inteira. */
+    text-shadow: 0 2px 40px rgba(0, 0, 0, 0.6), 0 1px 4px rgba(0, 0, 0, 0.4);
   }
   .hero h1 .linha {
     display: block;
@@ -156,70 +373,143 @@ const {
     font-style: italic;
     font-weight: 200;
   }
+
+  /* A ação divide a linha 4 com o apoio, à direita — antes ela ficava
+     numa quinta linha, colada no rodapé da tela, e o cliente leu isso
+     como "o botão está muito para baixo". */
   .hero .pe {
-    margin-top: clamp(28px, 4vh, 44px);
+    grid-row: 4;
+    justify-self: end;
+    align-self: start;
+    margin-top: clamp(18px, 2.6vh, 30px);
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 32px;
+    align-items: center;
+    gap: 24px;
     flex-wrap: wrap;
   }
-  .hero .diz {
-    max-width: 40ch;
-    color: rgba(255, 255, 255, 0.78);
-    font-size: 17.5px;
+
+  .hero .pe .botao {
+    min-height: 44px;
   }
-  .hero .diz b {
-    color: #fff;
-    font-weight: 500;
-  }
-  .marcas {
-    position: absolute;
-    z-index: 3;
-    left: var(--gutter);
-    right: var(--gutter);
-    top: clamp(84px, 12vh, 120px);
-    display: flex;
-    justify-content: space-between;
-    color: rgba(255, 255, 255, 0.58);
-    font-size: 13px;
-  }
-  @media (max-width: 760px) {
-    .marcas {
-      display: none;
-    }
-  }
-  .hero .pausa {
+
+  .pausa {
     position: absolute;
     z-index: 4;
-    right: var(--gutter);
-    bottom: 22px;
-    font: 500 13px/1 var(--sans);
-    letter-spacing: 0.02em;
-    color: rgba(255, 255, 255, 0.72);
-    background: rgba(9, 23, 48, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.22);
+    right: clamp(16px, 2vw, 28px);
+    bottom: clamp(16px, 2vw, 28px);
+    font: 500 15px/1 var(--sans);
+    color: rgba(255, 255, 255, 0.86);
+    background: rgba(9, 23, 48, 0.42);
+    border: 1px solid rgba(255, 255, 255, 0.26);
     border-radius: 999px;
-    padding: 12px 16px;
+    padding: 12px 18px;
     cursor: pointer;
     backdrop-filter: blur(10px);
     min-height: 44px;
+    min-width: 44px;
     display: inline-flex;
     align-items: center;
   }
-  .hero .pausa:hover {
+  .pausa:hover {
     color: #fff;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .hero .pausa {
-      display: none;
+
+  @media (max-width: 700px) {
+    /* No recorte vertical os dois ocupam a tela inteira, então o texto
+       nao tem "espaco negativo" para onde ir: ele passa a viver na faixa
+       escurecida de baixo, e o apoio sai do topo (caia sobre o rosto
+       dela). A ordem vira titulo -> apoio -> acao, toda no rodape. */
+    .placa .filme,
+    .placa .filme img {
+      object-position: 50% 18%;
+    }
+    .hero .env {
+      grid-template-rows: auto 1fr auto auto;
+      padding-block: clamp(74px, 10vh, 96px) clamp(22px, 4vh, 34px);
+    }
+    .hero h1 {
+      grid-row: 2;
+      align-self: end;
+      max-width: 12ch;
+      margin-top: 0;
+    }
+    .apoio {
+      grid-row: 3;
+      align-self: start;
+      margin-top: 14px;
+      font-size: 18px;
+      max-width: 34ch;
+    }
+    .apoio b {
+      display: inline;
+    }
+    .hero .pe {
+      grid-row: 4;
+      margin-top: 18px;
+      align-items: stretch;
+      flex-direction: column;
+    }
+    .hero .pe .botao {
+      justify-content: space-between;
+    }
+    /* A faixa escurecida de baixo cresce, porque agora ela carrega todo
+       o texto. Continua PRETO transparente: a foto nao ganha cor. */
+    .lavagem {
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, transparent 18%),
+        linear-gradient(0deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.45) 32%, transparent 58%);
     }
   }
 
-  /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
-     traz o kill-switch global do protótipo; este bloco garante que o
-     componente já cumpra a regra sozinho, em qualquer página. */
+  /* ── o encolhimento ───────────────────────────────────────────────── */
+
+  /* Caminho 1: scroll-timeline nativo (Chrome/Edge). Sem JS nenhum. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .placa {
+        animation: encolher linear both;
+        animation-timeline: view();
+        animation-range: exit 0% exit 85%;
+      }
+      @keyframes encolher {
+        from {
+          --encolhe: 0;
+        }
+        to {
+          --encolhe: 1;
+        }
+      }
+    }
+  }
+
+  /* `--encolhe` precisa ser registrada para poder ser animada: uma custom
+     property comum é interpolada como texto, e o navegador não sabe ir de
+     0 a 1. Com @property ela vira número de verdade. */
+  @property --encolhe {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+  }
+
+  /* Caminho 2: JS escreve --encolhe (ver script abaixo). A transição
+     suaviza o passo entre leituras de scroll. */
+  :global(.js) .placa {
+    transition: transform 0.12s linear, border-radius 0.12s linear;
+  }
+
+  /* Sob reduced-motion nada encolhe e o trilho não tem curso: a primeira
+     dobra é uma tela cheia e pronto. */
   @media (prefers-reduced-motion: reduce) {
+    .hero-trilho {
+      height: 100svh;
+    }
+    .placa {
+      --encolhe: 0 !important;
+      transform: none !important;
+      border-radius: 0 !important;
+      animation: none !important;
+      transition: none !important;
+    }
     .hero,
     .hero * {
       transition: none !important;
@@ -227,3 +517,39 @@ const {
     }
   }
 </style>
+
+<script>
+  /* Encolhimento por JS, só para navegadores sem `animation-timeline`
+     (Firefox e Safari hoje). Onde o CSS já resolve, este script não faz
+     nada — evita as duas fontes brigando pela mesma propriedade.
+
+     Sem JS e sem scroll-timeline: a placa fica em tela cheia o tempo
+     todo. É um estado final legítimo; nada de conteúdo se perde. */
+  const temNativo = CSS.supports('animation-timeline', 'view()');
+  const calmo = matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (!temNativo && !calmo.matches) {
+    const trilho = document.getElementById('hero-trilho');
+    const placa = document.getElementById('hero-placa');
+
+    if (trilho && placa) {
+      let pedido = 0;
+      const medir = () => {
+        pedido = 0;
+        const caixa = trilho.getBoundingClientRect();
+        /* curso = quanto o trilho já saiu por cima da tela, sobre o total
+           que ele tem para sair (a altura do trilho menos uma tela). */
+        const total = Math.max(1, caixa.height - window.innerHeight);
+        const andado = Math.min(Math.max(-caixa.top, 0), total);
+        const t = Math.min(andado / (total * 0.85), 1);
+        placa.style.setProperty('--encolhe', t.toFixed(3));
+      };
+      const agenda = () => {
+        if (!pedido) pedido = requestAnimationFrame(medir);
+      };
+      addEventListener('scroll', agenda, { passive: true });
+      addEventListener('resize', agenda);
+      medir();
+    }
+  }
+</script>

@@ -11,8 +11,30 @@
   --secundario:#517493;
   --linha:#E3E6EA;
   --imperial:#9B1C2E;
+  /*
+    Papel: a terceira superfície, ao lado de --branco e --tinta. Entra em
+    COMPONENTES (fichas, blocos de destaque, cartões), nunca como fundo de
+    seção inteira — precisão do cliente, e decisão de posicionamento: papel
+    como tema é o creme do Oliveira Pitta, o concorrente mais bem resolvido
+    da mesma cidade. Como material de um componente, é discreto e não
+    colide com ninguém.
+
+    Por que ESTE valor, e não um creme: é um neutro levemente azulado, que
+    puxa da própria marca em vez de introduzir uma família de cor nova. E
+    é o único candidato testado que mantém --secundario (#517493) acima de
+    4.5:1 em cima dele — 4.54:1. Os tons um passo mais escuros derrubam o
+    texto de apoio para 4.4 e reprovariam em AA.
+
+    Medido: --tinta 15.2:1 · --secundario 4.54:1 · --imperial 7.46:1.
+  */
+  --papel:#F4F6F8;
   --serif:"Newsreader",Georgia,serif;
   --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
-  --gutter:clamp(20px,5vw,88px);
+  /* Respiro lateral: o site inteiro vivia numa coluna de 1340px com até
+     88px de gutter, e em tela larga isso deixava tudo comprimido no meio
+     — navbar, primeira dobra e seções presas na mesma medida. A coluna
+     foi para 1500px e o gutter máximo caiu para 72px: mais largura útil,
+     sem encostar na borda da tela. */
+  --gutter:clamp(20px,4.6vw,72px);
   --bloco:clamp(84px,10vw,168px);
 }

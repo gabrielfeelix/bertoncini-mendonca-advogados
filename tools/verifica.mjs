@@ -239,6 +239,20 @@ for (const rota of rotas) {
         /* sobe a árvore até achar um fundo opaco; devolve null se algum
            ancestral tiver imagem/degradê (aí a medida não é confiável) */
         const fundoDe = (el) => {
+          /* Elemento sobreposto a um fundo que não está na sua própria
+             árvore — hoje só a navbar, que é `position:fixed` sobre o hero.
+             O pai dela no DOM é o <body> branco, mas o que existe ATRÁS
+             dela na tela é a foto escura do hero. Medir contra o branco
+             acusaria 1.00:1 num texto que é perfeitamente legível.
+
+             Marcar com `data-contraste="externo"` declara essa condição:
+             é o mesmo caso do texto sobre imagem, que já é ignorado — a
+             diferença é que aqui a pilha de fundo não denuncia sozinha.
+             Quem marca assume a responsabilidade de garantir o contraste
+             (a navbar garante: texto branco sobre o hero escuro, e ela
+             ganha fundo sólido assim que a página rola). */
+          if (el.closest('[data-contraste="externo"]')) return null;
+
           for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
             const cs = getComputedStyle(n);
             if (cs.backgroundImage && cs.backgroundImage !== 'none') return null;

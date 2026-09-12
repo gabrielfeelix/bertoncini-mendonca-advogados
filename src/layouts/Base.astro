@@ -23,9 +23,24 @@ interface Props {
   paginaAtual?: string;
   /** true para páginas fora do índice (ex.: /painel/). */
   noindex?: boolean;
+  /**
+   * true quando a página abre com um hero escuro de tela cheia e a navbar
+   * deve ficar SOBRE ele, sem reservar espaço no fluxo.
+   *
+   * Só a home usa hoje. Em página sem hero a barra continua opaca e o
+   * conteúdo continua reservando o espaço dela — do contrário o texto
+   * nasceria atrás da barra.
+   */
+  heroSobreposto?: boolean;
 }
 
-const { titulo, descricao, paginaAtual, noindex = false } = Astro.props;
+const {
+  titulo,
+  descricao,
+  paginaAtual,
+  noindex = false,
+  heroSobreposto = false,
+} = Astro.props;
 
 const urlCanonica = new URL(Astro.url.pathname, site.url);
 ---
@@ -57,7 +72,7 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <link rel="preload" href="/fonts/newsreader-200.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/archivo-400.woff2" as="font" type="font/woff2" crossorigin />
   </head>
-  <body>
+  <body data-sobreposta={heroSobreposto ? '1' : undefined}>
     <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
     <!-- Filtro de grão: assinatura visual do site. Usado só sobre azul
@@ -94,12 +109,20 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
          escolha guardada: sem JS não há medição nenhuma para consentir. -->
     <AvisoCookies />
 
-    <style>
-      /* A barra é fixa (Navbar.astro); reserva o espaço dela no fluxo para
-         o conteúdo não nascer atrás dela. 72px é a altura mínima definida
-         em .barra-env; a folga extra cobre o wrap do menu em telas médias. */
+    <style define:vars={{ reservaBarra: heroSobreposto ? '0px' : '88px' }}>
+      /*
+        A barra é fixa (Navbar.astro). Em página comum o conteúdo reserva o
+        espaço dela para não nascer atrás — 72px é a altura mínima de
+        `.barra-env`, e a folga cobre o wrap do menu em telas médias.
+
+        Em página com hero sobreposto a reserva é ZERO, de propósito: o
+        padding era branco e produzia a faixa entre o cabeçalho e o vídeo
+        que o cliente apontou, além de empurrar o hero para baixo e fazer a
+        primeira dobra passar de uma tela (`100svh` + 88px). O hero desenha
+        o próprio respiro no topo, por dentro, onde ele é escuro.
+      */
       #conteudo {
-        padding-top: 88px;
+        padding-top: var(--reservaBarra);
       }
     </style>
 
