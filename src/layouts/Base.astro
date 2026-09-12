@@ -8,6 +8,7 @@
 import '../styles/tokens.css';
 import '../styles/fontes.css';
 import '../styles/base.css';
+import '../styles/movimento.css';
 import Navbar from '../components/Navbar.astro';
 import Rodape from '../components/Rodape.astro';
 import AvisoCookies from '../components/AvisoCookies.astro';
@@ -101,5 +102,14 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
         padding-top: 88px;
       }
     </style>
+
+    {/* Camada de movimento (Tarefa 5). Carregada em todas as páginas: os
+        reveals, as âncoras com correção de foco e o controle de vídeo não
+        são exclusivos da home. O próprio script decide o que ligar, e sob
+        `prefers-reduced-motion` quase nada liga — Lenis e GSAP nem são
+        baixados. */}
+    <script>
+      import '~/scripts/movimento';
+    </script>
   </body>
 </html>

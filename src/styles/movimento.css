@@ -1,0 +1,87 @@
+/*
+  Camada de movimento (Tarefa 5). Migrada de prototipo/index.html,
+  linhas 410-423.
+
+  ── A regra que governa esta folha ────────────────────────────────────
+
+  Todo estado inicial de animação está atrás de `.js`, que só existe
+  depois que o script roda. Sem JavaScript, nada aqui se aplica: o texto
+  do hero não fica escondido esperando um reveal que nunca vem, e cada
+  `.sobe` nasce visível. É o que faz o site continuar legível com o
+  script bloqueado, que é requisito do projeto.
+
+  ── O kill-switch ─────────────────────────────────────────────────────
+
+  O bloco `prefers-reduced-motion` no fim é o interruptor geral: ele
+  desliga animação e transição em TUDO, e repõe à mão as propriedades que
+  as classes de movimento haviam deslocado (translate, opacity, scale).
+  Sem essa reposição, desligar a transição congelaria os elementos no
+  estado inicial — texto invisível para sempre, que é pior do que o
+  movimento.
+
+  Ele estava faltando na migração: o handoff registrava que `.pular` e os
+  links da navbar continuavam animando para quem pediu menos movimento.
+*/
+
+/* ── hero: as linhas do título sobem por trás de uma máscara ── */
+.js .linha i {
+  transform: translateY(104%);
+}
+.js .hero.pronta .linha i {
+  transform: none;
+  transition: transform 1.05s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.js .hero.pronta .linha:nth-child(2) i {
+  transition-delay: 0.1s;
+}
+.js .hero.pronta .linha:nth-child(3) i {
+  transition-delay: 0.2s;
+}
+
+/* ── reveal por rolagem ── */
+.js .sobe {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.js .sobe.visivel {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ── o vídeo do hero entra com um leve zoom-out ── */
+.js .hero .filme {
+  transform: scale(1.12);
+}
+.js .hero.pronta .filme {
+  transform: scale(1);
+  transition: transform 2.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/*
+  ── KILL-SWITCH ──────────────────────────────────────────────────────
+
+  Vale para o documento inteiro, inclusive para o que não veio desta
+  folha: `.pular`, os links da navbar, o `.botao` e qualquer transição
+  declarada dentro de um componente.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Repõe o que as classes acima deslocaram: sem isto, desligar a
+     transição deixaria o elemento parado no estado inicial (invisível). */
+  .js .linha i,
+  .js .sobe {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .js .hero .filme {
+    transform: none !important;
+  }
+}
