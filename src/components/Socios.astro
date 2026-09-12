@@ -132,7 +132,18 @@ const Assina = nivel;
           </>
         ) : (
           <>
-            <p class="oab" data-placeholder={socio.oabPlaceholder ? '1' : undefined}>{socio.oab}</p>
+            {/* A OAB na home: 19px, com rótulo. O protótipo trazia 14px e só
+                o número solto (linha 242), o menor corpo do site, na página
+                mais vista — e sem dizer o que o número é. O Provimento
+                205/2021 exige exibir a inscrição, e o levantamento que
+                originou este projeto mostrou que nenhum dos 44 escritórios a
+                exibe: pôr a tese no menor tipo da página contradizia o
+                argumento. Em /escritorio/ ela continua maior (.oab.grande),
+                porque lá é a página de quem foi conferir quem somos. */}
+            <p class="oab" data-placeholder={socio.oabPlaceholder ? '1' : undefined}>
+              <span class="oab-rotulo">Inscrição na Ordem</span>
+              <span class="oab-numero">{socio.oab}</span>
+            </p>
             <p class="bio">{socio.bio}</p>
           </>
         )}
@@ -218,10 +229,20 @@ const Assina = nivel;
   }
   .par .oab {
     margin-top: 22px;
-    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     color: var(--imperial);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.01em;
+  }
+  .par .oab .oab-rotulo {
+    font-size: 15px;
+    color: var(--secundario);
+    letter-spacing: 0.02em;
+  }
+  .par .oab .oab-numero {
+    font-size: 19px;
   }
   .par .bio {
     margin-top: 12px;
@@ -257,12 +278,15 @@ const Assina = nivel;
     border-radius: 10px;
     font-size: 20px;
   }
-  .oab.grande .oab-rotulo {
+  .par .oab.grande .oab-rotulo {
     font-size: 15px;
     color: var(--secundario);
     letter-spacing: 0.02em;
   }
-  .oab.grande .oab-numero {
+  /* Especificidade: `.par .oab .oab-numero` (0,3,0) da home venceria
+     `.oab.grande .oab-numero` (0,3,0, mas antes na folha), e a OAB da
+     página do escritório caía para 19px. Por isso o `.par` também aqui. */
+  .par .oab.grande .oab-numero {
     color: var(--imperial);
     font-size: 22px;
     font-variant-numeric: tabular-nums;

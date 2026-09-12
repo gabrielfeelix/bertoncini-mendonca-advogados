@@ -1,0 +1,84 @@
+---
+/**
+ * Link de saída de uma seção da home para a página interna que aprofunda
+ * o assunto.
+ *
+ * Por que é um componente e não um `<a>` solto em cada seção: as seções da
+ * home são as mesmas da Tarefa 4, migradas do protótipo, e servem também a
+ * `/areas/` e `/escritorio/`, onde um "saiba mais" apontaria para a própria
+ * página onde a pessoa já está. Mantendo o link fora delas, a seção continua
+ * reusável e só a home decide para onde se vai.
+ *
+ * Alvo de toque de 44px em altura e largura, como o resto do site: o público
+ * tem 70 anos.
+ */
+interface Props {
+  /** Destino do link. */
+  href: string;
+  /** Texto do link. Deve dizer o destino, não "clique aqui". */
+  children?: unknown;
+  /** Alinhamento dentro da faixa. */
+  alinhamento?: 'esquerda' | 'centro';
+  /** Fundo escuro (seções em chapa azul) inverte as cores. */
+  escuro?: boolean;
+}
+
+const { href, alinhamento = 'esquerda', escuro = false } = Astro.props;
+---
+
+<div class={`saiba ${alinhamento} ${escuro ? 'escuro' : ''}`}>
+  <div class="env">
+    <a href={href}>
+      <slot />
+      <span class="seta" aria-hidden="true">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+          <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+        </svg>
+      </span>
+    </a>
+  </div>
+</div>
+
+<style>
+  .saiba {
+    padding-block: clamp(18px, 2.4vw, 28px) clamp(30px, 4vw, 56px);
+  }
+  .saiba.centro .env {
+    display: flex;
+    justify-content: center;
+  }
+  .saiba a {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border: 1px solid var(--linha);
+    border-radius: 999px;
+    font-size: 17px;
+    text-decoration: none;
+    color: var(--tinta);
+  }
+  .saiba a:hover {
+    border-color: var(--tinta);
+    background: var(--linha);
+  }
+  .saiba.escuro a {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+  .saiba.escuro a:hover {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .saiba .seta {
+    display: inline-flex;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .saiba a {
+      transition: none !important;
+    }
+  }
+</style>

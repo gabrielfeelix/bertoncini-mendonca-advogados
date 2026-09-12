@@ -1,8 +1,97 @@
 ---
-// Página provisória: só para provar que Base.astro funciona (cabeçalho,
-// filtro de grão, rodapé). A home de verdade — todas as seções — entra na
-// Tarefa 6.
-import Base from '../layouts/Base.astro';
+/**
+ * A home (Tarefa 6).
+ *
+ * Monta as seções migradas na Tarefa 4, na ordem do protótipo aprovado
+ * (`prototipo/index.html`): entrada, hero, declaração, áreas, sócios,
+ * faixa, método, newsletter, perguntas, contato.
+ *
+ * O que esta página decide, e as seções não:
+ *
+ * 1. **O conteúdo real.** As áreas vêm da coleção `areas`, não das
+ *    constantes de `Areas.astro`: a home não pode discordar de `/areas/`
+ *    sobre o que o escritório faz. Foi assim que Família e Compliance
+ *    sobreviveram tanto tempo depois do briefing.
+ *
+ * 2. **Os links de saída.** Cada seção ganha um "saiba mais" apontando para
+ *    a página interna correspondente (`SaibaMais.astro`). As seções são
+ *    reusadas em `/areas/` e `/escritorio/`, onde esse link apontaria para a
+ *    própria página — por isso ele mora aqui, e não dentro delas.
+ *
+ * A OAB aparece com rótulo e em 19px (ver `Socios.astro`): o protótipo a
+ * trazia em 14px, o menor corpo do site, na página mais vista. O Provimento
+ * 205/2021 exige exibi-la, e o levantamento que originou o projeto mostrou
+ * que nenhum dos 44 escritórios a exibe. Era a tese do projeto no menor tipo
+ * da página.
+ */
+import Base from '~/layouts/Base.astro';
+import Entrada from '~/components/Entrada.astro';
+import Hero from '~/components/Hero.astro';
+import Declaracao from '~/components/Declaracao.astro';
+import Areas from '~/components/Areas.astro';
+import Socios from '~/components/Socios.astro';
+import Faixa from '~/components/Faixa.astro';
+import Metodo from '~/components/Metodo.astro';
+import Newsletter from '~/components/Newsletter.astro';
+import Perguntas from '~/components/Perguntas.astro';
+import Contato from '~/components/Contato.astro';
+import AvisoCookies from '~/components/AvisoCookies.astro';
+import SaibaMais from '~/components/SaibaMais.astro';
+import CartaoTexto from '~/components/CartaoTexto.astro';
+import { listarAreas } from '~/lib/areas';
+import { listarArtigos, NOME_DO_BLOG } from '~/lib/artigos';
+
+/* As áreas da home vêm da coleção, como em `/areas/`. Uma área confirmada
+   leva à página dela; as que ainda não foram definidas aparecem sem link,
+   marcadas "a confirmar", como manda a decisão registrada. */
+const areas = await listarAreas();
+const areasDaHome = areas.map((area) =>
+  area.data.aConfirmar
+    ? { nome: area.data.nome, pendente: 'a confirmar' }
+    : {
+        nome: area.data.nome,
+        glosa: area.data.resumo,
+        assuntos: area.data.assuntos.slice(0, 5),
+        href: `/areas/${area.data.slug}/`,
+      },
+);
+
+/* Os três textos mais recentes. Enquanto o banco não existe, a lista volta
+   vazia e a seção inteira não é renderizada — uma seção de blog anunciando
+   que não há texto nenhum é pior do que não ter a seção. */
+const ultimosTextos = (await listarArtigos()).slice(0, 3);
+
+/* As perguntas da home são as gerais, sobre atendimento. As específicas de
+   cada matéria ficam na página da área. Duas foram reescritas depois do
+   briefing: eles atendem todo o país (q2_5), e ainda não têm escritório
+   físico (q2_6) — a home não pode sugerir sede nem limitar ao Paraná. */
+const perguntasDaHome = [
+  {
+    pergunta: 'Quanto custa uma consulta?',
+    resposta:
+      'Depende do caso. Na primeira conversa entendemos a situação e informamos o valor antes de você assumir qualquer compromisso.',
+  },
+  {
+    pergunta: 'Como funciona do primeiro contato até o caso andar?',
+    resposta:
+      'Você envia uma mensagem contando o que aconteceu. Respondemos marcando uma conversa por vídeo. Nela você recebe as opções, os prazos e o custo. Se decidir seguir, assumimos o caso e informamos cada movimentação, inclusive quando a notícia é que nada mudou.',
+  },
+  {
+    pergunta: 'Preciso ir até um escritório?',
+    resposta:
+      'Não. O atendimento é online, por mensagem e por chamada de vídeo, e isso cobre todas as etapas do caso. Quando um encontro presencial for necessário, combinamos em Maringá, com hora marcada.',
+  },
+  {
+    pergunta: 'Vocês atendem fora de Maringá?',
+    resposta:
+      'Sim, em todo o país. O caso tramita online na maior parte do tempo, e o atendimento presencial acontece em Maringá quando é necessário.',
+  },
+  {
+    pergunta: 'Quanto tempo demora um processo?',
+    resposta:
+      'Varia com a vara e com a complexidade. Você recebe uma estimativa realista, com a ressalva de que prazo de tribunal não depende de advogado.',
+  },
+];
 ---
 
 <Base
@@ -10,8 +99,90 @@ import Base from '../layouts/Base.astro';
   descricao="Advocacia com atuação em Planejamento Patrimonial e Sucessório e em Direito Digital. Online para todo o país, presencial em Maringá, PR."
   paginaAtual="/"
 >
-  <div class="env" style="padding-block: 48px;">
-    <h1>Bertoncini &amp; Mendonça Advogados</h1>
-    <p>Página de teste do layout base. A home definitiva entra na Tarefa 6.</p>
-  </div>
+  <Entrada />
+  <Hero />
+  <Declaracao />
+
+  <Areas areas={areasDaHome} />
+  <SaibaMais href="/areas/" escuro={true}>Ver as áreas em detalhe</SaibaMais>
+
+  <Socios />
+  <SaibaMais href="/escritorio/">Conhecer o escritório</SaibaMais>
+
+  <Faixa />
+  <Metodo />
+
+  {ultimosTextos.length > 0 && (
+    <section class="secao leitor" id="publicacoes">
+      <div class="env">
+        <div class="cabecalho">
+          <h2 class="nomeia">{NOME_DO_BLOG}</h2>
+          <p class="diz">
+            O que escrevemos para quem não é da área. Um assunto por vez, sem citação
+            de artigo de lei que ninguém precisa decorar.
+          </p>
+        </div>
+        <div class="banca">
+          {ultimosTextos.map((artigo) => <CartaoTexto artigo={artigo} nivel={3} />)}
+        </div>
+      </div>
+    </section>
+  )}
+  {ultimosTextos.length > 0 && <SaibaMais href="/textos/">Ver todos os textos</SaibaMais>}
+
+  <Newsletter />
+
+  <Perguntas perguntas={perguntasDaHome} />
+  <Contato />
+  <AvisoCookies />
 </Base>
+
+<style>
+  /* Seção de textos da home (protótipo, `.secao.leitor`, linhas 649-700).
+     O grid é o mesmo de `/textos/` — três colunas, duas em tablet, uma no
+     celular. Repetido aqui, como já estava repetido entre a lista e o
+     artigo; unificar as três é trabalho da Tarefa 15, não deste commit. */
+  .leitor {
+    padding-block: clamp(40px, 6vw, 88px) clamp(20px, 3vw, 36px);
+    border-top: 1px solid var(--linha);
+  }
+  .leitor .cabecalho {
+    margin-bottom: clamp(26px, 3.4vw, 44px);
+    max-width: 62ch;
+  }
+  .leitor .nomeia {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(30px, 4.4vw, 54px);
+    letter-spacing: -0.02em;
+  }
+  .leitor .diz {
+    margin-top: 16px;
+    font-size: 18px;
+    color: var(--secundario);
+    max-width: 56ch;
+  }
+  .banca {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(22px, 2.4vw, 34px);
+  }
+  @media (max-width: 1080px) {
+    .banca {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 620px) {
+    .banca {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .leitor,
+    .leitor * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
