@@ -43,7 +43,7 @@ cliente em silêncio.
 | 3. Layout, navbar nova, rodapé | pronta, revisada | `e47b46d` |
 | 4. Onze componentes de seção | pronta, revisada | `0277952` |
 | 5. Camada de movimento | **NÃO FEITA** | — |
-| 6. A home | **NÃO FEITA** | — |
+| 6. A home | pronta, **sem revisão formal** | `2b1e1b6` |
 | 7. Conteúdo das áreas | pronta, revisada | `5554d80` |
 | 8. Páginas de área | pronta, revisada | `6b1d86a` |
 | 9. Página do escritório | pronta, revisada | `d7f0355` |
@@ -221,15 +221,18 @@ foi escrito numa sessão e não passou por advogado nem por revisor.
 Verifique a correção da tarefa 13 e o resultado da 11. Nenhuma das duas pode ser
 dada como pronta sem revisão.
 
-### Tarefa 6: a home
-**Requisito que a revisão levantou e que é obrigatório aqui:** a OAB aparece em
-**14px na home** e em 22px em `/escritorio/`. É o dado que o Provimento 205/2021
-exige exibir e é a tese central do projeto (nenhum dos 44 escritórios do
-levantamento mostra a OAB). Exibi-la no menor tamanho do site, na página mais
-vista, contradiz o argumento. **Suba.**
+### ~~Tarefa 6: a home~~ — FEITA (`2b1e1b6`)
+A OAB subiu para 19px e ganhou o rótulo "Inscrição na Ordem"; em
+`/escritorio/` segue 22px. Ao subir apareceu uma regressão de especificidade
+que derrubava a do escritório para 19px — medida no navegador e corrigida.
 
-Cada seção da home ganha "saiba mais" apontando para a página interna
-correspondente. Os componentes da tarefa 4 já recebem conteúdo por props.
+As áreas da home passaram a vir da coleção `areas`, e não mais das constantes
+de `Areas.astro`: a duplicação era o que deixava a home discordar de `/areas/`.
+Cada seção ganhou "saiba mais" (`SaibaMais.astro`). Duas perguntas frequentes
+foram reescritas contra o briefing (sede própria e "todo o Paraná").
+
+**Falta revisão formal.** E falta a decisão de 18px (ver abaixo): a home é
+justamente a página que o Gabriel reservou para si.
 
 ### Tarefa 12: o painel
 Leia as armadilhas em `docs/PLANO-SITE.md`, seção "Armadilhas conhecidas do CMS
@@ -337,6 +340,9 @@ quando houver credencial.
   modo server (por causa das rotas de API) e o preview morre antes de subir. Use
   `npx astro dev --port <porta>` ou sirva estaticamente `.vercel/output/static`
   depois de `npm run build`.
+- **`/previa` ficou redundante:** a home real (`2b1e1b6`) monta as mesmas
+  seções com o conteúdo de verdade. A página segue existindo e fora do
+  versionamento; quem for fazer a Tarefa 15 pode apagá-la.
 - **`src/pages/previa.astro` é uma página de trabalho** que monta as seções da
   home, criada para o Gabriel acompanhar em `localhost:4321/previa`. Ela **não é
   versionada** e **não deve ir para produção**. Três defeitos Críticos passaram
