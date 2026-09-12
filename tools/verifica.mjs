@@ -21,7 +21,27 @@ for (const [nome, vp] of [["desktop",{width:1440,height:900}],["celular",{width:
   const pg = await nav.newPage({ viewport: vp });
   const erros = [];
   pg.on("pageerror", e => erros.push(e.message));
-  pg.on("console", m => { if (m.type() === "error") erros.push(m.text()); });
+  // Exceção estreita: sob file://, a origem é "null" e a requisição CORS que
+  // toda fonte @font-face dispara (mesmo same-origin) é bloqueada só por
+  // isso. Em http(s), origem real, esse erro não acontece — não é bug
+  // mascarado, é artefato de abrir o protótipo direto do disco para teste.
+  // Cada fonte bloqueada gera DOIS eventos de console em sequência: o aviso
+  // "Access to font at 'file://....woff2' ... has been blocked by CORS
+  // policy" e, logo depois, um genérico "Failed to load resource:
+  // net::ERR_FAILED" para a mesma requisição (sem detalhe do arquivo). Os
+  // dois são ignorados juntos, um genérico só é descartado imediatamente
+  // após um CORS de fonte já descartado, nunca de forma solta.
+  const CORS_FONTE_FILE = /^Access to font at 'file:\/\/.*\.woff2' from origin 'null' has been blocked by CORS policy/;
+  const FALHA_RECURSO_GENERICA = /^Failed to load resource: net::ERR_FAILED$/;
+  let pendenteCorsFonte = false;
+  pg.on("console", m => {
+    if (m.type() !== "error") return;
+    const texto = m.text();
+    if (CORS_FONTE_FILE.test(texto)) { pendenteCorsFonte = true; return; }
+    if (pendenteCorsFonte && FALHA_RECURSO_GENERICA.test(texto)) { pendenteCorsFonte = false; return; }
+    pendenteCorsFonte = false;
+    erros.push(texto);
+  });
   await pg.goto(URL, { waitUntil: "load" });
   await pg.waitForTimeout(1600);
 
