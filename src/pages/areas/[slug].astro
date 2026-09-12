@@ -1,0 +1,230 @@
+---
+/**
+ * `/areas/[slug]/`: uma página por área confirmada, gerada do conteúdo da
+ * coleção `areas`.
+ *
+ * Só as áreas confirmadas entram no `getStaticPaths`. A terceira e a
+ * quarta aparecem em `/areas/` marcadas "a confirmar" e sem link, então
+ * nenhum link do site aponta para uma rota que não existe.
+ *
+ * A página inteira é HTML estático: não há um único comportamento aqui que
+ * dependa de JavaScript. O acordeão das perguntas é `<details>` nativo
+ * (`Perguntas.astro`) e o CTA é um `<a>`.
+ */
+import type { GetStaticPaths } from 'astro';
+import Base from '~/layouts/Base.astro';
+import Perguntas from '~/components/Perguntas.astro';
+import Contato from '~/components/Contato.astro';
+import { listarAreas, listarAreasConfirmadas, whatsappDaArea } from '~/lib/areas';
+import { site } from '~/lib/site';
+
+export const getStaticPaths = (async () => {
+  const areas = await listarAreasConfirmadas();
+  return areas.map((area) => ({ params: { slug: area.data.slug }, props: { area } }));
+}) satisfies GetStaticPaths;
+
+const { area } = Astro.props;
+const dados = area.data;
+
+const outras = (await listarAreasConfirmadas()).filter((item) => item.data.slug !== dados.slug);
+const pendentes = (await listarAreas()).filter((item) => item.data.aConfirmar);
+
+const mensagem = dados.mensagemWhatsapp ?? 'Olá, gostaria de falar sobre um caso.';
+const linkWhatsapp = whatsappDaArea(mensagem);
+const aConfirmar = new Set(dados.corpoAConfirmar);
+---
+
+<Base
+  titulo={`${dados.nome} | Bertoncini & Mendonça Advogados`}
+  descricao={`${dados.resumo} Atuação em ${site.cidade}, ${site.estado}.`}
+  paginaAtual="/areas/"
+>
+  <article>
+    <header class="abertura">
+      <div class="env">
+        <nav class="trilha" aria-label="Trilha de navegação">
+          <a href="/areas/">Áreas de atuação</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{dados.nome}</span>
+        </nav>
+        <h1 class="display">{dados.nome}</h1>
+        <p class="resumo">{dados.resumo}</p>
+
+        {dados.assuntos.length > 0 && (
+          <ul class="chips" aria-label={`Assuntos em ${dados.nome}`}>
+            {dados.assuntos.map((assunto) => <li>{assunto}</li>)}
+          </ul>
+        )}
+
+        <p class="acao">
+          <a
+            class="botao"
+            href={linkWhatsapp}
+            target="_blank"
+            rel="noopener"
+            data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
+          >
+            Falar sobre {dados.nome.toLowerCase()} no WhatsApp
+            <span class="disco" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
+          </a>
+        </p>
+        <p class="nota">{site.horario}. A mensagem já vai com o assunto escrito.</p>
+      </div>
+    </header>
+
+    <div class="env corpo">
+      {dados.corpo.map((paragrafo, indice) => (
+        <p data-placeholder={aConfirmar.has(indice) ? '1' : undefined}>{paragrafo}</p>
+      ))}
+    </div>
+
+    {dados.perguntas.length > 0 && (
+      <Perguntas
+        titulo={`Perguntas frequentes sobre ${dados.nome.toLowerCase()}`}
+        perguntas={dados.perguntas}
+      />
+    )}
+
+    <section class="outras">
+      <div class="env">
+        <h2>Outras áreas</h2>
+        <ul>
+          {outras.map((item) => (
+            <li><a href={`/areas/${item.data.slug}/`}>{item.data.nome}</a></li>
+          ))}
+          {pendentes.map((item) => (
+            <li><span class="pendente">{item.data.nome}, a confirmar</span></li>
+          ))}
+          <li><a href="/areas/">Ver todas as áreas</a></li>
+        </ul>
+      </div>
+    </section>
+  </article>
+
+  <Contato />
+</Base>
+
+<style>
+  .abertura {
+    padding-block: clamp(32px, 5vw, 72px) clamp(30px, 4vw, 56px);
+    border-bottom: 1px solid var(--linha);
+  }
+  .trilha {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: var(--secundario);
+    margin-bottom: 14px;
+  }
+  .trilha a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    border-bottom: 1px solid var(--linha);
+  }
+  .trilha a:hover {
+    border-color: var(--tinta);
+  }
+  .abertura h1 {
+    font-size: clamp(40px, 7vw, 88px);
+  }
+  .resumo {
+    margin-top: clamp(16px, 2.2vw, 26px);
+    max-width: 52ch;
+    font-size: 19px;
+    color: var(--secundario);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: clamp(22px, 3vw, 32px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .chips li {
+    font-size: 16px;
+    padding: 10px 16px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--linha);
+    border-radius: 999px;
+    color: var(--apoio);
+  }
+
+  .acao {
+    margin-top: clamp(26px, 3.4vw, 38px);
+  }
+  .acao .botao {
+    min-height: 44px;
+  }
+  .nota {
+    margin-top: 14px;
+    font-size: 16px;
+    color: var(--secundario);
+  }
+
+  .corpo {
+    padding-block: clamp(38px, 5vw, 72px);
+    display: grid;
+    gap: clamp(18px, 2.2vw, 26px);
+    max-width: min(1340px, 100%);
+  }
+  .corpo p {
+    max-width: 66ch;
+    font-size: 18.5px;
+  }
+
+  .outras {
+    border-top: 1px solid var(--linha);
+    padding-block: clamp(34px, 4.5vw, 64px);
+  }
+  .outras h2 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(24px, 3vw, 34px);
+    margin-bottom: 18px;
+  }
+  .outras ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+  }
+  .outras li a,
+  .outras li .pendente {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--linha);
+    font-size: 16.5px;
+    text-decoration: none;
+  }
+  .outras li a:hover {
+    border-color: var(--tinta);
+    background: var(--linha);
+  }
+  .outras li .pendente {
+    color: var(--secundario);
+    border-style: dashed;
+  }
+
+  /* prefers-reduced-motion desliga todo movimento desta página. */
+  @media (prefers-reduced-motion: reduce) {
+    article,
+    article * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

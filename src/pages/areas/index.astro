@@ -1,0 +1,84 @@
+---
+/**
+ * `/areas/`: a lista das áreas de atuação.
+ *
+ * Reusa `Areas.astro` (a mesma seção da home) passando o conteúdo da
+ * coleção por prop. A diferença em relação à home é o destino do link:
+ * aqui cada área confirmada leva à página dela, não ao WhatsApp, porque
+ * quem chega nesta página está escolhendo o assunto, não abrindo conversa.
+ *
+ * A terceira e a quarta área não têm `href`. `Areas.astro` já renderiza
+ * uma área sem href como `<div class="item aberto">` com a pílula
+ * "a confirmar", em vez de um link morto. Elas não ganham página própria:
+ * uma página cujo único conteúdo é dizer que não há conteúdo é um beco
+ * para quem chega e uma página vazia para a busca.
+ */
+import Base from '~/layouts/Base.astro';
+import Areas from '~/components/Areas.astro';
+import Contato from '~/components/Contato.astro';
+import { listarAreas } from '~/lib/areas';
+
+const areas = await listarAreas();
+
+const paraOComponente = areas.map((area) =>
+  area.data.aConfirmar
+    ? { nome: area.data.nome, pendente: 'a confirmar' }
+    : {
+        nome: area.data.nome,
+        glosa: area.data.resumo,
+        assuntos: area.data.assuntos,
+        href: `/areas/${area.data.slug}/`,
+      },
+);
+
+const confirmadas = areas.filter((area) => !area.data.aConfirmar);
+const descricao =
+  `Áreas de atuação do escritório em Maringá, PR: ` +
+  `${confirmadas.map((area) => area.data.nome).join(' e ')}. ` +
+  `O que cada uma abrange e como o atendimento funciona.`;
+---
+
+<Base titulo="Áreas de atuação | Bertoncini & Mendonça Advogados" descricao={descricao} paginaAtual="/areas/">
+  <section class="abertura">
+    <div class="env">
+      <p class="etiqueta">Áreas de atuação</p>
+      <h1 class="display">Em que assuntos atuamos.</h1>
+      <p class="texto">
+        Duas áreas estão confirmadas com os sócios e têm página própria, com o que
+        cada uma abrange e as perguntas que mais recebemos sobre ela. As demais
+        entram aqui quando forem definidas.
+      </p>
+    </div>
+  </section>
+
+  <Areas
+    titulo="As áreas"
+    apoio="Abra a área para ler o que ela abrange antes de começar a conversa."
+    areas={paraOComponente}
+  />
+
+  <Contato />
+</Base>
+
+<style>
+  .abertura {
+    padding-block: clamp(40px, 7vw, 96px) clamp(34px, 5vw, 72px);
+  }
+  .etiqueta {
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--secundario);
+    margin-bottom: 18px;
+  }
+  .abertura h1 {
+    font-size: clamp(38px, 6.4vw, 82px);
+    max-width: 16ch;
+  }
+  .abertura .texto {
+    margin-top: clamp(20px, 2.6vw, 30px);
+    max-width: 58ch;
+    font-size: 18px;
+    color: var(--secundario);
+  }
+</style>
