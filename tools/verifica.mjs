@@ -62,7 +62,7 @@ for (const [nome, vp] of [["desktop",{width:1440,height:900}],["celular",{width:
   const baixos = await pg.evaluate(() =>
     [...document.querySelectorAll("a,button")]
       .filter(e => e.offsetParent && e.getBoundingClientRect().height < 44 && e.getBoundingClientRect().height > 0)
-      .filter(e => !e.closest(".rodape") && !e.closest(".pe"))   // links de texto corrido ficam de fora
+      .filter(e => !e.closest(".rodape") && !e.closest(".pe") && !e.closest(".aviso p"))   // links de texto corrido ficam de fora
       .map(e => (e.textContent || e.getAttribute("aria-label") || "?").trim().slice(0,30)));
   checa(baixos.length === 0, `${nome}: alvos abaixo de 44px: ${baixos.join(", ")}`);
 

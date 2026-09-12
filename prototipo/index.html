@@ -440,6 +440,20 @@ video{display:block}
 .js .entrada.foi img{opacity:0;transition-delay:0s}
 .js .entrada.pulada{display:none}
 @media(prefers-reduced-motion:reduce){.js .entrada{display:none}}
+
+/* aviso de cookies: três escolhas, guardadas no aparelho. Só existe com
+   JS, sem JS não há rastreamento nenhum para consentir. */
+.aviso{position:fixed;z-index:90;left:16px;bottom:16px;max-width:420px;padding:20px 22px;
+  background:#fff;color:var(--tinta);border:1px solid var(--linha);border-radius:18px;
+  box-shadow:0 20px 60px rgba(11,30,63,.16);font-size:15px;line-height:1.55}
+.aviso p{margin:0 0 16px}
+.aviso a{color:var(--apoio)}
+.aviso .opcoes{display:flex;gap:8px;flex-wrap:wrap}
+.aviso button{font:500 14px/1 var(--sans);padding:13px 16px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--tinta);background:#fff;color:var(--tinta);min-height:44px}
+.aviso button[data-consente="todos"]{background:var(--tinta);color:#fff}
+.aviso button:hover{background:var(--apoio);color:#fff;border-color:var(--apoio)}
+@media(max-width:560px){.aviso{left:12px;right:12px;bottom:12px;max-width:none}}
 </style>
 </head>
 <body>
@@ -825,6 +839,17 @@ video{display:block}
   </div>
 </footer>
 
+<div class="aviso" id="aviso" role="region" aria-label="Aviso de cookies" hidden>
+  <p data-placeholder="1">Este site usa cookies para medir visitas. Você escolhe o que aceita.
+    <a href="#" data-placeholder="1">Saiba mais</a>
+    <span style="color:var(--imperial)">Texto provisório. O definitivo vem do Juscelino.</span></p>
+  <div class="opcoes">
+    <button type="button" data-consente="todos">Aceitar todos</button>
+    <button type="button" data-consente="necessarios">Apenas necessários</button>
+    <button type="button" data-consente="nenhum">Rejeitar</button>
+  </div>
+</div>
+
 <script src="vendor/gsap.min.js" defer></script>
 <script src="vendor/ScrollTrigger.min.js" defer></script>
 <script src="vendor/lenis.min.js" defer></script>
@@ -1059,6 +1084,23 @@ if (!calmo) {
     it.addEventListener('mousemove', function(e){
       caixa.style.left = e.clientX + 'px';
       caixa.style.top  = e.clientY + 'px';
+    });
+  });
+})();
+
+/* consentimento: três escolhas, guardadas no aparelho. O que ligar
+   rastreador depois escuta o evento `consentimento` no document. */
+(function(){
+  var caixa = document.getElementById("aviso"); if (!caixa) return;
+  var atual = null;
+  try { atual = localStorage.getItem("consentimento"); } catch(e){}
+  if (!atual){ caixa.hidden = false; }
+  caixa.querySelectorAll("[data-consente]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var v = b.dataset.consente;
+      try { localStorage.setItem("consentimento", v); } catch(e){}
+      caixa.hidden = true;
+      document.dispatchEvent(new CustomEvent("consentimento", { detail: v }));
     });
   });
 })();
