@@ -22,6 +22,7 @@
  *   volta sem JS.
  */
 import { CAMPOS_ISCA } from '~/lib/antispam';
+import { voltaPermitida } from '~/lib/voltas';
 
 interface Props {
   /** Título da seção. */
@@ -75,6 +76,30 @@ const {
 */
 const envio = Astro.url.searchParams.get('envio-newsletter');
 const origem = Astro.url.pathname;
+
+/*
+  A newsletter aparece em mais de uma página, e o 303 de quem está sem
+  JavaScript só devolve a pessoa para um caminho da lista fechada em
+  `~/lib/voltas`. Montar esta seção numa página fora da lista não quebra
+  nada visivelmente — a inscrição funciona —, mas joga quem está sem JS
+  para a home em vez de devolvê-lo para onde estava, e a confirmação
+  aparece numa página que a pessoa não abriu.
+
+  Aconteceu com `/textos/`, que ficou fora da lista. Por isso a conferência
+  roda no build: acrescentar a newsletter a uma página nova sem registrar o
+  caminho derruba `npm run build`, em vez de virar defeito silencioso.
+*/
+/* `/previa` é página de trabalho, não versionada e fora de produção (ver
+   docs/HANDOFF-SITE.md). Ela monta as seções da home para revisão visual,
+   então cai aqui — mas não entra na lista fechada da rota, que é defesa de
+   produção: um caminho a mais na lista é um destino a mais de redirecionamento. */
+if (origem !== '/previa/' && !voltaPermitida(origem)) {
+  throw new Error(
+    `Newsletter montada em "${origem}", que não está em VOLTAS_PERMITIDAS ` +
+      '(src/lib/voltas.ts). Sem JavaScript, quem se inscrever nesta página ' +
+      'seria devolvido para a home. Acrescente o caminho à lista.',
+  );
+}
 ---
 
 <section class="assinar">

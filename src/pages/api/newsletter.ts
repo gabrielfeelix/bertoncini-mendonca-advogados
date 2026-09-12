@@ -3,6 +3,7 @@ import { enviaBoasVindas, inscreveNaNewsletter, ErroBrevo } from '~/lib/brevo';
 import { caiuNaIsca, emailPlausivel, excedeuLimite, texto } from '~/lib/antispam';
 import { env, envObrigatoria } from '~/lib/ambiente';
 import { responde } from '~/lib/resposta';
+import { voltaPermitida } from '~/lib/voltas';
 
 export const prerender = false;
 
@@ -26,10 +27,8 @@ export const prerender = false;
  * Ao acrescentar a newsletter a uma página nova, acrescente o caminho dela
  * aqui, ou o retorno sem JavaScript cai na home.
  */
-const VOLTAS_PERMITIDAS = ['/', '/contato/'] as const;
-
 function origemSegura(valor: string): string {
-  return (VOLTAS_PERMITIDAS as readonly string[]).includes(valor) ? valor : '/';
+  return voltaPermitida(valor) ? valor : '/';
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
