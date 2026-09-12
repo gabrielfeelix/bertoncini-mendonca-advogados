@@ -9,9 +9,18 @@
 questionário e há informação ali que resolve placeholders espalhados pelo site.
 As respostas **não estão no repositório**: vivem na tabela
 `briefing_bertoncini_mendonca`, no projeto Supabase `qoifhphjfjykweqymqxi`
-(ver `docs/supabase-briefing.sql`). Não há credencial na máquina; **peça ao
-Gabriel o acesso ou uma exportação** antes de começar. As perguntas que foram
-feitas estão em `docs/PERGUNTAS.md`, em nove blocos.
+(ver `docs/supabase-briefing.sql`). As perguntas que foram feitas estão em
+`docs/PERGUNTAS.md`, em nove blocos.
+
+**A credencial desse projeto não está na máquina.** Procurei: este repositório
+não tem `.env`; o `.env` do projeto da Isabella
+(`/home/gabfelix/dev/isabella-pires-arquitetura/.env`) aponta para outro projeto
+Supabase (`bnvjvletrqbvmxgsptpw`), e uma consulta à tabela do briefing lá
+devolve **HTTP 404**; nenhum outro `.env` em `~/dev` referencia
+`qoifhphjfjykweqymqxi`. **Peça ao Gabriel a chave desse projeto ou uma
+exportação da tabela** antes de começar. Note que o Gabriel acredita que a
+credencial está acessível por um `.env`, então vale dizer a ele exatamente o que
+foi procurado.
 
 Isso é a primeira tarefa, não uma nota de rodapé: o site tem hoje **mais de 60
 marcações `data-placeholder="1"`**, e cada resposta do briefing apaga uma.
