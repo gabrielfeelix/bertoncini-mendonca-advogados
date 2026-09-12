@@ -1,0 +1,89 @@
+---
+/**
+ * Cortina de entrada: chapa azul em tela cheia com o monograma, que sobe
+ * e sai depois do primeiro paint. Migrado do protótipo (CSS linhas
+ * 446-455, HTML linhas 475-478).
+ *
+ * Só existe com JavaScript E com movimento permitido: o `.entrada` nasce
+ * `display:none` e só vira `grid` sob `.js`, e volta a `display:none` sob
+ * `prefers-reduced-motion: reduce`. Sem os dois, a página abre direto no
+ * hero. É o mecanismo do protótipo e está preservado literalmente: uma
+ * cortina que ficasse presa por falha de JS esconderia o site inteiro.
+ *
+ * `aria-hidden="true"` porque é decoração pura: não carrega informação e
+ * leitor de tela nenhum precisa anunciá-la.
+ *
+ * Marcações para a Tarefa 5: o id `#entrada` e as classes `.viva`, `.foi`
+ * e `.pulada` que o JS alterna.
+ */
+interface Props {
+  /** Monograma exibido no centro. */
+  marca?: string;
+  /** Lado do monograma, em px (o protótipo usa 56). */
+  tamanho?: number;
+}
+
+const { marca = '/media/marca/mono-branco.png', tamanho = 56 }: Props = Astro.props;
+---
+
+<div class="entrada" id="entrada" aria-hidden="true">
+  <div class="grao" style="filter:url(#grao)"></div>
+  <img src={marca} alt="" width={tamanho} height={tamanho} />
+</div>
+
+<style>
+  /* entrada: só existe com JS e com movimento. Sem os dois, display:none
+     e a página abre direto no hero. */
+  .entrada {
+    display: none;
+  }
+  :global(.js) .entrada {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--tinta);
+    color: #fff;
+    transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1) 0.15s;
+  }
+  /* Grão só sobre a chapa azul escura da cortina. */
+  :global(.js) .entrada .grao {
+    position: absolute;
+    inset: 0;
+    opacity: 0.3;
+    mix-blend-mode: overlay;
+    background: #8aa0bc;
+  }
+  :global(.js) .entrada img {
+    width: 56px;
+    height: 56px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease 0.05s, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s;
+  }
+  :global(.js) .entrada:global(.viva) img {
+    opacity: 0.92;
+    transform: none;
+  }
+  :global(.js) .entrada:global(.foi) {
+    transform: translateY(-101%);
+  }
+  :global(.js) .entrada:global(.foi) img {
+    opacity: 0;
+    transition-delay: 0s;
+  }
+  :global(.js) .entrada:global(.pulada) {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .entrada {
+      display: none;
+    }
+    .entrada,
+    .entrada * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

@@ -1,0 +1,98 @@
+---
+/**
+ * Declaração: título grande à esquerda, dois parágrafos de corpo à
+ * direita. Migrado do protótipo (CSS linhas 173-177, HTML linhas 546-556).
+ *
+ * O `data-palavras` no `<h2>` é a marcação que a Tarefa 5 procura para
+ * quebrar o título em palavras e fazer o scrub de opacidade. Sem JS o
+ * `<h2>` é texto normal, com opacidade cheia, porque a regra de piso só
+ * existe sob `.js`.
+ *
+ * PISO DE OPACIDADE .62 (não mexer):
+ * o comentário do protótipo (linhas 425-434) é reproduzido literalmente
+ * no CSS abaixo. Em resumo: o piso foi subido de .22 para .62 porque a
+ * .62 o contraste do título fica em 4.76:1, que passa AA de texto
+ * normal, e o público do site tem 70 anos. Não baixar o piso nem
+ * alongar a janela do scrub de volta.
+ */
+interface Props {
+  /** Texto do `<h2>`, animado palavra a palavra pela Tarefa 5. */
+  titulo?: string;
+  /** Parágrafos do corpo, na ordem. */
+  paragrafos?: string[];
+}
+
+const {
+  titulo = 'A parte difícil raramente é a lei. É não saber o que vai acontecer com a sua vida.',
+  paragrafos = [
+    'Quem procura um advogado chega com medo de duas coisas: perder algo que importa e não conseguir acompanhar o que estão decidindo por você.',
+    'A segunda se resolve já na primeira conversa. Você recebe em português claro o que existe, o que é possível fazer, quanto tempo costuma levar e quanto custa. Só depois disso o caso anda.',
+  ],
+}: Props = Astro.props;
+---
+
+<section class="secao declaracao">
+  <div class="env">
+    <h2 class="display" data-palavras>{titulo}</h2>
+    <div class="corpo sobe">
+      {paragrafos.map((texto) => <p>{texto}</p>)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .declaracao :global(.env) {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(30px, 6vw, 110px);
+    align-items: start;
+  }
+  @media (max-width: 940px) {
+    .declaracao :global(.env) {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+  }
+  .declaracao h2 {
+    font-size: clamp(30px, 4.4vw, 60px);
+    max-width: 20ch;
+  }
+  .declaracao .corpo {
+    color: var(--secundario);
+    max-width: 48ch;
+    font-size: 17.5px;
+  }
+  .declaracao .corpo p + p {
+    margin-top: 18px;
+  }
+
+  /* palavras: sem JS o h2 é texto normal. Com JS e movimento, cada palavra
+     vira um span que vai de 62% a 100% de opacidade conforme a rolagem.
+     Piso em .62 (não .22) e janela do scrub encurtada para terminar dentro
+     da seção, de propósito: quem para de rolar no meio nunca vê o texto
+     travado ilegível. A .62 o contraste do título fica em 4.76:1, que passa
+     AA de texto normal; a .55 passava só como texto grande, com folga de
+     0.27. O público do site tem 70 anos. Não baixar o piso nem alongar a
+     janela de volta. */
+  :global(.js) [data-palavras] :global(.w) {
+    display: inline-block;
+    opacity: 0.62;
+    will-change: opacity;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) [data-palavras] :global(.w) {
+      opacity: 1;
+    }
+  }
+
+  /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
+     traz o kill-switch global do protótipo; este bloco garante que o
+     componente já cumpra a regra sozinho, em qualquer página. */
+  @media (prefers-reduced-motion: reduce) {
+    .declaracao,
+    .declaracao * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

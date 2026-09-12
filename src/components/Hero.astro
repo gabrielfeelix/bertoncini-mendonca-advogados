@@ -1,0 +1,229 @@
+---
+/**
+ * Hero: vídeo de fundo em preto e branco, título em três linhas e um par
+ * "frase de apoio + botão". Migrado do protótipo (CSS linhas 140-168,
+ * HTML linhas 523-544).
+ *
+ * Todo o conteúdo entra por prop; os padrões reproduzem a home aprovada.
+ *
+ * Marcações que a Tarefa 5 procura e que NÃO podem ser renomeadas:
+ *  - `.linha > i` em cada linha do h1 (reveal de máscara);
+ *  - `#pausa` (botão de pausar o vídeo, com aria-pressed);
+ *  - a classe `.hero` recebe `.pronta` via JS para disparar as transições.
+ * Sem JS nada disso existe e o hero já nasce legível: o vídeo tem
+ * `autoplay muted loop playsinline` nativos e o texto é texto normal.
+ */
+interface LinhaTitulo {
+  /** Texto antes do trecho em itálico. */
+  antes?: string;
+  /** Trecho em itálico (`<em>`), opcional. */
+  enfase?: string;
+  /** Texto depois do trecho em itálico. */
+  depois?: string;
+}
+
+interface Props {
+  /** Caminho do vídeo de fundo (em `public/`). */
+  video?: string;
+  /** Poster do vídeo, exibido antes de o vídeo carregar. */
+  poster?: string;
+  /** Linhas do `<h1>`, cada uma com sua própria máscara de reveal. */
+  linhas?: LinhaTitulo[];
+  /** Marca d'água à esquerda, no topo. */
+  marcaEsquerda?: string;
+  /** Marca d'água à direita, no topo. */
+  marcaDireita?: string;
+  /** Trecho em negrito da frase de apoio. */
+  dizForte?: string;
+  /** Restante da frase de apoio. */
+  diz?: string;
+  /** Rótulo do botão. */
+  botaoRotulo?: string;
+  /** Destino do botão. */
+  botaoHref?: string;
+  /** true quando o href do botão ainda é placeholder. */
+  botaoPlaceholder?: boolean;
+}
+
+const {
+  video = '/media/hero.mp4',
+  poster = '/media/hero-poster.jpg',
+  linhas = [
+    { antes: 'Você vai' },
+    { enfase: 'entender', depois: ' cada' },
+    { antes: 'passo do seu caso.' },
+  ],
+  marcaEsquerda = 'Sociedade de advogados',
+  marcaDireita = 'Maringá, Paraná',
+  dizForte = 'Juscelino Bertoncini e Beatriz Mendonça.',
+  diz = ' Explicamos o que está acontecendo antes de agir, e seguimos explicando depois.',
+  botaoRotulo = 'Falar pelo WhatsApp',
+  botaoHref = '#contato',
+  botaoPlaceholder = false,
+}: Props = Astro.props;
+---
+
+<header class="hero" id="hero">
+  <video
+    class="filme"
+    src={video}
+    poster={poster}
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="auto"></video>
+  <div class="lavagem"></div>
+  <div class="grao" style="filter:url(#grao)"></div>
+  <div class="marcas"><span>{marcaEsquerda}</span><span>{marcaDireita}</span></div>
+  <button class="pausa" id="pausa" aria-pressed="false" aria-label="Pausar o vídeo de fundo">
+    Pausar vídeo
+  </button>
+  <div class="env">
+    <h1 class="display">
+      {linhas.map((linha) => (
+        <span class="linha"><i>{linha.antes}{linha.enfase && <em>{linha.enfase}</em>}{linha.depois}</i></span>
+      ))}
+    </h1>
+    <div class="pe">
+      <p class="diz"><b>{dizForte}</b>{diz}</p>
+      <a
+        class="botao vidro"
+        href={botaoHref}
+        data-placeholder={botaoPlaceholder ? '1' : undefined}
+      >
+        {botaoRotulo}
+        <span class="disco"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hero {
+    position: relative;
+    height: 100svh;
+    min-height: 620px;
+    overflow: hidden;
+    background: #0b1e3f;
+  }
+  .hero .filme {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.16) brightness(0.86);
+  }
+  .hero .lavagem {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(11, 30, 63, 0.52) 0%, rgba(11, 30, 63, 0.22) 32%, rgba(11, 30, 63, 0.78) 100%),
+      radial-gradient(70% 60% at 78% 26%, rgba(0, 67, 105, 0.42), transparent 66%);
+  }
+  /* Grão só sobre o azul escuro do hero; nunca sobre branco. */
+  .hero .grao {
+    position: absolute;
+    inset: 0;
+    opacity: 0.22;
+    pointer-events: none;
+  }
+  .hero :global(.env) {
+    position: relative;
+    z-index: 3;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: clamp(40px, 7vh, 84px);
+    color: #fff;
+  }
+  .hero h1 {
+    font-size: clamp(52px, 9.2vw, 146px);
+    max-width: 15ch;
+  }
+  .hero h1 .linha {
+    display: block;
+    overflow: hidden;
+  }
+  .hero h1 .linha i {
+    display: block;
+    font-style: normal;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 200;
+  }
+  .hero .pe {
+    margin-top: clamp(28px, 4vh, 44px);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero .diz {
+    max-width: 40ch;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 17.5px;
+  }
+  .hero .diz b {
+    color: #fff;
+    font-weight: 500;
+  }
+  .marcas {
+    position: absolute;
+    z-index: 3;
+    left: var(--gutter);
+    right: var(--gutter);
+    top: clamp(84px, 12vh, 120px);
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 13px;
+  }
+  @media (max-width: 760px) {
+    .marcas {
+      display: none;
+    }
+  }
+  .hero .pausa {
+    position: absolute;
+    z-index: 4;
+    right: var(--gutter);
+    bottom: 22px;
+    font: 500 13px/1 var(--sans);
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.72);
+    background: rgba(9, 23, 48, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+    padding: 12px 16px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .hero .pausa:hover {
+    color: #fff;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero .pausa {
+      display: none;
+    }
+  }
+
+  /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
+     traz o kill-switch global do protótipo; este bloco garante que o
+     componente já cumpra a regra sozinho, em qualquer página. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero,
+    .hero * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

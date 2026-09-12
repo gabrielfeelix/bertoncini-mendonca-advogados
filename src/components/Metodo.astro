@@ -1,0 +1,249 @@
+---
+/**
+ * Método: coluna fixa (sticky por CSS, sem pin de GSAP) à esquerda e os
+ * passos numerados à direita, com uma lista do que vale em todos os casos
+ * embaixo. Migrado do protótipo (CSS linhas 267-297, HTML linhas 641-676).
+ *
+ * Marcações para a Tarefa 5: o id `#metodo`, `.sobe` em cada passo, o
+ * `.traco i` que a barra vermelha preenche e as classes `.viva`/`.foco`
+ * que o JS adiciona. Sem JS o passo em foco não existe e todos ficam em
+ * `--tinta`, que é a cor de maior contraste: a degradação escurece o
+ * texto, nunca o apaga.
+ */
+interface Passo {
+  /** Número exibido (string, para preservar o zero à esquerda). */
+  n: string;
+  /** Título do passo. */
+  titulo: string;
+  /** Descrição do passo. */
+  texto: string;
+}
+
+interface Vale {
+  /** Trecho em negrito, primeira linha do item. */
+  forte: string;
+  /** Restante do item. */
+  texto: string;
+  /** true quando o item ainda depende de confirmação dos sócios. */
+  placeholder?: boolean;
+  /** Ressalva em vermelho, visível enquanto o dado for placeholder. */
+  ressalva?: string;
+}
+
+interface Props {
+  /** Título da seção. */
+  titulo?: string;
+  /** Frase de apoio abaixo do título. */
+  apoio?: string;
+  /** Passos, na ordem. */
+  passos?: Passo[];
+  /** Rótulo acessível da lista final. */
+  valemRotulo?: string;
+  /** Itens que valem em todos os casos. */
+  valem?: Vale[];
+}
+
+const {
+  titulo = 'Como trabalhamos',
+  apoio = 'Do primeiro contato até o caso andar, o caminho é o mesmo para todo mundo.',
+  passos = [
+    {
+      n: '01',
+      titulo: 'Você escreve o que aconteceu',
+      texto: 'Pelo WhatsApp ou pelo formulário, do seu jeito. Não existe questionário longo nem triagem automática.',
+    },
+    {
+      n: '02',
+      titulo: 'Marcamos uma conversa',
+      texto: 'Por vídeo, ou presencial em Maringá se você preferir. Nela ouvimos a história inteira antes de opinar.',
+    },
+    {
+      n: '03',
+      titulo: 'Você recebe as opções, os prazos e o custo',
+      texto: 'Em português claro, antes de qualquer compromisso. Se não valer a pena entrar com o processo, dizemos isso também.',
+    },
+    {
+      n: '04',
+      titulo: 'O caso anda, e você acompanha',
+      texto: 'Cada movimentação chega para você, inclusive quando a notícia é que nada mudou.',
+    },
+  ],
+  valemRotulo = 'O que vale em todos os casos',
+  valem = [
+    {
+      forte: 'Quem atende é quem assina.',
+      texto: ' Não há atendente nem estagiário entre você e o sócio.',
+    },
+    {
+      forte: 'O custo vem antes do compromisso.',
+      texto: ' Nenhuma cobrança que você não tenha visto por escrito.',
+    },
+    {
+      forte: 'Resposta em até um dia útil.',
+      texto: '',
+      placeholder: true,
+      ressalva: 'Prazo a confirmar com os sócios antes de publicar.',
+    },
+  ],
+}: Props = Astro.props;
+---
+
+<section class="secao metodo" id="metodo">
+  <div class="env">
+    <div class="fixa">
+      <h2 class="display sobe">{titulo}</h2>
+      <p class="sobe">{apoio}</p>
+      <div class="traco" aria-hidden="true"><i></i></div>
+    </div>
+    <ol class="passos">
+      {passos.map((passo) => (
+        <li class="passo sobe">
+          <span class="n">{passo.n}</span>
+          <h3>{passo.titulo}</h3>
+          <p>{passo.texto}</p>
+        </li>
+      ))}
+    </ol>
+    <ul class="valem sobe" aria-label={valemRotulo}>
+      {valem.map((item) => (
+        <li data-placeholder={item.placeholder ? '1' : undefined}>
+          <b>{item.forte}</b>{item.texto}
+          {item.ressalva && <span style="color:var(--imperial)">{item.ressalva}</span>}
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* método: coluna fixa à esquerda, passos à direita. Sem JS o passo em
+     foco não existe, todos ficam em --tinta. */
+  .metodo :global(.env) {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(40px, 7vw, 120px);
+    align-items: start;
+  }
+  .metodo .fixa {
+    position: sticky;
+    top: calc(var(--bloco) * 0.55);
+  }
+  .metodo .fixa p {
+    margin-top: 18px;
+    max-width: 34ch;
+    color: var(--secundario);
+  }
+  .metodo .traco {
+    margin-top: 40px;
+    width: 1px;
+    height: 120px;
+    background: var(--linha);
+    position: relative;
+    overflow: hidden;
+  }
+  .metodo .traco i {
+    position: absolute;
+    inset: 0;
+    background: var(--imperial);
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  .passos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(36px, 5vw, 72px);
+  }
+  .passo {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(18px, 3vw, 40px);
+    align-items: start;
+    padding-top: clamp(20px, 2.4vw, 28px);
+    border-top: 1px solid var(--linha);
+    color: var(--tinta);
+    transition: color 0.5s;
+  }
+  .passo .n {
+    font-family: var(--serif);
+    font-weight: 200;
+    font-size: clamp(40px, 5vw, 72px);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: var(--imperial);
+    opacity: 0.9;
+  }
+  .passo h3 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(24px, 2.4vw, 34px);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .passo p {
+    margin-top: 10px;
+    max-width: 46ch;
+    color: var(--secundario);
+  }
+  .passo h3,
+  .passo p {
+    grid-column: 2;
+  }
+  /* Só com JS: o passo fora de foco recua para --secundario e o em foco
+     volta para --tinta. Sem a classe `.js` no <html> nada disso vale. */
+  :global(.js) .metodo:global(.viva) .passo {
+    color: var(--secundario);
+  }
+  :global(.js) .metodo:global(.viva) .passo:global(.foco) {
+    color: var(--tinta);
+  }
+  .valem {
+    grid-column: 1 / -1;
+    list-style: none;
+    margin: clamp(48px, 6vw, 88px) 0 0;
+    padding: clamp(28px, 3vw, 40px) 0 0;
+    border-top: 1px solid var(--tinta);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .valem b {
+    display: block;
+    font-weight: 600;
+    color: var(--tinta);
+    margin-bottom: 6px;
+  }
+  .valem li {
+    color: var(--secundario);
+  }
+  @media (max-width: 900px) {
+    .metodo :global(.env) {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .metodo .fixa {
+      position: static;
+    }
+    .metodo .traco {
+      display: none;
+    }
+    .valem {
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+  }
+
+  /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
+     traz o kill-switch global do protótipo; este bloco garante que o
+     componente já cumpra a regra sozinho, em qualquer página. */
+  @media (prefers-reduced-motion: reduce) {
+    .metodo,
+    .metodo * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

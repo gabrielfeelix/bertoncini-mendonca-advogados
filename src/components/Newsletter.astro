@@ -1,0 +1,194 @@
+---
+/**
+ * Newsletter (`.assinar` no protótipo): chapa azul com grão, título e um
+ * campo de e-mail. Migrado do protótipo (CSS linhas 337-367, HTML linhas
+ * 715-736).
+ *
+ * Marcações para a Tarefa 5: `#forma` (o `<form>`) e `#recibo` (a
+ * confirmação, que nasce com opacity:0 e ganha `.visto`). Sem JS o
+ * formulário continua um `<form>` de verdade, com `type="email"` e
+ * `required`: a validação nativa do navegador funciona e o envio degrada
+ * para o comportamento padrão. O recibo simplesmente não aparece, o que
+ * não esconde informação nenhuma.
+ */
+interface Props {
+  /** Título da seção. */
+  titulo?: string;
+  /** Frase que explica o ritmo do envio. */
+  ritmo?: string;
+  /** Placeholder do campo de e-mail. */
+  exemplo?: string;
+  /** Rótulo acessível do campo. */
+  rotuloCampo?: string;
+  /** Rótulo acessível do botão de envio. */
+  rotuloBotao?: string;
+  /** Aviso discreto abaixo do campo. */
+  mudo?: string;
+  /** Texto da confirmação, revelada pela Tarefa 5 após o envio. */
+  recibo?: string;
+}
+
+const {
+  titulo = 'Um texto por mês, escrito para ser entendido.',
+  ritmo = 'Sem promoção, sem novidade do escritório. Só o assunto que estiver pegando mais gente de surpresa naquele mês.',
+  exemplo = 'seu@email.com.br',
+  rotuloCampo = 'Seu e-mail',
+  rotuloBotao = 'Assinar',
+  mudo = 'Você pode sair da lista em um clique, em qualquer e-mail.',
+  recibo = 'Pronto. O próximo texto vai para esse endereço.',
+}: Props = Astro.props;
+---
+
+<section class="assinar">
+  <div class="lastro"></div>
+  <div class="grao" style="filter:url(#grao)"></div>
+  <div class="env">
+    <div>
+      <h2 class="sobe">{titulo}</h2>
+      <p class="ritmo sobe">{ritmo}</p>
+    </div>
+    <form class="sobe" id="forma">
+      <label class="campo">
+        <input type="email" name="email" required placeholder={exemplo} aria-label={rotuloCampo} />
+        <button type="submit" aria-label={rotuloBotao}>
+          <svg width="15" height="15" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.7" stroke-linecap="round"></path>
+          </svg>
+        </button>
+      </label>
+      <p class="mudo">{mudo}</p>
+      <p class="recibo" id="recibo">{recibo}</p>
+    </form>
+  </div>
+</section>
+
+<style>
+  .assinar {
+    position: relative;
+    overflow: hidden;
+    background: var(--tinta);
+    color: #fff;
+    clip-path: polygon(0 2.6vw, 100% 0, 100% 100%, 0 calc(100% - 2.6vw));
+    padding-block: calc(clamp(60px, 7vw, 110px) + 2.6vw);
+  }
+  .assinar .lastro {
+    position: absolute;
+    inset: -16% -8%;
+    background:
+      radial-gradient(38% 48% at 82% 26%, rgba(81, 116, 147, 0.5), transparent 64%),
+      radial-gradient(40% 44% at 14% 78%, rgba(155, 28, 46, 0.3), transparent 62%),
+      linear-gradient(150deg, #102a50, #0b1e3f);
+  }
+  /* Grão só sobre a chapa azul escura desta seção. */
+  .assinar .grao {
+    position: absolute;
+    inset: 0;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+  .assinar :global(.env) {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(26px, 4vw, 70px);
+    align-items: end;
+  }
+  @media (max-width: 900px) {
+    .assinar :global(.env) {
+      grid-template-columns: 1fr;
+      gap: 34px;
+      align-items: start;
+    }
+  }
+  .assinar h2 {
+    font-family: var(--serif);
+    font-weight: 200;
+    font-size: clamp(30px, 4.4vw, 58px);
+    letter-spacing: -0.03em;
+    line-height: 1.04;
+    max-width: 17ch;
+  }
+  .assinar .ritmo {
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 16px;
+    max-width: 38ch;
+  }
+  .campo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.34);
+    padding-bottom: 12px;
+    transition: border-color 0.4s;
+  }
+  .campo:focus-within {
+    border-color: #fff;
+  }
+  .campo input {
+    flex: 1;
+    background: none;
+    border: 0;
+    color: #fff;
+    font: inherit;
+    font-size: clamp(17px, 2vw, 22px);
+    padding: 6px 0;
+    min-width: 0;
+    min-height: 44px;
+  }
+  .campo input::placeholder {
+    color: rgba(255, 255, 255, 0.42);
+  }
+  .campo input:focus {
+    outline: none;
+  }
+  .campo input:focus-visible {
+    outline: 2px solid var(--imperial);
+    outline-offset: 2px;
+  }
+  .campo button {
+    width: 46px;
+    height: 46px;
+    flex: none;
+    border-radius: 50%;
+    border: 0;
+    background: var(--imperial);
+    color: #fff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: transform 0.35s, background 0.3s;
+  }
+  .campo button:hover {
+    transform: rotate(45deg) scale(1.06);
+  }
+  .mudo {
+    margin-top: 14px;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.48);
+  }
+  .recibo {
+    margin-top: 14px;
+    font-size: 14.5px;
+    color: #fff;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .recibo.visto {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
+     traz o kill-switch global do protótipo; este bloco garante que o
+     componente já cumpra a regra sozinho, em qualquer página. */
+  @media (prefers-reduced-motion: reduce) {
+    .assinar,
+    .assinar * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

@@ -1,0 +1,310 @@
+---
+/**
+ * Áreas de atuação: chapa azul com grão, lista de áreas em linhas grandes.
+ * Migrado do protótipo (CSS linhas 179-223, HTML linhas 558-597 mais o
+ * `.espia` da linha 599).
+ *
+ * Duas áreas confirmadas (Família e Compliance) e duas marcadas
+ * "a confirmar". Uma área "a confirmar" vira um `<div class="item aberto">`
+ * sem link, não um `<a>` morto.
+ *
+ * Marcações para a Tarefa 5: `.sobe` em cada item, `data-espia` com o
+ * vídeo de prévia e o `#espia` fixo que o JS move com o cursor. Sem JS o
+ * `.espia` nunca aparece (opacity:0 e pointer-events:none no CSS) e as
+ * áreas continuam links comuns, clicáveis.
+ */
+import { site } from '../lib/site';
+
+interface Area {
+  /** Nome da área. */
+  nome: string;
+  /** Frase curta que aparece no hover (e sempre, em telas estreitas). */
+  glosa?: string;
+  /** Assuntos listados em pílulas. */
+  assuntos?: string[];
+  /** Destino do link. Ausente = área "a confirmar", sem link. */
+  href?: string;
+  /** Vídeo de prévia que segue o cursor (Tarefa 5). */
+  espia?: string;
+  /** true quando o href ainda é placeholder. */
+  placeholder?: boolean;
+  /** Rótulo da pílula vermelha nas áreas ainda não definidas. */
+  pendente?: string;
+}
+
+interface Props {
+  /** Título da seção. */
+  titulo?: string;
+  /** Frase de apoio ao lado do título. */
+  apoio?: string;
+  /** Lista de áreas, na ordem. */
+  areas?: Area[];
+}
+
+const whats = site.whatsapp.valor.split('?')[0];
+
+const {
+  titulo = 'Áreas de atuação',
+  apoio = 'Duas áreas confirmadas com os sócios. As demais entram quando eles definirem.',
+  areas = [
+    {
+      nome: 'Família',
+      glosa: 'Divórcio, guarda, pensão e inventário, conduzidos com discrição.',
+      assuntos: ['Divórcio', 'Guarda', 'Pensão alimentícia', 'Inventário', 'União estável'],
+      href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20em%20direito%20de%20fam%C3%ADlia.`,
+      espia: '/media/faixa.mp4',
+      placeholder: site.whatsapp.placeholder,
+    },
+    {
+      nome: 'Compliance',
+      glosa: 'Estruturas de conformidade para empresas que preferem prevenir a remediar.',
+      assuntos: ['Programa de integridade', 'Código de conduta', 'Canal de denúncias', 'LGPD', 'Treinamento'],
+      href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20compliance.`,
+      espia: '/media/hero.mp4',
+      placeholder: site.whatsapp.placeholder,
+    },
+    { nome: 'Terceira área', pendente: 'a confirmar' },
+    { nome: 'Quarta área', pendente: 'a confirmar' },
+  ],
+}: Props = Astro.props;
+---
+
+<section class="areas" id="areas">
+  <div class="lastro"></div>
+  <div class="grao" style="filter:url(#grao)"></div>
+  <div class="env">
+    <div class="topo">
+      <h2 class="display sobe">{titulo}</h2>
+      <p class="sobe">{apoio}</p>
+    </div>
+    <div class="grade">
+      {areas.map((area) => (
+        area.href ? (
+          <a
+            class="item sobe"
+            href={area.href}
+            data-espia={area.espia}
+            data-placeholder={area.placeholder ? '1' : undefined}
+            target="_blank"
+            rel="noopener"
+          >
+            <div class="fila">
+              <h3>{area.nome}</h3>
+              {area.glosa && <span class="glosa">{area.glosa}</span>}
+              <span class="seta"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+            </div>
+            {area.assuntos && area.assuntos.length > 0 && (
+              <ul class="assuntos" aria-label={`Assuntos em ${area.nome}`}>
+                {area.assuntos.map((assunto) => <li>{assunto}</li>)}
+              </ul>
+            )}
+          </a>
+        ) : (
+          <div class="item aberto sobe">
+            <div class="fila">
+              <h3>{area.nome}</h3>
+              {area.pendente && <span class="pendente">{area.pendente}</span>}
+            </div>
+          </div>
+        )
+      ))}
+    </div>
+  </div>
+</section>
+
+<div class="espia" id="espia" aria-hidden="true"><video muted loop playsinline></video></div>
+
+<style>
+  .areas {
+    position: relative;
+    background: var(--tinta);
+    color: #fff;
+    overflow: hidden;
+    clip-path: polygon(0 3.6vw, 100% 0, 100% 100%, 0 calc(100% - 3.6vw));
+    padding-block: calc(var(--bloco) + 3.6vw);
+  }
+  .areas .lastro {
+    position: absolute;
+    inset: -16% -8%;
+    background:
+      radial-gradient(40% 46% at 16% 24%, rgba(81, 116, 147, 0.52), transparent 64%),
+      radial-gradient(44% 42% at 84% 70%, rgba(155, 28, 46, 0.32), transparent 62%),
+      linear-gradient(158deg, #102a50, #0b1e3f);
+  }
+  /* Grão só sobre a chapa azul escura desta seção. */
+  .areas .grao {
+    position: absolute;
+    inset: 0;
+    opacity: 0.26;
+    pointer-events: none;
+  }
+  .areas :global(.env) {
+    position: relative;
+    z-index: 3;
+  }
+  .areas .topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: clamp(38px, 5vw, 66px);
+  }
+  .areas h2 {
+    font-size: clamp(30px, 4.2vw, 54px);
+  }
+  .areas .topo p {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 15px;
+    max-width: 32ch;
+  }
+  .grade {
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+  }
+  .item {
+    display: block;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    padding: clamp(22px, 3vw, 38px) 0;
+    position: relative;
+  }
+  .item .fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .item h3 {
+    font-family: var(--serif);
+    font-weight: 200;
+    font-size: clamp(32px, 6vw, 76px);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    transition: transform 0.5s cubic-bezier(0.22, 0.75, 0.2, 1), opacity 0.4s;
+  }
+  .item .glosa {
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 16.5px;
+    max-width: 34ch;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.45s, transform 0.45s;
+  }
+  .item:hover h3,
+  .item:focus-visible h3 {
+    transform: translateX(clamp(10px, 1.6vw, 26px));
+  }
+  .item:hover .glosa,
+  .item:focus-visible .glosa {
+    opacity: 1;
+    transform: none;
+  }
+  .item .seta {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    flex: none;
+    display: grid;
+    place-items: center;
+    transition: background 0.35s, transform 0.35s;
+  }
+  .item:hover .seta {
+    background: var(--imperial);
+    border-color: var(--imperial);
+    transform: rotate(-45deg);
+  }
+  .item.aberto {
+    pointer-events: none;
+  }
+  .item.aberto h3 {
+    color: rgba(255, 255, 255, 0.34);
+  }
+  .item .pendente {
+    font-size: 12px;
+    color: #fff;
+    background: var(--imperial);
+    padding: 4px 11px;
+    border-radius: 999px;
+  }
+  .assuntos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .assuntos li {
+    font-size: 15px;
+    padding: 7px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.78);
+    transition: border-color 0.3s, color 0.3s;
+  }
+  .item:hover .assuntos li {
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #fff;
+  }
+  @media (max-width: 560px) {
+    .assuntos li {
+      font-size: 14px;
+      padding: 6px 10px;
+    }
+  }
+
+  /* Prévia em vídeo que segue o cursor. Nasce invisível e sem eventos:
+     sem JS ela nunca aparece, e nenhuma informação depende dela. */
+  .espia {
+    position: fixed;
+    z-index: 50;
+    width: min(280px, 26vw);
+    aspect-ratio: 16/11;
+    border-radius: 14px;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.86);
+    transition: opacity 0.35s, transform 0.45s cubic-bezier(0.22, 0.75, 0.2, 1);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  }
+  .espia video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.2);
+  }
+  .espia.viva {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  @media (max-width: 900px) {
+    .espia {
+      display: none;
+    }
+    .item .fila {
+      flex-wrap: wrap;
+    }
+    .item .glosa {
+      opacity: 1;
+      transform: none;
+      margin-top: 12px;
+      font-size: 15.5px;
+    }
+  }
+
+  /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
+     traz o kill-switch global do protótipo; este bloco garante que o
+     componente já cumpra a regra sozinho, em qualquer página. */
+  @media (prefers-reduced-motion: reduce) {
+    .areas,
+    .areas *,
+    .espia,
+    .espia * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

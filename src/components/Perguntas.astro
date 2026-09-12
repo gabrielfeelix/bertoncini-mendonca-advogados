@@ -1,0 +1,155 @@
+---
+/**
+ * Perguntas frequentes: título à esquerda, acordeão à direita. Migrado do
+ * protótipo (CSS linhas 369-384, HTML linhas 738-766).
+ *
+ * O acordeão usa `<details>`/`<summary>` nativos: abre e fecha sem uma
+ * linha de JavaScript, e o conteúdo de cada resposta está no HTML desde o
+ * primeiro paint (leitores de tela e a busca do navegador encontram tudo).
+ * A Tarefa 5 não precisa tocar nesta seção.
+ */
+interface Pergunta {
+  /** Texto do `<summary>`. */
+  pergunta: string;
+  /** Texto da resposta. */
+  resposta: string;
+}
+
+interface Props {
+  /** Título da seção. */
+  titulo?: string;
+  /** Perguntas, na ordem. */
+  perguntas?: Pergunta[];
+}
+
+const {
+  titulo = 'As perguntas que mais recebemos',
+  perguntas = [
+    {
+      pergunta: 'Quanto custa uma consulta?',
+      resposta: 'Depende do caso. Na primeira conversa entendemos a situação e informamos o valor antes de você assumir qualquer compromisso.',
+    },
+    {
+      pergunta: 'Como funciona do primeiro contato até o processo andar?',
+      resposta: 'Você envia uma mensagem contando o que aconteceu. Respondemos marcando uma conversa por vídeo. Nela você recebe as opções, os prazos e o custo. Se decidir seguir, assumimos o caso e informamos cada movimentação, inclusive quando a notícia é que nada mudou.',
+    },
+    {
+      pergunta: 'Preciso ir até o escritório?',
+      resposta: 'Não. O atendimento é online, por mensagem e por chamada de vídeo, e isso cobre todas as etapas do caso. Quando um encontro presencial for necessário, combinamos o lugar em Maringá.',
+    },
+    {
+      pergunta: 'Quanto tempo demora um processo?',
+      resposta: 'Varia com a vara e com a complexidade. Você recebe uma estimativa realista, com a ressalva de que prazo de tribunal não depende de advogado.',
+    },
+    {
+      pergunta: 'Vocês atendem fora de Maringá?',
+      resposta: 'Sim. O processo tramita online na maior parte do tempo, então atendemos clientes de outras cidades do Paraná.',
+    },
+  ],
+}: Props = Astro.props;
+---
+
+<section class="secao perguntas" id="perguntas">
+  <div class="env">
+    <h2 class="display sobe">{titulo}</h2>
+    <div class="sobe">
+      {perguntas.map((item) => (
+        <details class="q">
+          <summary>{item.pergunta}<span class="cruz"></span></summary>
+          <p class="resposta">{item.resposta}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .perguntas :global(.env) {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: clamp(28px, 5vw, 90px);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .perguntas :global(.env) {
+      grid-template-columns: 1fr;
+      gap: 34px;
+    }
+  }
+  .perguntas h2 {
+    font-size: clamp(30px, 4.2vw, 54px);
+    max-width: 14ch;
+  }
+  .q {
+    border-top: 1px solid var(--linha);
+  }
+  .q:last-child {
+    border-bottom: 1px solid var(--linha);
+  }
+  .q summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 24px 0;
+    display: flex;
+    gap: 22px;
+    justify-content: space-between;
+    align-items: center;
+    font-size: clamp(18px, 2.1vw, 23px);
+    font-family: var(--serif);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    transition: color 0.3s;
+  }
+  .q summary:hover {
+    color: var(--apoio);
+  }
+  .q summary::-webkit-details-marker {
+    display: none;
+  }
+  .q .cruz {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    position: relative;
+  }
+  .q .cruz::before,
+  .q .cruz::after {
+    content: '';
+    position: absolute;
+    background: var(--imperial);
+    border-radius: 2px;
+    transition: transform 0.3s;
+  }
+  .q .cruz::before {
+    left: 0;
+    right: 0;
+    top: 9px;
+    height: 2px;
+  }
+  .q .cruz::after {
+    top: 0;
+    bottom: 0;
+    left: 9px;
+    width: 2px;
+  }
+  .q[open] .cruz::after {
+    transform: scaleY(0);
+  }
+  .q .resposta {
+    padding-block: 4px 22px;
+    color: var(--secundario);
+    max-width: 60ch;
+    font-size: 16.5px;
+  }
+
+  /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
+     traz o kill-switch global do protótipo; este bloco garante que o
+     componente já cumpra a regra sozinho, em qualquer página. */
+  @media (prefers-reduced-motion: reduce) {
+    .perguntas,
+    .perguntas * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

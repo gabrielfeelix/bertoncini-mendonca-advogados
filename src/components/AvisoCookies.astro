@@ -1,0 +1,140 @@
+---
+/**
+ * Aviso de cookies: três escolhas, guardadas no aparelho. Migrado do
+ * protótipo (CSS linhas 457-468, HTML linhas 869-879).
+ *
+ * Nasce com o atributo `hidden`: sem JavaScript não há rastreamento
+ * nenhum para consentir, então o aviso simplesmente não aparece e não
+ * rouba espaço da leitura. A Tarefa 5 remove o `hidden` quando ainda não
+ * houver escolha guardada e trata o clique dos três botões.
+ *
+ * O texto é provisório e está marcado com `data-placeholder="1"`: o
+ * definitivo vem do escritório, com o link real da política.
+ *
+ * Marcações para a Tarefa 5: o id `#aviso` e os três
+ * `data-consente="todos|necessarios|nenhum"`.
+ */
+interface Opcao {
+  /** Valor lido pela Tarefa 5 no clique. */
+  consente: string;
+  /** Rótulo do botão. */
+  rotulo: string;
+}
+
+interface Props {
+  /** Rótulo acessível da região. */
+  rotulo?: string;
+  /** Texto do aviso. */
+  texto?: string;
+  /** Rótulo do link para a política. */
+  linkRotulo?: string;
+  /** Destino do link para a política. */
+  linkHref?: string;
+  /** true quando o link ainda é placeholder. */
+  linkPlaceholder?: boolean;
+  /** Ressalva em vermelho, visível enquanto o texto for provisório. */
+  ressalva?: string;
+  /** Os três botões de escolha, na ordem. */
+  opcoes?: Opcao[];
+}
+
+const {
+  rotulo = 'Aviso de cookies',
+  texto = 'Este site usa cookies para medir visitas. Você escolhe o que aceita.',
+  linkRotulo = 'Saiba mais',
+  linkHref = '/politica-de-cookies/',
+  linkPlaceholder = false,
+  ressalva = 'Texto provisório. O definitivo vem do Juscelino.',
+  opcoes = [
+    { consente: 'todos', rotulo: 'Aceitar todos' },
+    { consente: 'necessarios', rotulo: 'Apenas necessários' },
+    { consente: 'nenhum', rotulo: 'Rejeitar' },
+  ],
+}: Props = Astro.props;
+---
+
+<div class="aviso" id="aviso" role="region" aria-label={rotulo} hidden>
+  <p data-placeholder="1">
+    {texto}
+    <a href={linkHref} data-placeholder={linkPlaceholder ? '1' : undefined}>{linkRotulo}</a>
+    {ressalva && <span style="color:var(--imperial)">{ressalva}</span>}
+  </p>
+  <div class="opcoes">
+    {opcoes.map((opcao) => (
+      <button type="button" data-consente={opcao.consente}>{opcao.rotulo}</button>
+    ))}
+  </div>
+</div>
+
+<style>
+  /* aviso de cookies: três escolhas, guardadas no aparelho. Só existe com
+     JS, sem JS não há rastreamento nenhum para consentir. */
+  .aviso {
+    position: fixed;
+    z-index: 90;
+    left: 16px;
+    bottom: 16px;
+    max-width: 420px;
+    padding: 20px 22px;
+    background: #fff;
+    color: var(--tinta);
+    border: 1px solid var(--linha);
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(11, 30, 63, 0.16);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .aviso p {
+    margin: 0 0 16px;
+  }
+  /* O protótipo deixa este link com a altura da linha (16px). O alvo de
+     toque mínimo do projeto é 44px e vale para todo link clicável, então
+     ele vira inline-flex com 44px de altura. É a única medida alterada em
+     relação ao protótipo nesta seção; a cor, o tamanho da fonte e o texto
+     continuam iguais. */
+  .aviso a {
+    color: var(--apoio);
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .aviso .opcoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .aviso button {
+    font: 500 14px/1 var(--sans);
+    padding: 13px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    border: 1px solid var(--tinta);
+    background: #fff;
+    color: var(--tinta);
+    min-height: 44px;
+  }
+  .aviso button[data-consente='todos'] {
+    background: var(--tinta);
+    color: #fff;
+  }
+  .aviso button:hover {
+    background: var(--apoio);
+    color: #fff;
+    border-color: var(--apoio);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .aviso,
+    .aviso * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+  @media (max-width: 560px) {
+    .aviso {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      max-width: none;
+    }
+  }
+</style>

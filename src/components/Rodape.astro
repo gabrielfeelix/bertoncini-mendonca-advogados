@@ -21,6 +21,7 @@ const ano = new Date().getFullYear();
   <div class="grao" style="filter:url(#grao)"></div>
   <div class="env rodape-env">
     <div class="marca-pe">
+      <img src="/media/marca/lockup-branco.png" alt={site.nome} width="180" loading="lazy" />
       <p class="registro" data-placeholder="1">
         {site.nomeSociedade}<br />
         Registro {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}<br />
@@ -109,8 +110,13 @@ const ano = new Date().getFullYear();
   }
   .marca-pe {
     display: grid;
+    grid-template-columns: auto 1fr;
     gap: 32px;
     align-items: start;
+  }
+  .marca-pe img {
+    opacity: 0.92;
+    height: auto;
   }
   .registro {
     font-size: 15px;
@@ -172,6 +178,10 @@ const ano = new Date().getFullYear();
   @media (max-width: 900px) {
     .pe-nav {
       grid-template-columns: repeat(2, 1fr);
+    }
+    .marca-pe {
+      grid-template-columns: 1fr;
+      gap: 20px;
     }
   }
   @media (max-width: 560px) {
