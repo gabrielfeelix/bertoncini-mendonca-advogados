@@ -463,24 +463,19 @@ const {
 
   /* ── o encolhimento ───────────────────────────────────────────────── */
 
-  /* Caminho 1: scroll-timeline nativo (Chrome/Edge). Sem JS nenhum. */
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .placa {
-        animation: encolher linear both;
-        animation-timeline: view();
-        animation-range: exit 0% exit 85%;
-      }
-      @keyframes encolher {
-        from {
-          --encolhe: 0;
-        }
-        to {
-          --encolhe: 1;
-        }
-      }
-    }
-  }
+  /*
+    NAO ha caminho por scroll-timeline nativo aqui, de proposito.
+
+    `animation-timeline: view()` mede a travessia do elemento pela tela, e
+    o trilho do hero JA nasce cobrindo a tela no topo do documento: com
+    `animation-range: cover` o intervalo ja esta completo em y=0 (a placa
+    nasceria encolhida) e com `exit` ele so comeca uma tela inteira depois
+    (o cliente rolava tres vezes sem ver nada acontecer). Nenhum dos dois
+    descreve "quanto a pagina rolou desde o topo", que e o que este efeito
+    precisa. As duas variantes foram testadas e medidas antes de sair.
+
+    O JS abaixo descreve isso diretamente, e roda em todos os navegadores.
+  */
 
   /* `--encolhe` precisa ser registrada para poder ser animada: uma custom
      property comum é interpolada como texto, e o navegador não sabe ir de
@@ -519,16 +514,15 @@ const {
 </style>
 
 <script>
-  /* Encolhimento por JS, só para navegadores sem `animation-timeline`
-     (Firefox e Safari hoje). Onde o CSS já resolve, este script não faz
-     nada — evita as duas fontes brigando pela mesma propriedade.
+  /* Encolhimento por JS, em todos os navegadores — ver a nota no CSS
+     sobre por que `animation-timeline` nao serve para este caso.
 
-     Sem JS e sem scroll-timeline: a placa fica em tela cheia o tempo
-     todo. É um estado final legítimo; nada de conteúdo se perde. */
-  const temNativo = CSS.supports('animation-timeline', 'view()');
+     Sem JS a placa fica em tela cheia o tempo todo: e um estado final
+     legitimo, nada de conteudo se perde. Sob `prefers-reduced-motion`
+     tambem nao ha encolhimento. */
   const calmo = matchMedia('(prefers-reduced-motion: reduce)');
 
-  if (!temNativo && !calmo.matches) {
+  if (!calmo.matches) {
     const trilho = document.getElementById('hero-trilho');
     const placa = document.getElementById('hero-placa');
 
@@ -537,11 +531,17 @@ const {
       const medir = () => {
         pedido = 0;
         const caixa = trilho.getBoundingClientRect();
-        /* curso = quanto o trilho já saiu por cima da tela, sobre o total
-           que ele tem para sair (a altura do trilho menos uma tela). */
-        const total = Math.max(1, caixa.height - window.innerHeight);
-        const andado = Math.min(Math.max(-caixa.top, 0), total);
-        const t = Math.min(andado / (total * 0.85), 1);
+        /* O curso comeca no PRIMEIRO pixel de rolagem: `-caixa.top` ja
+           vale 1 assim que a pagina anda 1px, porque o trilho nasce no
+           topo do documento.
+
+           O divisor e uma fracao da TELA (meia tela), nao do trilho: a
+           velocidade passa a ser a mesma independentemente da altura do
+           trilho, e e a medida que o cliente percebe — "desde o primeiro
+           scroll", com o retangulo pronto em meia rolagem. */
+        const curso = window.innerHeight * 0.5;
+        const andado = Math.max(-caixa.top, 0);
+        const t = Math.min(andado / curso, 1);
         placa.style.setProperty('--encolhe', t.toFixed(3));
       };
       const agenda = () => {

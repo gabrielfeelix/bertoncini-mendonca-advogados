@@ -12,7 +12,7 @@
  * ── `calmo` é o interruptor ─────────────────────────────────────────────
  *
  * Uma checagem só, no topo, e todo o resto se pendura nela. Quem pediu
- * menos movimento não recebe Lenis, nem reveals, nem parallax, nem
+ * menos movimento não recebe Lenis, nem reveals, nem
  * magnetismo, nem vídeo tocando — e o CSS desliga o que sobrar.
  *
  * O GSAP e o Lenis são carregados sob demanda, e só quando há movimento:
@@ -276,25 +276,15 @@ function ligaMagnetismo(): void {
   });
 }
 
-/** Parallax do vídeo do hero. */
-function ligaParallax(): void {
-  const filme = document.querySelector<HTMLElement>('.hero .filme');
-  if (!filme) return;
-  let agendado = false;
-  addEventListener(
-    'scroll',
-    () => {
-      if (agendado) return;
-      agendado = true;
-      requestAnimationFrame(() => {
-        const y = scrollY;
-        if (y < innerHeight * 1.2) filme.style.translate = `0 ${(y * 0.18).toFixed(1)}px`;
-        agendado = false;
-      });
-    },
-    { passive: true },
-  );
-}
+/*
+ * O parallax do hero foi REMOVIDO (redesenho, Tarefa 1).
+ *
+ * Ele deslocava `.hero .filme` em 18% da rolagem, o que brigava com o
+ * encolhimento da placa: duas transformacoes disputando o mesmo elemento
+ * durante o mesmo scroll, uma descendo a imagem e outra reduzindo a
+ * placa. O resultado era a imagem "escorrendo" enquanto encolhia. O
+ * encolhimento sozinho ja e o movimento da primeira dobra.
+ */
 
 /** O vídeo que segue o cursor sobre as áreas. */
 function ligaEspia(): void {
@@ -335,7 +325,6 @@ if (calmo) {
   ligaReveals();
   ligaVideoTardio();
   ligaMagnetismo();
-  ligaParallax();
   ligaEspia();
 
   /* Lenis e GSAP entram sob demanda. Se a importação falhar (rede, bloqueio
