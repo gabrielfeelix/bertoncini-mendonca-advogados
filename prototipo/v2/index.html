@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bertoncini &amp; Mendonça Advogados</title>
+<meta name="description" content="Sociedade de advogados em Maringá, Paraná. Direito de família e compliance, com explicação em português claro antes de qualquer decisão.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&display=swap" rel="stylesheet">
+<link rel="icon" href="../media/marca/mono-azul.png">
+<style>
+/* ============ tokens ============ */
+:root{
+  --branco:#FFFFFF;
+  --tile:#F5F5F7;
+  --tinta:#0B1E3F;
+  --tinta-2:#102A50;
+  --meta:#5C6E84;
+  --acao:#0A5AD6;
+  --acao-claro:#3E8BFF;
+  --linha:#E4E7EC;
+  --sans:"Geist","SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --curva:cubic-bezier(.32,.72,0,1);
+  --gutter:clamp(20px,4.6vw,72px);
+  --bloco:clamp(96px,12vw,176px);
+  --raio-g:28px;
+  --raio-m:18px;
+  --raio-p:12px;
+  --nav:48px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--branco);color:var(--tinta);font-family:var(--sans);
+  font-size:17px;line-height:1.47;font-weight:400;-webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;overflow-x:clip}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3{font-weight:600;letter-spacing:-.022em;line-height:1.08;text-wrap:balance}
+a{color:inherit;text-decoration:none}
+img,video{display:block;max-width:100%}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acao);outline-offset:4px;border-radius:6px}
+.env{max-width:1240px;margin:0 auto;padding-inline:var(--gutter)}
+.env-l{max-width:1440px;margin:0 auto;padding-inline:var(--gutter)}
+.secao{padding-block:var(--bloco)}
+
+/* tipografia */
+.t-hero{font-size:clamp(44px,7.4vw,104px);letter-spacing:-.035em;line-height:.98;font-weight:600}
+.t-1{font-size:clamp(34px,4.6vw,64px);letter-spacing:-.03em;line-height:1.04}
+.t-2{font-size:clamp(28px,3.4vw,48px);letter-spacing:-.026em}
+.t-3{font-size:clamp(22px,2.2vw,30px);letter-spacing:-.02em;line-height:1.16}
+.lede{font-size:clamp(18px,1.5vw,22px);line-height:1.42;color:var(--meta);font-weight:400}
+.meta{color:var(--meta);font-size:15px}
+
+/* links e botões, no molde da Apple */
+.saiba{display:inline-flex;align-items:center;gap:4px;color:var(--acao);font-size:17px;font-weight:500}
+.saiba svg{transition:transform .35s var(--curva)}
+.saiba:hover{text-decoration:underline;text-underline-offset:3px}
+.saiba:hover svg{transform:translateX(3px)}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;
+  padding:0 22px;border-radius:980px;background:var(--acao);color:#fff;font-size:17px;font-weight:500;
+  border:0;cursor:pointer;transition:background .3s,transform .5s var(--curva);will-change:transform}
+.pill:hover{background:#0B4FBE}
+.pill.fantasma{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.34);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.pill.fantasma:hover{background:rgba(255,255,255,.24)}
+.pill.branco{background:#fff;color:var(--tinta)}
+.pill.branco:hover{background:#eef1f5}
+
+/* grão: só sobre azul escuro */
+.grao{position:absolute;inset:0;pointer-events:none;filter:url(#grao);opacity:.26}
+
+/* ============ nav ============ */
+.nav{position:fixed;z-index:80;top:0;left:0;right:0;height:var(--nav);
+  color:var(--tinta);
+  background:rgba(255,255,255,.72);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  transition:background .5s,color .5s,transform .5s var(--curva)}
+.nav::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(11,30,63,.08);transition:background .5s}
+.nav.escura{background:rgba(7,18,40,.55);color:#fff}
+.nav.escura::after{background:rgba(255,255,255,.12)}
+.nav .env{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.nav .marca{display:flex;align-items:center;gap:10px;height:100%;font-size:14px;font-weight:500;letter-spacing:.002em;white-space:nowrap}
+.nav .marca img{height:22px;width:auto}
+.nav .marca .escuro{display:block}.nav .marca .claro{display:none}
+.nav.escura .marca .escuro{display:none}.nav.escura .marca .claro{display:block}
+.nav .elos{display:flex;gap:clamp(18px,2.6vw,38px);font-size:13px;font-weight:400;letter-spacing:.01em}
+.nav .elos a{opacity:.82;transition:opacity .25s;padding:6px 0}
+.nav .elos a:hover{opacity:1}
+.nav .cta{font-size:13px;min-height:30px;padding:0 14px;background:var(--tinta);color:#fff}
+.nav .cta:hover{background:var(--acao)}
+.nav.escura .cta{background:rgba(255,255,255,.92);color:var(--tinta)}
+.nav.escura .cta:hover{background:#fff}
+.nav .abre{display:none;background:none;border:0;padding:8px;cursor:pointer;margin-right:-8px}
+.nav .abre span{display:block;width:18px;height:1.5px;background:currentColor;margin:5px 0;transition:transform .4s var(--curva),opacity .3s}
+.nav.aberta .abre span:first-child{transform:translateY(6.5px) rotate(45deg)}
+.nav.aberta .abre span:last-child{transform:translateY(-6.5px) rotate(-45deg)}
+.lencol{position:fixed;z-index:79;inset:var(--nav) 0 auto 0;background:rgba(255,255,255,.96);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  display:none;flex-direction:column;padding:12px var(--gutter) 28px;border-bottom:1px solid var(--linha)}
+.lencol a{padding:16px 0;font-size:24px;font-weight:500;letter-spacing:-.02em;border-bottom:1px solid var(--linha)}
+.lencol a:last-child{border:0}
+.lencol.aberto{display:flex}
+@media(max-width:900px){
+  .nav .elos,.nav .cta{display:none}
+  .nav .abre{display:block}
+  .nav.escura.aberta{background:rgba(255,255,255,.92);color:var(--tinta)}
+  .nav.escura.aberta .marca .escuro{display:block}.nav.escura.aberta .marca .claro{display:none}
+}
+
+/* ============ hero: vídeo que encolhe ============ */
+.hero{position:relative;height:172vh;height:172svh;background:var(--branco);--p:0}
+.hero .pino{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--branco)}
+.hero .moldura{position:absolute;inset:0;background:var(--tinta);overflow:hidden;
+  transform:scale(calc(1 - .14 * var(--p)));
+  border-radius:calc(var(--raio-g) * var(--p) * 1.4);
+  transform-origin:50% 62%}
+.hero .filme{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:saturate(.45) contrast(1.08) brightness(.82)}
+.hero .lavagem{position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(11,30,63,.42) 0%,rgba(11,30,63,.10) 40%,rgba(11,30,63,.62) 100%)}
+.hero .moldura .grao{opacity:.22}
+.hero .texto{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;color:#fff;padding:calc(var(--nav) + 24px) var(--gutter) 40px;
+  opacity:calc(1 - var(--p) * 1.6);transform:translateY(calc(var(--p) * -40px))}
+.hero h1{max-width:14ch}
+.hero h1 .pal{display:inline-block;will-change:transform,opacity,filter}
+.hero .lede{color:rgba(255,255,255,.80);max-width:46ch;margin-top:clamp(18px,2.4vw,28px);font-size:clamp(17px,1.5vw,21px)}
+.hero .acoes{display:flex;gap:12px;margin-top:clamp(26px,3vw,40px);flex-wrap:wrap;justify-content:center}
+.hero .acoes .saiba{color:#fff;font-size:17px}
+.hero .lugar{position:absolute;z-index:3;left:0;right:0;bottom:22px;display:flex;justify-content:center;
+  color:rgba(255,255,255,.62);font-size:13px;letter-spacing:.01em;
+  opacity:calc(1 - var(--p) * 3)}
+.hero .lugar span{display:flex;align-items:center;gap:10px}
+.hero .lugar i{display:block;width:1px;height:30px;background:rgba(255,255,255,.4);overflow:hidden;position:relative}
+.hero .lugar i::after{content:"";position:absolute;left:0;top:-100%;width:100%;height:100%;background:#fff;
+  animation:desce 2.2s var(--curva) infinite}
+@keyframes desce{0%{top:-100%}60%{top:100%}100%{top:100%}}
+
+/* entrada do hero */
+.js .hero .pal{opacity:0;transform:translateY(18px);filter:blur(8px)}
+.js .hero.pronta .pal{opacity:1;transform:none;filter:blur(0);
+  transition:opacity .9s var(--curva),transform 1s var(--curva),filter .9s var(--curva)}
+.js .hero .lede,.js .hero .acoes,.js .hero .lugar{opacity:0}
+.js .hero.pronta .lede{opacity:calc(1 - var(--p) * 1.6);transition:opacity 1s .55s var(--curva)}
+.js .hero.pronta .acoes{opacity:calc(1 - var(--p) * 1.6);transition:opacity 1s .7s var(--curva)}
+.js .hero.pronta .lugar{opacity:calc(1 - var(--p) * 3);transition:opacity 1s 1.1s}
+.js .hero .filme{transform:scale(1.08);opacity:0}
+.js .hero.pronta .filme{transform:scale(1);opacity:1;transition:transform 2.6s var(--curva),opacity 1.2s}
+
+/* ============ declaração ============ */
+.declaracao{text-align:center}
+.declaracao h2{max-width:22ch;margin:0 auto}
+.declaracao .lede{max-width:58ch;margin:clamp(22px,2.6vw,34px) auto 0}
+.declaracao .lede+.lede{margin-top:16px}
+
+/* ============ áreas: vitrine horizontal ============ */
+.areas{padding-block:0 var(--bloco);overflow:clip}
+.areas .cabeca{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:clamp(26px,3vw,40px)}
+.areas .cabeca p{margin-top:10px}
+.areas .setas{display:flex;gap:10px}
+.seta{width:40px;height:40px;border-radius:50%;background:var(--tile);border:0;cursor:pointer;
+  display:grid;place-items:center;color:var(--tinta);transition:background .3s,opacity .3s}
+.seta:hover{background:#e8e8ed}
+.seta:disabled{opacity:.3;cursor:default}
+.trilho{display:flex;gap:clamp(14px,1.6vw,22px);overflow-x:auto;scroll-snap-type:x mandatory;
+  padding-inline:max(var(--gutter),calc((100vw - 1440px)/2 + var(--gutter)));padding-bottom:8px;
+  scrollbar-width:none;-ms-overflow-style:none;scroll-padding-inline:max(var(--gutter),calc((100vw - 1440px)/2 + var(--gutter)))}
+.trilho::-webkit-scrollbar{display:none}
+.tile{position:relative;flex:none;width:clamp(300px,31vw,420px);aspect-ratio:4/4.7;border-radius:var(--raio-g);
+  background:var(--tile);scroll-snap-align:start;padding:clamp(24px,2.4vw,36px);display:flex;flex-direction:column;
+  overflow:hidden;isolation:isolate;transform-style:preserve-3d;
+  transition:transform .6s var(--curva),box-shadow .6s var(--curva)}
+.tile h3{font-size:clamp(28px,2.6vw,38px);letter-spacing:-.028em;line-height:1.04;max-width:11ch}
+.tile .desc{margin-top:auto;color:var(--meta);font-size:16px;max-width:30ch;line-height:1.45}
+.tile .saiba{margin-top:18px;position:relative;z-index:2}
+.tile .brilho{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .5s;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.55),transparent 60%)}
+.tile:hover .brilho{opacity:1}
+.tile.escuro{background:linear-gradient(160deg,var(--tinta-2),var(--tinta));color:#fff}
+.tile.escuro .desc{color:rgba(255,255,255,.66)}
+.tile.escuro .saiba{color:var(--acao-claro)}
+.tile.escuro .brilho{background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(120,160,220,.30),transparent 60%)}
+.tile.escuro .lastro{position:absolute;inset:-20%;z-index:0;pointer-events:none;
+  background:radial-gradient(40% 46% at 16% 24%,rgba(81,116,147,.52),transparent 64%),radial-gradient(44% 42% at 84% 70%,rgba(155,28,46,.32),transparent 62%)}
+.tile.escuro .grao{z-index:0;opacity:.26}
+.tile.aberto{border:1.5px dashed #cfd4dc;background:transparent;color:var(--meta)}
+.tile.aberto h3{color:#9aa6b5}
+.tile.aberto .status{margin-top:18px;display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--meta)}
+.tile.aberto .status i{width:8px;height:8px;border-radius:50%;background:#cfd4dc}
+.tile>*{position:relative;z-index:2}
+.tile .grao,.tile .lastro,.tile .brilho{z-index:1}
+.tile .desc,.tile h3{z-index:2}
+.tile .marcad{position:absolute;right:clamp(20px,2vw,30px);top:clamp(20px,2vw,30px);width:44px;height:44px;border-radius:50%;
+  display:grid;place-items:center;background:rgba(11,30,63,.06);z-index:2}
+.tile.escuro .marcad{background:rgba(255,255,255,.10)}
+
+/* ============ método: passos que acendem ============ */
+.metodo .env{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(32px,6vw,120px);align-items:start}
+.metodo .fixo{position:sticky;top:calc(var(--nav) + 12vh)}
+.metodo .fixo .lede{margin-top:20px;max-width:34ch}
+.metodo .fixo .saiba{margin-top:26px}
+.passos{position:relative;padding-left:clamp(30px,3vw,44px);--fill:0}
+.passos::before{content:"";position:absolute;left:5px;top:12px;bottom:12px;width:1px;background:var(--linha)}
+.passos::after{content:"";position:absolute;left:5px;top:12px;width:1px;background:var(--acao);
+  height:calc(var(--fill) * (100% - 24px));transition:height .2s linear}
+.passo{position:relative;padding-block:clamp(38px,7vh,72px);border-bottom:1px solid var(--linha);
+  transition:opacity .6s var(--curva)}
+.passo:last-child{border-bottom:0}
+.passo::before{content:"";position:absolute;left:calc(-1 * clamp(30px,3vw,44px) + 1px);top:calc(clamp(38px,7vh,72px) + 12px);
+  width:9px;height:9px;border-radius:50%;background:#fff;border:1px solid #cfd4dc;transition:background .4s,border-color .4s,transform .5s var(--curva)}
+.passo .n{font-size:13px;color:var(--meta);font-variant-numeric:tabular-nums;transition:color .4s}
+.passo h3{margin-top:10px;font-size:clamp(24px,2.5vw,36px);letter-spacing:-.024em;line-height:1.12;transition:color .5s}
+.passo p{margin-top:12px;color:var(--meta);max-width:44ch;font-size:17px}
+.js .passo{opacity:.28}
+.js .passo.acesa{opacity:1}
+.passo.acesa::before{background:var(--acao);border-color:var(--acao);transform:scale(1.35)}
+.passo.acesa .n{color:var(--acao)}
+@media(max-width:900px){
+  .metodo .env{grid-template-columns:1fr;gap:34px}
+  .metodo .fixo{position:static}
+  .js .passo{opacity:1}
+}
+
+/* ============ sócios ============ */
+.socios{text-align:center;background:var(--tile)}
+.socios .lede{max-width:50ch;margin:18px auto 0}
+.socios .par{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,1.6vw,22px);margin-top:clamp(36px,4vw,56px);text-align:left}
+.socio{display:block;position:relative;border-radius:var(--raio-g);overflow:hidden;background:var(--tinta);aspect-ratio:4/5;isolation:isolate;
+  transition:transform .7s var(--curva)}
+.socio img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;transform:scale(1.01);
+  transition:transform 1.4s var(--curva)}
+.socio:hover img{transform:scale(1.05)}
+.socio .veu{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,15,31,.86) 0%,rgba(6,15,31,.40) 30%,transparent 58%)}
+.socio .grao{opacity:.14}
+.socio .nome{position:absolute;left:clamp(22px,2.4vw,34px);right:clamp(22px,2.4vw,34px);bottom:clamp(22px,2.4vw,34px);color:#fff;z-index:3}
+.socio .nome h3{font-size:clamp(28px,3vw,44px);letter-spacing:-.03em;line-height:1}
+.socio .nome p{margin-top:10px;font-size:14px;color:rgba(255,255,255,.74);font-variant-numeric:tabular-nums}
+.socio .nome .saiba{margin-top:14px;color:#fff;font-size:15px}
+.socio-bio{margin-top:16px;color:var(--meta);font-size:16px;max-width:38ch;padding-inline:4px}
+@media(max-width:700px){.socios .par{grid-template-columns:1fr}}
+
+/* ============ chapa azul com grão ============ */
+.chapa{position:relative;background:var(--tinta);color:#fff;overflow:clip;isolation:isolate;text-align:center}
+.lastro-bm{position:absolute;inset:-16% -8%;z-index:0;pointer-events:none;
+  background:radial-gradient(40% 46% at 16% 24%,rgba(81,116,147,.52),transparent 64%),
+             radial-gradient(44% 42% at 84% 70%,rgba(155,28,46,.32),transparent 62%),
+             linear-gradient(158deg,#102A50,#0B1E3F)}
+.chapa .grao{z-index:1;opacity:.26}
+.chapa .env{position:relative;z-index:2}
+.chapa h2{max-width:20ch;margin:0 auto}
+.chapa .lede{color:rgba(255,255,255,.70);max-width:46ch;margin:22px auto 0}
+.chapa .moldura{position:relative;margin:clamp(40px,5vw,72px) auto 0;max-width:1100px;aspect-ratio:16/9;border-radius:var(--raio-g);
+  overflow:hidden;background:#071429;box-shadow:0 40px 100px -30px rgba(0,0,0,.6)}
+.chapa .moldura video{width:100%;height:110%;object-fit:cover;filter:saturate(.5) brightness(.85);
+  transform:translateY(calc(var(--py,0) * -1px))}
+.chapa .moldura .grao{opacity:.16}
+.chapa .moldura .legenda{position:absolute;left:24px;bottom:22px;z-index:2;text-align:left;font-size:13px;color:rgba(255,255,255,.72)}
+.chapa .moldura .legenda b{display:block;font-weight:500;color:#fff;font-size:15px}
+
+/* ============ artigos ============ */
+.artigos .cabeca{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:clamp(28px,3.4vw,48px)}
+.artigos .cabeca p{margin-top:10px;max-width:44ch}
+.banca{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,22px)}
+.texto{display:block;border-radius:var(--raio-m);transition:transform .6s var(--curva)}
+.texto .capa{position:relative;aspect-ratio:4/3;border-radius:var(--raio-m);overflow:hidden;background:var(--tinta);isolation:isolate}
+.texto .capa img{width:100%;height:100%;object-fit:cover;transform:scale(1.03);transition:transform 1.2s var(--curva)}
+.texto .capa .tom{position:absolute;inset:0;background:var(--tom,#0B1E3F);mix-blend-mode:color;opacity:.85}
+.texto .capa .grao{opacity:.22}
+.texto .capa .classe{position:absolute;left:14px;top:14px;z-index:2;font-size:12px;font-weight:500;color:#fff;
+  background:rgba(6,15,31,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.18);padding:5px 10px;border-radius:980px}
+.texto:hover .capa img{transform:scale(1.08)}
+.texto h3{margin-top:18px;font-size:clamp(19px,1.5vw,22px);font-weight:600;letter-spacing:-.018em;line-height:1.24;transition:color .3s}
+.texto:hover h3{color:var(--acao)}
+.texto .pe{margin-top:8px;display:flex;align-items:center;gap:8px}
+.texto .pe i{width:3px;height:3px;border-radius:50%;background:#c4cad3}
+@media(max-width:900px){.banca{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.banca{grid-template-columns:1fr}}
+
+/* ============ perguntas ============ */
+.perguntas .env{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,120px);align-items:start}
+.perguntas .fixo{position:sticky;top:calc(var(--nav) + 12vh)}
+.perguntas .fixo .lede{margin-top:18px;max-width:30ch}
+.perguntas .fixo .saiba{margin-top:24px}
+.perguntas .lista{border-top:1px solid var(--linha)}
+.q{border-bottom:1px solid var(--linha)}
+.q summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:24px;
+  padding:26px 0;font-size:clamp(19px,1.7vw,24px);font-weight:500;letter-spacing:-.018em;line-height:1.25;transition:color .3s}
+.q summary::-webkit-details-marker{display:none}
+.q summary:hover{color:var(--acao)}
+.q .cruz{width:30px;height:30px;border-radius:50%;flex:none;position:relative;background:var(--tile);
+  transition:transform .45s var(--curva),background .3s}
+.q .cruz::before,.q .cruz::after{content:"";position:absolute;background:var(--tinta);border-radius:1px;left:50%;top:50%}
+.q .cruz::before{width:12px;height:1.5px;transform:translate(-50%,-50%)}
+.q .cruz::after{width:1.5px;height:12px;transform:translate(-50%,-50%)}
+.q[open] .cruz{transform:rotate(45deg);background:var(--acao)}
+.q[open] .cruz::before,.q[open] .cruz::after{background:#fff}
+.q .corpo{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s var(--curva)}
+.q[open] .corpo{grid-template-rows:1fr}
+.q .corpo>div{overflow:hidden}
+.q .corpo p{padding:0 0 28px;color:var(--meta);max-width:58ch;font-size:17px;line-height:1.55}
+@media(max-width:900px){.perguntas .env{grid-template-columns:1fr;gap:28px}.perguntas .fixo{position:static}}
+
+/* ============ contato ============ */
+.contato{position:relative;background:var(--tinta);color:#fff;overflow:clip;isolation:isolate}
+.contato .grao{z-index:1;opacity:.26}
+.contato .env{position:relative;z-index:2;display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(40px,7vw,140px);align-items:end}
+.contato h2{max-width:14ch}
+.contato .lede{color:rgba(255,255,255,.70);max-width:40ch;margin-top:22px}
+.contato .acoes{display:flex;gap:14px;flex-wrap:wrap;margin-top:clamp(28px,3vw,40px);align-items:center}
+.contato .acoes .saiba{color:#fff}
+.contato .horario{margin-top:22px;font-size:14px;color:rgba(255,255,255,.60);display:inline-flex;align-items:center;gap:8px}
+.contato .horario i{width:7px;height:7px;border-radius:50%;background:#3ddc84}
+.dados{margin:0;border-top:1px solid rgba(255,255,255,.16)}
+.dado{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.16)}
+.dado dt{font-size:14px;color:rgba(255,255,255,.55)}
+.dado dd{margin:0;font-size:17px;font-weight:500}
+.dado a{border-bottom:1px solid rgba(255,255,255,.28);transition:border-color .3s}
+.dado a:hover{border-color:#fff}
+@media(max-width:900px){.contato .env{grid-template-columns:1fr;gap:40px;align-items:start}}
+@media(max-width:480px){.dado{grid-template-columns:1fr;gap:4px}}
+
+/* ============ rodapé ============ */
+.rodape{background:var(--tile);padding-block:clamp(44px,5vw,72px) 28px;font-size:13px;color:var(--meta);line-height:1.6}
+.rodape .colunas{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:clamp(24px,4vw,64px);padding-bottom:clamp(32px,4vw,56px);border-bottom:1px solid #d9dde3}
+.rodape .marca{display:flex;align-items:flex-start;gap:12px;color:var(--tinta)}
+.rodape .marca img{height:34px;width:auto}
+.rodape .marca b{display:block;font-weight:500;font-size:15px;letter-spacing:-.01em;line-height:1.2}
+.rodape .marca span span{display:block;font-size:13px;color:var(--meta)}
+.rodape .sobre{margin-top:18px;max-width:34ch}
+.rodape h4{font-size:13px;font-weight:500;color:var(--tinta);margin:0 0 12px}
+.rodape ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.rodape a:hover{color:var(--tinta);text-decoration:underline;text-underline-offset:3px}
+.rodape .base{display:flex;justify-content:space-between;gap:16px 32px;flex-wrap:wrap;padding-top:22px;font-size:12px}
+.rodape .base .aviso{color:#b3261e}
+@media(max-width:760px){.rodape .colunas{grid-template-columns:1fr;gap:32px}}
+
+/* ============ revelação (só cabeças de seção) ============ */
+.js .rev{opacity:0;transform:translateY(14px);filter:blur(6px)}
+.js .rev.visto{opacity:1;transform:none;filter:blur(0);transition:opacity .9s var(--curva),transform .9s var(--curva),filter .8s var(--curva)}
+.js .rev.tarde.visto{transition-delay:.12s}
+
+@media(max-width:900px){
+  .hero{height:150svh}
+  .areas .cabeca{flex-direction:column;align-items:flex-start}
+  .artigos .cabeca{flex-direction:column;align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .hero .pal,.js .hero .lede,.js .hero .acoes,.js .hero .lugar,.js .hero .filme{opacity:1!important;transform:none!important;filter:none!important}
+  .js .rev{opacity:1;transform:none;filter:none}
+  .js .passo{opacity:1}
+  .hero{height:100svh}
+  .hero .moldura{transform:none;border-radius:0}
+  .hero .texto{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="grao"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/>
+  <feColorMatrix type="saturate" values="0"/></filter>
+</svg>
+
+<nav class="nav escura" id="nav" aria-label="Principal">
+  <div class="env">
+    <a class="marca" href="#topo" aria-label="Bertoncini & Mendonça, início">
+      <img class="escuro" src="../media/marca/mono-azul.png" alt="">
+      <img class="claro" src="../media/marca/mono-branco.png" alt="">
+      <span>Bertoncini &amp; Mendonça</span>
+    </a>
+    <div class="elos">
+      <a href="#areas">Áreas de atuação</a>
+      <a href="#metodo">Como funciona</a>
+      <a href="#socios">Sócios</a>
+      <a href="#artigos">Artigos</a>
+      <a href="#perguntas">Perguntas</a>
+    </div>
+    <a class="pill cta" href="#contato">Falar com o escritório</a>
+    <button class="abre" id="abre" aria-expanded="false" aria-controls="lencol" aria-label="Abrir menu"><span></span><span></span></button>
+  </div>
+</nav>
+<div class="lencol" id="lencol">
+  <a href="#areas">Áreas de atuação</a>
+  <a href="#metodo">Como funciona</a>
+  <a href="#socios">Sócios</a>
+  <a href="#artigos">Artigos</a>
+  <a href="#perguntas">Perguntas</a>
+  <a href="#contato">Falar com o escritório</a>
+</div>
+
+<header class="hero" id="topo">
+  <div class="pino">
+    <div class="moldura">
+      <video class="filme" src="../media/hero.mp4" autoplay muted loop playsinline preload="auto"></video>
+      <div class="lavagem"></div>
+      <div class="grao"></div>
+    </div>
+    <div class="texto">
+      <h1 class="t-hero" id="titulo">Você vai entender cada passo do seu caso.</h1>
+      <p class="lede">Juscelino Bertoncini e Beatriz Mendonça. Advocacia em Maringá, com a explicação
+        em português claro antes de qualquer decisão, e depois dela também.</p>
+      <div class="acoes">
+        <a class="pill branco" href="#contato">Falar pelo WhatsApp</a>
+        <a class="saiba" href="#areas">Ver áreas de atuação
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+    <div class="lugar"><span><i></i>Sociedade de advogados, Maringá, Paraná</span></div>
+  </div>
+</header>
+
+<section class="secao declaracao">
+  <div class="env">
+    <h2 class="t-1 rev">A parte difícil raramente é a lei. É não saber o que vai acontecer com a sua vida.</h2>
+    <p class="lede rev tarde">Quem procura um advogado chega com medo de duas coisas: perder algo que importa e não
+      conseguir acompanhar o que estão decidindo por você.</p>
+    <p class="lede rev tarde">A segunda se resolve já na primeira conversa. Você recebe, em português claro, o que existe,
+      o que é possível fazer, quanto tempo costuma levar e quanto custa. Só depois disso o caso anda.</p>
+  </div>
+</section>
+
+<section class="areas" id="areas">
+  <div class="env-l">
+    <div class="cabeca">
+      <div>
+        <h2 class="t-2 rev">Áreas de atuação.</h2>
+        <p class="lede rev tarde">Duas confirmadas com os sócios. As demais entram quando eles definirem.</p>
+      </div>
+      <div class="setas">
+        <button class="seta" id="ant" aria-label="Anterior" disabled>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3.5 5.5 8 10 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="seta" id="prox" aria-label="Próximo">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="trilho" id="trilho">
+    <a class="tile escuro" href="#contato">
+      <div class="lastro"></div><div class="grao"></div><div class="brilho"></div>
+      <span class="marcad"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4 4 0 0 1 12 8a4 4 0 0 1 7 2.4C19 15.6 12 20 12 20Z" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg></span>
+      <h3>Direito de família</h3>
+      <p class="desc">Divórcio, guarda, pensão e inventário. Conduzidos com discrição e com o cliente sabendo o que vem a seguir.</p>
+      <span class="saiba">Falar sobre um caso
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </a>
+    <a class="tile" href="#contato">
+      <div class="brilho"></div>
+      <span class="marcad"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 4 6.5v5c0 4.6 3.4 8.4 8 9.5 4.6-1.1 8-4.9 8-9.5v-5L12 3Z" stroke="#0B1E3F" stroke-width="1.4" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="#0B1E3F" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <h3>Compliance</h3>
+      <p class="desc">Regras internas, políticas de privacidade e canais de denúncia para empresas que preferem prevenir a remediar.</p>
+      <span class="saiba">Falar sobre a empresa
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </a>
+    <div class="tile aberto" aria-label="Terceira área, ainda não definida">
+      <h3>Terceira área</h3>
+      <p class="desc">Depende da definição dos sócios. Entra aqui quando estiver confirmada.</p>
+      <span class="status"><i></i>A confirmar</span>
+    </div>
+    <div class="tile aberto" aria-label="Quarta área, ainda não definida">
+      <h3>Quarta área</h3>
+      <p class="desc">Mesmo caso. O espaço fica reservado para não mudar o ritmo da página depois.</p>
+      <span class="status"><i></i>A confirmar</span>
+    </div>
+  </div>
+</section>
+
+<section class="secao metodo" id="metodo">
+  <div class="env">
+    <div class="fixo">
+      <h2 class="t-2 rev">Como um caso anda aqui.</h2>
+      <p class="lede rev tarde">Quatro etapas, sempre nesta ordem. Nenhuma delas acontece sem você saber.</p>
+      <a class="saiba rev tarde" href="#contato">Começar pela primeira
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <ol class="passos" id="passos" style="list-style:none;margin:0">
+      <li class="passo">
+        <span class="n">1 de 4</span>
+        <h3>Você conta o que aconteceu.</h3>
+        <p>Por WhatsApp ou e-mail, do jeito que souber contar. Não precisa saber o nome jurídico do problema.</p>
+      </li>
+      <li class="passo">
+        <span class="n">2 de 4</span>
+        <h3>Marcamos uma conversa por vídeo.</h3>
+        <p>Nela você recebe o que existe, o que é possível fazer, quanto tempo costuma levar e quanto custa. Tudo antes de qualquer compromisso.</p>
+      </li>
+      <li class="passo">
+        <span class="n">3 de 4</span>
+        <h3>Você decide.</h3>
+        <p>Com as opções na mão. Se seguir, assinamos a procuração e o caso começa. Se não, a conversa termina ali, sem cobrança.</p>
+      </li>
+      <li class="passo">
+        <span class="n">4 de 4</span>
+        <h3>Cada movimentação chega explicada.</h3>
+        <p>Quem atende é quem assina a petição. Você recebe notícia de cada passo, inclusive quando a notícia é que nada mudou.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="secao socios" id="socios">
+  <div class="env">
+    <h2 class="t-1 rev">Dois sócios. Contato direto.</h2>
+    <p class="lede rev tarde">Não existe camada intermediária entre você e o seu processo. São duas pessoas, e o contato é com elas do começo ao fim.</p>
+    <div class="par">
+      <div>
+        <a class="socio" href="#contato">
+          <img src="../media/socios/juscelino.jpeg" alt="Retrato de Juscelino Bertoncini" loading="lazy">
+          <div class="veu"></div><div class="grao"></div>
+          <div class="nome">
+            <h3>Juscelino Bertoncini</h3>
+            <p>OAB/PR 000.000</p>
+            <span class="saiba">Conhecer a trajetória
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+        </a>
+        <p class="socio-bio">Direito de família e compliance. Monta as regras internas que evitam que o problema chegue ao tribunal.</p>
+      </div>
+      <div>
+        <a class="socio" href="#contato">
+          <img src="../media/socios/beatriz.jpeg" alt="Retrato de Beatriz Mendonça" loading="lazy"
+               style="object-position:50% 24%;filter:brightness(1.2) contrast(.97) saturate(1.05)">
+          <div class="veu"></div><div class="grao"></div>
+          <div class="nome">
+            <h3>Beatriz Mendonça</h3>
+            <p>OAB/PR 000.000</p>
+            <span class="saiba">Conhecer a trajetória
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+        </a>
+        <p class="socio-bio">Bio a escrever com ela, depois da conversa que ainda não aconteceu.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="secao chapa" id="chapa">
+  <div class="lastro-bm"></div><div class="grao"></div>
+  <div class="env">
+    <h2 class="t-1 rev">Quem atende na primeira conversa é quem assina a petição.</h2>
+    <p class="lede rev tarde">O atendimento é online, por mensagem e por chamada de vídeo, para todo o Paraná. Quando um encontro presencial for necessário, combinamos o lugar em Maringá.</p>
+    <div class="moldura" id="moldura">
+      <video src="../media/faixa.mp4" muted loop playsinline preload="metadata" id="faixa"></video>
+      <div class="grao"></div>
+      <div class="legenda"><b>Maringá, Paraná</b>Atendimento para todo o estado</div>
+    </div>
+  </div>
+</section>
+
+<section class="secao artigos" id="artigos">
+  <div class="env">
+    <div class="cabeca">
+      <div>
+        <h2 class="t-2 rev">Em português claro.</h2>
+        <p class="lede rev tarde">O que escrevemos para quem não é da área. Um assunto por vez, sem citação de artigo de lei que ninguém precisa decorar.</p>
+      </div>
+      <a class="saiba rev tarde" href="#artigos">Ver todos os artigos
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="banca">
+      <a class="texto" href="#artigos">
+        <div class="capa">
+          <img src="../media/capas/a.jpg" alt="" loading="lazy" style="object-position:50% 30%">
+          <div class="tom" style="--tom:#0B1E3F"></div><div class="grao"></div>
+          <span class="classe">Família</span>
+        </div>
+        <h3>Quem fica com a casa depois do divórcio</h3>
+        <p class="pe meta">8 de setembro<i></i>6 min de leitura</p>
+      </a>
+      <a class="texto" href="#artigos">
+        <div class="capa">
+          <img src="../media/capas/b.jpg" alt="" loading="lazy" style="object-position:28% 70%;transform:scale(1.3)">
+          <div class="tom" style="--tom:#0A5AD6"></div><div class="grao"></div>
+          <span class="classe">Família</span>
+        </div>
+        <h3>Pensão alimentícia não é castigo, é cálculo</h3>
+        <p class="pe meta">1 de setembro<i></i>5 min de leitura</p>
+      </a>
+      <a class="texto" href="#artigos">
+        <div class="capa">
+          <img src="../media/capas/b.jpg" alt="" loading="lazy" style="object-position:72% 18%;transform:scale(1.5)">
+          <div class="tom" style="--tom:#517493"></div><div class="grao"></div>
+          <span class="classe">Compliance</span>
+        </div>
+        <h3>O que registrar antes de a fiscalização chegar</h3>
+        <p class="pe meta">22 de agosto<i></i>8 min de leitura</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="secao perguntas" id="perguntas">
+  <div class="env">
+    <div class="fixo">
+      <h2 class="t-2 rev">As perguntas que mais recebemos.</h2>
+      <p class="lede rev tarde">Se a sua não estiver aqui, mande por mensagem. Respondemos no mesmo dia útil.</p>
+      <a class="saiba rev tarde" href="#contato">Perguntar pelo WhatsApp
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="lista rev tarde">
+      <details class="q"><summary>Quanto custa uma consulta?<span class="cruz"></span></summary>
+        <div class="corpo"><div><p>Depende do caso. Na primeira conversa entendemos a situação e informamos o
+          valor antes de você assumir qualquer compromisso.</p></div></div></details>
+      <details class="q"><summary>Preciso ir até o escritório?<span class="cruz"></span></summary>
+        <div class="corpo"><div><p>Não. O atendimento é online, por mensagem e por chamada de vídeo, e isso
+          cobre todas as etapas do caso. Quando um encontro presencial for necessário, combinamos
+          o lugar em Maringá.</p></div></div></details>
+      <details class="q"><summary>Quanto tempo demora um processo?<span class="cruz"></span></summary>
+        <div class="corpo"><div><p>Varia com a vara e com a complexidade. Você recebe uma estimativa realista,
+          com a ressalva de que prazo de tribunal não depende de advogado.</p></div></div></details>
+      <details class="q"><summary>Vocês atendem fora de Maringá?<span class="cruz"></span></summary>
+        <div class="corpo"><div><p>Sim. O processo tramita online na maior parte do tempo, então atendemos
+          clientes de outras cidades do Paraná.</p></div></div></details>
+      <details class="q"><summary>Com quem eu falo depois que o caso começa?<span class="cruz"></span></summary>
+        <div class="corpo"><div><p>Com o mesmo sócio que atendeu a primeira conversa. Não há repasse para outra pessoa
+          no meio do caminho.</p></div></div></details>
+    </div>
+  </div>
+</section>
+
+<section class="secao contato" id="contato">
+  <div class="lastro-bm"></div><div class="grao"></div>
+  <div class="env">
+    <div>
+      <h2 class="t-1 rev">Conte o que está acontecendo.</h2>
+      <p class="lede rev tarde">Uma mensagem basta para começar. Respondemos marcando uma conversa por vídeo, sem compromisso até ela acontecer.</p>
+      <div class="acoes rev tarde">
+        <a class="pill branco" href="https://wa.me/5544000000000?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20sobre%20um%20caso." target="_blank" rel="noopener">Abrir conversa no WhatsApp</a>
+        <a class="saiba" href="mailto:contato@exemplo.adv.br">Enviar e-mail
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+      <p class="horario rev tarde"><i></i>Segunda a sexta, das 9h às 18h. Fora do horário a mensagem fica registrada.</p>
+    </div>
+    <dl class="dados rev tarde">
+      <div class="dado"><dt>Telefone</dt><dd><a href="tel:+5544000000000">(44) 0000 0000</a></dd></div>
+      <div class="dado"><dt>E-mail</dt><dd><a href="mailto:contato@exemplo.adv.br">contato@exemplo.adv.br</a></dd></div>
+      <div class="dado"><dt>Atendimento</dt><dd>Online, para todo o Paraná</dd></div>
+      <div class="dado"><dt>Base</dt><dd>Maringá, Paraná</dd></div>
+    </dl>
+  </div>
+</section>
+
+<footer class="rodape">
+  <div class="env">
+    <div class="colunas">
+      <div>
+        <a class="marca" href="#topo"><img src="../media/marca/mono-azul.png" alt="">
+          <span><b>Bertoncini &amp; Mendonça</b><span>Sociedade de Advogados</span></span></a>
+        <p class="sobre">Direito de família e compliance, com atendimento online para todo o Paraná e base em Maringá.</p>
+      </div>
+      <div>
+        <h4>Escritório</h4>
+        <ul><li><a href="#areas">Áreas de atuação</a></li><li><a href="#metodo">Como funciona</a></li>
+          <li><a href="#socios">Sócios</a></li><li><a href="#artigos">Artigos</a></li><li><a href="#perguntas">Perguntas</a></li></ul>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <ul><li><a href="https://wa.me/5544000000000" target="_blank" rel="noopener">WhatsApp</a></li>
+          <li><a href="mailto:contato@exemplo.adv.br">contato@exemplo.adv.br</a></li>
+          <li><a href="tel:+5544000000000">(44) 0000 0000</a></li><li>Segunda a sexta, 9h às 18h</li></ul>
+      </div>
+    </div>
+    <div class="base">
+      <p>Bertoncini &amp; Mendonça Sociedade de Advogados. OAB/PR nº 0.000. CNPJ 00.000.000/0001-00.
+        <span class="aviso">Inscrições são placeholder.</span></p>
+      <p>© <span id="ano">2026</span> <a href="#">Política de privacidade</a></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var raiz = document.documentElement; raiz.classList.add('js');
+  document.getElementById('ano').textContent = new Date().getFullYear();
+  var calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fino  = matchMedia('(pointer: fine)').matches;
+  var hero  = document.getElementById('topo');
+  var nav   = document.getElementById('nav');
+
+  /* título do hero: uma palavra por vez, com desfoque */
+  var h1 = document.getElementById('titulo');
+  var palavras = h1.textContent.trim().split(/\s+/);
+  h1.textContent = '';
+  palavras.forEach(function(p, i){
+    var s = document.createElement('span'); s.className = 'pal'; s.textContent = p;
+    s.style.transitionDelay = (i * 60 + 120) + 'ms';
+    h1.appendChild(s); h1.appendChild(document.createTextNode(' '));
+  });
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ hero.classList.add('pronta'); }); });
+
+  /* hero encolhe com o scroll; nav troca de cor */
+  var pedido = false;
+  function quadro(){
+    pedido = false;
+    var alcance = innerHeight * .72;
+    var p = calmo ? 0 : Math.min(1, Math.max(0, scrollY / alcance));
+    hero.style.setProperty('--p', p.toFixed(4));
+    var escura = scrollY < innerHeight * .55;
+    nav.classList.toggle('escura', escura);
+  }
+  function pede(){ if (!pedido){ pedido = true; requestAnimationFrame(quadro); } }
+  addEventListener('scroll', pede, {passive:true});
+  addEventListener('resize', pede);
+  quadro();
+
+  /* menu no celular */
+  var abre = document.getElementById('abre'), lencol = document.getElementById('lencol');
+  abre.addEventListener('click', function(){
+    var aberto = lencol.classList.toggle('aberto');
+    nav.classList.toggle('aberta', aberto);
+    abre.setAttribute('aria-expanded', String(aberto));
+    abre.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
+  });
+  lencol.addEventListener('click', function(e){
+    if (e.target.tagName === 'A'){ lencol.classList.remove('aberto'); nav.classList.remove('aberta'); abre.setAttribute('aria-expanded','false'); }
+  });
+
+  /* revelação das cabeças de seção */
+  var revs = document.querySelectorAll('.rev');
+  if (!calmo && 'IntersectionObserver' in window){
+    var olho = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('visto'); olho.unobserve(e.target); } });
+    }, {threshold:.2, rootMargin:'0px 0px -8% 0px'});
+    revs.forEach(function(n){ olho.observe(n); });
+  } else { revs.forEach(function(n){ n.classList.add('visto'); }); }
+
+  /* vitrine de áreas: setas e estado */
+  var trilho = document.getElementById('trilho'), ant = document.getElementById('ant'), prox = document.getElementById('prox');
+  function passoTrilho(){ var t = trilho.querySelector('.tile'); return t ? t.offsetWidth + parseFloat(getComputedStyle(trilho).gap || 20) : 400; }
+  function estado(){
+    ant.disabled  = trilho.scrollLeft < 8;
+    prox.disabled = trilho.scrollLeft + trilho.clientWidth > trilho.scrollWidth - 8;
+  }
+  ant.addEventListener('click',  function(){ trilho.scrollBy({left:-passoTrilho(), behavior: calmo ? 'auto' : 'smooth'}); });
+  prox.addEventListener('click', function(){ trilho.scrollBy({left: passoTrilho(), behavior: calmo ? 'auto' : 'smooth'}); });
+  trilho.addEventListener('scroll', estado, {passive:true}); addEventListener('resize', estado); estado();
+
+  /* tiles: inclinação leve e brilho seguindo o mouse (só ponteiro fino) */
+  if (fino && !calmo){
+    document.querySelectorAll('.tile:not(.aberto), .socio').forEach(function(t){
+      var raf = null;
+      t.addEventListener('mousemove', function(e){
+        var r = t.getBoundingClientRect();
+        var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        t.style.setProperty('--mx', (x*100).toFixed(1) + '%'); t.style.setProperty('--my', (y*100).toFixed(1) + '%');
+        if (raf) return;
+        raf = requestAnimationFrame(function(){
+          raf = null;
+          var rx = (0.5 - y) * 5, ry = (x - 0.5) * 6;
+          t.style.transform = 'perspective(1100px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateY(-4px)';
+          t.style.transition = 'transform .12s linear';
+        });
+      });
+      t.addEventListener('mouseleave', function(){
+        t.style.transition = 'transform .8s cubic-bezier(.32,.72,0,1)';
+        t.style.transform = '';
+      });
+    });
+
+    /* botões magnéticos */
+    document.querySelectorAll('.pill').forEach(function(b){
+      b.addEventListener('mousemove', function(e){
+        var r = b.getBoundingClientRect();
+        var dx = (e.clientX - (r.left + r.width/2)) / r.width, dy = (e.clientY - (r.top + r.height/2)) / r.height;
+        b.style.transform = 'translate(' + (dx*8).toFixed(1) + 'px,' + (dy*6).toFixed(1) + 'px)';
+      });
+      b.addEventListener('mouseleave', function(){ b.style.transform = ''; });
+    });
+  }
+
+  /* método: passo acende conforme a leitura; linha preenche */
+  var passos = [].slice.call(document.querySelectorAll('.passo')), lista = document.getElementById('passos');
+  function acende(){
+    if (matchMedia('(max-width: 900px)').matches){ passos.forEach(function(p){ p.classList.add('acesa'); }); return; }
+    var foco = innerHeight * .5, melhor = null, dist = Infinity;
+    passos.forEach(function(p){
+      var r = p.getBoundingClientRect(), c = r.top + r.height/2, d = Math.abs(c - foco);
+      if (d < dist){ dist = d; melhor = p; }
+    });
+    passos.forEach(function(p){ p.classList.toggle('acesa', p === melhor); });
+    var lr = lista.getBoundingClientRect();
+    var f = (foco - lr.top) / lr.height;
+    lista.style.setProperty('--fill', Math.min(1, Math.max(0, f)).toFixed(3));
+  }
+  addEventListener('scroll', acende, {passive:true}); addEventListener('resize', acende); acende();
+
+  /* vídeo da chapa: toca só quando visível, com deslocamento leve */
+  var faixa = document.getElementById('faixa'), moldura = document.getElementById('moldura');
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting){ faixa.play().catch(function(){}); } else { faixa.pause(); } });
+    }, {threshold:.15}).observe(moldura);
+  } else { faixa.play().catch(function(){}); }
+  if (!calmo){
+    addEventListener('scroll', function(){
+      var r = moldura.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) return;
+      var t = (r.top + r.height/2 - innerHeight/2) / innerHeight;
+      moldura.style.setProperty('--py', (t * -40 + 20).toFixed(1));
+    }, {passive:true});
+  }
+
+  /* perguntas: fecha as outras ao abrir uma */
+  document.querySelectorAll('.q').forEach(function(d){
+    d.addEventListener('toggle', function(){
+      if (d.open) document.querySelectorAll('.q[open]').forEach(function(o){ if (o !== d) o.open = false; });
+    });
+  });
+})();
+</script>
+</body>
+</html>
