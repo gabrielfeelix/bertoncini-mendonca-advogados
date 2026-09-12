@@ -884,6 +884,26 @@ if (!calmo && window.Lenis){
       if (!alvo) return;
       e.preventDefault();
       lenis.scrollTo(alvo, { offset: -24, duration: 1.1 });
+      // o preventDefault acima mata o movimento nativo de foco do navegador
+      // ao seguir uma âncora; sem repor à mão, o link de pular não pula
+      // nada para quem navega por teclado ou leitor de tela.
+      alvo.setAttribute("tabindex", "-1");
+      alvo.focus({ preventScroll: true });
+    });
+  });
+} else {
+  // sem Lenis (reduced-motion ou script ausente): a rolagem nativa por
+  // fragmento já funciona sozinha, mas o navegador só move o foco para
+  // elementos nativamente focáveis. Seções como #hero são <header>/<section>
+  // e ficam de fora; repomos o foco à mão sem mexer na rolagem.
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener("click", function(){
+      var href = a.getAttribute("href");
+      if (!href || href.length < 2) return;
+      var alvo = document.querySelector(href);
+      if (!alvo) return;
+      alvo.setAttribute("tabindex", "-1");
+      setTimeout(function(){ alvo.focus({ preventScroll: true }); }, 0);
     });
   });
 }
