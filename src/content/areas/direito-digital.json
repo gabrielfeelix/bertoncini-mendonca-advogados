@@ -1,0 +1,49 @@
+{
+  "nome": "Direito Digital",
+  "slug": "direito-digital",
+  "resumo": "Dados pessoais, propriedade intelectual, contratos eletrônicos e o que acontece quando algo dá errado na internet.",
+  "assuntos": [
+    "Proteção de dados e LGPD",
+    "Propriedade intelectual",
+    "Contratos eletrônicos e e-commerce",
+    "Crimes cibernéticos",
+    "Redes sociais e internet",
+    "Inteligência artificial",
+    "Compliance digital"
+  ],
+  "corpo": [
+    "Direito digital é o conjunto de regras que alcança o que empresas e pessoas fazem por meio da internet: os dados que coletam, o conteúdo que publicam, os contratos que assinam sem papel e os danos que sofrem ou causam em ambiente eletrônico.",
+    "A Lei 13.709/2018, a LGPD, exige base legal para cada tratamento de dado pessoal, informação clara ao titular, registro das operações e resposta aos pedidos de acesso, correção e exclusão. A adequação começa por um mapeamento: o que a empresa coleta hoje, por que coleta, com quem compartilha e por quanto tempo guarda. Sem esse inventário não há como definir base legal, escrever um aviso de privacidade honesto nem responder a um titular dentro do prazo.",
+    "Propriedade intelectual, no ambiente digital, é o que protege a marca, o software, o texto, a imagem e a identidade visual de um negócio. Registrar a marca no INPI, definir em contrato a quem pertence o que foi criado e reagir a uso indevido são medidas que valem mais antes do problema do que depois dele.",
+    "Contratos eletrônicos e e-commerce envolvem termos de uso, política de privacidade, regras de entrega e de troca, e a prova de que o outro lado de fato concordou. Um termo de uso copiado de outro site costuma não descrever o que aquele negócio realmente faz, e é justamente nesse descompasso que ele deixa de proteger.",
+    "Crimes cibernéticos, uso indevido de imagem, perfis falsos e conteúdo ofensivo em redes sociais têm caminhos próprios: preservação da prova, pedido de remoção, identificação do responsável e, quando cabe, responsabilização. A preservação da prova é a etapa que mais se perde por demora, e é a que sustenta todas as outras.",
+    "O uso de inteligência artificial levanta questões que já são jurídicas hoje: quais dados alimentam o sistema, de quem é o resultado gerado, o que se informa ao cliente e quem responde por um erro. A regulação ainda está em construção no Brasil, e o que existe de obrigação vem principalmente da LGPD e das regras gerais de responsabilidade.",
+    "Compliance digital reúne tudo isso em rotina: políticas escritas, controles de acesso, plano de resposta a incidente de segurança e revisão periódica. Documento arquivado sem rotina de aplicação não produz efeito nenhum, nem prático nem jurídico.",
+    "Atendemos todo o país, de forma online, e presencialmente em Maringá.",
+    "O trabalho começa por um diagnóstico do que já existe. Muita coisa costuma estar em uso sem estar escrita, e a primeira entrega é enxergar o que a empresa faz hoje."
+  ],
+  "perguntas": [
+    {
+      "pergunta": "A LGPD se aplica à minha empresa, mesmo sendo pequena?",
+      "resposta": "Sim. A LGPD não tem corte por porte ou faturamento: alcança quem trata dados pessoais, e isso inclui cadastro de cliente, currículo recebido, lista de e-mails e imagem de câmera. O que muda com o porte é a proporção das medidas, não a existência da obrigação. A ANPD editou regras simplificadas para agentes de pequeno porte."
+    },
+    {
+      "pergunta": "Por onde começa a adequação à LGPD?",
+      "resposta": "Pelo mapeamento: quais dados pessoais a empresa coleta, com que finalidade, com quem compartilha e por quanto tempo guarda. Sem esse inventário não há como definir base legal, escrever aviso de privacidade nem responder a um pedido de titular."
+    },
+    {
+      "pergunta": "Sofri um vazamento de dados. O que preciso fazer?",
+      "resposta": "Conter o incidente, registrar o que aconteceu e avaliar o risco aos titulares. Havendo risco relevante, a LGPD exige comunicação à ANPD e aos titulares afetados, em prazo razoável. A documentação do que foi feito, e de quando, costuma ser decisiva na avaliação da autoridade."
+    },
+    {
+      "pergunta": "Preciso registrar minha marca?",
+      "resposta": "O registro no INPI é o que garante o uso exclusivo da marca em todo o país dentro da classe registrada. Sem ele, o uso apenas prolongado cria uma proteção bem mais frágil, e existe o risco concreto de um terceiro registrar antes e exigir que você pare de usar o próprio nome."
+    },
+    {
+      "pergunta": "Posso usar em contrato o texto gerado por inteligência artificial?",
+      "resposta": "Como ponto de partida, sim; como versão final, não. O texto gerado não conhece o caso concreto, costuma reproduzir cláusulas incompatíveis entre si e às vezes cita norma que não existe ou já foi revogada. A revisão por advogado é o que transforma o rascunho em documento que se sustenta."
+    }
+  ],
+  "ordem": 2,
+  "mensagemWhatsapp": "Olá, preciso de orientação sobre direito digital."
+}

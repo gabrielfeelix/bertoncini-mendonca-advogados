@@ -47,7 +47,7 @@ const d = artigo.data;
 const { Content } = await render(artigo);
 
 /* Três outros textos no fim da página. A escolha prefere a mesma categoria,
-   porque quem leu sobre família tende a querer mais disso, e completa com os
+   porque quem leu sobre um assunto tende a querer mais dele, e completa com os
    mais recentes quando a categoria não dá três. */
 const todos = (await listarArtigos()).filter((item) => item.id !== artigo.id);
 const daCategoria = todos.filter((item) => item.data.categoria === d.categoria);

@@ -37,14 +37,25 @@ const socios = [
     alt: 'Retrato de Juscelino Bertoncini',
     oab: site.socios[0].oab.valor,
     oabPlaceholder: site.socios[0].oab.placeholder,
-    atuacao: 'Direito de família e compliance.',
-    // Único fato que o protótipo registra sobre ele (linha 623). Nada
-    // além disso foi acrescentado.
-    bio: 'Monta as regras internas que evitam que o problema chegue ao tribunal.',
+    atuacao: 'Planejamento patrimonial e sucessório.',
+    // Formação e trajetória vêm do briefing (q1_7a e q1_8a), respondido
+    // pelo próprio sócio. O ano de inscrição na OAB continua pendente.
+    bio: 'Trabalha na fase que antecede o processo, para que o problema não se consolide.',
     bioCompleta: [
       {
         texto:
-          'Formação, ano de inscrição na Ordem e trajetória profissional a preencher com ele. Nada aqui foi escrito sem o dado confirmado.',
+          'Bacharel em Direito pela Universidade Estadual de Maringá (UEM). Especialista em Direito Empresarial pela PUC/RS e em Advocacia Consultiva pela Legale. Pós-graduando em Direito Imobiliário pela i9.',
+      },
+      {
+        texto:
+          'Passou por escritórios de advocacia, pela 9ª Promotoria de Justiça de Maringá e pelo gabinete da 2ª Vara de Família e Sucessões da comarca. Os últimos quatro anos e meio foram no Martinelli Advogados, onde começou no contencioso, com processos judiciais estratégicos e de execução, e depois foi para o setor consultivo: contratos, pareceres, compliance, LGPD, propriedade intelectual e estruturação de operações.',
+      },
+      {
+        texto:
+          'É a fase extrajudicial que ocupa a maior parte do seu trabalho — prevenir o litígio costuma custar menos ao cliente do que vencê-lo.',
+      },
+      {
+        texto: 'Ano de inscrição na Ordem a confirmar com ele.',
         placeholder: true,
       },
     ],
@@ -70,13 +81,23 @@ const socios = [
     alt: 'Retrato de Beatriz Mendonça',
     oab: site.socios[1].oab.valor,
     oabPlaceholder: site.socios[1].oab.placeholder,
-    // Sem `atuacao`: as áreas dela ainda não foram definidas com ela.
-    bio: 'Bio a escrever com ela, depois da conversa que ainda não aconteceu.',
-    bioPlaceholder: true,
+    // A área e a formação vêm do briefing (q2_3 e q1_7b), respondido pelo
+    // Juscelino. A trajetória e o ano de inscrição continuam pendentes: ela
+    // ainda não respondeu as perguntas dela.
+    atuacao: 'Direito digital.',
+    bio: 'Especialista em Direito Processual Civil, com experiência em processos judiciais estratégicos.',
     bioCompleta: [
       {
         texto:
-          'Áreas de atuação, formação, ano de inscrição na Ordem e trajetória profissional a preencher com ela, na mesma conversa.',
+          'Bacharel em Direito pela Universidade Estadual de Maringá (UEM). Especialista em Direito Processual Civil pela PUC/RS e pós-graduanda em Direito Digital pela i9.',
+      },
+      {
+        texto:
+          'Trabalhou com processos judiciais estratégicos e de valores expressivos em um dos maiores escritórios de advocacia do país, onde os dois sócios se conheceram.',
+      },
+      {
+        texto:
+          'Trajetória profissional detalhada e ano de inscrição na Ordem a preencher com ela.',
         placeholder: true,
       },
     ],
@@ -112,7 +133,7 @@ const socios = [
       <h1 class="display">Somos dois advogados, e é com um de nós que você fala.</h1>
       <p class="linha-fina">
         Bertoncini &amp; Mendonça é uma sociedade nova, com base em Maringá e atendimento
-        online para todo o Paraná. Quem recebe o caso na primeira conversa é quem responde
+        online para todo o país. Quem recebe o caso na primeira conversa é quem responde
         por ele até o fim.
       </p>
     </div>
@@ -125,14 +146,28 @@ const socios = [
     <div class="env">
       <h2 class="display">Como esta sociedade começou.</h2>
       <div class="corpo">
-        <p data-placeholder="1">
-          Quando a sociedade foi constituída e em que circunstância os dois decidiram
-          trabalhar juntos: a preencher com os sócios. Esta página não registra nenhuma
-          data que ainda não foi confirmada.
+        <p>
+          Os dois entraram no curso de Direito da Universidade Estadual de Maringá no mesmo
+          ano, ele no noturno e ela no matutino, e mal se conheciam. O contato começou
+          quando a Beatriz o procurou para perguntar como era trabalhar no Martinelli
+          Advogados, onde estava tentando uma vaga de estágio. Semanas depois ela foi
+          aprovada, e os dois passaram a trabalhar no mesmo setor.
+        </p>
+        <p>
+          Foram mais de quatro anos lado a lado, de estagiários a assistentes jurídicos e
+          de assistentes jurídicos a advogados, cada um firmando a própria área. A
+          sociedade nasceu daí: de funções que se completam e de uma parceria que já tinha
+          sido testada no dia a dia.
+        </p>
+        <p>
+          As áreas refletem essa divisão. A Beatriz vem do processo civil e do contencioso;
+          o Juscelino, do direito empresarial e da advocacia consultiva, que trabalha antes
+          do litígio. É por isso que o escritório atua em Planejamento Patrimonial e
+          Sucessório e em Direito Digital.
         </p>
         <p data-placeholder="1">
-          O que cada um trouxe para a sociedade, e o que os dois entenderam que faltava no
-          atendimento que viam ser oferecido: a preencher com os sócios.
+          A data de constituição da sociedade: a confirmar com os sócios. Esta página não
+          registra nenhuma data que ainda não foi confirmada.
         </p>
         <p>
           O que já está decidido é o modo de trabalhar. São dois sócios e nenhuma camada

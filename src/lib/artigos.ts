@@ -56,8 +56,8 @@ export function tomDaCapa(categoria: string): string {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
-  if (normalizada.includes('familia')) return '#0B1E3F';
-  if (normalizada.includes('compliance')) return '#004369';
-  if (normalizada.includes('empresa')) return '#9B1C2E';
+  if (normalizada.includes('patrimonial') || normalizada.includes('sucess')) return '#0B1E3F';
+  if (normalizada.includes('digital') || normalizada.includes('dados')) return '#004369';
+  if (normalizada.includes('empresa') || normalizada.includes('contrat')) return '#9B1C2E';
   return '#517493';
 }

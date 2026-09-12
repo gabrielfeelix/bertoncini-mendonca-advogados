@@ -1,0 +1,47 @@
+{
+  "nome": "Planejamento Patrimonial e Sucessório",
+  "slug": "planejamento-patrimonial-e-sucessorio",
+  "resumo": "Organizar em vida o que, sem organização, vira inventário e disputa entre herdeiros.",
+  "assuntos": [
+    "Inventário e partilha",
+    "Testamento e doação",
+    "Holding familiar",
+    "Contratos",
+    "Direito imobiliário",
+    "Societário e tributário"
+  ],
+  "corpo": [
+    "Planejamento patrimonial e sucessório é decidir em vida o destino do patrimônio, em vez de deixar que a lei e o Judiciário decidam depois. É uma área de prevenção: quase tudo o que ela resolve seria, mais tarde, um inventário demorado, um imposto maior que o necessário ou uma discussão entre pessoas da mesma família.",
+    "Ela reúne assuntos que costumam ser tratados separadamente e que, na prática, são o mesmo problema visto de ângulos diferentes: direito civil e sucessório, imobiliário, tributário, societário e os contratos que ligam tudo isso.",
+    "O inventário é o procedimento que transfere os bens de quem morreu para os herdeiros. Quando todos os herdeiros são maiores e capazes e estão de acordo, ele pode ser feito em cartório, por escritura pública, o que é sensivelmente mais rápido. Havendo herdeiro menor ou incapaz, ou discordância entre os herdeiros, o caminho é o judicial.",
+    "A existência de testamento, por muito tempo, levava o inventário necessariamente ao Judiciário. O Provimento CNJ 149/2023 e a Resolução CNJ 571/2024 abriram hipóteses de via extrajudicial mesmo havendo testamento ou interessado incapaz, observadas condições específicas e, em geral, manifestação do Ministério Público. É um ponto em que a regra mudou há pouco e em que vale examinar o caso concreto antes de presumir o caminho judicial.",
+    "Antes disso há o que se pode fazer em vida. Doação com reserva de usufruto, testamento, pacto antenupcial, alteração de regime de bens e a constituição de uma holding familiar são instrumentos para organizar a transmissão, definir quem administra o que e reduzir a chance de litígio. Cada um tem custo, efeito tributário e limite legal próprios: a legítima dos herdeiros necessários, por exemplo, não pode ser afastada por testamento.",
+    "O ITCMD, imposto estadual sobre herança e doação, costuma ser o fator que define o momento e a forma da transmissão. Planejar não é deixar de pagar imposto: é saber qual é o custo de cada caminho antes de escolher, e não descobri-lo quando já não há escolha.",
+    "Atendemos todo o país, de forma online, e presencialmente em Maringá.",
+    "O trabalho começa por entender o que existe: quais bens, em nome de quem, com que dívidas e quais pessoas envolvidas. Explicamos as opções, o que cada uma exige e o que custa, antes de começar. Nenhum resultado é prometido, porque nenhum advogado decide sozinho o desfecho de um processo."
+  ],
+  "perguntas": [
+    {
+      "pergunta": "O inventário precisa ser feito na Justiça?",
+      "resposta": "Nem sempre. Quando todos os herdeiros são maiores e capazes e estão de acordo, o inventário pode ser feito em cartório, por escritura pública. Havendo herdeiro menor ou incapaz, ou discordância, o caminho é judicial. Existindo testamento, a regra geral também era a via judicial, mas o Provimento CNJ 149/2023 e a Resolução CNJ 571/2024 passaram a admitir a via extrajudicial em hipóteses específicas. Vale examinar o caso antes de presumir."
+    },
+    {
+      "pergunta": "Posso deixar meus bens para quem eu quiser em testamento?",
+      "resposta": "Só em parte. Havendo herdeiros necessários — descendentes, ascendentes e cônjuge —, metade do patrimônio é a legítima e pertence a eles por lei. O testamento dispõe livremente da outra metade. Sem herdeiros necessários, a liberdade é total."
+    },
+    {
+      "pergunta": "Vale a pena abrir uma holding familiar?",
+      "resposta": "Depende do patrimônio e do objetivo. Uma holding pode facilitar a administração, organizar a sucessão e, em alguns casos, reduzir o custo tributário da transmissão. Mas tem custo de constituição e de manutenção, e a economia tributária não é automática: depende do tipo de bem, da atividade e da legislação do estado. É uma conta que se faz antes, não uma solução padrão."
+    },
+    {
+      "pergunta": "Doar os bens em vida evita o inventário?",
+      "resposta": "Pode evitar, se a doação alcançar todo o patrimônio e for feita com as cautelas devidas. A doação incide ITCMD no momento em que é feita, respeita o limite da legítima e costuma ser acompanhada de reserva de usufruto, para que quem doou continue usando o bem e recebendo seus frutos enquanto viver."
+    },
+    {
+      "pergunta": "Quanto tempo demora um inventário?",
+      "resposta": "O extrajudicial, com documentação em ordem e acordo entre os herdeiros, costuma se resolver em poucos meses. O judicial depende da comarca, da complexidade do patrimônio e de haver ou não disputa, e pode levar anos. A lei prevê que o inventário seja aberto em até dois meses da morte, e o atraso costuma gerar multa sobre o ITCMD."
+    }
+  ],
+  "ordem": 1,
+  "mensagemWhatsapp": "Olá, preciso de orientação sobre planejamento patrimonial e sucessório."
+}

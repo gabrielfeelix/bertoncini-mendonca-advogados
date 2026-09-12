@@ -21,3 +21,6 @@ tools/shots/
 dist/
 .astro/
 .vercel/
+
+# Página de trabalho, não versionada e fora de produção (ver docs/HANDOFF-SITE.md).
+src/pages/previa.astro

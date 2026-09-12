@@ -4,9 +4,10 @@
  * Migrado do protótipo (CSS linhas 179-223, HTML linhas 558-597 mais o
  * `.espia` da linha 599).
  *
- * Duas áreas confirmadas (Família e Compliance) e duas marcadas
- * "a confirmar". Uma área "a confirmar" vira um `<div class="item aberto">`
- * sem link, não um `<a>` morto.
+ * Duas áreas confirmadas (Planejamento Patrimonial e Sucessório e Direito
+ * Digital, conforme o briefing 2.1-2.3) e duas marcadas "a confirmar". Uma
+ * área "a confirmar" vira um `<div class="item aberto">` sem link, não um
+ * `<a>` morto.
  *
  * Marcações para a Tarefa 5: `.sobe` em cada item, `data-espia` com o
  * vídeo de prévia e o `#espia` fixo que o JS move com o cursor. Sem JS o
@@ -48,18 +49,18 @@ const {
   apoio = 'Duas áreas confirmadas com os sócios. As demais entram quando eles definirem.',
   areas = [
     {
-      nome: 'Família',
-      glosa: 'Divórcio, guarda, pensão e inventário, conduzidos com discrição.',
-      assuntos: ['Divórcio', 'Guarda', 'Pensão alimentícia', 'Inventário', 'União estável'],
-      href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20em%20direito%20de%20fam%C3%ADlia.`,
+      nome: 'Planejamento Patrimonial e Sucessório',
+      glosa: 'Organizar em vida o que, sem organização, vira inventário e disputa entre herdeiros.',
+      assuntos: ['Inventário e partilha', 'Testamento e doação', 'Holding familiar', 'Contratos', 'Direito imobiliário'],
+      href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20planejamento%20patrimonial%20e%20sucess%C3%B3rio.`,
       espia: '/media/faixa.mp4',
       placeholder: site.whatsapp.placeholder,
     },
     {
-      nome: 'Compliance',
-      glosa: 'Estruturas de conformidade para empresas que preferem prevenir a remediar.',
-      assuntos: ['Programa de integridade', 'Código de conduta', 'Canal de denúncias', 'LGPD', 'Treinamento'],
-      href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20compliance.`,
+      nome: 'Direito Digital',
+      glosa: 'Dados pessoais, propriedade intelectual, contratos eletrônicos e o que acontece quando algo dá errado na internet.',
+      assuntos: ['Proteção de dados e LGPD', 'Propriedade intelectual', 'Contratos eletrônicos', 'Crimes cibernéticos', 'Compliance digital'],
+      href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20direito%20digital.`,
       espia: '/media/hero.mp4',
       placeholder: site.whatsapp.placeholder,
     },

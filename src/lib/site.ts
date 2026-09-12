@@ -26,8 +26,8 @@ export const site = {
   // (mesmo valor de astro.config.mjs).
   url: 'https://www.bertoncinimendonca.adv.br',
   descricao:
-    'Advocacia em Maringá, PR, com atuação em Direito de Família e ' +
-    'Compliance. Atendimento presencial e online para todo o Paraná.',
+    'Advocacia com atuação em Planejamento Patrimonial e Sucessório e em ' +
+    'Direito Digital. Atendimento online para todo o país e presencial em Maringá, PR.',
   idioma: 'pt-BR',
   locale: 'pt_BR',
   // Placeholder: imagem de Open Graph genérica (fundo azul + nome em texto),
@@ -39,11 +39,12 @@ export const site = {
 
   cidade: 'Maringá',
   estado: 'PR',
-  atendimento: 'Online, para todo o Paraná',
+  atendimento: 'Online, para todo o país',
   // Mesma informação de `atendimento`, já na forma de frase para o rodapé
-  // (protótipo, linha 862): escrita à mão para não depender de
-  // .toLowerCase()/.toUpperCase() em cima de "Paraná", que é nome próprio.
-  atendimentoRodape: 'Atendimento online para todo o estado',
+  // (protótipo, linha 862), escrita à mão em vez de derivada por
+  // .toLowerCase()/.toUpperCase(). Briefing q2_5: atendem todo o país,
+  // presencialmente em Maringá.
+  atendimentoRodape: 'Atendimento online para todo o país',
 
   // Placeholders do protótipo (`(44) 0000 0000`, `contato@exemplo.adv.br`).
   telefone: { valor: '(44) 0000 0000', placeholder: true } satisfies CampoPlaceholder,
