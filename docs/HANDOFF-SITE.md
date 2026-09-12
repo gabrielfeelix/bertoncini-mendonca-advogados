@@ -42,7 +42,7 @@ cliente em silêncio.
 | 2. Sistema de design | pronta, revisada | `41a30e4` |
 | 3. Layout, navbar nova, rodapé | pronta, revisada | `e47b46d` |
 | 4. Onze componentes de seção | pronta, revisada | `0277952` |
-| 5. Camada de movimento | **NÃO FEITA** | — |
+| 5. Camada de movimento | pronta, **sem revisão formal** | `fcf4017` |
 | 6. A home | pronta, **sem revisão formal** | `2b1e1b6` |
 | 7. Conteúdo das áreas | pronta, revisada | `5554d80` |
 | 8. Páginas de área | pronta, revisada | `6b1d86a` |
@@ -247,17 +247,17 @@ o teste do painel rodou contra um Supabase falso, que responde o contrato mas
 não aplica política nenhuma. Não havia Docker neste ambiente para subir um
 Postgres de verdade.
 
-### Tarefa 5: a camada de movimento
-Foi adiada a pedido do Gabriel ("o movimento fica para depois"), porque é
-polimento e não desbloqueia rota nenhuma. Duas pendências herdadas, verificadas:
-- **O vídeo do hero precisa ser PAUSADO sob `prefers-reduced-motion`,** não só
-  ter o botão de pausa escondido. Hoje ele roda sem controle nenhum para quem
-  pediu menos movimento.
-- **O kill-switch global de reduced-motion** (protótipo, linhas 411-415) precisa
-  vir, senão `.pular` e os links da navbar continuam animando.
-- O handler de âncora **com a correção de foco** já existe no protótipo (linhas
-  903-918). Migre-o, não o reinvente: ele já foi descartado uma vez nesta
-  migração e o defeito voltou.
+### ~~Tarefa 5: a camada de movimento~~ — FEITA (`fcf4017`)
+As três pendências herdadas foram corrigidas e **verificadas em navegador**
+(`npm run testa:movimento`): o vídeo do hero é pausado sob
+`prefers-reduced-motion` (com o `autoplay` removido, senão o navegador
+retoma sozinho), o kill-switch global entrou, e o handler de âncora foi
+migrado do protótipo em vez de reescrito.
+
+Lenis e GSAP entram por importação dinâmica: quem pediu reduced-motion não
+baixa nenhum dos três chunks. Verificado.
+
+**Falta revisão formal.**
 
 ### Tarefas 14 e 15
 Adaptar `tools/verifica.mjs` para rodar em todas as rotas, e a revisão final.
