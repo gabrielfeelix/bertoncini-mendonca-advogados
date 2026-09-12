@@ -1,0 +1,38 @@
+/*
+  Estilos de base: valem em qualquer página, independentemente do
+  conteúdo. Extraído de prototipo/index.html (linhas 30-44 e 129-138).
+
+  Não incluído aqui (fica para a Tarefa 4, CSS de seções da home):
+  - .nav, .ilha, .marca, .centro, .fala, .abre, .lencol e media queries
+    associadas: navbar em ilhas, revogada pelo cliente (Tarefa 3 traz a
+    barra cheia nova).
+  - CSS de hero, áreas, sócios, método e demais seções da home: são
+    específicos do conteúdo da home, não regras de base.
+  - Bloco @media(prefers-reduced-motion:reduce) e classes de movimento
+    (.js .sobe, .js .revela etc.): camada de movimento, Tarefa 5.
+*/
+*{box-sizing:border-box}
+body{margin:0;background:var(--branco);color:var(--tinta);font-family:var(--sans);
+  font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{margin:0;font-weight:400;letter-spacing:-.025em}
+p{margin:0}
+a{color:inherit}
+video{display:block}
+:focus-visible{outline:2px solid var(--imperial);outline-offset:4px;border-radius:4px}
+.pular{position:fixed;z-index:110;top:12px;left:12px;padding:12px 16px;min-height:44px;display:inline-flex;
+  align-items:center;background:#fff;color:var(--tinta);border-radius:999px;font:500 14px/1 var(--sans);
+  transform:translateY(-200%);transition:transform .2s}
+.pular:focus{transform:none}
+.env{max-width:1340px;margin:0 auto;padding-inline:var(--gutter)}
+.secao{padding-block:var(--bloco)}
+.display{font-family:var(--serif);font-weight:200;line-height:1.02;letter-spacing:-.03em}
+
+/* botao */
+.botao{display:inline-flex;align-items:center;gap:12px;padding:15px 16px 15px 24px;border-radius:999px;
+  background:var(--tinta);color:#fff;text-decoration:none;font-size:16px;transition:background .3s,transform .35s cubic-bezier(.2,.8,.2,1);border:0}
+.botao:hover{background:var(--apoio)}
+.botao .disco{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);
+  display:grid;place-items:center;transition:transform .35s}
+.botao:hover .disco{transform:translate(3px,-3px)}
+.botao.vidro{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.34);backdrop-filter:blur(8px)}
+.botao.vidro:hover{background:rgba(255,255,255,.22)}

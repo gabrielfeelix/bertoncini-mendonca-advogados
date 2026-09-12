@@ -1,0 +1,18 @@
+/*
+  Tokens de design: cores, tipografia e espaçamento.
+  Extraído literalmente de prototipo/index.html (linhas 18-29).
+  Não arredondar nem alterar nenhum valor: testados com verificador
+  de contraste, público do site tem 70 anos.
+*/
+:root{
+  --branco:#FFFFFF;
+  --tinta:#0B1E3F;
+  --apoio:#004369;
+  --secundario:#517493;
+  --linha:#E3E6EA;
+  --imperial:#9B1C2E;
+  --serif:"Newsreader",Georgia,serif;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --gutter:clamp(20px,5vw,88px);
+  --bloco:clamp(84px,10vw,168px);
+}

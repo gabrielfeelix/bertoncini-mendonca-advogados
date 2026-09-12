@@ -1,0 +1,15 @@
+/*
+  Fontes self-hosted: Newsreader (serifada, display) e Archivo (sans, corpo).
+  Extraído de prototipo/index.html (linhas 10-17).
+  Caminhos ajustados para /fonts/... porque em Astro os arquivos são
+  servidos a partir de public/, ao contrário do protótipo onde o CSS
+  inline resolvia "fonts/..." relativo ao próprio arquivo HTML.
+*/
+@font-face{font-family:"Newsreader";font-weight:200;font-style:normal;font-display:swap;src:url("/fonts/newsreader-200.woff2") format("woff2")}
+@font-face{font-family:"Newsreader";font-weight:200;font-style:italic;font-display:swap;src:url("/fonts/newsreader-200i.woff2") format("woff2")}
+@font-face{font-family:"Newsreader";font-weight:300;font-style:normal;font-display:swap;src:url("/fonts/newsreader-300.woff2") format("woff2")}
+@font-face{font-family:"Newsreader";font-weight:300;font-style:italic;font-display:swap;src:url("/fonts/newsreader-300i.woff2") format("woff2")}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:normal;font-display:swap;src:url("/fonts/newsreader-400.woff2") format("woff2")}
+@font-face{font-family:"Archivo";font-weight:400;font-display:swap;src:url("/fonts/archivo-400.woff2") format("woff2")}
+@font-face{font-family:"Archivo";font-weight:500;font-display:swap;src:url("/fonts/archivo-500.woff2") format("woff2")}
+@font-face{font-family:"Archivo";font-weight:600;font-display:swap;src:url("/fonts/archivo-600.woff2") format("woff2")}
