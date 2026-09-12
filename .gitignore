@@ -10,3 +10,9 @@ Thumbs.db
 .env
 .env.local
 
+
+# Espaço de trabalho do executor de planos (efêmero)
+.superpowers/
+
+node_modules/
+tools/shots/

@@ -1,0 +1,11 @@
+{
+  "name": "bertoncini-mendonca-advogados",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verifica": "node tools/verifica.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}
