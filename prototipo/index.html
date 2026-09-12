@@ -372,12 +372,27 @@ video{display:block}
 .dado{display:grid;grid-template-columns:132px 1fr;gap:16px;padding:18px 0;border-bottom:1px solid var(--linha);font-size:16.5px}
 .dado dt{color:var(--secundario);font-size:15px}
 .dado dd{margin:0}
-.dado a{text-decoration:none;border-bottom:1px solid var(--linha)}
+.dado a{text-decoration:none;border-bottom:1px solid var(--linha);min-height:44px;display:inline-flex;align-items:center}
 .dado a:hover{border-color:var(--tinta)}
 
-.rodape{border-top:1px solid var(--linha);padding-block:46px;font-size:14.5px;color:var(--secundario)}
-.rodape .env{display:flex;justify-content:space-between;gap:26px;flex-wrap:wrap}
-.rodape .registro{max-width:46ch;line-height:1.55}
+.rodape{position:relative;overflow:hidden;background:var(--tinta);color:#fff;padding-block:clamp(64px,8vw,120px) 32px;
+  clip-path:polygon(0 2.6vw,100% 0,100% 100%,0 100%)}
+.rodape .lastro{position:absolute;inset:-16% -8%;background:linear-gradient(160deg,#0B1E3F 30%,#1a3358 70%,#2a2540)}
+.rodape .grao{position:absolute;inset:0;opacity:.26;mix-blend-mode:overlay;background:#8AA0BC}
+.rodape .env{position:relative;z-index:1;display:grid;gap:clamp(40px,5vw,72px)}
+.rodape .marca-pe{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:start}
+.rodape .marca-pe img{opacity:.92}
+.rodape .registro{font-size:15px;line-height:1.6;color:rgba(255,255,255,.72);margin:0}
+.pe-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;padding-top:40px;border-top:1px solid rgba(255,255,255,.14)}
+.pe-nav h4{font:500 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);margin:0 0 18px}
+.pe-nav a,.pe-nav p{display:block;font-size:16px;line-height:1.5;color:rgba(255,255,255,.86);text-decoration:none;margin:0 0 10px}
+.pe-nav a{padding-block:4px;min-height:44px;display:inline-flex;align-items:center;margin:0}
+.pe-nav a:hover{color:#fff;text-decoration:underline;text-underline-offset:4px}
+.pe-fim{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:24px;
+  border-top:1px solid rgba(255,255,255,.14);font-size:14px;color:rgba(255,255,255,.55)}
+.pe-fim a{color:inherit}
+@media(max-width:900px){.pe-nav{grid-template-columns:repeat(2,1fr)}.rodape .marca-pe{grid-template-columns:1fr;gap:20px}}
+@media(max-width:560px){.pe-nav{grid-template-columns:1fr}}
 
 /* ---------- motion ---------- */
 .js .linha i{transform:translateY(104%)}
@@ -765,11 +780,48 @@ video{display:block}
 </section>
 
 <footer class="rodape" id="rodape">
+  <div class="lastro"></div>
+  <div class="grao" style="filter:url(#grao)"></div>
   <div class="env">
-    <p class="registro">Bertoncini &amp; Mendonça Sociedade de Advogados<br>
-      OAB/PR nº 0.000 · CNPJ 00.000.000/0001-00<br>
-      <span style="color:var(--imperial)">Inscrições são placeholder. Entram as reais antes de publicar.</span></p>
-    <p>© <span id="ano">2026</span></p>
+    <div class="marca-pe">
+      <img src="media/marca/lockup-branco.png" alt="Bertoncini & Mendonça" width="180" loading="lazy">
+      <p class="registro" data-placeholder="1">Bertoncini &amp; Mendonça Sociedade de Advogados<br>
+        Registro OAB/PR nº 0.000 · CNPJ 00.000.000/0001-00<br>
+        Juscelino Bertoncini, OAB/PR 000.000 · Beatriz Mendonça, OAB/PR 000.000<br>
+        <span style="color:var(--imperial)">Inscrições são placeholder. Entram as reais antes de publicar.</span></p>
+    </div>
+    <nav class="pe-nav" aria-label="Rodapé">
+      <div>
+        <h4>Navegar</h4>
+        <a href="#areas">Áreas de atuação</a>
+        <a href="#socios">Sócios</a>
+        <a href="#metodo">Como trabalhamos</a>
+        <a href="#publicacoes">Textos</a>
+        <a href="#perguntas">Perguntas</a>
+      </div>
+      <div>
+        <h4>Falar</h4>
+        <a href="https://wa.me/5544000000000?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20sobre%20um%20caso." target="_blank" rel="noopener" data-placeholder="1">WhatsApp</a>
+        <a href="mailto:contato@exemplo.adv.br" data-placeholder="1">contato@exemplo.adv.br</a>
+        <a href="tel:+5544000000000" data-placeholder="1">(44) 0000 0000</a>
+        <p>Segunda a sexta, 9h às 18h</p>
+      </div>
+      <div>
+        <h4>Onde</h4>
+        <p>Maringá, Paraná<br>Atendimento online para todo o estado</p>
+        <a href="#" data-placeholder="1">Instagram</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="#" data-placeholder="1">Política de privacidade</a>
+        <a href="#" data-placeholder="1">Aviso de cookies</a>
+        <p>Os textos deste site são informativos e não substituem uma consulta.</p>
+      </div>
+    </nav>
+    <div class="pe-fim">
+      <p>© <span id="ano">2026</span> Bertoncini &amp; Mendonça</p>
+      <p><a href="https://gabrielfelix-ux.4yu.com.br" rel="noopener">Site por Gabriel Felix</a></p>
+    </div>
   </div>
 </footer>
 
@@ -794,7 +846,10 @@ if (!calmo && window.Lenis){
   // âncoras do menu passam pelo Lenis para não pular
   document.querySelectorAll('a[href^="#"]').forEach(function(a){
     a.addEventListener("click", function(e){
-      var alvo = document.querySelector(a.getAttribute("href"));
+      var href = a.getAttribute("href");
+      // href="#" sozinho (placeholder) quebraria o querySelector com SyntaxError
+      if (!href || href.length < 2) return;
+      var alvo = document.querySelector(href);
       if (!alvo) return;
       e.preventDefault();
       lenis.scrollTo(alvo, { offset: -24, duration: 1.1 });
