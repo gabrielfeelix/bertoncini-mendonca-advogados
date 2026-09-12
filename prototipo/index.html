@@ -185,6 +185,11 @@ video{display:block}
 .item.aberto{pointer-events:none}
 .item.aberto h3{color:rgba(255,255,255,.34)}
 .item .pendente{font-size:12px;color:#fff;background:var(--imperial);padding:4px 11px;border-radius:999px}
+.assuntos{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0;padding:0;list-style:none}
+.assuntos li{font-size:15px;padding:7px 12px;border:1px solid rgba(255,255,255,.22);border-radius:999px;
+  color:rgba(255,255,255,.78);transition:border-color .3s,color .3s}
+.item:hover .assuntos li{border-color:rgba(255,255,255,.45);color:#fff}
+@media(max-width:560px){.assuntos li{font-size:14px;padding:6px 10px}}
 .espia{position:fixed;z-index:50;width:min(280px,26vw);aspect-ratio:16/11;border-radius:14px;
   overflow:hidden;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.86);
   transition:opacity .35s,transform .45s cubic-bezier(.22,.75,.2,1);box-shadow:0 24px 60px rgba(0,0,0,.4)}
@@ -474,21 +479,27 @@ video{display:block}
       <p class="sobe">Duas áreas confirmadas com os sócios. As demais entram quando eles definirem.</p>
     </div>
     <div class="grade">
-      <a class="item sobe" href="#contato" data-espia="media/faixa.mp4">
+      <a class="item sobe" href="https://wa.me/5544000000000?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20em%20direito%20de%20fam%C3%ADlia." data-espia="media/faixa.mp4" data-placeholder="1" target="_blank" rel="noopener">
         <div class="fila">
           <h3>Família</h3>
           <span class="glosa">Divórcio, guarda, pensão e inventário, conduzidos com discrição.</span>
           <span class="seta"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
+        <ul class="assuntos" aria-label="Assuntos em Família">
+          <li>Divórcio</li><li>Guarda</li><li>Pensão alimentícia</li><li>Inventário</li><li>União estável</li>
+        </ul>
       </a>
-      <a class="item sobe" href="#contato" data-espia="media/hero.mp4">
+      <a class="item sobe" href="https://wa.me/5544000000000?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20compliance." data-espia="media/hero.mp4" data-placeholder="1" target="_blank" rel="noopener">
         <div class="fila">
           <h3>Compliance</h3>
           <span class="glosa">Estruturas de conformidade para empresas que preferem prevenir a remediar.</span>
           <span class="seta"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
+        <ul class="assuntos" aria-label="Assuntos em Compliance">
+          <li>Programa de integridade</li><li>Código de conduta</li><li>Canal de denúncias</li><li>LGPD</li><li>Treinamento</li>
+        </ul>
       </a>
       <div class="item aberto sobe">
         <div class="fila"><h3>Terceira área</h3><span class="pendente">a confirmar</span></div>
