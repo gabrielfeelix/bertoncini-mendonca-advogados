@@ -10,6 +10,7 @@ import '../styles/fontes.css';
 import '../styles/base.css';
 import Navbar from '../components/Navbar.astro';
 import Rodape from '../components/Rodape.astro';
+import AvisoCookies from '../components/AvisoCookies.astro';
 import { site } from '../lib/site';
 
 interface Props {
@@ -82,6 +83,15 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     </main>
 
     <Rodape />
+
+    <!-- Aviso de cookies: precisa existir em TODA página, não numa seção de
+         uma página só, porque o consentimento é pedido na primeira visita,
+         seja ela qual for. Antes ele só era importado por uma página de
+         rascunho não versionada, então nenhum visitante chegava a vê-lo,
+         enquanto a política de cookies publicada afirmava que ele aparece.
+         Nasce com `hidden` e só se mostra via JS quando ainda não houver
+         escolha guardada: sem JS não há medição nenhuma para consentir. -->
+    <AvisoCookies />
 
     <style>
       /* A barra é fixa (Navbar.astro); reserva o espaço dela no fluxo para

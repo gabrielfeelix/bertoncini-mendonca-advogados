@@ -11,14 +11,25 @@ export const prerender = false;
  * JavaScript precisa voltar para a página de onde a pessoa enviou. O
  * formulário manda isso num campo escondido.
  *
- * O valor é validado aqui, e não confiado: só aceitamos um caminho absoluto
- * do próprio site, sem "//" no início (que o navegador leria como outro
- * domínio) e sem "..". Assim um campo forjado não transforma esta rota num
- * redirecionador aberto.
+ * O valor é validado por LISTA FECHADA, não por filtro de caracteres.
+ *
+ * A primeira versão filtrava caracteres: recusava `//` no início e `..`. Era
+ * furada. O parser de URL normaliza a barra invertida para barra, então
+ * `origem=/\evil.com` virava `Location: http://evil.com/`, um
+ * redirecionador aberto a partir de um `<input type="hidden">` que qualquer
+ * site consegue forjar. Filtro de caractere é jogo que se perde: hoje é a
+ * barra invertida, amanhã é outra normalização.
+ *
+ * Com lista fechada não há o que normalizar. Um valor que não esteja
+ * exatamente na lista não é corrigido nem interpretado: cai em `/`.
+ *
+ * Ao acrescentar a newsletter a uma página nova, acrescente o caminho dela
+ * aqui, ou o retorno sem JavaScript cai na home.
  */
+const VOLTAS_PERMITIDAS = ['/', '/contato/'] as const;
+
 function origemSegura(valor: string): string {
-  if (!valor.startsWith('/') || valor.startsWith('//') || valor.includes('..')) return '/';
-  return valor;
+  return (VOLTAS_PERMITIDAS as readonly string[]).includes(valor) ? valor : '/';
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
@@ -26,16 +37,16 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   try {
     dados = await request.formData();
   } catch {
-    return responde(request, { ok: false, erro: 'Não foi possível ler o formulário.', codigo: 'formato' }, 400, '/');
+    return responde(request, { ok: false, erro: 'Não foi possível ler o formulário.', codigo: 'formato' }, 400, '/', 'newsletter');
   }
 
   const volta = origemSegura(texto(dados, 'origem', 200));
 
-  if (caiuNaIsca(dados)) return responde(request, { ok: true }, 200, volta);
+  if (caiuNaIsca(dados)) return responde(request, { ok: true }, 200, volta, 'newsletter');
 
   const email = texto(dados, 'email', 254);
   if (!emailPlausivel(email)) {
-    return responde(request, { ok: false, erro: 'Confira o e-mail informado.', codigo: 'email' }, 422, volta);
+    return responde(request, { ok: false, erro: 'Confira o e-mail informado.', codigo: 'email' }, 422, volta, 'newsletter');
   }
 
   if (excedeuLimite(clientAddress ?? 'desconhecido')) {
@@ -44,6 +55,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       { ok: false, erro: 'Muitos envios seguidos deste aparelho. Tente novamente em alguns minutos.', codigo: 'limite' },
       429,
       volta,
+      'newsletter',
     );
   }
 
@@ -62,6 +74,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       { ok: false, erro: 'Não foi possível inscrever agora. Tente novamente em instantes.', codigo: 'envio' },
       500,
       volta,
+      'newsletter',
     );
   }
 
@@ -74,6 +87,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       { ok: false, erro: 'Não foi possível inscrever agora. Tente novamente em instantes.', codigo: 'envio' },
       502,
       volta,
+      'newsletter',
     );
   }
 
@@ -92,5 +106,5 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     console.error('[newsletter] falha nas boas-vindas', erro instanceof ErroBrevo ? erro.corpo : erro);
   }
 
-  return responde(request, { ok: true }, 200, volta);
+  return responde(request, { ok: true }, 200, volta, 'newsletter');
 };

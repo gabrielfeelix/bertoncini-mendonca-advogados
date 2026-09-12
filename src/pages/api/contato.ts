@@ -15,12 +15,12 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   try {
     dados = await request.formData();
   } catch {
-    return responde(request, { ok: false, erro: 'Não foi possível ler o formulário.', codigo: 'formato' }, 400, DE_VOLTA);
+    return responde(request, { ok: false, erro: 'Não foi possível ler o formulário.', codigo: 'formato' }, 400, DE_VOLTA, 'contato');
   }
 
   /* Robô que preencheu campo-isca recebe sucesso e nada acontece. Devolver
      erro só ensinaria o robô a tentar de novo sem a isca. */
-  if (caiuNaIsca(dados)) return responde(request, { ok: true }, 200, DE_VOLTA);
+  if (caiuNaIsca(dados)) return responde(request, { ok: true }, 200, DE_VOLTA, 'contato');
 
   const contato = {
     nome: texto(dados, 'nome', 120),
@@ -36,6 +36,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       { ok: false, erro: 'Informe seu nome e escreva a mensagem.', codigo: 'faltando' },
       422,
       DE_VOLTA,
+      'contato',
+      contato,
     );
   }
   if (!emailPlausivel(contato.email)) {
@@ -44,6 +46,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       { ok: false, erro: 'Confira o e-mail informado.', codigo: 'email' },
       422,
       DE_VOLTA,
+      'contato',
+      contato,
     );
   }
 
@@ -57,6 +61,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       { ok: false, erro: 'Muitos envios seguidos deste aparelho. Tente novamente em alguns minutos.', codigo: 'limite' },
       429,
       DE_VOLTA,
+      'contato',
+      contato,
     );
   }
 
@@ -81,6 +87,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       { ok: false, erro: 'Não foi possível enviar a mensagem agora. Tente novamente em instantes.', codigo: 'envio' },
       500,
       DE_VOLTA,
+      'contato',
+      contato,
     );
   }
 
@@ -98,6 +106,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       { ok: false, erro: 'Não foi possível enviar agora. Tente novamente em instantes.', codigo: 'envio' },
       502,
       DE_VOLTA,
+      'contato',
     );
   }
 
@@ -118,5 +127,5 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     }
   }
 
-  return responde(request, { ok: true }, 200, DE_VOLTA);
+  return responde(request, { ok: true }, 200, DE_VOLTA, 'contato');
 };

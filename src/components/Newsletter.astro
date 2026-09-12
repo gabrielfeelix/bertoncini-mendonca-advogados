@@ -57,20 +57,23 @@ const {
 }: Props = Astro.props;
 
 /*
-  Volta sem JavaScript: a rota redireciona com `?envio=ok` ou `?envio=erro`.
-  Lido aqui, no servidor, para a mensagem existir mesmo com o script desligado.
+  Volta sem JavaScript: a rota redireciona com `?envio-newsletter=ok` ou
+  `?envio-newsletter=erro`. Lido aqui, no servidor, para a mensagem existir
+  mesmo com o script desligado.
 
-  RESSALVA IMPORTANTE: isto só funciona em página renderizada a cada pedido.
-  Numa página pré-gerada no build (a maioria delas) o parâmetro não chega até
-  aqui, e a pessoa sem JavaScript volta para a página sem ver confirmação.
-  A inscrição terá acontecido, mas ela não saberá.
+  O parâmetro é nomeado por formulário de propósito. Com um `?envio=` genérico,
+  uma página que tivesse esta seção E o formulário de contato faria as duas
+  anunciarem o resultado uma da outra: um envio de contato bem sucedido
+  apareceria aqui como "inscrição confirmada", sem ninguém ter se inscrito.
 
-  A página que precisa desse retorno, `/contato/`, já declara
-  `prerender = false`. Qualquer página estática que passe a usar esta seção
-  precisa declarar o mesmo, ou a confirmação se perde em silêncio para quem
-  está sem JavaScript.
+  RESSALVA: isto só funciona em página renderizada a cada pedido. Numa página
+  pré-gerada no build o parâmetro não chega até aqui, e a pessoa sem
+  JavaScript volta sem ver confirmação, embora a inscrição tenha acontecido.
+  Por isso esta seção vive em `/contato/`, que declara `prerender = false`.
+  Ao levá-la para uma página nova, declare o mesmo lá E acrescente o caminho
+  em `VOLTAS_PERMITIDAS`, em `src/pages/api/newsletter.ts`.
 */
-const envio = Astro.url.searchParams.get('envio');
+const envio = Astro.url.searchParams.get('envio-newsletter');
 const origem = Astro.url.pathname;
 ---
 
@@ -93,6 +96,8 @@ const origem = Astro.url.pathname;
           autocomplete="email"
           maxlength="254"
           placeholder={exemplo}
+          aria-invalid={envio === 'erro' ? 'true' : undefined}
+          aria-describedby={envio === 'erro' ? `recibo-${id}` : undefined}
         />
         <button type="submit">
           <span class="texto-botao">{rotuloBotao}</span>
@@ -116,7 +121,7 @@ const origem = Astro.url.pathname;
       <p class="mudo">{mudo}</p>
       <p
         class:list={['recibo', { visto: envio === 'ok' || envio === 'erro', falhou: envio === 'erro' }]}
-        id="recibo"
+        id={`recibo-${id}`}
         data-sucesso={recibo}
         data-falha={erro}
         role="status"

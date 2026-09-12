@@ -32,6 +32,7 @@
  * uma rua seria pior do que admitir que ela falta.
  */
 import Base from '~/layouts/Base.astro';
+import Newsletter from '~/components/Newsletter.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
 
@@ -47,10 +48,13 @@ import { site } from '~/lib/site';
 export const prerender = false;
 
 /* Volta de quem enviou sem JavaScript. A rota redireciona para cá com
-   `?envio=` e, no erro, `?motivo=`. Lido no servidor para que a mensagem
-   apareça mesmo com o script desligado. */
-const envio = Astro.url.searchParams.get('envio');
-const motivo = Astro.url.searchParams.get('motivo');
+   `?envio-contato=` e, no erro, `?motivo-contato=`. O parâmetro é nomeado por
+   formulário de propósito: esta página pode um dia conter também a
+   newsletter, e um `?envio=` genérico faria as duas seções anunciarem o
+   resultado uma da outra. Lido no servidor para que a mensagem apareça mesmo
+   com o script desligado. */
+const envio = Astro.url.searchParams.get('envio-contato');
+const motivo = Astro.url.searchParams.get('motivo-contato');
 
 /* O texto de cada erro mora aqui, não na resposta da API: assim a página
    sem JavaScript consegue renderizá-lo, e a API não precisa devolver texto
@@ -64,6 +68,44 @@ const ERROS: Record<string, string> = {
 };
 
 const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
+
+/*
+  Campo a que o erro se refere. Serve para dois fins:
+
+  - `aria-invalid` e `aria-describedby` no campo certo, para quem usa leitor
+    de tela saber DE QUAL campo a mensagem fala, em vez de ouvir "confira o
+    e-mail informado" solto;
+  - o foco inicial, logo abaixo.
+
+  `faltando` pode ser nome ou mensagem. Apontamos o primeiro que voltou vazio.
+*/
+const valores = {
+  nome: '', email: '', telefone: '', assunto: '', mensagem: '',
+};
+
+/*
+  IMPORTANTE 6: sem JavaScript, um 303 devolve a página do zero e o navegador
+  não tem como repreencher nada. Sem isto, quem erra o e-mail redigita a
+  mensagem inteira, num campo de até 5000 caracteres. Então a rota devolve o
+  que a pessoa escreveu e cada campo volta preenchido.
+
+  Só acontece no caminho de erro, e os valores vêm da própria pessoa, no
+  mesmo pedido. O Astro escapa o atributo `value` na renderização, então o
+  conteúdo não vira marcação.
+*/
+if (envio === 'erro') {
+  for (const campo of Object.keys(valores) as (keyof typeof valores)[]) {
+    valores[campo] = Astro.url.searchParams.get(`v-${campo}`) ?? '';
+  }
+}
+
+/* O servidor avisa quando teve de cortar algum campo para caber na URL da
+   volta. Sem JavaScript é a única forma de a pessoa saber que o que ela
+   relê na tela não é tudo o que escreveu. */
+const houveCorte = envio === 'erro' && Astro.url.searchParams.get('corte-contato') === '1';
+
+const campoComErro =
+  motivo === 'email' ? 'email' : motivo === 'faltando' ? (valores.nome ? 'mensagem' : 'nome') : null;
 ---
 
 <Base
@@ -108,11 +150,11 @@ const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
         <h2>Ou escreva por aqui</h2>
 
         {/* A mensagem de resultado vem antes do formulário e é o alvo da
-            âncora `#resultado-envio` que a rota usa no 303: quem voltou sem
+            âncora `#resultado-contato` que a rota usa no 303: quem voltou sem
             JavaScript chega com a mensagem na altura dos olhos, não precisa
             procurar. */}
         <p
-          id="resultado-envio"
+          id="resultado-contato"
           class:list={['resultado', { visto: envio === 'ok' || envio === 'erro', falhou: envio === 'erro' }]}
           role="status"
           aria-live="polite"
@@ -125,21 +167,55 @@ const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
               : ''}
         </p>
 
+        {houveCorte && (
+          <p class="aviso-corte" role="status">
+            <strong>Atenção:</strong> o seu relato era longo demais para voltar inteiro
+            nesta tela e aparece cortado abaixo. Confira o texto antes de enviar de novo.
+          </p>
+        )}
+
         <form class="forma" method="post" action="/api/contato">
           <div class="campo">
             <label for="nome">Seu nome</label>
-            <input id="nome" name="nome" type="text" required autocomplete="name" maxlength="120" />
+            <input
+              id="nome"
+              name="nome"
+              type="text"
+              required
+              autocomplete="name"
+              maxlength="120"
+              value={valores.nome}
+              aria-invalid={campoComErro === 'nome' ? 'true' : undefined}
+              aria-describedby={campoComErro === 'nome' ? 'resultado-contato' : undefined}
+            />
           </div>
 
           <div class="campo">
             <label for="email">Seu e-mail</label>
-            <input id="email" name="email" type="email" required autocomplete="email" maxlength="254" />
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+              maxlength="254"
+              value={valores.email}
+              aria-invalid={campoComErro === 'email' ? 'true' : undefined}
+              aria-describedby={campoComErro === 'email' ? 'ajuda-email resultado-contato' : 'ajuda-email'}
+            />
             <p class="ajuda" id="ajuda-email">É por aqui que respondemos.</p>
           </div>
 
           <div class="campo">
             <label for="telefone">Telefone <span class="opcional">(opcional)</span></label>
-            <input id="telefone" name="telefone" type="tel" autocomplete="tel" maxlength="40" />
+            <input
+              id="telefone"
+              name="telefone"
+              type="tel"
+              autocomplete="tel"
+              maxlength="40"
+              value={valores.telefone}
+            />
           </div>
 
           {/* Texto livre, não lista de áreas: a lista de áreas do escritório
@@ -147,12 +223,20 @@ const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
               a enquadrar o caso na caixa errada. */}
           <div class="campo">
             <label for="assunto">Sobre o que é <span class="opcional">(opcional)</span></label>
-            <input id="assunto" name="assunto" type="text" maxlength="120" />
+            <input id="assunto" name="assunto" type="text" maxlength="120" value={valores.assunto} />
           </div>
 
           <div class="campo">
             <label for="mensagem">O que está acontecendo</label>
-            <textarea id="mensagem" name="mensagem" required rows="7" maxlength="5000"></textarea>
+            <textarea
+              id="mensagem"
+              name="mensagem"
+              required
+              rows="7"
+              maxlength="5000"
+              aria-invalid={campoComErro === 'mensagem' ? 'true' : undefined}
+              aria-describedby={campoComErro === 'mensagem' ? 'resultado-contato' : undefined}
+            >{valores.mensagem}</textarea>
           </div>
 
           {/* Iscas: fora da vista e fora do foco por teclado. Nunca
@@ -228,6 +312,15 @@ const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
       </aside>
     </div>
   </section>
+
+  {/* A newsletter vive aqui, e não numa página de rascunho: é a página onde
+      quem já decidiu falar conosco está, e é uma das poucas renderizadas a
+      cada pedido, o que a seção precisa para confirmar a inscrição de quem
+      está sem JavaScript. O caminho `/contato/` está em `VOLTAS_PERMITIDAS`,
+      em `src/pages/api/newsletter.ts`, e as duas seções leem parâmetros
+      diferentes (`envio-contato` e `envio-newsletter`), então uma não
+      anuncia o resultado da outra. */}
+  <Newsletter />
 </Base>
 
 <script>
@@ -238,7 +331,7 @@ const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
     digitou quando dá erro.
   */
   const forma = document.querySelector<HTMLFormElement>('form[action="/api/contato"]');
-  const resultado = document.getElementById('resultado-envio');
+  const resultado = document.getElementById('resultado-contato');
   const botao = forma?.querySelector<HTMLButtonElement>('button[type="submit"]');
 
   if (forma && resultado && botao) {
@@ -365,6 +458,17 @@ const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
   .resultado.falhou::before {
     content: "Atenção: ";
     font-weight: 600;
+  }
+
+  .aviso-corte {
+    margin-bottom: 20px;
+    padding: 16px 18px;
+    border: 1px solid var(--imperial);
+    border-radius: 12px;
+    color: var(--imperial);
+    font-size: 17px;
+    line-height: 1.5;
+    max-width: 620px;
   }
 
   .forma {
