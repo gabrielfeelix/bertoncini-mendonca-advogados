@@ -4,13 +4,25 @@
  * campo de e-mail. Migrado do protótipo (CSS linhas 337-367, HTML linhas
  * 715-736).
  *
- * Marcações para a Tarefa 5: `#forma` (o `<form>`) e `#recibo` (a
- * confirmação, que nasce com opacity:0 e ganha `.visto`). Sem JS o
- * formulário continua um `<form>` de verdade, com `type="email"` e
- * `required`: a validação nativa do navegador funciona e o envio degrada
- * para o comportamento padrão. O recibo simplesmente não aparece, o que
- * não esconde informação nenhuma.
+ * Tarefa 13 ligou este formulário à Brevo. O que mudou em relação à versão
+ * migrada:
+ *
+ * - o `<form>` ganhou `method="post"` e `action="/api/newsletter"`, então
+ *   **ele envia de verdade sem JavaScript**. Antes era um `<form>` sem
+ *   destino, que recarregava a página e não inscrevia ninguém.
+ * - o campo ganhou um `<label>` visível e associado por `for`. O protótipo
+ *   só tinha `placeholder` e `aria-label`, e placeholder some ao digitar.
+ * - entrou o campo escondido `origem`, para o 303 de quem está sem JS
+ *   devolver a pessoa à página de onde ela enviou (esta seção aparece em
+ *   mais de uma página). A rota valida esse valor antes de usar.
+ * - entraram os campos-isca de `src/lib/antispam.ts`.
+ * - o recibo deixou de ser um texto sempre presente com `opacity:0`. Isso
+ *   escondia texto de leitor de tela de forma inconsistente. Agora ele é um
+ *   `role="status"` vazio, preenchido pelo script ou pelo `?envio=` da
+ *   volta sem JS.
  */
+import { CAMPOS_ISCA } from '~/lib/antispam';
+
 interface Props {
   /** Título da seção. */
   titulo?: string;
@@ -18,14 +30,18 @@ interface Props {
   ritmo?: string;
   /** Placeholder do campo de e-mail. */
   exemplo?: string;
-  /** Rótulo acessível do campo. */
+  /** Rótulo visível do campo. */
   rotuloCampo?: string;
   /** Rótulo acessível do botão de envio. */
   rotuloBotao?: string;
   /** Aviso discreto abaixo do campo. */
   mudo?: string;
-  /** Texto da confirmação, revelada pela Tarefa 5 após o envio. */
+  /** Texto da confirmação, mostrado depois do envio. */
   recibo?: string;
+  /** Texto mostrado quando o envio falha. */
+  erro?: string;
+  /** Sufixo do id, para a seção poder aparecer duas vezes na mesma página. */
+  id?: string;
 }
 
 const {
@@ -36,7 +52,26 @@ const {
   rotuloBotao = 'Assinar',
   mudo = 'Você pode sair da lista em um clique, em qualquer e-mail.',
   recibo = 'Pronto. O próximo texto vai para esse endereço.',
+  erro = 'Não foi possível inscrever agora. Confira o e-mail e tente novamente.',
+  id = 'forma',
 }: Props = Astro.props;
+
+/*
+  Volta sem JavaScript: a rota redireciona com `?envio=ok` ou `?envio=erro`.
+  Lido aqui, no servidor, para a mensagem existir mesmo com o script desligado.
+
+  RESSALVA IMPORTANTE: isto só funciona em página renderizada a cada pedido.
+  Numa página pré-gerada no build (a maioria delas) o parâmetro não chega até
+  aqui, e a pessoa sem JavaScript volta para a página sem ver confirmação.
+  A inscrição terá acontecido, mas ela não saberá.
+
+  A página que precisa desse retorno, `/contato/`, já declara
+  `prerender = false`. Qualquer página estática que passe a usar esta seção
+  precisa declarar o mesmo, ou a confirmação se perde em silêncio para quem
+  está sem JavaScript.
+*/
+const envio = Astro.url.searchParams.get('envio');
+const origem = Astro.url.pathname;
 ---
 
 <section class="assinar">
@@ -47,20 +82,95 @@ const {
       <h2 class="sobe">{titulo}</h2>
       <p class="ritmo sobe">{ritmo}</p>
     </div>
-    <form class="sobe" id="forma">
-      <label class="campo">
-        <input type="email" name="email" required placeholder={exemplo} aria-label={rotuloCampo} />
-        <button type="submit" aria-label={rotuloBotao}>
+    <form class="sobe" id={id} method="post" action="/api/newsletter">
+      <label class="rotulo" for={`${id}-email`}>{rotuloCampo}</label>
+      <div class="campo">
+        <input
+          id={`${id}-email`}
+          type="email"
+          name="email"
+          required
+          autocomplete="email"
+          maxlength="254"
+          placeholder={exemplo}
+        />
+        <button type="submit">
+          <span class="texto-botao">{rotuloBotao}</span>
           <svg width="15" height="15" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.7" stroke-linecap="round"></path>
           </svg>
         </button>
-      </label>
+      </div>
+
+      {/* Sem JS o 303 precisa saber para onde voltar. A rota valida o valor. */}
+      <input type="hidden" name="origem" value={origem} />
+
+      {/* Iscas: fora da vista e fora do foco por teclado. Nunca display:none,
+          para que um leitor de tela também as ignore por aria-hidden. */}
+      <div class="iscas" aria-hidden="true">
+        {CAMPOS_ISCA.map((campo) => (
+          <input type="text" name={campo} tabindex="-1" autocomplete="off" />
+        ))}
+      </div>
+
       <p class="mudo">{mudo}</p>
-      <p class="recibo" id="recibo">{recibo}</p>
+      <p
+        class:list={['recibo', { visto: envio === 'ok' || envio === 'erro', falhou: envio === 'erro' }]}
+        id="recibo"
+        data-sucesso={recibo}
+        data-falha={erro}
+        role="status"
+        aria-live="polite"
+      >{envio === 'ok' ? recibo : envio === 'erro' ? erro : ''}</p>
     </form>
   </div>
 </section>
+
+<script>
+  /*
+    Melhoria progressiva. Sem este script o formulário envia por POST normal
+    e a rota devolve 303 com `?envio=`, que o Astro lê no servidor e usa para
+    renderizar a mensagem. Com o script, a pessoa não perde a página.
+  */
+  document.querySelectorAll<HTMLFormElement>('form[action="/api/newsletter"]').forEach((forma) => {
+    const recibo = forma.querySelector<HTMLElement>('.recibo');
+    const botao = forma.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (!recibo || !botao) return;
+
+    const sucesso = recibo.dataset.sucesso ?? 'Pronto.';
+    const falha = recibo.dataset.falha ?? 'Não foi possível inscrever agora.';
+
+    forma.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      botao.disabled = true;
+      recibo.classList.remove('falhou');
+      recibo.classList.add('visto');
+      recibo.textContent = 'Enviando.';
+
+      try {
+        const resposta = await fetch('/api/newsletter', {
+          method: 'POST',
+          body: new FormData(forma),
+          headers: { accept: 'application/json' },
+        });
+        const dados = await resposta.json().catch(() => ({}) as { erro?: string });
+
+        if (resposta.ok) {
+          forma.reset();
+          recibo.textContent = sucesso;
+        } else {
+          recibo.classList.add('falhou');
+          recibo.textContent = dados.erro ?? falha;
+        }
+      } catch {
+        recibo.classList.add('falhou');
+        recibo.textContent = 'Sem conexão no momento. Tente novamente.';
+      } finally {
+        botao.disabled = false;
+      }
+    });
+  });
+</script>
 
 <style>
   .assinar {
@@ -115,6 +225,15 @@ const {
     font-size: 16px;
     max-width: 38ch;
   }
+  /* Rótulo visível e associado por `for`. O protótipo trazia só um
+     placeholder, que some assim que a pessoa digita: quem tem 70 anos e
+     volta ao campo depois de uma interrupção perde a referência. */
+  .rotulo {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #fff;
+  }
   .campo {
     display: flex;
     align-items: center;
@@ -147,21 +266,55 @@ const {
     outline: 2px solid var(--imperial);
     outline-offset: 2px;
   }
+  /* O protótipo tinha um disco de 46px só com a seta, e o rótulo "Assinar"
+     vivia apenas no `aria-label`. Aqui o rótulo é texto visível: o público
+     do site não precisa deduzir o que uma seta diagonal faz. O alvo
+     continua acima de 44px nas duas medidas. */
   .campo button {
-    width: 46px;
-    height: 46px;
     flex: none;
-    border-radius: 50%;
+    min-height: 48px;
+    min-width: 48px;
+    padding: 0 20px;
+    border-radius: 999px;
     border: 0;
     background: var(--imperial);
     color: #fff;
+    font: 500 16px/1 var(--sans);
     cursor: pointer;
-    display: grid;
-    place-items: center;
-    transition: transform 0.35s, background 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.3s;
   }
   .campo button:hover {
-    transform: rotate(45deg) scale(1.06);
+    background: var(--apoio);
+  }
+  .campo button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+  @media (max-width: 420px) {
+    /* Numa tela de 390px o campo e o botão lado a lado espremem os dois.
+       Empilhar mantém os dois alvos inteiros e evita rolagem horizontal. */
+    .campo {
+      flex-wrap: wrap;
+    }
+    .campo button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  /* Iscas: invisíveis e inalcançáveis, sem sair do DOM (`display:none` faria
+     alguns navegadores deixarem de enviá-las, e a isca só funciona se o robô
+     conseguir preenchê-la). */
+  .iscas {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
   .mudo {
     margin-top: 14px;
@@ -179,6 +332,16 @@ const {
   .recibo.visto {
     opacity: 1;
     transform: none;
+  }
+  /* O erro se distingue por texto, não só por cor: a mensagem diz o que
+     houve, e o símbolo abaixo reforça sem ser a única pista. */
+  .recibo.falhou {
+    color: #FFC9D1;
+    font-weight: 500;
+  }
+  .recibo.falhou::before {
+    content: "Atenção: ";
+    font-weight: 600;
   }
 
   /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5

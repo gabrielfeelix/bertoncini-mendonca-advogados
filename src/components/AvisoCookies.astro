@@ -11,11 +11,19 @@
  * O texto é provisório e está marcado com `data-placeholder="1"`: o
  * definitivo vem do escritório, com o link real da política.
  *
- * Marcações para a Tarefa 5: o id `#aviso` e os três
+ * Marcações: o id `#aviso` e os três
  * `data-consente="todos|necessarios|nenhum"`.
+ *
+ * Tarefa 13: a escolha deixou de ser gravada aqui no `localStorage` na mão
+ * (protótipo, linhas 1171-1184) e passou por `src/lib/consentimento.ts`,
+ * adaptado do projeto da Isabella. As três escolhas continuam as mesmas, a
+ * chave do `localStorage` continua `consentimento`, e o
+ * `CustomEvent('consentimento')` que o protótipo dispara no `document`
+ * continua sendo disparado, com o mesmo `detail`. Quem vier a ligar medição
+ * depois escuta esse evento, exatamente como o protótipo previa.
  */
 interface Opcao {
-  /** Valor lido pela Tarefa 5 no clique. */
+  /** Valor lido no clique e gravado por `consentimento.ts`. */
   consente: string;
   /** Rótulo do botão. */
   rotulo: string;
@@ -65,6 +73,29 @@ const {
     ))}
   </div>
 </div>
+
+<script>
+  import { lerEscolha, registrar, type Escolha } from '~/lib/consentimento';
+
+  /* O aviso nasce com `hidden` no HTML: sem JavaScript não existe medição
+     nenhuma para consentir, então ele simplesmente não aparece. */
+  const caixa = document.getElementById('aviso');
+
+  if (caixa) {
+    if (!lerEscolha()) caixa.hidden = false;
+
+    caixa.querySelectorAll<HTMLButtonElement>('[data-consente]').forEach((botao) => {
+      botao.addEventListener('click', () => {
+        const valor = botao.dataset.consente as Escolha | undefined;
+        if (!valor) return;
+        /* `registrar` grava a escolha e dispara o `CustomEvent`
+           `consentimento` no `document`, o mesmo contrato do protótipo. */
+        registrar(valor);
+        caixa.hidden = true;
+      });
+    });
+  }
+</script>
 
 <style>
   /* aviso de cookies: três escolhas, guardadas no aparelho. Só existe com

@@ -1,0 +1,521 @@
+---
+/**
+ * /contato/ — o caminho de conversão do site.
+ *
+ * Três formas de falar com o escritório, na ordem em que o cliente pediu:
+ * o WhatsApp (canal principal), o formulário e os dados diretos.
+ *
+ * O FORMULÁRIO FUNCIONA SEM JAVASCRIPT. É um `<form method="post">` de
+ * verdade, apontando para `/api/contato`, que responde 303 de volta para cá
+ * com `?envio=ok|erro` quando o pedido não veio de um `fetch`. A mensagem de
+ * resultado é renderizada no servidor a partir desse parâmetro, então ela
+ * existe na primeira pintura, sem depender de script nenhum. O script no fim
+ * do arquivo só evita que a pessoa perca a página.
+ *
+ * O que NÃO está escrito aqui, deliberadamente:
+ *
+ * - Nenhum prazo de resposta. O protótipo promete "resposta em até um dia
+ *   útil" e marca esse prazo como placeholder a confirmar com os sócios
+ *   (linha 674). Enquanto não for confirmado, prometer prazo é inventar
+ *   dado. A página diz que a mensagem é lida por um dos sócios, o que é
+ *   verdade sem prazo.
+ * - Nada de "consulta gratuita", "avaliação sem compromisso", "fale agora"
+ *   ou qualquer variação. O Provimento 205/2021 da OAB proíbe oferta de
+ *   gratuidade, urgência e captação. Um formulário de contato é justamente
+ *   onde essas frases costumam entrar sozinhas.
+ * - Nenhuma antecipação de análise do caso. O aviso abaixo do botão diz o
+ *   contrário: a mensagem não cria relação de patrocínio.
+ *
+ * Endereço: o escritório ainda não forneceu um endereço de atendimento
+ * presencial. A página diz a cidade e a forma de atendimento, que são os
+ * fatos que existem, e marca a linha do endereço como placeholder. Inventar
+ * uma rua seria pior do que admitir que ela falta.
+ */
+import Base from '~/layouts/Base.astro';
+import { CAMPOS_ISCA } from '~/lib/antispam';
+import { site } from '~/lib/site';
+
+/*
+  Esta página é renderizada a cada pedido, e não pré-gerada no build.
+  A razão é o `?envio=` abaixo: quem envia o formulário SEM JavaScript volta
+  para cá por um 303 com esse parâmetro, e um HTML pré-gerado no build
+  serviria sempre a mesma página, com a mensagem de resultado vazia. Ou seja,
+  a pessoa preencheria, enviaria, voltaria e não veria confirmação nenhuma.
+  Com `prerender = false` a mensagem é montada no servidor, no pedido, e
+  existe na primeira pintura.
+*/
+export const prerender = false;
+
+/* Volta de quem enviou sem JavaScript. A rota redireciona para cá com
+   `?envio=` e, no erro, `?motivo=`. Lido no servidor para que a mensagem
+   apareça mesmo com o script desligado. */
+const envio = Astro.url.searchParams.get('envio');
+const motivo = Astro.url.searchParams.get('motivo');
+
+/* O texto de cada erro mora aqui, não na resposta da API: assim a página
+   sem JavaScript consegue renderizá-lo, e a API não precisa devolver texto
+   de interface num redirecionamento. */
+const ERROS: Record<string, string> = {
+  faltando: 'Faltou o nome ou a mensagem. Preencha os dois campos e envie de novo.',
+  email: 'O e-mail informado não parece completo. Confira e envie de novo.',
+  limite: 'Recebemos vários envios seguidos deste aparelho. Aguarde alguns minutos e tente de novo.',
+  envio: 'Não foi possível enviar a mensagem agora. Tente de novo em instantes, ou use o WhatsApp.',
+  formato: 'O formulário não chegou completo. Recarregue a página e tente de novo.',
+};
+
+const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
+---
+
+<Base
+  titulo="Contato | Bertoncini & Mendonça Advogados"
+  descricao="Fale com o escritório Bertoncini & Mendonça. Formulário, WhatsApp, telefone e e-mail. Advocacia em Maringá, PR, com atendimento online para todo o Paraná."
+  paginaAtual="/contato/"
+>
+  <section class="abertura">
+    <div class="env">
+      <p class="chapeu">Contato</p>
+      <h1 class="display">Conte o que está acontecendo.</h1>
+      <p class="linha-fina">
+        Escreva com suas palavras. Não é preciso usar termo técnico nem organizar a
+        história antes. Quem lê a sua mensagem é um dos sócios.
+      </p>
+    </div>
+  </section>
+
+  <section class="canais">
+    <div class="env">
+      <a
+        class="botao"
+        href={site.whatsapp.valor}
+        target="_blank"
+        rel="noopener"
+        data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
+      >
+        Abrir conversa no WhatsApp
+        <span class="disco" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+            <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path>
+          </svg>
+        </span>
+      </a>
+      <p class="horario">{site.horario}. Fora do horário a mensagem fica registrada.</p>
+    </div>
+  </section>
+
+  <section class="corpo">
+    <div class="env">
+      <div class="coluna-forma">
+        <h2>Ou escreva por aqui</h2>
+
+        {/* A mensagem de resultado vem antes do formulário e é o alvo da
+            âncora `#resultado-envio` que a rota usa no 303: quem voltou sem
+            JavaScript chega com a mensagem na altura dos olhos, não precisa
+            procurar. */}
+        <p
+          id="resultado-envio"
+          class:list={['resultado', { visto: envio === 'ok' || envio === 'erro', falhou: envio === 'erro' }]}
+          role="status"
+          aria-live="polite"
+          tabindex="-1"
+        >
+          {envio === 'ok'
+            ? 'Recebemos a sua mensagem. A resposta vai para o e-mail que você informou.'
+            : envio === 'erro'
+              ? mensagemErro
+              : ''}
+        </p>
+
+        <form class="forma" method="post" action="/api/contato">
+          <div class="campo">
+            <label for="nome">Seu nome</label>
+            <input id="nome" name="nome" type="text" required autocomplete="name" maxlength="120" />
+          </div>
+
+          <div class="campo">
+            <label for="email">Seu e-mail</label>
+            <input id="email" name="email" type="email" required autocomplete="email" maxlength="254" />
+            <p class="ajuda" id="ajuda-email">É por aqui que respondemos.</p>
+          </div>
+
+          <div class="campo">
+            <label for="telefone">Telefone <span class="opcional">(opcional)</span></label>
+            <input id="telefone" name="telefone" type="tel" autocomplete="tel" maxlength="40" />
+          </div>
+
+          {/* Texto livre, não lista de áreas: a lista de áreas do escritório
+              ainda está sendo fechada, e uma lista incompleta induz a pessoa
+              a enquadrar o caso na caixa errada. */}
+          <div class="campo">
+            <label for="assunto">Sobre o que é <span class="opcional">(opcional)</span></label>
+            <input id="assunto" name="assunto" type="text" maxlength="120" />
+          </div>
+
+          <div class="campo">
+            <label for="mensagem">O que está acontecendo</label>
+            <textarea id="mensagem" name="mensagem" required rows="7" maxlength="5000"></textarea>
+          </div>
+
+          {/* Iscas: fora da vista e fora do foco por teclado. Nunca
+              `display:none`, para que a isca continue sendo enviada por um
+              robô e continue ignorada por um leitor de tela. */}
+          <div class="iscas" aria-hidden="true">
+            {CAMPOS_ISCA.map((campo) => (
+              <input type="text" name={campo} tabindex="-1" autocomplete="off" />
+            ))}
+          </div>
+
+          <button type="submit" class="botao enviar">Enviar mensagem</button>
+
+          <p class="aviso-legal">
+            Enviar esta mensagem não estabelece relação de patrocínio nem substitui
+            uma consulta. O que você escrever é tratado como descreve a
+            <a href="/politica-de-privacidade/">política de privacidade</a>.
+          </p>
+        </form>
+      </div>
+
+      <aside class="coluna-dados" aria-label="Dados de contato">
+        <h2>Os dados diretos</h2>
+        <dl class="dados">
+          <div class="dado">
+            <dt>Telefone</dt>
+            <dd>
+              <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefone.placeholder ? '1' : undefined}>
+                {site.telefone.valor}
+              </a>
+            </dd>
+          </div>
+          <div class="dado">
+            <dt>E-mail</dt>
+            <dd>
+              <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>
+                {site.email.valor}
+              </a>
+            </dd>
+          </div>
+          <div class="dado">
+            <dt>Horário</dt>
+            <dd>{site.horario}</dd>
+          </div>
+          <div class="dado">
+            <dt>Atendimento</dt>
+            <dd>{site.atendimento}</dd>
+          </div>
+          <div class="dado">
+            <dt>Base</dt>
+            <dd>{site.cidade}, {site.estado}</dd>
+          </div>
+          {/* O endereço de atendimento presencial ainda não foi fornecido
+              pelo escritório. A linha fica aqui, marcada, para a Tarefa 15
+              inventariá-la. */}
+          <div class="dado">
+            <dt>Endereço</dt>
+            <dd data-placeholder="1">
+              <span class="falta">Endereço de atendimento a confirmar com o escritório.</span>
+            </dd>
+          </div>
+        </dl>
+
+        <div class="registro">
+          <p>{site.nomeSociedade}</p>
+          <p data-placeholder={site.registro.oabSociedade.placeholder ? '1' : undefined}>
+            {site.registro.oabSociedade.valor}
+          </p>
+          <p data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>
+            CNPJ {site.registro.cnpj.valor}
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<script>
+  /*
+    Melhoria progressiva, e só isso. Sem este script o formulário envia por
+    POST normal, a rota responde 303 com `?envio=` e a página renderiza a
+    mensagem no servidor. Com ele, a pessoa não perde a página nem o que
+    digitou quando dá erro.
+  */
+  const forma = document.querySelector<HTMLFormElement>('form[action="/api/contato"]');
+  const resultado = document.getElementById('resultado-envio');
+  const botao = forma?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+  if (forma && resultado && botao) {
+    forma.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      botao.disabled = true;
+      resultado.classList.remove('falhou');
+      resultado.classList.add('visto');
+      resultado.textContent = 'Enviando a mensagem.';
+
+      try {
+        const resposta = await fetch('/api/contato', {
+          method: 'POST',
+          body: new FormData(forma),
+          headers: { accept: 'application/json' },
+        });
+        const dados = (await resposta.json().catch(() => ({}))) as { erro?: string };
+
+        if (resposta.ok) {
+          forma.reset();
+          resultado.textContent =
+            'Recebemos a sua mensagem. A resposta vai para o e-mail que você informou.';
+        } else {
+          resultado.classList.add('falhou');
+          resultado.textContent =
+            dados.erro ?? 'Não foi possível enviar a mensagem agora. Tente de novo em instantes.';
+        }
+      } catch {
+        resultado.classList.add('falhou');
+        resultado.textContent = 'Sem conexão no momento. Tente de novo, ou use o WhatsApp.';
+      } finally {
+        botao.disabled = false;
+        /* Move o foco para a mensagem: quem navega por teclado ou leitor de
+           tela estava no botão e precisa saber o que aconteceu. */
+        resultado.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .abertura {
+    padding-block: clamp(56px, 7vw, 104px) clamp(28px, 4vw, 48px);
+  }
+  .chapeu {
+    font-size: 16px;
+    color: var(--secundario);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .abertura h1 {
+    font-size: clamp(36px, 6vw, 82px);
+    max-width: 14ch;
+  }
+  .linha-fina {
+    margin-top: 24px;
+    max-width: 52ch;
+    font-size: 19px;
+    color: var(--secundario);
+  }
+
+  .canais {
+    padding-block: 0 clamp(40px, 5vw, 72px);
+  }
+  .canais :global(.env) {
+    display: flex;
+    align-items: center;
+    gap: 16px 28px;
+    flex-wrap: wrap;
+  }
+  .horario {
+    font-size: 16px;
+    color: var(--secundario);
+  }
+
+  .corpo {
+    padding-block: 0 clamp(64px, 8vw, 128px);
+  }
+  .corpo :global(.env) {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(36px, 5vw, 88px);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .corpo :global(.env) {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+  }
+  .corpo h2 {
+    font-family: var(--serif);
+    font-weight: 200;
+    font-size: clamp(28px, 3.6vw, 44px);
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin-bottom: 28px;
+  }
+
+  /* Mensagem de resultado. Fora de um envio ela não ocupa espaço nenhum, e
+     por isso `display:none`: um parágrafo vazio com `role="status"` já é
+     anunciado corretamente quando ganha texto. */
+  .resultado {
+    display: none;
+    margin-bottom: 24px;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--linha);
+    background: #fff;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .resultado.visto {
+    display: block;
+  }
+  /* O erro se distingue por texto, não só por cor: a mensagem descreve o
+     que houve, e o prefixo abaixo reforça sem ser a única pista. */
+  .resultado.falhou {
+    border-color: var(--imperial);
+    color: var(--imperial);
+    font-weight: 500;
+  }
+  .resultado.falhou::before {
+    content: "Atenção: ";
+    font-weight: 600;
+  }
+
+  .forma {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    max-width: 620px;
+  }
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  /* Rótulo visível e associado por `for`. Nunca só placeholder: o
+     placeholder some ao digitar, e quem volta ao campo depois de uma
+     interrupção perde a referência do que estava preenchendo. */
+  .campo label {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--tinta);
+  }
+  .campo .opcional {
+    font-weight: 400;
+    color: var(--secundario);
+  }
+  .campo :is(input, textarea) {
+    font: 400 18px/1.5 var(--sans);
+    color: var(--tinta);
+    background: #fff;
+    border: 1px solid var(--secundario);
+    border-radius: 10px;
+    /* 14px de padding sobre 18px/1.5 dá 55px de altura: acima dos 44px
+       exigidos, sem depender só do `min-height`. */
+    padding: 14px 16px;
+    min-height: 52px;
+    width: 100%;
+  }
+  .campo textarea {
+    min-height: 168px;
+    resize: vertical;
+  }
+  .campo :is(input, textarea):focus-visible {
+    outline: 2px solid var(--imperial);
+    outline-offset: 2px;
+    border-color: var(--tinta);
+  }
+  .ajuda {
+    font-size: 15px;
+    color: var(--secundario);
+  }
+
+  .iscas {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .enviar {
+    align-self: flex-start;
+    justify-content: center;
+    padding: 16px 28px;
+    min-height: 52px;
+    font: 500 17px/1 var(--sans);
+    cursor: pointer;
+  }
+  .enviar[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .aviso-legal {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--secundario);
+    max-width: 52ch;
+  }
+  /* Mesmo tratamento de `src/styles/politica.css`: o alvo de 44px vale
+     também para um link no meio de um parágrafo. `inline-flex` dá a altura
+     sem tirar o link do fluxo da linha, e o `margin-block` negativo impede
+     que o espaçamento entre as linhas do parágrafo aumente. */
+  .aviso-legal a {
+    color: var(--apoio);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    min-height: 44px;
+    margin-block: -11px;
+    vertical-align: middle;
+  }
+
+  .dados {
+    border-top: 1px solid var(--linha);
+    margin: 0;
+  }
+  .dado {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--linha);
+    font-size: 17px;
+  }
+  @media (max-width: 420px) {
+    .dado {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+  .dado dt {
+    color: var(--secundario);
+    font-size: 16px;
+    /* Alinha o rótulo com a primeira linha do valor, que tem 44px de alvo. */
+    padding-top: 10px;
+  }
+  .dado dd {
+    margin: 0;
+  }
+  .dado a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+    border-bottom: 1px solid var(--linha);
+  }
+  .dado a:hover {
+    border-color: var(--tinta);
+  }
+  .dado .falta {
+    display: inline-block;
+    padding-top: 10px;
+    color: var(--imperial);
+  }
+
+  .registro {
+    margin-top: 28px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--secundario);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abertura, .abertura *,
+    .canais, .canais *,
+    .corpo, .corpo * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
