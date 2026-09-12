@@ -1,0 +1,186 @@
+---
+/**
+ * Rodapé: migrado quase direto do protótipo (CSS linhas 391-408, HTML
+ * linhas 811-855 de `prototipo/index.html`). Duas mudanças obrigatórias
+ * em relação ao protótipo:
+ *  - os links de navegação apontam para rotas reais, não âncoras `#`;
+ *  - os dados de contato e o registro da sociedade vêm de `src/lib/site.ts`,
+ *    única fonte dos placeholders, marcados com `data-placeholder="1"`.
+ *
+ * O bloco de registro (OAB de cada sócio, registro e CNPJ da sociedade) é
+ * exigência do Provimento 205/2021 da OAB e continua obrigatório mesmo
+ * com valores placeholder.
+ */
+import { site, rodape } from '../lib/site';
+
+const ano = new Date().getFullYear();
+---
+
+<footer class="rodape" id="rodape">
+  <div class="lastro"></div>
+  <div class="grao" style="filter:url(#grao)"></div>
+  <div class="env rodape-env">
+    <div class="marca-pe">
+      <p class="registro" data-placeholder="1">
+        {site.nomeSociedade}<br />
+        Registro {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}<br />
+        {site.socios.map((socio, indice) => (
+          <>
+            {socio.nome}, {socio.oab.valor}
+            {indice < site.socios.length - 1 ? ' · ' : ''}
+          </>
+        ))}
+        <br />
+        <span style="color:var(--imperial)">Inscrições são placeholder. Entram as reais antes de publicar.</span>
+      </p>
+    </div>
+
+    <nav class="pe-nav" aria-label="Rodapé">
+      <div>
+        <h4>Navegar</h4>
+        {rodape.navegar.map((item) => <a href={item.href}>{item.rotulo}</a>)}
+      </div>
+      <div>
+        <h4>Falar</h4>
+        <a
+          href={site.whatsapp.valor}
+          target="_blank"
+          rel="noopener"
+          data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
+        >
+          WhatsApp
+        </a>
+        <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>
+          {site.email.valor}
+        </a>
+        <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefoneE164.placeholder ? '1' : undefined}>
+          {site.telefone.valor}
+        </a>
+        <p>{site.horario}</p>
+      </div>
+      <div>
+        <h4>Onde</h4>
+        <p>{site.cidade}, {site.estado}<br />Atendimento {site.atendimento.toLowerCase()}</p>
+        <a href={site.redes.instagram.valor} data-placeholder={site.redes.instagram.placeholder ? '1' : undefined}>
+          Instagram
+        </a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        {rodape.legal.map((item) => <a href={item.href}>{item.rotulo}</a>)}
+        <p>Os textos deste site são informativos e não substituem uma consulta.</p>
+      </div>
+    </nav>
+
+    <div class="pe-fim">
+      <p>© {ano} {site.nomeCurto}</p>
+      <p><a href="https://gabrielfelix-ux.4yu.com.br" rel="noopener">Site por Gabriel Felix</a></p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .rodape {
+    position: relative;
+    overflow: hidden;
+    background: var(--tinta);
+    color: #fff;
+    padding-block: clamp(64px, 8vw, 120px) 32px;
+    clip-path: polygon(0 2.6vw, 100% 0, 100% 100%, 0 100%);
+  }
+  /* Textura de grão só sobre o azul escuro do rodapé — nunca sobre branco. */
+  .rodape .lastro {
+    position: absolute;
+    inset: -16% -8%;
+    background: linear-gradient(160deg, #0b1e3f 30%, #1a3358 70%, #2a2540);
+  }
+  .rodape .grao {
+    position: absolute;
+    inset: 0;
+    opacity: 0.26;
+    mix-blend-mode: overlay;
+    background: #8aa0bc;
+  }
+  .rodape-env {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: clamp(40px, 5vw, 72px);
+  }
+  .marca-pe {
+    display: grid;
+    gap: 32px;
+    align-items: start;
+  }
+  .registro {
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0;
+  }
+  .pe-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .pe-nav h4 {
+    font: 500 12px/1 var(--sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0 0 18px;
+  }
+  .pe-nav a,
+  .pe-nav p {
+    display: block;
+    font-size: 16px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.86);
+    text-decoration: none;
+    margin: 0 0 10px;
+  }
+  .pe-nav a {
+    padding-block: 4px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+  }
+  .pe-nav a:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .pe-fim {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .pe-fim a {
+    color: inherit;
+  }
+  @media (max-width: 900px) {
+    .pe-nav {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .pe-nav {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rodape * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

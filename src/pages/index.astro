@@ -1,4 +1,17 @@
 ---
-// Página provisória: só para o build passar. A home de verdade entra na Tarefa 6.
+// Página provisória: só para provar que Base.astro funciona (cabeçalho,
+// filtro de grão, rodapé). A home de verdade — todas as seções — entra na
+// Tarefa 6.
+import Base from '../layouts/Base.astro';
 ---
-<h1>Bertoncini &amp; Mendonça Advogados</h1>
+
+<Base
+  titulo="Bertoncini & Mendonça Advogados"
+  descricao="Advocacia em Maringá, PR, com atuação em Direito de Família e Compliance."
+  paginaAtual="/"
+>
+  <div class="env" style="padding-block: 48px;">
+    <h1>Bertoncini &amp; Mendonça Advogados</h1>
+    <p>Página de teste do layout base. A home definitiva entra na Tarefa 6.</p>
+  </div>
+</Base>

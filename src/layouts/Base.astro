@@ -1,0 +1,85 @@
+---
+/**
+ * Layout base: todo `<head>`, o link "pular para o conteúdo", o filtro SVG
+ * de grão (assinatura visual do site, precisa existir em toda página), a
+ * Navbar nova e o Rodapé. Cada página fornece seu próprio título e
+ * descrição — nada de texto de SEO fixo aqui.
+ */
+import '../styles/tokens.css';
+import '../styles/fontes.css';
+import '../styles/base.css';
+import Navbar from '../components/Navbar.astro';
+import Rodape from '../components/Rodape.astro';
+import { site } from '../lib/site';
+
+interface Props {
+  /** Título da página (sem o nome do site — este layout não concatena sufixo). */
+  titulo: string;
+  /** Meta description específica da página. */
+  descricao: string;
+  /** href da página atual no menu, para aria-current e destaque visual. */
+  paginaAtual?: string;
+  /** true para páginas fora do índice (ex.: /painel/). */
+  noindex?: boolean;
+}
+
+const { titulo, descricao, paginaAtual, noindex = false } = Astro.props;
+
+const urlCanonica = new URL(Astro.url.pathname, site.url);
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descricao} />
+
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={urlCanonica.toString()} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.nome} />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descricao} />
+    <meta property="og:url" content={urlCanonica.toString()} />
+    <meta property="og:image" content={new URL(site.imagemPadrao, site.url).toString()} />
+    <meta property="og:locale" content={site.locale} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Preload das duas fontes críticas do primeiro paint (protótipo, linhas 7-8). -->
+    <link rel="preload" href="/fonts/newsreader-200.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/archivo-400.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+    <!-- Filtro de grão: assinatura visual do site. Usado só sobre azul
+         escuro (rodapé, chapas) — nunca sobre branco, para não sujar a
+         leitura. Precisa existir em toda página que o referencie. -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <filter id="grao"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" />
+      <feColorMatrix type="saturate" values="0" /></filter>
+    </svg>
+
+    <Navbar paginaAtual={paginaAtual} />
+
+    <main id="conteudo">
+      <slot />
+    </main>
+
+    <Rodape />
+
+    <style>
+      /* A barra é fixa (Navbar.astro); reserva o espaço dela no fluxo para
+         o conteúdo não nascer atrás dela. 72px é a altura mínima definida
+         em .barra-env; a folga extra cobre o wrap do menu em telas médias. */
+      #conteudo {
+        padding-top: 88px;
+      }
+    </style>
+  </body>
+</html>
