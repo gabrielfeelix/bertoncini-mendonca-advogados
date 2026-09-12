@@ -1,0 +1,286 @@
+---
+/**
+ * /escritorio/ — a página que responde "quem são vocês".
+ *
+ * Três blocos: a história da sociedade, os dois sócios em versão completa
+ * (retrato, OAB em destaque, bio e contato direto) e um caminho de
+ * contato ao final.
+ *
+ * REGRA QUE MANDA NESTA PÁGINA: nenhum fato sobre as pessoas foi
+ * inventado. A sociedade é nova e o escritório ainda não passou os fatos
+ * (quando foi fundada, por que os dois se uniram, trajetória de cada um,
+ * formação, inscrição na Ordem). Onde falta o fato, existe um parágrafo
+ * marcado com `data-placeholder="1"` dizendo exatamente o que falta, para
+ * a Tarefa 15 inventariar e os sócios preencherem no briefing. A bio da
+ * Beatriz continua sendo a do protótipo (linha 626): a conversa com ela
+ * ainda não aconteceu.
+ *
+ * A OAB é o ponto central: o levantamento de 44 escritórios mostrou que
+ * nenhum exibe o número de inscrição, e exibi-lo é exigência do
+ * Provimento 205/2021. Por isso ela aparece em 22px, em vermelho
+ * imperial sobre branco (8.6:1), logo abaixo de cada retrato, e não
+ * escondida no rodapé. O número em si ainda é o placeholder do protótipo.
+ *
+ * A seção dos sócios reusa `Socios.astro` no modo `completa` — o CSS da
+ * moldura, do véu e do grão é o mesmo da home, não há cópia.
+ */
+import Base from '../layouts/Base.astro';
+import Socios from '../components/Socios.astro';
+import Contato from '../components/Contato.astro';
+import { site } from '../lib/site';
+
+const socios = [
+  {
+    nome: 'Juscelino',
+    sobrenome: 'Bertoncini',
+    foto: '/media/socios/juscelino.jpeg',
+    alt: 'Retrato de Juscelino Bertoncini',
+    oab: site.socios[0].oab.valor,
+    oabPlaceholder: site.socios[0].oab.placeholder,
+    atuacao: 'Direito de família e compliance.',
+    // Único fato que o protótipo registra sobre ele (linha 623). Nada
+    // além disso foi acrescentado.
+    bio: 'Monta as regras internas que evitam que o problema chegue ao tribunal.',
+    bioCompleta: [
+      {
+        texto:
+          'Formação, ano de inscrição na Ordem e trajetória profissional a preencher com ele. Nada aqui foi escrito sem o dado confirmado.',
+        placeholder: true,
+      },
+    ],
+    contatos: [
+      {
+        rotulo: 'E-mail',
+        valor: site.email.valor,
+        href: `mailto:${site.email.valor}`,
+        placeholder: site.email.placeholder,
+      },
+      {
+        rotulo: 'Telefone',
+        valor: site.telefone.valor,
+        href: `tel:${site.telefoneE164.valor}`,
+        placeholder: site.telefone.placeholder,
+      },
+    ],
+  },
+  {
+    nome: 'Beatriz',
+    sobrenome: 'Mendonça',
+    foto: '/media/socios/beatriz.jpeg',
+    alt: 'Retrato de Beatriz Mendonça',
+    oab: site.socios[1].oab.valor,
+    oabPlaceholder: site.socios[1].oab.placeholder,
+    // Sem `atuacao`: as áreas dela ainda não foram definidas com ela.
+    bio: 'Bio a escrever com ela, depois da conversa que ainda não aconteceu.',
+    bioPlaceholder: true,
+    bioCompleta: [
+      {
+        texto:
+          'Áreas de atuação, formação, ano de inscrição na Ordem e trajetória profissional a preencher com ela, na mesma conversa.',
+        placeholder: true,
+      },
+    ],
+    contatos: [
+      {
+        rotulo: 'E-mail',
+        valor: site.email.valor,
+        href: `mailto:${site.email.valor}`,
+        placeholder: site.email.placeholder,
+      },
+      {
+        rotulo: 'Telefone',
+        valor: site.telefone.valor,
+        href: `tel:${site.telefoneE164.valor}`,
+        placeholder: site.telefone.placeholder,
+      },
+    ],
+    estiloFoto: 'object-position:50% 26%;filter:brightness(1.22) contrast(.96) saturate(1.06)',
+  },
+];
+---
+
+<Base
+  titulo="O escritório | Bertoncini & Mendonça Advogados"
+  descricao="Quem somos: os dois sócios de Bertoncini & Mendonça, em Maringá, com inscrição na OAB do Paraná, áreas de atuação e contato direto."
+  paginaAtual="/escritorio/"
+>
+  <!-- Abertura: diz o que a página é, sem prometer resultado e sem
+       superlativo. Os dois parágrafos só afirmam o que se sabe. -->
+  <section class="secao abertura">
+    <div class="env">
+      <p class="chapeu">O escritório</p>
+      <h1 class="display">Somos dois advogados, e é com um de nós que você fala.</h1>
+      <p class="linha-fina">
+        Bertoncini &amp; Mendonça é uma sociedade nova, com base em Maringá e atendimento
+        online para todo o Paraná. Quem recebe o caso na primeira conversa é quem responde
+        por ele até o fim.
+      </p>
+    </div>
+  </section>
+
+  <!-- História da sociedade. A estrutura está pronta; os fatos ainda não
+       existem. Cada lacuna é um parágrafo marcado, com o texto do que
+       falta, para os sócios preencherem no briefing da Tarefa 15. -->
+  <section class="secao historia" id="historia">
+    <div class="env">
+      <h2 class="display">Como esta sociedade começou.</h2>
+      <div class="corpo">
+        <p data-placeholder="1">
+          Quando a sociedade foi constituída e em que circunstância os dois decidiram
+          trabalhar juntos: a preencher com os sócios. Esta página não registra nenhuma
+          data que ainda não foi confirmada.
+        </p>
+        <p data-placeholder="1">
+          O que cada um trouxe para a sociedade, e o que os dois entenderam que faltava no
+          atendimento que viam ser oferecido: a preencher com os sócios.
+        </p>
+        <p>
+          O que já está decidido é o modo de trabalhar. São dois sócios e nenhuma camada
+          entre o cliente e o processo. Na primeira conversa fica claro o que existe, o que
+          é possível fazer, quanto tempo costuma levar e quanto custa. Só depois disso o
+          caso anda.
+        </p>
+        <p>
+          A sociedade está registrada na Ordem dos Advogados do Brasil, Seccional do
+          Paraná, e os dados de registro ficam abaixo, na forma exigida pelo Provimento
+          205/2021.
+        </p>
+      </div>
+
+      <!-- Registro da sociedade: exigência do Provimento 205/2021. Os dois
+           valores ainda são placeholder (fonte: src/lib/site.ts). -->
+      <dl class="registro">
+        <div>
+          <dt>Sociedade</dt>
+          <dd>{site.nomeSociedade}</dd>
+        </div>
+        <div>
+          <dt>Registro na OAB/PR</dt>
+          <dd data-placeholder={site.registro.oabSociedade.placeholder ? '1' : undefined}>
+            {site.registro.oabSociedade.valor}
+          </dd>
+        </div>
+        <div>
+          <dt>CNPJ</dt>
+          <dd data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>
+            {site.registro.cnpj.valor}
+          </dd>
+        </div>
+        <div>
+          <dt>Base</dt>
+          <dd>{site.cidade}, {site.estado}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- Os dois sócios, versão completa do mesmo componente da home. -->
+  <section class="secao cabeca-socios">
+    <div class="env">
+      <h2 class="display">Quem assina.</h2>
+      <p class="linha-fina">
+        A inscrição de cada um na Ordem dos Advogados do Brasil está abaixo do retrato,
+        junto com o contato direto.
+      </p>
+    </div>
+  </section>
+  <Socios socios={socios} variante="completa" nivel="h3" id="socios" />
+
+  <Contato
+    titulo="Fale com um dos dois."
+    horario="Segunda a sexta, das 9h às 18h. Fora do horário a mensagem fica registrada."
+  />
+</Base>
+
+<style>
+  .abertura {
+    padding-block: clamp(56px, 7vw, 104px) clamp(40px, 5vw, 72px);
+  }
+  .chapeu {
+    font-size: 16px;
+    color: var(--secundario);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .abertura h1 {
+    font-size: clamp(36px, 6vw, 82px);
+    max-width: 16ch;
+  }
+  .linha-fina {
+    margin-top: 24px;
+    max-width: 54ch;
+    font-size: 19px;
+    color: var(--secundario);
+  }
+
+  .historia {
+    padding-block: clamp(48px, 6vw, 96px);
+  }
+  .historia :global(.env) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(28px, 5vw, 88px);
+    align-items: start;
+  }
+  .historia h2 {
+    font-size: clamp(30px, 4.4vw, 56px);
+    max-width: 14ch;
+  }
+  .historia .corpo {
+    font-size: 18px;
+    color: var(--secundario);
+    max-width: 52ch;
+  }
+  .historia .corpo p + p {
+    margin-top: 18px;
+  }
+  /* O registro ocupa a linha inteira do grid, abaixo das duas colunas. */
+  .registro {
+    grid-column: 1 / -1;
+    margin: clamp(28px, 4vw, 48px) 0 0;
+    border-top: 1px solid var(--linha);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0 clamp(20px, 4vw, 56px);
+  }
+  .registro > div {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--linha);
+  }
+  .registro dt {
+    font-size: 16px;
+    color: var(--secundario);
+  }
+  .registro dd {
+    margin: 4px 0 0;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 900px) {
+    .historia :global(.env) {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
+  .cabeca-socios {
+    padding-block: clamp(40px, 5vw, 80px) 0;
+  }
+  .cabeca-socios h2 {
+    font-size: clamp(30px, 4.4vw, 56px);
+  }
+
+  /* Todo movimento desligado sob prefers-reduced-motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .abertura,
+    .abertura *,
+    .historia,
+    .historia *,
+    .cabeca-socios,
+    .cabeca-socios * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

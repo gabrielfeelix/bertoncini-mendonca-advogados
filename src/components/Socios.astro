@@ -3,6 +3,11 @@
  * Sócios: dois retratos em coluna, com a assinatura sobreposta, a OAB e a
  * bio. Migrado do protótipo (CSS linhas 225-250, HTML linhas 601-628).
  *
+ * Dois modos, mesmo CSS (a página `/escritorio/` não duplica nada):
+ * - `variante="curta"` (padrão): o que a home mostra, um parágrafo de bio.
+ * - `variante="completa"`: vários parágrafos de bio, a OAB em destaque e
+ *   o contato direto de cada sócio. É o modo da página do escritório.
+ *
  * A OAB de cada sócio é exigência do Provimento 205/2021 e vem de
  * `src/lib/site.ts`, onde está marcada como placeholder. Nenhum valor de
  * inscrição é inventado aqui.
@@ -26,8 +31,16 @@ interface Socio {
   oab: string;
   /** true quando a inscrição ainda é placeholder. */
   oabPlaceholder?: boolean;
-  /** Bio curta. */
+  /** Bio curta (modo `curta`) ou primeiro parágrafo (modo `completa`). */
   bio: string;
+  /** true quando a bio ainda é placeholder a escrever com o sócio. */
+  bioPlaceholder?: boolean;
+  /** Parágrafos extras da bio, só usados no modo `completa`. */
+  bioCompleta?: { texto: string; placeholder?: boolean }[];
+  /** Linha de atuação, exibida acima da bio no modo `completa`. */
+  atuacao?: string;
+  /** Contato direto do sócio, só exibido no modo `completa`. */
+  contatos?: { rotulo: string; valor: string; href: string; placeholder?: boolean }[];
   /** `style` inline do `<img>`, para enquadrar/corrigir cada foto. */
   estiloFoto?: string;
 }
@@ -35,6 +48,12 @@ interface Socio {
 interface Props {
   /** Lista de sócios, na ordem. */
   socios?: Socio[];
+  /** `curta` é a versão da home; `completa` é a da página do escritório. */
+  variante?: 'curta' | 'completa';
+  /** Nível do cabeçalho da assinatura, para a hierarquia da página. */
+  nivel?: 'h2' | 'h3';
+  /** id da `<section>`, quando a página precisa apontar para ela. */
+  id?: string;
 }
 
 const {
@@ -59,10 +78,15 @@ const {
       estiloFoto: 'object-position:50% 26%;filter:brightness(1.22) contrast(.96) saturate(1.06)',
     },
   ],
+  variante = 'curta',
+  nivel = 'h3',
+  id = 'socios',
 }: Props = Astro.props;
+
+const Assina = nivel;
 ---
 
-<section class="secao socios" id="socios">
+<section class="secao socios" id={id} class:list={{ completa: variante === 'completa' }}>
   <div class="env">
     {socios.map((socio) => (
       <article class="par sobe">
@@ -71,11 +95,47 @@ const {
             <img src={socio.foto} alt={socio.alt} loading="lazy" style={socio.estiloFoto} />
             <div class="chapa"></div><div class="veu"></div>
             <div class="grao" style="filter:url(#grao)"></div>
-            <h3 class="assina">{socio.nome}<br />{socio.sobrenome}</h3>
+            <Assina class="assina">{socio.nome}<br />{socio.sobrenome}</Assina>
           </div>
         </figure>
-        <p class="oab" data-placeholder={socio.oabPlaceholder ? '1' : undefined}>{socio.oab}</p>
-        <p class="bio">{socio.bio}</p>
+
+        {variante === 'completa' ? (
+          <>
+            {/* A OAB fica logo abaixo do retrato, em corpo de texto e em
+                vermelho imperial sobre branco (contraste 8.6:1). O
+                Provimento 205/2021 exige a inscrição; o levantamento
+                mostrou que nenhum dos 44 escritórios a exibe, então aqui
+                ela é informação de primeira linha, não nota de rodapé. */}
+            <p class="oab grande" data-placeholder={socio.oabPlaceholder ? '1' : undefined}>
+              <span class="oab-rotulo">Inscrição na Ordem</span>
+              <span class="oab-numero">{socio.oab}</span>
+            </p>
+            {socio.atuacao && <p class="atuacao">{socio.atuacao}</p>}
+            <div class="bio longa">
+              <p data-placeholder={socio.bioPlaceholder ? '1' : undefined}>{socio.bio}</p>
+              {(socio.bioCompleta ?? []).map((paragrafo) => (
+                <p data-placeholder={paragrafo.placeholder ? '1' : undefined}>{paragrafo.texto}</p>
+              ))}
+            </div>
+            {socio.contatos && socio.contatos.length > 0 && (
+              <ul class="contatos">
+                {socio.contatos.map((contato) => (
+                  <li>
+                    <a href={contato.href} data-placeholder={contato.placeholder ? '1' : undefined}>
+                      <span class="contato-rotulo">{contato.rotulo}</span>
+                      <span class="contato-valor">{contato.valor}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        ) : (
+          <>
+            <p class="oab" data-placeholder={socio.oabPlaceholder ? '1' : undefined}>{socio.oab}</p>
+            <p class="bio">{socio.bio}</p>
+          </>
+        )}
       </article>
     ))}
   </div>
@@ -168,6 +228,92 @@ const {
     color: var(--secundario);
     font-size: 16.5px;
     max-width: 36ch;
+  }
+
+  /* ---- variante completa (página do escritório) ----
+     Mesma moldura e mesmo grid; só o bloco de texto abaixo do retrato
+     muda. Nada de CSS duplicado noutro arquivo. */
+
+  /* Na página do escritório os dois sócios ficam alinhados: o desnível
+     de 132px é gesto editorial da home e atrapalha a leitura em par de
+     duas bios longas. */
+  .socios.completa .par:nth-child(2) {
+    margin-top: 0;
+  }
+  .socios.completa .par .bio {
+    max-width: 46ch;
+  }
+
+  /* OAB em destaque. 20px, vermelho imperial (#9B1C2E) sobre branco:
+     8.6:1, bem acima do AA. Fica logo abaixo do retrato. */
+  .oab.grande {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 18px;
+    border: 1px solid var(--linha);
+    border-left: 3px solid var(--imperial);
+    border-radius: 10px;
+    font-size: 20px;
+  }
+  .oab.grande .oab-rotulo {
+    font-size: 15px;
+    color: var(--secundario);
+    letter-spacing: 0.02em;
+  }
+  .oab.grande .oab-numero {
+    color: var(--imperial);
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  .par .atuacao {
+    margin-top: 20px;
+    font-size: 18px;
+    color: var(--tinta);
+  }
+  .par .bio.longa {
+    margin-top: 14px;
+    color: var(--secundario);
+    font-size: 18px;
+  }
+  .par .bio.longa p + p {
+    margin-top: 14px;
+  }
+
+  .contatos {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--linha);
+  }
+  .contatos li {
+    border-bottom: 1px solid var(--linha);
+  }
+  /* Alvo de toque: 44px de altura garantidos pelo min-height e pelo
+     padding; a largura é a da linha inteira. */
+  .contatos a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    min-height: 52px;
+    padding: 12px 0;
+    text-decoration: none;
+    font-size: 18px;
+  }
+  .contatos .contato-rotulo {
+    color: var(--secundario);
+    font-size: 16px;
+    min-width: 108px;
+  }
+  .contatos .contato-valor {
+    border-bottom: 1px solid var(--linha);
+  }
+  .contatos a:hover .contato-valor {
+    border-color: var(--tinta);
   }
 
   /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
