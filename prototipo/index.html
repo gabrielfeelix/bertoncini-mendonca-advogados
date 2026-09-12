@@ -620,7 +620,7 @@ video{display:block}
 </section>
 
 <section class="corte">
-  <video class="filme" src="media/faixa.mp4" autoplay muted loop playsinline preload="none"></video>
+  <video class="filme" data-src="media/faixa.mp4" autoplay muted loop playsinline preload="none"></video>
   <div class="lavagem"></div>
   <div class="env">
     <h2 class="display sobe">Quem atende na primeira conversa é quem assina a petição.</h2>
@@ -1062,6 +1062,15 @@ if (!calmo && 'IntersectionObserver' in window) {
 } else {
   document.querySelectorAll('.sobe').forEach(function(n){ n.classList.add('visivel'); });
   document.querySelectorAll('.revela').forEach(function(n){ n.classList.add('aberta'); });
+}
+
+/* vídeo da faixa: só recebe src quando a seção se aproxima da tela */
+var tardio = document.querySelector(".corte .filme");
+if (tardio && !calmo){
+  var olhoV = new IntersectionObserver(function(es){
+    if (es[0].isIntersecting){ tardio.src = tardio.dataset.src; tardio.play().catch(function(){}); olhoV.disconnect(); }
+  }, { rootMargin: "600px 0px" });
+  olhoV.observe(tardio);
 }
 
 /* magnetismo: o botão desliza até 6px na direção do cursor. Só com
