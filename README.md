@@ -3,7 +3,8 @@
 Site institucional para o escritório de advocacia Bertoncini & Mendonça, de
 Maringá/PR. Sociedade nova entre Juscelino Bertoncini e Beatriz Mendonça.
 
-**Fase atual: descoberta.** Não há código de site ainda. O que existe aqui é a
+**Fase atual: protótipo.** `prototipo/index.html` é a homepage em arquivo único,
+aguardando os dados reais do briefing. O que existe aqui também é a
 documentação do projeto, o material de marca e o questionário de briefing, que
 está publicado esperando resposta dos sócios.
 
@@ -23,6 +24,7 @@ está publicado esperando resposta dos sócios.
 | `docs/PERGUNTAS.md` | Conteúdo do questionário de briefing |
 | `docs/ESCOPO.md` | As 7 frentes de trabalho |
 | `docs/supabase-briefing.sql` | Tabela que guarda as respostas do formulário |
+| `docs/PLANO-HOMEPAGE.md` | Plano executado do protótipo da homepage; o que cada seção carrega e por quê |
 
 ## Material de marca
 

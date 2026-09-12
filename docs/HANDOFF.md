@@ -1,7 +1,7 @@
 # Handoff — 10/09/2026
 
 > Para o próximo agente. Lê este arquivo primeiro, depois os quatro que ele aponta.
-> Estado: **planejamento e descoberta. Nada de site ainda.**
+> Estado: **protótipo da homepage completo, aguardando dados reais do briefing.**
 
 ---
 
@@ -10,6 +10,24 @@
 Site institucional para o escritório de advocacia **Bertoncini & Mendonça** (Maringá/PR),
 que está nascendo. O cliente é amigo do Gabriel. A fase atual é **entender** — o
 questionário de briefing está pronto e publicado, esperando resposta.
+
+---
+
+## Protótipo da homepage (12/09/2026)
+
+`prototipo/index.html`, um arquivo. Doze seções, entrada, rolagem suave, reveals,
+método, rodapé, aviso de cookies. Funciona sem JS e sem movimento.
+
+Verificar: `node tools/verifica.mjs` (capturas em `tools/shots/`).
+
+**Placeholders que dependem do briefing** (todos marcados com `data-placeholder="1"`,
+12 ocorrências): OAB dos sócios, registro da sociedade, CNPJ, telefone, e-mail,
+Instagram, bio da Beatriz, terceira e quarta área, textos e capas do blog, prazo
+de resposta, texto do aviso de cookies, política de privacidade.
+
+**Próximo plano:** migrar para Astro a partir do CMS de `isabella-pires-arquitetura`,
+páginas de área e de artigo, formulário de contato, GA4 e Clarity ligados ao
+evento `consentimento`.
 
 ---
 
