@@ -48,7 +48,14 @@ video{display:block}
   max-width:calc(100vw - 24px);
   transform:translateX(-50%);
   transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .35s}
-.nav.oculta{transform:translateX(-50%) translateY(-160%);opacity:0}
+.nav.oculta{transform:translateX(-50%) translateY(-160%);opacity:0;pointer-events:none}
+/* visibility:hidden tiraria os links da ordem de Tab de vez (o navegador
+   nem entrega foco a eles), e aí :focus-within nunca dispararia para
+   trazer a nav de volta — por isso ela some só por opacity+transform,
+   que mantém os links alcançáveis por teclado. pointer-events:none evita
+   clique/hover no estado oculto; o :focus-within abaixo devolve tudo
+   (pointer-events incluso) assim que o foco chega em qualquer link. */
+.nav.oculta:focus-within{transform:translateX(-50%);opacity:1;pointer-events:auto}
 .ilha{position:relative;display:flex;align-items:center;border-radius:999px;
   background:rgba(9,23,48,.44);border:1px solid rgba(255,255,255,.20);
   backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);
@@ -265,6 +272,7 @@ video{display:block}
   color:var(--imperial);opacity:.9}
 .passo h3{font-family:var(--serif);font-weight:300;font-size:clamp(24px,2.4vw,34px);letter-spacing:-.02em;line-height:1.1}
 .passo p{margin-top:10px;max-width:46ch;color:var(--secundario)}
+.passo h3,.passo p{grid-column:2}
 .js .metodo.viva .passo{color:var(--secundario)}
 .js .metodo.viva .passo.foco{color:var(--tinta)}
 .valem{grid-column:1 / -1;list-style:none;margin:clamp(48px,6vw,88px) 0 0;padding:clamp(28px,3vw,40px) 0 0;
@@ -339,6 +347,7 @@ video{display:block}
   padding:6px 0;min-width:0}
 .campo input::placeholder{color:rgba(255,255,255,.42)}
 .campo input:focus{outline:none}
+.campo input:focus-visible{outline:2px solid var(--imperial);outline-offset:2px}
 .campo button{width:46px;height:46px;flex:none;border-radius:50%;border:0;background:var(--imperial);
   color:#fff;cursor:pointer;display:grid;place-items:center;transition:transform .35s,background .3s}
 .campo button:hover{transform:rotate(45deg) scale(1.06)}
@@ -1032,6 +1041,11 @@ if (calmo || jaViu){
   addEventListener('scroll', passo, {passive:true});
   addEventListener('resize', function(){ var a = centro.querySelector('.aqui'); poe(a); });
 
+  /* se o foco entra na nav escondida, ela some da classe .oculta de vez
+     (o CSS :focus-within já reexibe na hora, isso evita que a próxima
+     rolagem, disparada por passo(), esconda tudo de novo com o foco lá dentro) */
+  nav.addEventListener('focusin', function(){ nav.classList.remove('oculta'); });
+
   abre.addEventListener('click', function(){
     var aberto = lencol.dataset.aberto === '1';
     lencol.dataset.aberto = aberto ? '' : '1';
@@ -1052,7 +1066,12 @@ if (calmo || jaViu){
 if (!calmo && 'IntersectionObserver' in window) {
   var olho = new IntersectionObserver(function(es){
     es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visivel'); olho.unobserve(e.target);} });
-  }, {threshold:.15, rootMargin:'0px 0px -6% 0px'});
+  /* threshold 0: um elemento que só encostou a borda da viewport já revela.
+     Um .sobe alto (ex.: o acordeão de perguntas) pode ganhar foco por Tab
+     com só uma fatia visível, e com threshold alto isso nunca passava do
+     limite e a seção ficava opacity:0 sob o foco. O rootMargin negativo
+     ainda segura o atraso estético para quem rola normalmente. */
+  }, {threshold:0, rootMargin:'0px 0px -6% 0px'});
   document.querySelectorAll('.sobe').forEach(function(n){ olho.observe(n); });
 
   var olhoImg = new IntersectionObserver(function(es){
@@ -1063,6 +1082,24 @@ if (!calmo && 'IntersectionObserver' in window) {
   document.querySelectorAll('.sobe').forEach(function(n){ n.classList.add('visivel'); });
   document.querySelectorAll('.revela').forEach(function(n){ n.classList.add('aberta'); });
 }
+
+/* rede de segurança: o foco nunca pode pousar num elemento ainda invisível.
+   Cobre dois casos: (1) threshold/rootMargin não dispararam a tempo (Tab
+   pulando direto para dentro de uma seção alta), e (2) o Observer disparou
+   junto com o salto do Tab (o navegador rola instantaneamente até o
+   elemento focado) mas o fade de .8s ainda está em andamento — nesse
+   instante o elemento já tem a classe 'visivel'/'aberta' mas continua com
+   opacity baixa, apagando o foco por quase 1s. Por isso a transição é
+   desligada e a classe reforçada sem animação sempre que o foco entra num
+   .sobe ou .revela, tenha ele acabado de ganhar a classe ou não. */
+document.addEventListener("focusin", function(e){
+  var alvo = e.target.closest(".sobe, .revela");
+  if (!alvo) return;
+  alvo.style.transition = "none";
+  alvo.classList.add(alvo.classList.contains("sobe") ? "visivel" : "aberta");
+  alvo.offsetHeight; /* força o reflow antes de devolver a transição */
+  alvo.style.transition = "";
+});
 
 /* vídeo da faixa: só recebe src quando a seção se aproxima da tela */
 var tardio = document.querySelector(".corte .filme");
