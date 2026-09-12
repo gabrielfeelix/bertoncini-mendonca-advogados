@@ -1,0 +1,332 @@
+---
+/**
+ * /politica-de-privacidade/ — exigência da LGPD, já linkada no rodapé.
+ *
+ * A POSTURA DESTA PÁGINA. O cliente é um escritório de advocacia, e quem
+ * escreveu este arquivo não é advogado. Escrever um texto jurídico definitivo
+ * aqui seria, além de imprudente, ridículo: o cliente sabe mais sobre isto do
+ * que nós. O protótipo já registra essa posição no aviso de cookies (linha
+ * 860): "Texto provisório. O definitivo vem do Juscelino."
+ *
+ * O que esta página FAZ, então: monta a estrutura correta e completa que a
+ * LGPD exige, e descreve com precisão o que o site de fato faz, porque isso
+ * nós sabemos. Onde a resposta depende de uma decisão do escritório (quem é o
+ * encarregado, por quanto tempo cada dado fica guardado, se haverá medição e
+ * com que ferramenta), o trecho fica marcado com `data-placeholder="1"` e diz
+ * exatamente o que falta, em vez de chutar um prazo plausível. A Tarefa 15
+ * inventaria essas marcações.
+ *
+ * O que é verdade hoje e está escrito como verdade:
+ * - os dados coletados são exatamente os cinco campos de `/contato/` mais o
+ *   e-mail da newsletter, e nada além disso;
+ * - os terceiros são Vercel (hospedagem) e Brevo (e-mail e lista), que são os
+ *   únicos serviços que as rotas em `src/pages/api/` chamam;
+ * - nenhuma ferramenta de medição está ligada. Conferido, não presumido:
+ *   `src/lib/consentimento.ts` tem a função que ligaria uma, e nenhuma
+ *   chamada a ela existe no site.
+ *
+ * SE A MEDIÇÃO FOR LIGADA, esta página e a de cookies passam a mentir. As
+ * duas precisam mudar junto, antes de o script entrar.
+ */
+import Base from '~/layouts/Base.astro';
+import { site } from '~/lib/site';
+import '~/styles/politica.css';
+
+const secoes = [
+  { id: 'quem-trata', rotulo: 'Quem trata os seus dados' },
+  { id: 'dados', rotulo: 'Que dados coletamos' },
+  { id: 'finalidade', rotulo: 'Para que usamos' },
+  { id: 'base-legal', rotulo: 'Com que base legal' },
+  { id: 'sigilo', rotulo: 'Sigilo profissional' },
+  { id: 'compartilhamento', rotulo: 'Com quem compartilhamos' },
+  { id: 'prazo', rotulo: 'Por quanto tempo guardamos' },
+  { id: 'direitos', rotulo: 'Os seus direitos' },
+  { id: 'encarregado', rotulo: 'Encarregado pelos dados' },
+  { id: 'seguranca', rotulo: 'Segurança' },
+  { id: 'mudancas', rotulo: 'Mudanças nesta política' },
+  { id: 'falar', rotulo: 'Como falar conosco' },
+];
+---
+
+<Base
+  titulo="Política de privacidade | Bertoncini & Mendonça Advogados"
+  descricao="Como o escritório Bertoncini & Mendonça trata os dados pessoais de quem usa este site: que dados são coletados, para quê, com que base legal e quais são os seus direitos."
+>
+  <article class="politica">
+    <div class="env">
+      <p class="chapeu">Documento legal</p>
+      <h1>Política de privacidade</h1>
+      <p class="atualizado" data-placeholder="1">
+        <span class="marca-falta">A definir</span>
+        Data da última atualização a preencher quando o escritório aprovar o texto
+        definitivo.
+      </p>
+
+      <div class="ressalva">
+        <p>
+          <strong>Este texto ainda é provisório.</strong> Ele foi montado com a
+          estrutura que a Lei Geral de Proteção de Dados exige e descreve o que este
+          site de fato faz. Os trechos em vermelho dependem de uma decisão do
+          escritório e estão marcados como tal. O texto definitivo vem dos sócios.
+        </p>
+      </div>
+
+      <nav class="sumario" aria-label="Seções desta política">
+        <h2>Nesta página</h2>
+        <ol>
+          {secoes.map((secao) => (
+            <li><a href={`#${secao.id}`}>{secao.rotulo}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="texto">
+        <p>
+          Esta política explica o que acontece com os seus dados quando você usa este
+          site, em especial quando preenche o formulário de contato ou se inscreve na
+          nossa lista de textos. Ela descreve o funcionamento real do site e foi
+          escrita para ser lida.
+        </p>
+
+        <h2 id="quem-trata">Quem trata os seus dados</h2>
+        <p>
+          O controlador dos dados, na definição do art. 5º, VI, da Lei nº 13.709/2018,
+          é a sociedade de advogados abaixo. Controlador é quem decide o que é
+          coletado e para quê.
+        </p>
+        <ul>
+          <li>{site.nomeSociedade}</li>
+          <li data-placeholder={site.registro.oabSociedade.placeholder ? '1' : undefined}>
+            Registro na Ordem dos Advogados do Brasil: {site.registro.oabSociedade.valor}
+          </li>
+          <li data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>
+            CNPJ {site.registro.cnpj.valor}
+          </li>
+          <li data-placeholder={site.email.placeholder ? '1' : undefined}>
+            E-mail: {site.email.valor}
+          </li>
+          <li>{site.cidade}, {site.estado}</li>
+        </ul>
+        <p data-placeholder="1">
+          <span class="marca-falta">A definir</span>
+          Endereço completo da sede a preencher. O escritório ainda não forneceu o
+          endereço de atendimento presencial.
+        </p>
+
+        <h2 id="dados">Que dados coletamos</h2>
+        <h3>Dados que você nos entrega</h3>
+        <p>
+          São os campos do formulário de contato, e apenas eles. Nenhum outro dado é
+          pedido em nenhum outro ponto do site:
+        </p>
+        <ul>
+          <li><strong>Nome:</strong> para saber como nos dirigir a você na resposta.</li>
+          <li><strong>E-mail:</strong> para responder.</li>
+          <li><strong>Telefone:</strong> opcional, se você preferir contato por telefone.</li>
+          <li><strong>Assunto:</strong> opcional, para situar do que se trata antes da leitura.</li>
+          <li><strong>Mensagem:</strong> o que você escrever.</li>
+        </ul>
+        <p>
+          Se você se inscrever na nossa lista de textos, coletamos <strong>apenas o
+          e-mail</strong>.
+        </p>
+        <p>
+          Se preferir falar pelo WhatsApp, a conversa acontece dentro do aplicativo e
+          vale a política de privacidade da plataforma, sobre a qual não temos
+          controle. O que você nos escrever por lá é tratado por nós com o mesmo
+          cuidado descrito aqui.
+        </p>
+
+        <h3>Dados coletados automaticamente</h3>
+        <p>
+          <strong>Neste momento, nenhum.</strong> Não há ferramenta de estatística
+          ligada neste site: nem Google Analytics, nem mapa de calor, nem pixel de
+          rede social. O aviso de cookies pergunta pela sua escolha e guarda a
+          resposta no seu próprio navegador, para não perguntar de novo a cada
+          página, e essa resposta não sai daqui.
+        </p>
+        <p data-placeholder="1">
+          <span class="marca-falta">A definir</span>
+          Se o escritório vai medir as visitas ao site e, em caso positivo, com qual
+          ferramenta. Enquanto a decisão não vier, esta política não cita nenhuma
+          ferramenta de medição, porque nenhuma está em uso. No dia em que uma for
+          ligada, este trecho e a
+          <a href="/politica-de-cookies/">política de cookies</a> precisam ser
+          atualizados antes.
+        </p>
+        <p>
+          <strong>Não pedimos dados sensíveis</strong> no formulário, na definição do
+          art. 5º, II, da LGPD. Um relato que você nos envie pode, ainda assim, conter
+          informação sensível pela própria natureza do assunto, e nesse caso ele é
+          tratado sob o sigilo profissional descrito adiante.
+        </p>
+
+        <h2 id="finalidade">Para que usamos</h2>
+        <ul>
+          <li>Ler a sua mensagem e responder.</li>
+          <li>Dar continuidade à conversa sobre o assunto que você trouxe.</li>
+          <li>Enviar os textos da nossa lista, se você tiver pedido.</li>
+          <li>Manter o site em funcionamento e protegido contra envio automatizado.</li>
+        </ul>
+        <p>
+          <strong>Não vendemos os seus dados</strong>, não os cedemos para publicidade
+          de terceiros e não usamos o seu e-mail para envios que você não pediu.
+        </p>
+
+        <h2 id="base-legal">Com que base legal</h2>
+        <p>A LGPD exige uma justificativa para cada tratamento. As nossas são:</p>
+        <ul>
+          <li>
+            <strong>Procedimentos preliminares relacionados a contrato</strong>
+            (art. 7º, V): quando você escreve pedindo orientação, tratar os seus dados
+            é o que nos permite responder.
+          </li>
+          <li>
+            <strong>Consentimento</strong> (art. 7º, I): para a lista de textos, que só
+            é enviada a quem pediu, e para qualquer cookie que não seja necessário ao
+            funcionamento do site.
+          </li>
+          <li>
+            <strong>Cumprimento de obrigação legal ou regulatória</strong> (art. 7º, II):
+            para o que a legislação e as normas da Ordem dos Advogados do Brasil nos
+            obrigam a registrar e guardar.
+          </li>
+          <li>
+            <strong>Exercício regular de direitos</strong> (art. 7º, VI): para guardar
+            registro do que foi tratado, se isso vier a ser necessário em processo.
+          </li>
+          <li>
+            <strong>Legítimo interesse</strong> (art. 7º, IX): para proteger o site
+            contra abuso, como o envio automatizado de formulários por robôs.
+          </li>
+        </ul>
+
+        <h2 id="sigilo">Sigilo profissional</h2>
+        <p>
+          O que você nos conta está protegido pelo sigilo profissional do advogado, que
+          é dever previsto no art. 34, VII, do Estatuto da Advocacia (Lei nº 8.906/1994)
+          e no Código de Ética e Disciplina da Ordem dos Advogados do Brasil. Esse dever
+          é mais rígido do que a LGPD e não depende de você ter contratado o escritório:
+          ele vale desde a primeira mensagem.
+        </p>
+        <p>
+          Na prática, isso significa que o conteúdo do que você escreve não é comentado
+          fora do escritório, não é usado como exemplo e não aparece em nenhuma
+          publicação nossa.
+        </p>
+
+        <h2 id="compartilhamento">Com quem compartilhamos</h2>
+        <p>
+          Somente com quem é necessário para o site funcionar. São fornecedores de
+          tecnologia, que tratam os dados por nossa conta e não podem usá-los para fins
+          próprios:
+        </p>
+        <ul>
+          <li><strong>Vercel:</strong> hospeda o site e o entrega ao seu navegador.</li>
+          <li>
+            <strong>Brevo:</strong> envia ao escritório a mensagem que você escreveu no
+            formulário, envia a sua confirmação de recebimento e cuida da lista de
+            textos.
+          </li>
+        </ul>
+        <p>
+          Nenhum serviço de publicidade recebe dados deste site, em nenhuma hipótese.
+        </p>
+        <p>
+          Os dois fornecedores acima mantêm servidores fora do Brasil, o que caracteriza
+          <strong>transferência internacional de dados</strong> (art. 33 da LGPD).
+        </p>
+        <p>
+          Fora isso, só compartilhamos dados quando a lei ou uma ordem judicial obrigar,
+          e nos limites do que o sigilo profissional permitir.
+        </p>
+
+        <h2 id="prazo">Por quanto tempo guardamos</h2>
+        <p data-placeholder="1">
+          <span class="marca-falta">A definir</span>
+          Os prazos de retenção de cada tipo de dado a definir pelo escritório. Esta é
+          uma decisão que combina prazo prescricional, dever de guarda documental do
+          advogado e política interna do escritório, e não cabe a quem programou o site
+          arbitrá-la. Enquanto os prazos não forem definidos, esta política não afirma
+          nenhum número.
+        </p>
+        <p>
+          O que já vale, independentemente do prazo escolhido: o e-mail da lista de
+          textos fica guardado até você se descadastrar, e o link para isso está no
+          rodapé de todo envio. Passado o prazo de cada dado, ele é apagado ou
+          anonimizado.
+        </p>
+
+        <h2 id="direitos">Os seus direitos</h2>
+        <p>O art. 18 da LGPD garante que você possa, a qualquer momento, pedir para:</p>
+        <ul>
+          <li><strong>confirmar</strong> se tratamos dados seus e <strong>acessar</strong> quais são;</li>
+          <li><strong>corrigir</strong> dados incompletos, inexatos ou desatualizados;</li>
+          <li><strong>anonimizar, bloquear ou eliminar</strong> dados desnecessários ou tratados em desconformidade com a lei;</li>
+          <li><strong>portar</strong> os dados para outro fornecedor;</li>
+          <li><strong>eliminar</strong> os dados tratados com base no seu consentimento;</li>
+          <li><strong>saber com quem</strong> compartilhamos os seus dados;</li>
+          <li><strong>revogar o consentimento</strong>, sem que isso invalide o tratamento feito antes;</li>
+          <li><strong>opor-se</strong> a um tratamento que você considere indevido.</li>
+        </ul>
+        <p>
+          Alguns desses pedidos encontram limite no dever de guarda documental e no
+          sigilo profissional do advogado. Quando for o caso, explicamos qual é o limite
+          e por que ele existe, em vez de simplesmente recusar.
+        </p>
+        <p data-placeholder="1">
+          <span class="marca-falta">A definir</span>
+          Prazo de resposta a pedidos de titular a definir pelo escritório. A LGPD fixa
+          prazo apenas para o pedido de confirmação e acesso em formato simplificado
+          (quinze dias, art. 19, I). Para os demais, o prazo é o que o escritório
+          assumir, e ele não foi assumido ainda.
+        </p>
+
+        <h2 id="encarregado">Encarregado pelos dados</h2>
+        <p>
+          O art. 41 da LGPD pede que o controlador indique a pessoa a quem se dirigir
+          sobre proteção de dados, e que essa indicação seja pública.
+        </p>
+        <p data-placeholder="1">
+          <span class="marca-falta">A definir</span>
+          Quem é o encarregado pelo tratamento de dados do escritório e por qual canal
+          ele atende. A indicação é decisão dos sócios. Até que ela seja feita, esta
+          política não nomeia ninguém, porque nomear a pessoa errada é pior do que
+          admitir que a indicação está pendente.
+        </p>
+
+        <h2 id="seguranca">Segurança</h2>
+        <p>
+          O site é servido inteiramente por conexão criptografada (HTTPS). O formulário
+          tem proteção contra envio automatizado e limite de envios por aparelho. O
+          acesso às mensagens recebidas é restrito a quem trabalha no escritório.
+        </p>
+        <p>
+          Nenhum sistema é imune a incidentes. Se acontecer algum que possa trazer risco
+          relevante a você, comunicaremos você e a Autoridade Nacional de Proteção de
+          Dados, como determina o art. 48 da LGPD.
+        </p>
+
+        <h2 id="mudancas">Mudanças nesta política</h2>
+        <p>
+          Se o site passar a fazer algo diferente com os dados, este texto muda junto, e
+          a data no topo da página muda com ele. Alterações relevantes são avisadas no
+          próprio site.
+        </p>
+
+        <h2 id="falar">Como falar conosco</h2>
+        <p>
+          Para qualquer dúvida sobre privacidade, ou para exercer os direitos acima,
+          escreva para
+          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
+          ou use a <a href="/contato/">página de contato</a>.
+        </p>
+        <p>
+          Você também pode apresentar reclamação diretamente à
+          <a href="https://www.gov.br/anpd/" rel="noopener" target="_blank">Autoridade
+          Nacional de Proteção de Dados</a>.
+        </p>
+      </div>
+    </div>
+  </article>
+</Base>

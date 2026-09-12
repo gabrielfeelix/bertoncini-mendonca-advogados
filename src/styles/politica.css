@@ -1,0 +1,202 @@
+/*
+  Estilos das duas páginas de política (privacidade e cookies).
+
+  Arquivo próprio em vez de um layout compartilhado: as duas páginas são as
+  únicas que usam estas regras, e um layout novo em `src/layouts/` mexeria em
+  território que outras tarefas estão usando ao mesmo tempo.
+
+  O corpo destas páginas é texto longo, lido por quem tem 70 anos e por quem
+  está procurando uma informação específica. Por isso: 19px de corpo, medida
+  de 68 caracteres, e cada `<h2>` com âncora própria para o sumário do topo
+  levar direto ao trecho.
+*/
+
+.politica {
+  padding-block: clamp(56px, 7vw, 104px) clamp(64px, 8vw, 128px);
+}
+.politica .chapeu {
+  font-size: 16px;
+  color: var(--secundario);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.politica h1 {
+  font-family: var(--serif);
+  font-weight: 200;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  font-size: clamp(34px, 5.4vw, 68px);
+  max-width: 16ch;
+}
+.politica .atualizado {
+  margin-top: 20px;
+  font-size: 16px;
+  color: var(--secundario);
+}
+
+/* Ressalva geral: estas páginas descrevem a estrutura certa, mas o texto
+   definitivo é decisão do escritório. Fica no topo, antes do sumário, para
+   ninguém ler a política inteira supondo que ela já é a final. */
+.politica .ressalva {
+  margin-top: 32px;
+  padding: 20px 22px;
+  border: 1px solid var(--imperial);
+  border-radius: 14px;
+  font-size: 17px;
+  line-height: 1.55;
+  max-width: 68ch;
+}
+.politica .ressalva strong {
+  color: var(--imperial);
+}
+
+.politica .sumario {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--linha);
+  max-width: 68ch;
+}
+.politica .sumario h2 {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--secundario);
+  margin-bottom: 8px;
+}
+.politica .sumario ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0 32px;
+}
+.politica .sumario a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 17px;
+  color: var(--apoio);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.politica .texto {
+  margin-top: clamp(40px, 5vw, 72px);
+  max-width: 68ch;
+  font-size: 19px;
+  line-height: 1.7;
+}
+.politica .texto h2 {
+  font-family: var(--serif);
+  font-weight: 200;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  font-size: clamp(26px, 3.2vw, 38px);
+  margin-top: clamp(44px, 5vw, 72px);
+  padding-top: 22px;
+  border-top: 1px solid var(--linha);
+}
+.politica .texto h3 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-top: 32px;
+}
+.politica .texto p,
+.politica .texto ul,
+.politica .texto ol {
+  margin-top: 18px;
+}
+.politica .texto ul,
+.politica .texto ol {
+  padding-left: 22px;
+}
+.politica .texto li + li {
+  margin-top: 10px;
+}
+.politica .texto a {
+  color: var(--apoio);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  /* O alvo mínimo do projeto é 44px nas duas medidas, e vale também para um
+     link no meio de um parágrafo. `inline-block` com altura mínima daria
+     isso, mas quebraria a quebra de linha do texto corrido: um link longo
+     deixaria de partir entre duas linhas.
+
+     A saída é `inline-flex` + `align-items:center`: o link continua fluindo
+     na linha, continua podendo quebrar, e ganha os 44px de altura. O
+     `margin-block` negativo devolve ao parágrafo a altura de linha que o
+     padding acrescentou, para o espaçamento entre as linhas do texto não
+     aumentar. */
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-height: 44px;
+  margin-block: -11px;
+  vertical-align: middle;
+}
+
+/* Um trecho ainda indefinido. Vem em vermelho imperial E com o rótulo "A
+   definir" escrito por extenso: a cor sozinha não pode ser a única pista de
+   que o texto é provisório. */
+.politica [data-placeholder="1"] {
+  color: var(--imperial);
+}
+.politica .texto p[data-placeholder="1"],
+.politica .texto li[data-placeholder="1"] {
+  border-left: 3px solid var(--imperial);
+  padding-left: 14px;
+}
+.politica [data-placeholder="1"] .marca-falta {
+  display: inline-block;
+  font: 600 13px/1 var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--imperial);
+  border-radius: 999px;
+  padding: 7px 10px;
+  margin-right: 8px;
+  vertical-align: 2px;
+}
+
+/* Tabela de cookies: some do fluxo horizontal em telas estreitas em vez de
+   empurrar a página inteira. */
+.politica .tabela {
+  margin-top: 24px;
+  overflow-x: auto;
+}
+.politica table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 520px;
+  font-size: 17px;
+}
+.politica :is(th, td) {
+  text-align: left;
+  vertical-align: top;
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--linha);
+}
+.politica th {
+  font-weight: 500;
+  color: var(--secundario);
+  border-bottom-color: var(--tinta);
+}
+.politica code {
+  font-size: 0.92em;
+  background: #F2F4F6;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .politica,
+  .politica * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

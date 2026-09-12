@@ -1,0 +1,210 @@
+---
+/**
+ * /politica-de-cookies/ — exigência da LGPD, já linkada no rodapé e no
+ * aviso de cookies.
+ *
+ * Mesma postura da política de privacidade: a estrutura é nossa, o texto
+ * definitivo é do escritório, e o que depende de decisão deles está marcado
+ * com `data-placeholder="1"`.
+ *
+ * Esta página é curta porque o site é honesto. Hoje ele grava exatamente um
+ * registro no navegador de quem visita: a própria escolha sobre cookies.
+ * Conferido, não presumido: `src/lib/consentimento.ts` é o único módulo que
+ * escreve em `localStorage` neste site, e ele grava uma chave só
+ * (`consentimento`). Nenhuma ferramenta de medição está ligada, e a função
+ * `ligarMedicao` existe sem que nada a chame.
+ *
+ * Escrever agora uma tabela cheia de cookies de GA4 que não existem seria
+ * mais fácil e seria mentira.
+ *
+ * SE A MEDIÇÃO FOR LIGADA, esta página precisa mudar ANTES de o script
+ * entrar, e a política de privacidade junto.
+ */
+import Base from '~/layouts/Base.astro';
+import { site } from '~/lib/site';
+import '~/styles/politica.css';
+
+const secoes = [
+  { id: 'o-que-sao', rotulo: 'O que são cookies' },
+  { id: 'o-que-usamos', rotulo: 'O que este site usa hoje' },
+  { id: 'escolha', rotulo: 'As três escolhas do aviso' },
+  { id: 'terceiros', rotulo: 'Conteúdo de terceiros' },
+  { id: 'controle', rotulo: 'Como controlar no navegador' },
+  { id: 'medicao', rotulo: 'Se a medição for ligada' },
+  { id: 'falar', rotulo: 'Dúvidas' },
+];
+---
+
+<Base
+  titulo="Política de cookies | Bertoncini & Mendonça Advogados"
+  descricao="Que cookies o site do escritório Bertoncini & Mendonça usa, para que servem e como você controla a sua escolha."
+>
+  <article class="politica">
+    <div class="env">
+      <p class="chapeu">Documento legal</p>
+      <h1>Política de cookies</h1>
+      <p class="atualizado" data-placeholder="1">
+        <span class="marca-falta">A definir</span>
+        Data da última atualização a preencher quando o escritório aprovar o texto
+        definitivo.
+      </p>
+
+      <div class="ressalva">
+        <p>
+          <strong>Este texto ainda é provisório.</strong> Ele descreve com precisão o
+          que o site faz hoje, mas o texto definitivo vem dos sócios. Os trechos em
+          vermelho dependem de uma decisão do escritório e estão marcados como tal.
+        </p>
+      </div>
+
+      <nav class="sumario" aria-label="Seções desta política">
+        <h2>Nesta página</h2>
+        <ol>
+          {secoes.map((secao) => (
+            <li><a href={`#${secao.id}`}>{secao.rotulo}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="texto">
+        <p>
+          Resumo, para quem não quiser ler o resto: este site não usa cookie de
+          publicidade, não rastreia a sua navegação e não vende dados. O único registro
+          que ele guarda no seu navegador é a sua própria resposta ao aviso de cookies,
+          para não perguntar de novo a cada página.
+        </p>
+
+        <h2 id="o-que-sao">O que são cookies</h2>
+        <p>
+          Cookies são pequenos arquivos que um site guarda no seu navegador para lembrar
+          de algo entre uma página e outra: que idioma você escolheu, que você já
+          respondeu a um aviso, ou, no caso dos cookies de rastreamento, por onde você
+          andou.
+        </p>
+        <p>
+          Outras tecnologias fazem o mesmo papel com outro nome, como o
+          <code>localStorage</code>, o <code>sessionStorage</code> e os pixels de
+          rastreamento. Quando esta página fala em cookies, vale para todas elas.
+        </p>
+
+        <h2 id="o-que-usamos">O que este site usa hoje</h2>
+        <p>
+          <strong>Nenhum cookie de medição e nenhum cookie de publicidade.</strong> O
+          que existe é apenas o necessário para as páginas serem entregues e para a sua
+          escolha ser lembrada:
+        </p>
+        <div class="tabela">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Origem</th>
+                <th scope="col">Para que serve</th>
+                <th scope="col">Guarda algo no seu navegador</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Sua escolha sobre cookies</th>
+                <td>Lembrar o que você respondeu no aviso, para não perguntar de novo</td>
+                <td>
+                  Sim, se você responder ao aviso. Um único registro, de nome
+                  <code>consentimento</code>, guardado no seu aparelho e nunca enviado a
+                  ninguém
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Vercel (hospedagem)</th>
+                <td>Entregar as páginas e proteger o site contra sobrecarga e ataque</td>
+                <td>Não, em navegação normal</td>
+              </tr>
+              <tr>
+                <th scope="row">Formulário de contato</th>
+                <td>Enviar a sua mensagem ao escritório</td>
+                <td>Não. Os dados seguem no envio e nada fica guardado no navegador</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Os dados que você digita no formulário são tratados como descreve a
+          <a href="/politica-de-privacidade/">política de privacidade</a>.
+        </p>
+
+        <h2 id="escolha">As três escolhas do aviso</h2>
+        <p>
+          O aviso que aparece na primeira visita oferece três respostas, e a sua fica
+          guardada no seu aparelho:
+        </p>
+        <ul>
+          <li>
+            <strong>Aceitar todos:</strong> autoriza também os cookies de medição, se e
+            quando eles existirem.
+          </li>
+          <li>
+            <strong>Apenas necessários:</strong> autoriza somente o que o site precisa
+            para funcionar.
+          </li>
+          <li>
+            <strong>Rejeitar:</strong> recusa tudo o que não for necessário.
+          </li>
+        </ul>
+        <p>
+          Hoje as três têm o mesmo efeito prático, porque não existe cookie opcional
+          neste site. Guardamos as três separadamente de propósito: no dia em que
+          houver uma categoria intermediária, a sua resposta já está registrada e você
+          não precisa ser perguntado de novo.
+        </p>
+        <p>
+          <strong>Recusar não tira nenhuma função do site.</strong> Tudo continua
+          legível e utilizável.
+        </p>
+        <p>
+          Para mudar a sua resposta, apague os dados deste site no seu navegador. O
+          aviso volta a aparecer na visita seguinte.
+        </p>
+
+        <h2 id="terceiros">Conteúdo de terceiros</h2>
+        <p>
+          As fontes tipográficas e as imagens são servidas pelo próprio site, e não por
+          serviços externos. Isso evita que outras empresas saibam da sua visita.
+        </p>
+        <p>
+          Quando você clica no link do nosso WhatsApp ou do nosso Instagram, você sai
+          daqui e passa a valer a política de cookies dessas plataformas, sobre a qual
+          não temos controle. Enquanto você não clicar, elas não recebem nada deste
+          site.
+        </p>
+
+        <h2 id="controle">Como controlar no navegador</h2>
+        <p>
+          Todo navegador permite bloquear ou apagar cookies e dados de qualquer site,
+          normalmente em <em>Configurações</em>, seção de privacidade e segurança.
+          Bloquear tudo não atrapalha a navegação neste site: o aviso volta a aparecer,
+          porque a sua resposta é justamente o que deixa de ser guardado.
+        </p>
+
+        <h2 id="medicao">Se a medição for ligada</h2>
+        <p data-placeholder="1">
+          <span class="marca-falta">A definir</span>
+          Se o escritório vai medir as visitas ao site e com qual ferramenta. Nenhuma
+          decisão foi tomada, e por isso esta página não cita nome de ferramenta, nome
+          de cookie nem prazo de validade: seriam dados inventados sobre algo que não
+          existe.
+        </p>
+        <p>O que já está decidido sobre esse dia, caso ele chegue:</p>
+        <ul>
+          <li>esta página é atualizada <strong>antes</strong>, com o nome de cada cookie, a finalidade e o prazo de validade, e a data no topo muda junto;</li>
+          <li>nada carrega antes do seu aceite, nem o script nem o cookie;</li>
+          <li>recusar continua permitindo usar o site inteiro, sem perda de nenhuma função.</li>
+        </ul>
+
+        <h2 id="falar">Dúvidas</h2>
+        <p>
+          Qualquer pergunta sobre esta política pode ser enviada para
+          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
+          ou pela <a href="/contato/">página de contato</a>.
+        </p>
+      </div>
+    </div>
+  </article>
+</Base>
