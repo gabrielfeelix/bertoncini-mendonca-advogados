@@ -48,9 +48,9 @@ cliente em silêncio.
 | 8. Páginas de área | pronta, revisada | `6b1d86a` |
 | 9. Página do escritório | pronta, revisada | `d7f0355` |
 | 10. Banco e CMS | pronta, sem revisão formal | `9400474` |
-| 11. Páginas do blog | pronta, **sem revisão formal** | `c583849` |
+| 11. Páginas do blog | pronta, **re-revisada** | `c583849`, `4816a1e` |
 | 12. Painel de publicação | **NÃO FEITA** | — |
-| 13. Contato, newsletter, legal | corrigida, **re-revisão não feita** | `2e7756f`, `c1dfa6e`, `80d67a9` |
+| 13. Contato, newsletter, legal | pronta, **re-revisada** | `2e7756f`, `c1dfa6e`, `80d67a9`, `d0fe974` |
 | — Correção das áreas (briefing) | pronta, **sem revisão formal** | `dcca41d` |
 | 14. Verificação automatizada | **NÃO FEITA** | — |
 | 15. Revisão final | **NÃO FEITA** | — |
@@ -65,7 +65,34 @@ pelo Gabriel em 12/09. As três ilhas do protótipo estão revogadas.
 
 ---
 
-## Duas coisas entregues sem revisão
+## Tarefas 11 e 13: RE-REVISADAS em 12/09/2026
+
+> **Feito.** As duas foram reverificadas contra o servidor e contra o que o
+> build emite — não por leitura de código. Os três Críticos da 13 estão de
+> fato corrigidos (testados: campo `assunto` preenchido chega ao envio; oito
+> tentativas de escape no redirecionador, barra invertida inclusive, todas
+> contidas; aviso de cookies presente nas oito rotas e newsletter em
+> `/contato/`).
+>
+> A re-revisão achou **dois defeitos que a revisão anterior não pegou**,
+> ambos já corrigidos:
+>
+> - `d0fe974` — a newsletter em `/textos/` devolvia quem estava sem
+>   JavaScript para a home. A lista de destinos saiu para `~/lib/voltas` e
+>   `Newsletter.astro` agora confere no build: montar a newsletter numa
+>   página não registrada derruba `npm run build`.
+> - `4816a1e` — **o buraco de XSS não estava contido.** Ver abaixo, em
+>   "Pendências menores": a afirmação de que markdown resolvia estava errada
+>   nos dois sentidos.
+>
+> O que segue valendo: as políticas de RLS continuam sem ser provadas em
+> execução, e os artigos de exemplo continuam fora do repositório (a
+> verificação usou um PostgREST falso no scratchpad, de novo).
+
+<details>
+<summary>Texto original, mantido para registro</summary>
+
+### Duas coisas entregues sem revisão
 
 Ambas commitadas e com build passando, **nenhuma das duas revisada**:
 
@@ -79,6 +106,8 @@ Ambas commitadas e com build passando, **nenhuma das duas revisada**:
 2. **Tarefa 11 (`c583849`)** — o blog. Lista paginada, artigo, `artigo.css`
    adaptado, capas otimizadas. Os artigos de exemplo nunca foram ao repositório
    (serviu um PostgREST falso no scratchpad).
+
+</details>
 
 ---
 
@@ -230,16 +259,23 @@ Adaptar `tools/verifica.mjs` para rodar em todas as rotas, e a revisão final.
 Duas correções que a 15 tem que fazer em documento:
 - **`docs/PLANO-SITE.md` está errado numa premissa de segurança.** Ele diz que a
   armadilha de XSS se resolve porque "aqui o corpo é markdown". **Foi medido:
-  não se resolve.** O renderizador do Astro repassa HTML inline escrito dentro
-  do markdown, e um `<img src=x onerror=...>` chega intacto ao HTML final. Há
-  uma contenção em `neutralizaHtmlCru()` no loader. Corrija o texto do plano.
+  não se resolve**, e por dois caminhos, não um. O renderizador do Astro repassa
+  HTML inline escrito dentro do markdown (`<img src=x onerror=...>`), e o
+  markdown tem um vetor próprio que não usa HTML nenhum:
+  `[x](javascript:alert(1))` vira âncora executável. Os dois estão contidos em
+  `neutralizaHtmlCru()` no loader (`4816a1e`). Corrija o texto do plano — e note
+  que a contenção não é sanitizador.
 - Inventariar os placeholders para o briefing preencher.
 
 ---
 
 ## Defeitos conhecidos e pendências
 
-### Em aberto, despachados mas não verificados (tarefa 13)
+### ~~Em aberto, despachados mas não verificados~~ — VERIFICADOS (tarefa 13)
+
+> Os três foram reproduzidos e testados contra o servidor em 12/09/2026, e os
+> três estão corrigidos. Detalhe do que foi medido no item "Tarefas 11 e 13"
+> acima. O texto abaixo fica como registro do que eram.
 1. **O campo "Sobre o que é" descarta a mensagem em silêncio.** `assunto` está
    em `CAMPOS_ISCA` (`src/lib/antispam.ts`) **e** é um campo real rotulado no
    formulário. Quem o preenche vê "Recebemos a sua mensagem" e o escritório não
@@ -270,8 +306,14 @@ verifica ao aplicar**. Idem o bucket e a trigger. É a primeira coisa a conferir
 quando houver credencial.
 
 ### Pendências menores registradas
-- A defesa de XSS do corpo é **contenção** (escapa `<`), não sanitizador. O certo
-  é `rehype-sanitize` com lista de tags permitidas.
+- A defesa de XSS do corpo é **contenção**, não sanitizador. O certo continua
+  sendo `rehype-sanitize`, com lista de tags **e de protocolos** permitidos.
+  **Corrigido em `4816a1e` um buraco real que estava aberto:** escapar `<`
+  continha as tags, mas a sintaxe de link do markdown não usa `<`, então
+  `[x](javascript:alert(1))` chegava ao HTML como `<a href="javascript:...">`
+  clicável. Idem `data:text/html;base64,...`. Foi medido no build, com
+  PostgREST falso — não deduzido. Hoje o destino do link é reescrito para `#`
+  quando o esquema é javascript:, data: ou vbscript:.
 - ~~O texto de Família diz que inventário com testamento vai necessariamente
   para o judicial.~~ Corrigido em `dcca41d`: o texto de Planejamento
   Patrimonial e Sucessório já traz o Provimento CNJ 149/2023 e a Resolução CNJ
