@@ -51,12 +51,14 @@ cliente em silêncio.
 | 11. Páginas do blog | pronta, **sem revisão formal** | `c583849` |
 | 12. Painel de publicação | **NÃO FEITA** | — |
 | 13. Contato, newsletter, legal | corrigida, **re-revisão não feita** | `2e7756f`, `c1dfa6e`, `80d67a9` |
+| — Correção das áreas (briefing) | pronta, **sem revisão formal** | `dcca41d` |
 | 14. Verificação automatizada | **NÃO FEITA** | — |
 | 15. Revisão final | **NÃO FEITA** | — |
 
-**Rotas que existem:** `/areas/`, `/areas/familia/`, `/areas/compliance/`,
-`/escritorio/`, `/contato/`, `/politica-de-privacidade/`, `/politica-de-cookies/`,
-e `/previa` (página de trabalho, ver abaixo).
+**Rotas que existem:** `/areas/`,
+`/areas/planejamento-patrimonial-e-sucessorio/`, `/areas/direito-digital/`,
+`/escritorio/`, `/contato/`, `/textos/`, `/politica-de-privacidade/`,
+`/politica-de-cookies/`, e `/previa` (página de trabalho, ver abaixo).
 
 A navbar nova é **barra cheia fixa que some ao descer e volta ao subir**, decidida
 pelo Gabriel em 12/09. As três ilhas do protótipo estão revogadas.
@@ -80,7 +82,35 @@ Ambas commitadas e com build passando, **nenhuma das duas revisada**:
 
 ---
 
-## O ERRO GRAVE: as áreas de atuação do site estão erradas
+## CORRIGIDO em 12/09/2026: as áreas de atuação (commit `dcca41d`)
+
+> **Este item está resolvido.** O site agora tem Planejamento Patrimonial e
+> Sucessório e Direito Digital, com rotas
+> `/areas/planejamento-patrimonial-e-sucessorio/` e `/areas/direito-digital/`.
+> As rotas antigas não existem mais e nenhum link apontava para elas.
+>
+> No mesmo commit entraram, do briefing: formação dos dois sócios (destravando
+> "especialista", com título), a história da sociedade (1.3), a trajetória do
+> Juscelino (1.8a), atendimento em todo o país (2.5) e a ausência de escritório
+> físico na página de contato (2.6). Consumidor e Previdenciário (2.4) não
+> aparecem em lugar nenhum. A resposta 1.5 e a 2.7 continuam fora, por serem
+> vedada e conversa de projeto.
+>
+> O texto sobre inventário com testamento foi reescrito com o Provimento CNJ
+> 149/2023 e a Resolução CNJ 571/2024 — a pendência registrada mais abaixo
+> neste documento está, nessa parte, resolvida. **Um advogado ainda precisa
+> revisar todo o conteúdo jurídico novo**: as duas áreas foram escritas nesta
+> sessão e nenhuma delas passou por revisão humana.
+>
+> O que continua aberto: a bio da Beatriz depende da conversa com ela (só a
+> área e a formação entraram, respondidas pelo Juscelino), a data de
+> constituição da sociedade não foi informada, e `terceira-area.json` e
+> `quarta-area.json` seguem "a confirmar".
+
+<details>
+<summary>Texto original do erro, mantido para registro</summary>
+
+### O ERRO GRAVE: as áreas de atuação do site estão erradas
 
 O site tem hoje **Família** e **Compliance** como áreas confirmadas, com texto
 escrito, página própria e CTA. O briefing diz outra coisa:
@@ -120,6 +150,8 @@ inventário) foi verificado contra fontes primárias e está correto — mas é 
 a área errada. Só a parte de **inventários** se aproveita, dentro de
 Planejamento Patrimonial e Sucessório.
 
+</details>
+
 ## O que mais o briefing resolve
 
 - **Formação, com título (q1_7a, q1_7b).** Os dois são bacharéis pela UEM.
@@ -152,9 +184,9 @@ Juscelino contou (q1_3, q1_4, q1_7b).
 
 ## O que falta, e a ordem que eu sugiro
 
-### Primeiro: corrigir as áreas
-É o item acima. Enquanto não for feito, o site anuncia serviços que o escritório
-não presta e omite os dois que ele presta.
+### ~~Primeiro: corrigir as áreas~~ — FEITO (`dcca41d`)
+Ver o item acima. Falta **revisão**: o conteúdo jurídico das duas áreas novas
+foi escrito numa sessão e não passou por advogado nem por revisor.
 
 ### Segundo: fechar o que está pela metade
 Verifique a correção da tarefa 13 e o resultado da 11. Nenhuma das duas pode ser
@@ -240,10 +272,11 @@ quando houver credencial.
 ### Pendências menores registradas
 - A defesa de XSS do corpo é **contenção** (escapa `<`), não sanitizador. O certo
   é `rehype-sanitize` com lista de tags permitidas.
-- O texto de Família diz que inventário com testamento vai necessariamente para
-  o judicial. É a regra geral e é defensável, mas o Provimento CNJ 149/2023 já
-  permite a via extrajudicial em alguns casos, e a Resolução CNJ 571/2024 abriu
-  hipóteses com incapazes. **Um advogado precisa revisar.**
+- ~~O texto de Família diz que inventário com testamento vai necessariamente
+  para o judicial.~~ Corrigido em `dcca41d`: o texto de Planejamento
+  Patrimonial e Sucessório já traz o Provimento CNJ 149/2023 e a Resolução CNJ
+  571/2024. **Todo o conteúdo jurídico das duas áreas novas continua precisando
+  de revisão por advogado** — foi escrito por agente, numa sessão.
 - Os dois sócios exibem o mesmo e-mail e telefone, porque é o único contato que
   existe. A estrutura já aceita valores por sócio.
 - `<summary>` do menu de celular sem `role="button"` é anunciado como "disclosure
