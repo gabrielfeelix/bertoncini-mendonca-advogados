@@ -1,9 +1,9 @@
 /**
  * Coleções de conteúdo do site.
  *
- * Neste momento existe só `areas` (Tarefa 7). A coleção `artigos` do blog
- * entra aqui na Tarefa 10, acrescentada a este mesmo arquivo — não
- * substituindo o que está abaixo.
+ * São duas: `areas` (Tarefa 7), que vem de arquivos JSON no repositório, e
+ * `artigos` (Tarefa 10), que vem do Supabase pelo loader em
+ * src/lib/loader-supabase.ts.
  *
  * Por que JSON e não Markdown: uma área não é um texto corrido, é um
  * registro com campos (assuntos, perguntas, ordem) que a página monta em
@@ -14,6 +14,7 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { artigosDoSupabase } from './lib/loader-supabase';
 
 const areas = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/areas' }),
@@ -59,4 +60,63 @@ const areas = defineCollection({
   }),
 });
 
-export const collections = { areas };
+/**
+ * Artigos do blog (`/textos/`).
+ *
+ * O schema serve às duas fontes de propósito, e o plano pede isso: o mesmo
+ * objeto valida uma linha do Supabase, traduzida pelo loader, e um arquivo
+ * markdown local com este frontmatter, se um dia for preciso escrever um
+ * artigo no repositório ou rodar o site sem banco. Por isso:
+ *
+ * - `capa` é uma string de URL, e não `image()`. `image()` só sabe medir
+ *   arquivo local, e a capa mora no Storage do Supabase.
+ * - `capaLargura` e `capaAltura` existem porque o <Image> do Astro se recusa
+ *   a montar uma imagem remota sem as duas: sem elas a página pula enquanto
+ *   a capa carrega. Quem envia a capa mede a imagem e grava as dimensões.
+ * - os campos que o banco preenche sozinho (`atualizadoEm`) são opcionais,
+ *   para o markdown local não precisar inventá-los.
+ *
+ * O corpo não está aqui porque não é frontmatter: é o corpo da entrada,
+ * escrito em **markdown** e convertido em HTML no build. Nunca HTML cru de
+ * autor: o loader escapa a marcação antes de renderizar, porque markdown
+ * sozinho não impede HTML inline (ver `neutralizaHtmlCru` no loader).
+ */
+const artigos = defineCollection({
+  loader: artigosDoSupabase(),
+  schema: z.object({
+    /** Título do artigo, como aparece na página e na lista. */
+    titulo: z.string().min(1).max(120),
+    /** Frase curta de apoio. Vai para a meta description e para a lista. */
+    resumo: z.string().min(1).max(300),
+    /** URL pública da capa no Storage. Ausente quando o artigo não tem capa. */
+    capa: z.url().optional(),
+    /** Dimensões da capa, medidas no upload. Exigidas pelo <Image> remoto. */
+    capaLargura: z.number().int().positive().optional(),
+    capaAltura: z.number().int().positive().optional(),
+    /** Descrição da capa. Obrigatória sempre que existe capa. */
+    capaAlt: z.string().min(1).optional(),
+    /** Categoria editorial do texto. */
+    categoria: z.string().min(1).default('Informativo'),
+    /** Quem assina. Vazio quando o texto é do escritório, sem assinatura individual. */
+    autor: z.string().default(''),
+    publicadoEm: z.coerce.date(),
+    /** Mantido pelo banco a cada alteração; ausente enquanto nunca foi alterado. */
+    atualizadoEm: z.coerce.date().optional(),
+    /** Minutos de leitura. Calculado do corpo ao salvar, corrigível à mão. */
+    tempoLeitura: z.number().int().positive().max(120).optional(),
+    /** Rascunho não chega ao site: o loader só pede os publicados. */
+    estado: z.enum(['rascunho', 'publicado']).default('publicado'),
+    /** Sobrescrevem título e descrição quando o SEO pede algo diferente. */
+    seoTitulo: z.string().max(60).optional(),
+    seoDescricao: z.string().max(160).optional(),
+  })
+  /* Capa é tudo-ou-nada, igual à restrição da tabela: ou não há capa, ou há
+     URL, as duas dimensões e a descrição. Assim a página nunca recebe uma
+     capa que o <Image> recusa, nem imagem sem texto alternativo. */
+  .refine(
+    (a) => !a.capa || (a.capaLargura !== undefined && a.capaAltura !== undefined && !!a.capaAlt),
+    { message: 'artigo com capa precisa de capaLargura, capaAltura e capaAlt' },
+  ),
+});
+
+export const collections = { areas, artigos };
