@@ -380,7 +380,7 @@ if (calmo) {
  * nunca vê o texto travado ilegível. **Não baixar o piso nem alongar a
  * janela** — o público do site tem 70 anos.
  */
-async function ligaGsap(lenis: { on: (evento: string, fn: () => void) => void }): Promise<void> {
+async function ligaGsap(lenis: { on: (evento: 'scroll', fn: () => void) => void }): Promise<void> {
   const { gsap } = await import('gsap');
   const { ScrollTrigger } = await import('gsap/ScrollTrigger');
   gsap.registerPlugin(ScrollTrigger);

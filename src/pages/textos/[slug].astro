@@ -35,6 +35,7 @@ import CartaoTexto from '~/components/CartaoTexto.astro';
 import Newsletter from '~/components/Newsletter.astro';
 import Contato from '~/components/Contato.astro';
 import { listarArtigos, dataLegivel, NOME_DO_BLOG } from '~/lib/artigos';
+import { site } from '~/lib/site';
 import '~/styles/artigo.css';
 
 export const getStaticPaths = (async () => {
@@ -58,7 +59,15 @@ const relacionados = [
 
 /* O SEO vem do artigo. Nada de copy inventada aqui: se o banco trouxer
    seoTitulo ou seoDescricao, mandam eles. */
-const titulo = `${d.seoTitulo ?? d.titulo} | Bertoncini & Mendonça Advogados`;
+/* O sufixo encolhe conforme o título do artigo cresce, e some se nem o
+   nome curto couber. O título do artigo vem do autor e pode ter até 120
+   caracteres; com sufixo fixo, um título longo empurrava o nome do
+   escritório para além do corte do Google, que exibia reticências no lugar
+   dele. Melhor um <title> sem o nome do que um com o nome cortado. */
+const tituloBase = d.seoTitulo ?? d.titulo;
+const comNome = `${tituloBase} | ${site.nome}`;
+const comCurto = `${tituloBase} | ${site.nomeCurto}`;
+const titulo = comNome.length <= 70 ? comNome : comCurto.length <= 70 ? comCurto : tituloBase;
 const descricao = d.seoDescricao ?? d.resumo;
 ---
 

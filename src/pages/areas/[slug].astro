@@ -34,8 +34,11 @@ const linkWhatsapp = whatsappDaArea(mensagem);
 const aConfirmar = new Set(dados.corpoAConfirmar);
 ---
 
+{/* Nome curto no sufixo: "Planejamento Patrimonial e Sucessório" já tem 37
+    caracteres, e com o nome completo do escritório o título passava de 70 —
+    o Google corta e o fim da linha vira reticências. */}
 <Base
-  titulo={`${dados.nome} | Bertoncini & Mendonça Advogados`}
+  titulo={`${dados.nome} | ${site.nomeCurto}`}
   descricao={`${dados.resumo} Atuação em ${site.cidade}, ${site.estado}.`}
   paginaAtual="/areas/"
 >
