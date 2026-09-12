@@ -1,0 +1,362 @@
+---
+/**
+ * `/painel/artigo/` — escrever um texto novo, ou editar um existente
+ * (`?slug=...`).
+ *
+ * ── O editor de texto rico entra aqui, no dia 1 ─────────────────────────
+ *
+ * É a armadilha nº 5 do plano: no projeto anterior o editor nunca ficou
+ * pronto e os sócios escreviam `<p>` à mão, e o handoff de lá diz que foi o
+ * que mais atrapalhou o uso diário. O Tiptap é carregado em
+ * `~/scripts/painel-editor.ts`.
+ *
+ * ── Sem JavaScript o formulário continua funcionando ────────────────────
+ *
+ * O editor é um `<textarea>` de markdown que o Tiptap *substitui* quando
+ * carrega. Se o script não vier — rede ruim, celular velho, erro de build —
+ * o editor ainda consegue escrever e salvar, em markdown, em vez de olhar
+ * uma caixa morta. O campo enviado é o mesmo nos dois casos.
+ *
+ * ── O que esta página não faz ───────────────────────────────────────────
+ *
+ * Não decide quem pode salvar. Quem decide é a RLS do banco, a cada
+ * operação. Esta página só redireciona quem não tem sessão, para não
+ * mostrar um formulário que não vai salvar.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import { editorAtual, configSupabase, clienteComSessao, tokenDaSessao } from '~/lib/painel-auth';
+import { markdownParaHtml } from '~/lib/markdown-editor';
+
+const cfg = configSupabase();
+const editor = cfg ? await editorAtual(Astro.cookies) : null;
+
+if (!editor) {
+  return Astro.redirect('/painel/?erro=sessao', 303);
+}
+
+const slug = Astro.url.searchParams.get('slug');
+const erro = Astro.url.searchParams.get('erro');
+
+interface Artigo {
+  slug: string;
+  titulo: string;
+  resumo: string;
+  corpo: string;
+  categoria: string;
+  autor: string;
+  estado: string;
+  capa: string | null;
+  capa_alt: string | null;
+  capa_largura: number | null;
+  capa_altura: number | null;
+  seo_titulo: string | null;
+  seo_descricao: string | null;
+}
+
+let artigo: Artigo | null = null;
+let erroLeitura: string | null = null;
+
+if (slug) {
+  const token = tokenDaSessao(Astro.cookies);
+  const cliente = token ? clienteComSessao(token) : null;
+  if (cliente) {
+    const { data, error } = await cliente
+      .from('artigos')
+      .select('slug, titulo, resumo, corpo, categoria, autor, estado, capa, capa_alt, capa_largura, capa_altura, seo_titulo, seo_descricao')
+      .eq('slug', slug)
+      .maybeSingle();
+    if (error) erroLeitura = error.message;
+    else artigo = data as Artigo | null;
+  }
+}
+
+const novo = !artigo;
+/* O editor abre com o markdown já convertido em HTML; sem JavaScript, o
+   <textarea> mostra o markdown original. */
+const htmlInicial = artigo ? markdownParaHtml(artigo.corpo) : '';
+
+const MENSAGENS: Record<string, string> = {
+  titulo: 'O texto precisa de um título.',
+  resumo: 'O texto precisa de um resumo — ele aparece na lista e na busca.',
+  corpo: 'O texto está vazio.',
+  slug: 'Não consegui formar um endereço a partir desse título.',
+  capa: 'Quando há capa, a descrição da imagem é obrigatória.',
+  salvar: 'Não consegui salvar. Tente de novo.',
+};
+
+const CATEGORIAS = [
+  'Planejamento Patrimonial e Sucessório',
+  'Direito Digital',
+  'Informativo',
+];
+---
+
+<Painel titulo={`${novo ? 'Novo texto' : artigo!.titulo} | Painel`} editor={editor.nome}>
+  <div class="env">
+    <p class="volta"><a href="/painel/">← Todos os textos</a></p>
+
+    {erro && <p class="recado erro" role="alert">{MENSAGENS[erro] ?? 'Não foi possível salvar.'}</p>}
+    {erroLeitura && <p class="recado erro" role="alert">Não consegui abrir o texto: {erroLeitura}</p>}
+
+    <h1>{novo ? 'Escrever um texto' : 'Editar o texto'}</h1>
+
+    <form method="post" action="/api/painel/salvar" class="formulario">
+      <input type="hidden" name="slug_original" value={artigo?.slug ?? ''} />
+
+      <div class="campo">
+        <label for="titulo">Título</label>
+        <input type="text" id="titulo" name="titulo" maxlength="120" required value={artigo?.titulo ?? ''} />
+        <p class="dica">Até 120 caracteres. É ele que forma o endereço do texto.</p>
+      </div>
+
+      <div class="campo">
+        <label for="resumo">Resumo</label>
+        <textarea id="resumo" name="resumo" maxlength="300" rows="2" required>{artigo?.resumo ?? ''}</textarea>
+        <p class="dica">Uma ou duas frases. Aparece na lista e no Google.</p>
+      </div>
+
+      <div class="campo">
+        <label for="corpo-md" id="rotulo-corpo">Texto</label>
+        {/* A barra de ferramentas é montada pelo script; sem JS ela não
+            aparece e o textarea abaixo continua sendo o editor. */}
+        <div id="barra" class="barra" hidden></div>
+        <div id="editor" class="editor" hidden></div>
+        <textarea id="corpo-md" name="corpo" rows="18" required>{artigo?.corpo ?? ''}</textarea>
+        <p class="dica" id="dica-corpo">
+          Sem JavaScript, este campo aceita markdown: <code>**negrito**</code>,
+          <code>## título</code>, <code>- lista</code>.
+        </p>
+      </div>
+
+      <div class="dupla">
+        <div class="campo">
+          <label for="categoria">Categoria</label>
+          <select id="categoria" name="categoria">
+            {CATEGORIAS.map((c) => (
+              <option value={c} selected={artigo?.categoria === c}>{c}</option>
+            ))}
+          </select>
+        </div>
+        <div class="campo">
+          <label for="autor">Assinatura</label>
+          <input type="text" id="autor" name="autor" maxlength="80" value={artigo?.autor ?? ''} />
+          <p class="dica">Deixe vazio para o texto sair sem assinatura individual.</p>
+        </div>
+      </div>
+
+      <details class="extra">
+        <summary>Capa e busca (opcional)</summary>
+
+        <div class="campo">
+          <label for="capa">Endereço da capa</label>
+          <input type="url" id="capa" name="capa" value={artigo?.capa ?? ''} />
+          <p class="dica">URL da imagem no Storage do Supabase.</p>
+        </div>
+
+        <div class="dupla">
+          <div class="campo">
+            <label for="capa_largura">Largura (px)</label>
+            <input type="number" id="capa_largura" name="capa_largura" min="1" value={artigo?.capa_largura ?? ''} />
+          </div>
+          <div class="campo">
+            <label for="capa_altura">Altura (px)</label>
+            <input type="number" id="capa_altura" name="capa_altura" min="1" value={artigo?.capa_altura ?? ''} />
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="capa_alt">Descrição da imagem</label>
+          <input type="text" id="capa_alt" name="capa_alt" maxlength="200" value={artigo?.capa_alt ?? ''} />
+          <p class="dica">
+            Obrigatória quando há capa. É o que quem usa leitor de tela ouve no
+            lugar da imagem.
+          </p>
+        </div>
+
+        <div class="campo">
+          <label for="seo_titulo">Título para busca</label>
+          <input type="text" id="seo_titulo" name="seo_titulo" maxlength="60" value={artigo?.seo_titulo ?? ''} />
+        </div>
+        <div class="campo">
+          <label for="seo_descricao">Descrição para busca</label>
+          <input type="text" id="seo_descricao" name="seo_descricao" maxlength="160" value={artigo?.seo_descricao ?? ''} />
+        </div>
+      </details>
+
+      <div class="acoes">
+        <button type="submit" name="acao" value="rascunho">Guardar rascunho</button>
+        <button type="submit" name="acao" value="publicar" class="principal">
+          {artigo?.estado === 'publicado' ? 'Salvar e republicar' : 'Publicar no site'}
+        </button>
+      </div>
+      <p class="dica">
+        Rascunho fica só aqui. Publicar coloca o texto no site — ele aparece
+        alguns minutos depois, quando o site termina de ser reconstruído.
+      </p>
+    </form>
+
+    {!novo && (
+      <form method="post" action="/api/painel/apagar" class="apagar">
+        <input type="hidden" name="slug" value={artigo!.slug} />
+        <button type="submit" class="perigo">Apagar este texto</button>
+      </form>
+    )}
+  </div>
+</Painel>
+
+{/* O HTML inicial viaja por um <script type="application/json">, e não por
+    define:vars: assim o conteúdo do artigo nunca é interpolado dentro de
+    código JavaScript, onde uma aspa ou um `</script>` no texto do editor
+    quebraria a página (ou pior). O script lê e faz JSON.parse. */}
+<script id="painel-conteudo" type="application/json" is:inline set:html={JSON.stringify(htmlInicial)}></script>
+<script>
+  import '~/scripts/painel-editor';
+</script>
+
+<style>
+  h1 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(26px, 4vw, 36px);
+    margin: 0 0 22px;
+  }
+  .volta a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--secundario);
+    text-decoration: none;
+  }
+  .volta a:hover {
+    color: var(--tinta);
+    text-decoration: underline;
+  }
+
+  .formulario {
+    background: #fff;
+    border: 1px solid var(--linha);
+    border-radius: 14px;
+    padding: clamp(18px, 3.5vw, 30px);
+    max-width: 760px;
+  }
+
+  .dupla {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 620px) {
+    .dupla {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+
+  .extra {
+    border-top: 1px solid var(--linha);
+    padding-top: 18px;
+    margin-bottom: 22px;
+  }
+  .extra summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--apoio);
+    font-size: 16.5px;
+  }
+  .extra[open] summary {
+    margin-bottom: 16px;
+  }
+
+  .acoes {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--linha);
+    padding-top: 20px;
+  }
+  .acoes button {
+    flex: 1 1 auto;
+  }
+
+  .apagar {
+    margin-top: 26px;
+    max-width: 760px;
+  }
+
+  code {
+    background: #F0F2F5;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 14.5px;
+  }
+</style>
+
+<style is:global>
+  /* O editor é montado por JavaScript, então o CSS escopado do Astro não
+     alcança o que ele injeta — é a armadilha nº 2 do plano
+     (`innerHTML` não herda `data-astro-cid`). Por isso `is:global`, com
+     seletores presos a #editor e #barra para não vazar. */
+  #barra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--linha);
+    border-bottom: 0;
+    border-radius: 10px 10px 0 0;
+    background: #FAFBFC;
+  }
+  #barra button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 6px 12px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+  #barra button[aria-pressed='true'] {
+    background: var(--tinta);
+    border-color: var(--tinta);
+    color: #fff;
+  }
+
+  #editor .ProseMirror {
+    min-height: 320px;
+    padding: 16px 18px;
+    border: 1px solid var(--linha);
+    border-radius: 0 0 10px 10px;
+    background: #fff;
+    font-size: 17px;
+    line-height: 1.6;
+    outline: none;
+  }
+  #editor .ProseMirror:focus-visible {
+    outline: 3px solid var(--apoio);
+    outline-offset: -1px;
+  }
+  #editor .ProseMirror > * + * {
+    margin-top: 0.9em;
+  }
+  #editor .ProseMirror h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 26px;
+  }
+  #editor .ProseMirror h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 21px;
+  }
+  #editor .ProseMirror blockquote {
+    border-left: 3px solid var(--linha);
+    padding-left: 14px;
+    color: var(--secundario);
+    margin-left: 0;
+  }
+  #editor .ProseMirror a {
+    color: var(--apoio);
+  }
+</style>

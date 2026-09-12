@@ -1,0 +1,255 @@
+---
+/**
+ * Layout do painel.
+ *
+ * Separado do `Base.astro` de propósito: o painel não leva navbar pública,
+ * rodapé, aviso de cookies nem vídeo de fundo. Quem está aqui já entrou, e
+ * cada peça do site público que sobrasse seria distração ou peso.
+ *
+ * O que ele mantém do site: as fontes, os tokens de cor e a regra dos 44px
+ * de alvo de toque. Os sócios vão usar isto do celular — a armadilha nº 6
+ * do plano diz que no projeto anterior o painel nunca foi testado em tela
+ * pequena, e foi o que mais atrapalhou.
+ *
+ * `noindex` e `nofollow` sempre: o painel não entra em busca nenhuma.
+ */
+import '~/styles/tokens.css';
+import '~/styles/fontes.css';
+
+interface Props {
+  /** Título da aba. */
+  titulo: string;
+  /** Nome de quem está logado, exibido no cabeçalho. Ausente na tela de login. */
+  editor?: string;
+}
+
+const { titulo, editor } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{titulo}</title>
+  </head>
+  <body>
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="topo">
+      <div class="env">
+        <a class="marca" href="/painel/">
+          Bertoncini &amp; Mendonça<span class="sufixo">painel</span>
+        </a>
+        {editor && (
+          <div class="quem">
+            <span class="nome">{editor}</span>
+            <form method="post" action="/api/painel/sair">
+              <button type="submit">Sair</button>
+            </form>
+          </div>
+        )}
+      </div>
+    </header>
+
+    <main id="conteudo">
+      <slot />
+    </main>
+
+    <style is:global>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        font-size: 17px;
+        line-height: 1.55;
+        color: var(--tinta);
+        background: #F7F8FA;
+        -webkit-font-smoothing: antialiased;
+      }
+      .env {
+        width: min(1100px, 100%);
+        margin-inline: auto;
+        padding-inline: clamp(16px, 4vw, 32px);
+      }
+
+      /* Link de pular: visível ao receber foco pelo teclado. */
+      .pular {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 50;
+        background: var(--tinta);
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 0 0 8px 0;
+      }
+      .pular:focus {
+        left: 0;
+      }
+
+      /* Alvo de 44px em largura E altura, como no site público. */
+      button,
+      .botao,
+      input[type='submit'] {
+        min-height: 44px;
+        min-width: 44px;
+        font: inherit;
+        cursor: pointer;
+        border-radius: 10px;
+        padding: 10px 18px;
+        border: 1px solid var(--linha);
+        background: #fff;
+        color: var(--tinta);
+      }
+      button:hover,
+      .botao:hover {
+        border-color: var(--tinta);
+      }
+      button.principal,
+      .botao.principal {
+        background: var(--tinta);
+        border-color: var(--tinta);
+        color: #fff;
+      }
+      button.perigo {
+        color: var(--imperial);
+        border-color: rgba(155, 28, 46, 0.35);
+      }
+
+      input[type='text'],
+      input[type='email'],
+      input[type='password'],
+      input[type='url'],
+      input[type='number'],
+      textarea,
+      select {
+        font: inherit;
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 14px;
+        border: 1px solid var(--linha);
+        border-radius: 10px;
+        background: #fff;
+        color: var(--tinta);
+      }
+      input:focus-visible,
+      textarea:focus-visible,
+      select:focus-visible,
+      button:focus-visible,
+      a:focus-visible,
+      [contenteditable]:focus-visible {
+        outline: 3px solid var(--apoio);
+        outline-offset: 2px;
+      }
+
+      label {
+        display: block;
+        font-size: 16px;
+        color: var(--secundario);
+        margin-bottom: 6px;
+      }
+
+      .campo {
+        margin-bottom: 20px;
+      }
+      .dica {
+        margin-top: 6px;
+        font-size: 15px;
+        color: var(--secundario);
+      }
+
+      .recado {
+        padding: 14px 18px;
+        border-radius: 10px;
+        border: 1px solid var(--linha);
+        margin-bottom: 22px;
+        font-size: 16.5px;
+      }
+      .recado.erro {
+        border-color: rgba(155, 28, 46, 0.4);
+        background: rgba(155, 28, 46, 0.06);
+        color: var(--imperial);
+      }
+      .recado.ok {
+        border-color: rgba(0, 67, 105, 0.35);
+        background: rgba(0, 67, 105, 0.06);
+        color: var(--apoio);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          transition: none !important;
+          animation: none !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+
+    <style>
+      .topo {
+        background: var(--tinta);
+        color: #fff;
+        padding-block: 12px;
+      }
+      .topo .env {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .marca {
+        color: #fff;
+        text-decoration: none;
+        font-family: var(--serif);
+        font-size: 19px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sufixo {
+        font-family: var(--sans);
+        font-size: 13px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        opacity: 0.75;
+        border-left: 1px solid rgba(255, 255, 255, 0.3);
+        padding-left: 10px;
+      }
+      .quem {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .nome {
+        font-size: 16px;
+        opacity: 0.85;
+      }
+      .quem button {
+        background: transparent;
+        border-color: rgba(255, 255, 255, 0.35);
+        color: #fff;
+        padding: 8px 16px;
+      }
+      .quem button:hover {
+        border-color: #fff;
+      }
+      .quem form {
+        margin: 0;
+      }
+
+      main {
+        padding-block: clamp(24px, 4vw, 48px) clamp(48px, 8vw, 96px);
+      }
+    </style>
+  </body>
+</html>

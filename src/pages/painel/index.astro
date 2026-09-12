@@ -1,0 +1,245 @@
+---
+/**
+ * `/painel/` — a lista de artigos, e a porta de entrada.
+ *
+ * Sem sessão, esta página é o formulário de login. Com sessão, é a lista.
+ * São a mesma rota de propósito: o editor guarda um endereço só, e voltar
+ * ao painel depois de expirar a sessão não dá 404 nem perde o caminho.
+ *
+ * Tudo aqui funciona sem JavaScript: o login é um `<form method="post">`,
+ * a lista é HTML, e as ações são `<form>` com botão. O JavaScript do painel
+ * existe só para o editor de texto rico, na página de edição.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import { editorAtual, configSupabase, clienteComSessao, tokenDaSessao } from '~/lib/painel-auth';
+
+const cfg = configSupabase();
+const editor = cfg ? await editorAtual(Astro.cookies) : null;
+
+const params = Astro.url.searchParams;
+const erro = params.get('erro');
+const feito = params.get('feito');
+
+interface LinhaArtigo {
+  slug: string;
+  titulo: string;
+  estado: string;
+  categoria: string;
+  publicado_em: string;
+  atualizado_em: string | null;
+}
+
+let artigos: LinhaArtigo[] = [];
+let erroLista: string | null = null;
+
+if (editor) {
+  const token = tokenDaSessao(Astro.cookies);
+  const cliente = token ? clienteComSessao(token) : null;
+  if (cliente) {
+    const { data, error } = await cliente
+      .from('artigos')
+      .select('slug, titulo, estado, categoria, publicado_em, atualizado_em')
+      .order('publicado_em', { ascending: false });
+    if (error) erroLista = error.message;
+    else artigos = (data ?? []) as LinhaArtigo[];
+  }
+}
+
+const MENSAGENS: Record<string, string> = {
+  credenciais: 'E-mail ou senha não conferem.',
+  'sem-acesso': 'Esta conta não está cadastrada como editora do blog.',
+  'sem-banco': 'O banco ainda não está configurado neste ambiente.',
+  campos: 'Preencha o e-mail e a senha.',
+  sessao: 'A sessão expirou. Entre de novo.',
+};
+
+const FEITOS: Record<string, string> = {
+  salvo: 'Artigo salvo.',
+  publicado: 'Artigo publicado. O site é reconstruído em alguns minutos.',
+  rascunho: 'Artigo guardado como rascunho. Ele não aparece no site.',
+  apagado: 'Artigo apagado.',
+  saiu: 'Você saiu do painel.',
+};
+
+function dataCurta(iso: string): string {
+  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+---
+
+<Painel titulo={editor ? 'Painel | Bertoncini & Mendonça' : 'Entrar | Painel'} editor={editor?.nome}>
+  <div class="env">
+    {erro && <p class="recado erro" role="alert">{MENSAGENS[erro] ?? 'Não foi possível entrar.'}</p>}
+    {feito && <p class="recado ok" role="status">{FEITOS[feito] ?? 'Pronto.'}</p>}
+
+    {!cfg ? (
+      <section class="aviso-config">
+        <h1>O painel ainda não tem banco</h1>
+        <p>
+          Faltam as variáveis <code>PUBLIC_SUPABASE_URL</code> e
+          <code>PUBLIC_SUPABASE_ANON_KEY</code> neste ambiente. Enquanto elas não
+          existirem, não há onde autenticar nem o que listar.
+        </p>
+        <p class="dica">
+          Elas precisam existir na Vercel antes do deploy, e as migrações de
+          <code>supabase/migracoes/</code> precisam ter sido aplicadas ao projeto do
+          escritório.
+        </p>
+      </section>
+    ) : !editor ? (
+      <section class="entrada">
+        <h1>Entrar no painel</h1>
+        <p class="dica">Use o e-mail cadastrado pelo escritório.</p>
+
+        <form method="post" action="/api/painel/entrar">
+          <div class="campo">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" autocomplete="username" required />
+          </div>
+          <div class="campo">
+            <label for="senha">Senha</label>
+            <input
+              type="password"
+              id="senha"
+              name="senha"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+          <button type="submit" class="principal">Entrar</button>
+        </form>
+      </section>
+    ) : (
+      <section class="lista">
+        <div class="cabecalho">
+          <h1>Textos</h1>
+          <a class="botao principal" href="/painel/artigo/">Escrever novo texto</a>
+        </div>
+
+        {erroLista && (
+          <p class="recado erro" role="alert">
+            Não consegui ler a lista: {erroLista}
+          </p>
+        )}
+
+        {artigos.length === 0 && !erroLista ? (
+          <p class="vazio">
+            Nenhum texto ainda. O primeiro começa no botão acima.
+          </p>
+        ) : (
+          <ul class="artigos">
+            {artigos.map((a) => (
+              <li>
+                <a class="titulo" href={`/painel/artigo/?slug=${encodeURIComponent(a.slug)}`}>
+                  {a.titulo}
+                </a>
+                <p class="meta">
+                  <span class={`marca ${a.estado}`}>
+                    {a.estado === 'publicado' ? 'No site' : 'Rascunho'}
+                  </span>
+                  <span>{a.categoria}</span>
+                  <span>{dataCurta(a.atualizado_em ?? a.publicado_em)}</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    )}
+  </div>
+</Painel>
+
+<style>
+  h1 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(28px, 4.5vw, 40px);
+    margin: 0 0 8px;
+  }
+
+  .entrada,
+  .aviso-config {
+    max-width: 420px;
+    background: #fff;
+    border: 1px solid var(--linha);
+    border-radius: 14px;
+    padding: clamp(20px, 4vw, 32px);
+  }
+  .entrada form {
+    margin-top: 22px;
+  }
+  .entrada button {
+    width: 100%;
+  }
+  .aviso-config code {
+    font-size: 15px;
+    background: #F0F2F5;
+    padding: 2px 6px;
+    border-radius: 5px;
+  }
+
+  .cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .cabecalho .botao {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .artigos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .artigos li {
+    background: #fff;
+    border: 1px solid var(--linha);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .artigos .titulo {
+    display: block;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-size: 18.5px;
+    color: var(--tinta);
+    text-decoration: none;
+  }
+  .artigos .titulo:hover {
+    text-decoration: underline;
+  }
+  .meta {
+    margin: 4px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-size: 15px;
+    color: var(--secundario);
+  }
+  .marca {
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--linha);
+  }
+  .marca.publicado {
+    color: var(--apoio);
+    border-color: rgba(0, 67, 105, 0.35);
+  }
+  .marca.rascunho {
+    color: var(--imperial);
+    border-color: rgba(155, 28, 46, 0.35);
+  }
+  .vazio {
+    color: var(--secundario);
+  }
+</style>
