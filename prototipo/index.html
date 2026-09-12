@@ -350,9 +350,29 @@ video{display:block}
   .js .linha i,.js .sobe{transform:none!important;opacity:1!important}
   .js .hero .filme{transform:none!important}
 }
+
+/* entrada: só existe com JS e com movimento. Sem os dois, display:none
+   e a página abre direto no hero. */
+.entrada{display:none}
+.js .entrada{display:grid;place-items:center;position:fixed;inset:0;z-index:100;
+  background:var(--tinta);color:#fff;
+  transition:transform .7s cubic-bezier(.76,0,.24,1) .15s}
+.js .entrada .grao{position:absolute;inset:0;opacity:.3;mix-blend-mode:overlay;background:#8AA0BC}
+.js .entrada img{width:56px;height:56px;opacity:0;transform:translateY(10px);
+  transition:opacity .5s ease .05s,transform .6s cubic-bezier(.2,.8,.2,1) .05s}
+.js .entrada.viva img{opacity:.92;transform:none}
+.js .entrada.foi{transform:translateY(-101%)}
+.js .entrada.foi img{opacity:0;transition-delay:0s}
+.js .entrada.pulada{display:none}
+@media(prefers-reduced-motion:reduce){.js .entrada{display:none}}
 </style>
 </head>
 <body>
+
+<div class="entrada" id="entrada" aria-hidden="true">
+  <div class="grao" style="filter:url(#grao)"></div>
+  <img src="media/marca/mono-branco.png" alt="" width="56" height="56">
+</div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <filter id="grao"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3"/>
@@ -687,7 +707,24 @@ function aoRolar(fn){
 
 var hero = document.getElementById('hero');
 
-requestAnimationFrame(function(){ hero.classList.add('pronta'); });
+/* entrada da página: o hero só começa a animar depois que a chapa sobe.
+   sessionStorage evita repetir em todo clique de âncora ou recarga. */
+var entrada = document.getElementById("entrada");
+var jaViu = false;
+try { jaViu = sessionStorage.getItem("entrada") === "1"; } catch(e){}
+function liberaHero(){ hero.classList.add("pronta"); }
+if (calmo || jaViu){
+  entrada.classList.add("pulada");
+  liberaHero();
+} else {
+  requestAnimationFrame(function(){ entrada.classList.add("viva"); });
+  setTimeout(function(){
+    entrada.classList.add("foi");
+    try { sessionStorage.setItem("entrada","1"); } catch(e){}
+    setTimeout(liberaHero, 250);
+    setTimeout(function(){ entrada.classList.add("pulada"); }, 1100);
+  }, 650);
+}
 
 /* nav: inverte sobre fundo claro, esconde ao descer, indicador segue a seção */
 (function(){
