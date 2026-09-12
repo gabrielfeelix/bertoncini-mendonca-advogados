@@ -1,0 +1,306 @@
+/* ============================================================
+   Corpo do artigo do blog "Em português claro".
+
+   ── De onde veio ────────────────────────────────────────────
+   Migrado de src/styles/artigo.css do projeto Isabella Pires. O
+   que foi aproveitado é a ESTRUTURA do arquivo: uma coluna de
+   leitura com largura própria, a capa mais larga que a coluna e
+   centrada por margem negativa, a hierarquia de títulos do corpo,
+   e o tratamento de imagem, legenda, citação, lista e regra.
+
+   O que NÃO foi aproveitado é qualquer valor de lá. Aquele
+   arquivo era uma reprodução medida de um site em Framer: Inter,
+   Mulish, cinzas #666/#999/#000, corpo de 16px. Nada disso existe
+   aqui. Este projeto tem seis cores, duas fontes (Newsreader e
+   Archivo) e um público de 70 anos, para quem 16px é pouco.
+
+   ── O que mudou, e por quê ──────────────────────────────────
+   - Corpo a 19px, não 16px. A restrição do projeto é 18px mínimo;
+     o corpo do artigo é o texto mais longo do site e ganha meio
+     passo a mais.
+   - Cor do texto é `--tinta` sobre branco, não cinza claro. Cinza
+     #666 sobre branco passa em AA por pouco e cansa numa leitura
+     de oito minutos.
+   - Títulos do corpo em Newsreader (a serifada), corpo em
+     Archivo. No Framer era o contrário (serifada no corpo). Aqui
+     a serifada é a voz dos títulos em todo o site, e o artigo não
+     abre exceção.
+   - A medida da coluna é declarada em `ch`, não em px: o que
+     importa para a leitura é quantos caracteres cabem na linha, e
+     72ch é o intervalo confortável.
+   - A capa escapa da coluna pela mesma técnica de margem negativa
+     do original, porque ela resolve de verdade o vazamento em
+     tablet que uma largura em `vw` causaria.
+
+   ── A armadilha do CSS escopado ─────────────────────────────
+   O corpo do artigo é HTML gerado do markdown pelo Astro. Esse
+   HTML não carrega o atributo `data-astro-cid-*` que o CSS
+   escopado de um `<style>` de componente usa para casar seletor:
+   uma regra escopada para `.artigo-corpo p` simplesmente não
+   alcança o `<p>` que veio do markdown. Por isso as regras do
+   corpo moram NESTE arquivo, importado como folha global, e não
+   num `<style>` da página. É a mesma solução que o `is:global`
+   daria, com a vantagem de o arquivo ser lido e revisado sozinho.
+   ============================================================ */
+
+.artigo {
+  /* A coluna de leitura. A capa é mais larga e escapa dela (abaixo). */
+  --artigo-largura: 72ch;
+  --artigo-capa: 96ch;
+  margin-inline: auto;
+  max-width: var(--artigo-largura);
+  padding-inline: var(--gutter);
+  padding-block: clamp(28px, 4vw, 56px) clamp(48px, 6vw, 88px);
+}
+
+@media (max-width: 1100px) {
+  /* Abaixo disto a capa deixa de escapar: com a coluna estreita, a margem
+     negativa a jogaria para fora da tela. */
+  .artigo {
+    --artigo-capa: var(--artigo-largura);
+  }
+}
+
+/* ── Cabeçalho do artigo ── */
+
+.artigo-trilha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--secundario);
+  margin-bottom: 12px;
+}
+.artigo-trilha a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  border-bottom: 1px solid var(--linha);
+}
+.artigo-trilha a:hover {
+  border-color: var(--tinta);
+}
+
+.artigo-classe {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  font-size: 16px;
+  color: var(--apoio);
+  margin-bottom: 18px;
+}
+
+.artigo-titulo {
+  font-family: var(--serif);
+  font-weight: 200;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  font-size: clamp(34px, 5.2vw, 62px);
+  margin: 0;
+}
+
+.artigo-resumo {
+  margin-top: clamp(16px, 2.2vw, 24px);
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--secundario);
+}
+
+.artigo-pe {
+  margin-top: clamp(18px, 2.4vw, 26px);
+  padding-top: 18px;
+  border-top: 1px solid var(--linha);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 16.5px;
+  color: var(--secundario);
+}
+.artigo-pe .divisa {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--linha);
+}
+
+/* ── A capa ── */
+/* Escapa da coluna por margem negativa, e não por largura em `vw`: assim ela
+   nunca ultrapassa o que o pai realmente tem. O negativo é metade da
+   diferença entre a capa e a coluna, dos dois lados. */
+.artigo-capa {
+  display: block;
+  height: auto;
+  border-radius: 14px;
+  margin: clamp(28px, 4vw, 48px) calc((var(--artigo-largura) - var(--artigo-capa)) / 2)
+    clamp(28px, 4vw, 48px);
+  /* `max-width:100%` cancelaria o escape: o 100% é a coluna, não a capa. A
+     largura é declarada, e o `min()` com a tela é o que segura o vazamento. */
+  max-width: none;
+  width: min(var(--artigo-capa), calc(100vw - 2 * var(--gutter)));
+  object-fit: cover;
+}
+
+/* ── O corpo ── */
+
+.artigo-corpo {
+  font-family: var(--sans);
+  font-size: 19px;
+  line-height: 1.72;
+  color: var(--tinta);
+}
+
+.artigo-corpo > :first-child {
+  margin-top: 0;
+}
+
+.artigo-corpo p {
+  margin: 0 0 22px;
+}
+
+/* Os títulos do corpo são Newsreader; o contraste com o Archivo do texto é o
+   que dá o ritmo da página, e é a mesma gramática do resto do site. */
+.artigo-corpo :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--serif);
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  color: var(--tinta);
+}
+
+.artigo-corpo h1 {
+  font-size: clamp(30px, 3.4vw, 40px);
+  line-height: 1.1;
+  margin: 44px 0 16px;
+}
+.artigo-corpo h2 {
+  font-size: clamp(26px, 2.9vw, 34px);
+  line-height: 1.15;
+  margin: 44px 0 14px;
+}
+.artigo-corpo h3 {
+  font-size: clamp(22px, 2.3vw, 26px);
+  line-height: 1.25;
+  margin: 36px 0 12px;
+}
+.artigo-corpo h4 {
+  font-size: 20px;
+  line-height: 1.3;
+  margin: 30px 0 10px;
+}
+
+.artigo-corpo :is(ul, ol) {
+  margin: 0 0 22px;
+  padding-left: 24px;
+}
+.artigo-corpo li {
+  margin-bottom: 10px;
+}
+
+.artigo-corpo a {
+  color: var(--apoio);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.artigo-corpo a:hover {
+  color: var(--imperial);
+}
+
+.artigo-corpo strong {
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+/* A citação usa o vermelho imperial na barra, que é a cor de ação do site, e
+   não um cinza qualquer. */
+.artigo-corpo blockquote {
+  margin: 32px 0;
+  padding: 4px 0 4px 22px;
+  border-left: 3px solid var(--imperial);
+  color: var(--apoio);
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 22px;
+  line-height: 1.5;
+}
+.artigo-corpo blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.artigo-corpo :is(img, video) {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  border-radius: 10px;
+  margin: 32px 0 0;
+}
+
+.artigo-corpo figure {
+  margin: 32px 0;
+}
+.artigo-corpo figure img {
+  margin-top: 0;
+}
+
+/* Legenda logo abaixo da imagem, no secundário. */
+.artigo-corpo figcaption {
+  margin: 14px 0 0;
+  font-size: 16.5px;
+  line-height: 1.55;
+  color: var(--secundario);
+}
+
+.artigo-corpo hr {
+  border: 0;
+  border-top: 1px solid var(--linha);
+  margin: 40px 0;
+}
+
+/* Tabela: o markdown pode trazer uma, e sem isto ela estoura a largura da
+   coluna em telas pequenas. */
+.artigo-corpo table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 22px;
+  font-size: 17px;
+}
+.artigo-corpo :is(th, td) {
+  border: 1px solid var(--linha);
+  padding: 10px 14px;
+  text-align: left;
+}
+.artigo-corpo th {
+  font-weight: 600;
+}
+
+/* Código: fonte do sistema, porque nem Newsreader nem Archivo têm desenho
+   monoespaçado, e inventar uma terceira família aqui violaria a restrição de
+   tipografia do projeto tanto quanto usar Montserrat. */
+.artigo-corpo :is(code, pre) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92em;
+}
+.artigo-corpo pre {
+  background: var(--linha);
+  border-radius: 10px;
+  padding: 18px;
+  overflow-x: auto;
+  margin: 0 0 22px;
+}
+.artigo-corpo :not(pre) > code {
+  background: var(--linha);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artigo,
+  .artigo * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

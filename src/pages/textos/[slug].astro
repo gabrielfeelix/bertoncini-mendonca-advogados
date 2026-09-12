@@ -1,0 +1,231 @@
+---
+/**
+ * `/textos/[slug]/`: a página de um artigo.
+ *
+ * O conteúdo vem da coleção `artigos`, que o loader em
+ * `src/lib/loader-supabase.ts` lê do Supabase no build. Esta página não sabe
+ * de onde o artigo veio, e é assim de propósito: trocar a fonte não mexe
+ * aqui.
+ *
+ * ── A segurança do corpo ────────────────────────────────────────────────
+ * O corpo é markdown, e o loader passa ele por `neutralizaHtmlCru()` ANTES
+ * de renderizar, porque markdown sozinho não impede HTML inline: um
+ * `<img src=x onerror=...>` escrito no banco chegaria intacto ao HTML final.
+ * Esta página consome o resultado já renderizado com `<Content />` e **não
+ * reintroduz o problema**: não há `set:html` aqui, não há `innerHTML`, não
+ * há nenhum caminho por onde uma string do banco vire marcação. Quem mexer
+ * aqui depois: não troque `<Content />` por `set:html={artigo.rendered.html}`
+ * achando que dá no mesmo; dá, hoje, mas é o primeiro passo para alguém
+ * "melhorar" para uma string não renderizada.
+ *
+ * ── Por que o CSS do corpo está num arquivo, e não num `<style>` ────────
+ * O HTML que sai do markdown não carrega o atributo `data-astro-cid-*` do
+ * CSS escopado. Uma regra escopada para `.artigo-corpo p` não alcança o
+ * `<p>` que veio do markdown. Por isso as regras do corpo moram em
+ * `src/styles/artigo.css`, importado como folha global. O `<style>` no fim
+ * deste arquivo cuida só do que esta página escreve com as próprias mãos.
+ *
+ * A página inteira é HTML estático: não depende de JavaScript em nada.
+ */
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '~/layouts/Base.astro';
+import CartaoTexto from '~/components/CartaoTexto.astro';
+import Newsletter from '~/components/Newsletter.astro';
+import Contato from '~/components/Contato.astro';
+import { listarArtigos, dataLegivel, NOME_DO_BLOG } from '~/lib/artigos';
+import '~/styles/artigo.css';
+
+export const getStaticPaths = (async () => {
+  const artigos = await listarArtigos();
+  return artigos.map((artigo) => ({ params: { slug: artigo.id }, props: { artigo } }));
+}) satisfies GetStaticPaths;
+
+const { artigo } = Astro.props;
+const d = artigo.data;
+const { Content } = await render(artigo);
+
+/* Três outros textos no fim da página. A escolha prefere a mesma categoria,
+   porque quem leu sobre família tende a querer mais disso, e completa com os
+   mais recentes quando a categoria não dá três. */
+const todos = (await listarArtigos()).filter((item) => item.id !== artigo.id);
+const daCategoria = todos.filter((item) => item.data.categoria === d.categoria);
+const relacionados = [
+  ...daCategoria,
+  ...todos.filter((item) => !daCategoria.includes(item)),
+].slice(0, 3);
+
+/* O SEO vem do artigo. Nada de copy inventada aqui: se o banco trouxer
+   seoTitulo ou seoDescricao, mandam eles. */
+const titulo = `${d.seoTitulo ?? d.titulo} | Bertoncini & Mendonça Advogados`;
+const descricao = d.seoDescricao ?? d.resumo;
+---
+
+<Base titulo={titulo} descricao={descricao} paginaAtual="/textos/">
+  <article class="artigo">
+    <nav class="artigo-trilha" aria-label="Trilha de navegação">
+      <a href="/textos/">{NOME_DO_BLOG}</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{d.titulo}</span>
+    </nav>
+
+    <p><span class="artigo-classe">{d.categoria}</span></p>
+
+    <h1 class="artigo-titulo">{d.titulo}</h1>
+
+    <p class="artigo-resumo">{d.resumo}</p>
+
+    <p class="artigo-pe">
+      <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
+      {
+        d.tempoLeitura && (
+          <>
+            <span class="divisa" aria-hidden="true" />
+            <span>{d.tempoLeitura} min de leitura</span>
+          </>
+        )
+      }
+      {
+        d.autor && (
+          <>
+            <span class="divisa" aria-hidden="true" />
+            <span>{d.autor}</span>
+          </>
+        )
+      }
+      {
+        d.atualizadoEm && (
+          <>
+            <span class="divisa" aria-hidden="true" />
+            <span>
+              Atualizado em{' '}
+              <time datetime={d.atualizadoEm.toISOString()}>{dataLegivel(d.atualizadoEm)}</time>
+            </span>
+          </>
+        )
+      }
+    </p>
+
+    {
+      /* A capa só entra com largura e altura: o <Image> remoto as exige, e é
+         para isso que a Tarefa 10 as gravou no banco. O schema já garante
+         que capa sem dimensão não passa da validação, então este `&&` é
+         cinto e suspensório. `eager`, porque é a imagem do topo. */
+      d.capa && d.capaLargura && d.capaAltura && (
+        <Image
+          class="artigo-capa"
+          src={d.capa}
+          alt={d.capaAlt ?? ''}
+          width={d.capaLargura}
+          height={d.capaAltura}
+          widths={[480, 800, 1200]}
+          sizes="(min-width: 1100px) 900px, 100vw"
+          loading="eager"
+        />
+      )
+    }
+
+    {/* O corpo renderizado do markdown, já com o HTML cru neutralizado pelo
+        loader. Nada de set:html aqui. */}
+    <div class="artigo-corpo">
+      <Content />
+    </div>
+
+    <p class="ressalva">
+      Este texto é informativo e não substitui a orientação sobre o seu caso. A
+      resposta certa depende dos documentos e das datas de cada situação.
+    </p>
+  </article>
+
+  {
+    relacionados.length > 0 && (
+      <section class="mais" aria-labelledby="mais-titulo">
+        <div class="env">
+          <h2 class="rotulo" id="mais-titulo">
+            Outros textos
+          </h2>
+          <div class="banca">
+            {relacionados.map((item) => (
+              <CartaoTexto artigo={item} nivel={3} />
+            ))}
+          </div>
+          <p class="volta">
+            <a href="/textos/">Ver todos os textos</a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <Newsletter id="artigo" />
+  <Contato />
+</Base>
+
+<style>
+  /* A ressalva fecha o corpo. É exigência de prudência, não de layout: um
+     texto informativo publicado por escritório precisa dizer que é
+     informativo. */
+  .ressalva {
+    margin-top: clamp(36px, 4.5vw, 56px);
+    padding-top: 22px;
+    border-top: 1px solid var(--linha);
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--secundario);
+  }
+
+  .mais {
+    border-top: 1px solid var(--linha);
+    padding-block: clamp(40px, 5.5vw, 80px);
+  }
+  .rotulo {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--secundario);
+    margin-bottom: clamp(20px, 2.6vw, 30px);
+  }
+  .banca {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(22px, 2.4vw, 34px);
+  }
+  @media (max-width: 1080px) {
+    .banca {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 620px) {
+    .banca {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .volta {
+    margin-top: clamp(26px, 3vw, 38px);
+  }
+  .volta a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    border: 1px solid var(--linha);
+    border-radius: 999px;
+    font-size: 16.5px;
+    text-decoration: none;
+  }
+  .volta a:hover {
+    border-color: var(--tinta);
+    background: var(--linha);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mais * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

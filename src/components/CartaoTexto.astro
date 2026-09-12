@@ -1,0 +1,217 @@
+---
+/**
+ * Cartão de artigo da lista `/textos/`. Migrado do protótipo: HTML nas
+ * linhas 691-737, CSS nas linhas 289-326 (`.texto`, `.texto .capa`,
+ * `.texto h4`, `.texto .pe`).
+ *
+ * Três diferenças em relação ao protótipo, todas por motivo:
+ *
+ * 1. **A capa passa pelo `<Image>` do Astro.** No protótipo era um `<img>`
+ *    solto para um arquivo local de mentira. Aqui a capa é uma URL remota do
+ *    Storage do Supabase, e o `<Image>` só a otimiza porque o host está
+ *    autorizado em `image.domains` (astro.config.mjs) e porque o artigo traz
+ *    `capaLargura` e `capaAltura` do banco. Sem as duas o Astro recusa a
+ *    imagem remota, e é por isso que a Tarefa 10 as gravou.
+ *
+ * 2. **O artigo pode não ter capa.** O schema deixa `capa` opcional, e a
+ *    tabela trata capa como tudo-ou-nada. Sem capa, o cartão mostra uma
+ *    chapa azul com o grão por cima, no lugar da imagem, em vez de um buraco
+ *    branco. A chapa é azul escuro, que é a única superfície onde o grão
+ *    pode aparecer.
+ *
+ * 3. **O `<h4>` do protótipo virou o elemento que a prop `nivel` pedir.** Na
+ *    lista o cartão vive sob um `<h2>` de seção, então o título dele é um
+ *    `<h3>`; o protótipo usava `<h4>` porque a home tinha outra hierarquia.
+ *    Pular nível de título quebra a navegação por cabeçalho do leitor de
+ *    tela.
+ *
+ * O cartão inteiro é um `<a>`: funciona clicado e pelo teclado sem uma linha
+ * de JavaScript. O movimento de hover é só CSS e some com
+ * `prefers-reduced-motion`.
+ */
+import { Image } from 'astro:assets';
+import { dataLegivel, tomDaCapa, type Artigo } from '~/lib/artigos';
+
+interface Props {
+  artigo: Artigo;
+  /** Nível do título do cartão, para não pular degrau na hierarquia. */
+  nivel?: 2 | 3;
+  /** Tamanhos que o navegador deve considerar ao escolher a capa. */
+  sizes?: string;
+}
+
+const { artigo, nivel = 3, sizes = '(min-width: 1080px) 320px, (min-width: 620px) 45vw, 92vw' } =
+  Astro.props;
+
+const d = artigo.data;
+const Titulo = `h${nivel}` as 'h2' | 'h3';
+const tom = tomDaCapa(d.categoria);
+---
+
+<a class="texto" href={`/textos/${artigo.id}/`}>
+  <div class="capa">
+    {
+      d.capa && d.capaLargura && d.capaAltura ? (
+        <Image
+          src={d.capa}
+          alt={d.capaAlt ?? ''}
+          width={d.capaLargura}
+          height={d.capaAltura}
+          widths={[400, 640, 900]}
+          sizes={sizes}
+          loading="lazy"
+        />
+      ) : (
+        <div class="semcapa" aria-hidden="true" />
+      )
+    }
+    <div class="tom" style={`--tom:${tom}`} aria-hidden="true"></div>
+    <div class="som" aria-hidden="true"></div>
+    <div class="grao" style="filter:url(#grao)" aria-hidden="true"></div>
+    <span class="classe">{d.categoria}</span>
+  </div>
+
+  <Titulo class="nome">{d.titulo}</Titulo>
+
+  <p class="pe">
+    <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
+    {
+      d.tempoLeitura && (
+        <>
+          <span class="divisa" aria-hidden="true" />
+          <span>{d.tempoLeitura} min de leitura</span>
+        </>
+      )
+    }
+  </p>
+</a>
+
+<style>
+  /* Protótipo, linhas 297-326. */
+  .texto {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    /* O cartão inteiro é o alvo de toque, e ele é bem maior que 44px em
+       qualquer direção. */
+    min-height: 44px;
+  }
+
+  .capa {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 14px;
+    overflow: hidden;
+    /* Azul escuro: é o fundo da capa enquanto a imagem carrega, e é a chapa
+       inteira quando o artigo não tem capa. O grão só aparece por cima
+       disto, nunca sobre branco. */
+    background: var(--tinta);
+  }
+  .capa :global(img),
+  .capa .semcapa {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .capa .tom {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: color;
+    opacity: 0.82;
+    background: var(--tom, #0b1e3f);
+    transition: opacity 0.6s;
+  }
+  .capa .som {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(6, 15, 31, 0.5), transparent 55%);
+  }
+  .capa .grao {
+    position: absolute;
+    inset: 0;
+    opacity: 0.22;
+    pointer-events: none;
+  }
+  .capa .classe {
+    position: absolute;
+    z-index: 3;
+    left: 12px;
+    top: 12px;
+    /* 13px, não os 12px do protótipo: é o menor texto da página e precisa
+       ser legível para quem tem 70 anos. */
+    font-size: 13px;
+    color: #fff;
+    background: rgba(6, 15, 31, 0.62);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+
+  .texto:hover .capa :global(img) {
+    transform: scale(1.04);
+  }
+  .texto:hover .capa .tom {
+    opacity: 0.5;
+  }
+
+  .nome {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(20px, 1.7vw, 24px);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 18px 0 0;
+    /* O sublinhado que cresce no hover, do protótipo: gradiente de 0 a 100%
+       de largura, e não um `text-decoration`, para a linha poder animar. */
+    background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1px;
+    transition:
+      background-size 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 0.3s;
+  }
+  .texto:hover .nome {
+    color: var(--apoio);
+    background-size: 100% 1px;
+  }
+
+  .pe {
+    margin-top: 12px;
+    font-size: 16px;
+    color: var(--secundario);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .pe .divisa {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--linha);
+  }
+
+  /* O foco do teclado precisa contornar o cartão inteiro, e o raio grande do
+     :focus-visible global (4px) some contra a capa arredondada. */
+  .texto:focus-visible {
+    outline: 2px solid var(--imperial);
+    outline-offset: 6px;
+    border-radius: 16px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .texto,
+    .texto * {
+      transition: none !important;
+      animation: none !important;
+    }
+    .texto:hover .capa :global(img) {
+      transform: none;
+    }
+    .texto:hover .nome {
+      background-size: 0 1px;
+    }
+  }
+</style>
