@@ -88,12 +88,45 @@ type LinhaArtigo = {
  * especial: o markdown já os escapa, e escapar duas vezes só mudaria o que
  * aparece na tela, sem abrir buraco.
  *
+ * **Escapar `<` não basta sozinho.** A sintaxe de link do markdown não usa
+ * `<`, então `[clique](javascript:alert(1))` passava inteiro por aqui e
+ * virava `<a href="javascript:alert(1)">` no HTML final — âncora clicável,
+ * com rótulo escolhido por quem escreveu. Foi medido, não deduzido: o
+ * primeiro teste desta função contra o build real produziu o href
+ * executável. O mesmo valia para `data:text/html;base64,...`, que abre
+ * documento com script no lugar do site.
+ *
+ * Por isso a segunda passagem: esquemas de URL perigosos são quebrados
+ * dentro do destino do link, antes de o markdown virar HTML. O link continua
+ * visível na página, com o texto que o autor deu, mas não navega para nada
+ * executável.
+ *
  * Isto é uma contenção, não um sanitizador. A troca certa, quando o projeto
  * puder ganhar uma dependência, é `rehype-sanitize` na configuração de
- * markdown, com uma lista de tags permitidas.
+ * markdown, com uma lista de tags permitidas e de protocolos permitidos.
  */
+
+/* Esquemas que executam código ou trocam o documento por outro. `vbscript:`
+   entra por histórico de navegador antigo; `data:` porque um data: de
+   text/html roda script na origem do site. */
+const ESQUEMAS_PERIGOSOS = /^(?:javascript|data|vbscript):/i;
+
+/**
+ * Destino de link markdown: `](...)`. Compara o valor já sem espaços e sem
+ * entidades de controle, que é como o parser o lerá.
+ */
+function destinoSeguro(destino: string): string {
+  const limpo = destino.replace(/[\s\u0000-\u001f]/g, '');
+  return ESQUEMAS_PERIGOSOS.test(limpo) ? '#' : destino;
+}
+
 export function neutralizaHtmlCru(markdown: string): string {
-  return markdown.replace(/<(?=[a-zA-Z/!?])/g, '&lt;');
+  const semTags = markdown.replace(/<(?=[a-zA-Z/!?])/g, '&lt;');
+  /* Só o destino do link é reescrito; o rótulo entre colchetes não é tocado. */
+  return semTags.replace(/\]\(([^)]*)\)/g, (inteiro, destino: string) => {
+    const seguro = destinoSeguro(destino);
+    return seguro === destino ? inteiro : `](${seguro})`;
+  });
 }
 
 /**

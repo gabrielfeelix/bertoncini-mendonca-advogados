@@ -10,14 +10,28 @@
  * fechada não há o que normalizar: valor fora da lista cai em `/`.
  *
  * Mora aqui, e não na rota, porque `Newsletter.astro` precisa da mesma
- * lista para conferir, no build, que a página onde ele está sendo montado
- * é um destino válido. Sem essa conferência, acrescentar a newsletter a uma
+ * regra para conferir, no build, que a página onde ele está sendo montado é
+ * um destino válido. Sem essa conferência, acrescentar a newsletter a uma
  * página nova falha em silêncio: a inscrição funciona, mas quem está sem
  * JavaScript é jogado para a home em vez de voltar para onde estava.
- * Foi o que aconteceu com `/textos/`.
  */
-export const VOLTAS_PERMITIDAS = ['/', '/contato/', '/textos/'] as const;
+
+/** Páginas fixas que montam a newsletter. Comparação exata. */
+const EXATAS = ['/', '/contato/', '/textos/'] as const;
+
+/**
+ * As páginas de artigo também montam a newsletter, e o slug é dinâmico:
+ * não há como listá-las uma a uma. Daí a regra de prefixo.
+ *
+ * Ela continua sendo lista fechada no que importa para a segurança. O valor
+ * precisa começar com `/textos/`, terminar em `/` e não conter mais nenhuma
+ * barra no meio — ou seja, casa `/textos/algum-slug/` e não casa
+ * `/textos/../evil`, `/textos//evil.com` nem `/textos/a/b/`. Como a rota
+ * compara o caminho já normalizado pelo parser de URL, não sobra espaço
+ * para truque de normalização.
+ */
+const ARTIGO = /^\/textos\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/;
 
 export function voltaPermitida(valor: string): boolean {
-  return (VOLTAS_PERMITIDAS as readonly string[]).includes(valor);
+  return (EXATAS as readonly string[]).includes(valor) || ARTIGO.test(valor);
 }
