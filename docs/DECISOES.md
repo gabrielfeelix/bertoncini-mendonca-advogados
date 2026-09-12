@@ -5,6 +5,56 @@ topo. Decisão revogada não é apagada — é marcada como revogada, com a data
 
 ---
 
+## 12/09/2026 — O site vira multipágina, e a navbar muda
+
+Decisão do Gabriel ao ver o protótipo da homepage rodando. Três pontos.
+
+### 1. Site institucional com páginas dedicadas
+
+O protótipo entregou uma homepage de página única, com a navbar levando a âncoras
+da própria página. **Não é o que o projeto é.** O site é institucional: cada item
+do menu leva a uma página própria.
+
+Páginas decididas, além da home:
+
+| Página | O que carrega |
+|---|---|
+| Áreas de atuação | Lista das áreas, e uma página dedicada por área |
+| O escritório | Quem são os sócios, com bio completa |
+| Blog | Lista de textos, e uma página por artigo |
+| Contato | Formulário, WhatsApp, endereço, horário |
+
+**A régua de quanto conteúdo vai em cada lugar**, nas palavras do cliente: a home
+explica a maior parte das coisas; quem quiser saber mais entra na página dedicada.
+Nem página tão grande que canse, nem tão pequena que pareça faltar coisa. A home
+não é um índice de links: ela responde sozinha, e as páginas internas aprofundam.
+
+Na home, a seção de sócios é a **versão curta e criativa**; a bio completa fica na
+página do escritório.
+
+### 2. A navbar em três ilhas flutuantes sai
+
+O cliente achou "esquisito". Entra **barra cheia fixa no topo**: logo à esquerda,
+links no meio, botão de WhatsApp à direita. É o padrão dos escritórios de advocacia
+das referências, e é o que não chama atenção para si num site cujo público tem 70
+anos. A decisão de 11/09 sobre textura na barra presa fica revogada junto com as
+ilhas; a textura continua valendo nas chapas azuis.
+
+### 3. Blog com CMS
+
+Os sócios publicam sozinhos, sem mexer no código e sem depender do Gabriel. O CMS
+vem do projeto `isabella-pires-arquitetura`, reaproveitado.
+
+### O que isso implica
+
+O protótipo de página única (`prototipo/index.html`, 18 commits, verificador
+passando, Lighthouse 94) **não é jogado fora**: ele vira a home e o sistema de
+design do site. Seções, tipografia, paleta, textura, reveals e a seção "Como
+trabalhamos" migram. O que muda é a arquitetura em volta: Astro, componentes
+compartilhados, rotas, e a navbar nova.
+
+---
+
 ## 11/09/2026 (tarde) — A textura é a personalidade do site
 
 Decisão do Gabriel ao revisar o segundo protótipo: **a textura granulada aplicada
