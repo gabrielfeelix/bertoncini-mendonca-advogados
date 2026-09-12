@@ -52,7 +52,7 @@ cliente em silêncio.
 | 12. Painel de publicação | pronta, **sem revisão formal** | `73c7520` |
 | 13. Contato, newsletter, legal | pronta, **re-revisada** | `2e7756f`, `c1dfa6e`, `80d67a9`, `d0fe974` |
 | — Correção das áreas (briefing) | pronta, **sem revisão formal** | `dcca41d` |
-| 14. Verificação automatizada | **NÃO FEITA** | — |
+| 14. Verificação automatizada | pronta, **sem revisão formal** | `35d64c7` |
 | 15. Revisão final | **NÃO FEITA** | — |
 
 **Rotas que existem:** `/areas/`,
@@ -259,8 +259,18 @@ baixa nenhum dos três chunks. Verificado.
 
 **Falta revisão formal.**
 
-### Tarefas 14 e 15
-Adaptar `tools/verifica.mjs` para rodar em todas as rotas, e a revisão final.
+### ~~Tarefa 14~~ — FEITA (`35d64c7`). Falta a 15.
+`npm run verifica` roda contra o **servidor** (não o protótipo) em todas as
+rotas publicadas, incluindo as páginas de artigo, que ele descobre sozinho.
+Precisa do dev server no ar: `npm run dev` num terminal, `npm run verifica`
+noutro (`npm run preview` não funciona neste projeto).
+
+Foi provado que o portão **falha quando deve**: link quebrado injetado e
+kill-switch removido, os dois acusados. Achou e corrigiu três defeitos
+reais de `<title>` e `astro check`.
+
+A Tarefa 15 continua aberta, e tem duas correções de documento
+obrigatórias:
 Duas correções que a 15 tem que fazer em documento:
 - **`docs/PLANO-SITE.md` está errado numa premissa de segurança.** Ele diz que a
   armadilha de XSS se resolve porque "aqui o corpo é markdown". **Foi medido:
