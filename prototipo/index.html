@@ -353,8 +353,11 @@ video{display:block}
 }
 
 /* palavras: sem JS o h2 é texto normal. Com JS e movimento, cada palavra
-   vira um span que vai de 22% a 100% de opacidade conforme a rolagem. */
-.js [data-palavras] .w{display:inline-block;opacity:.22;will-change:opacity}
+   vira um span que vai de 55% a 100% de opacidade conforme a rolagem.
+   Piso em .55 (não .22) e janela do scrub encurtada para terminar dentro
+   da seção, de propósito: quem para de rolar no meio nunca vê o texto
+   travado ilegível. Não baixar o piso nem alongar a janela de volta. */
+.js [data-palavras] .w{display:inline-block;opacity:.55;will-change:opacity}
 @media(prefers-reduced-motion:reduce){.js [data-palavras] .w{opacity:1}}
 
 /* revela: reveal de imagem por clip-path, sem JS ou com menos movimento
@@ -724,7 +727,7 @@ aoRolar(function(gsap, ST){
     h.innerHTML = texto.map(function(p){ return '<span class="w">' + p + '</span>'; }).join(" ");
     gsap.to(h.querySelectorAll(".w"), {
       opacity: 1, stagger: 0.04, ease: "none",
-      scrollTrigger: { trigger: h, start: "top 78%", end: "bottom 45%", scrub: 0.6 }
+      scrollTrigger: { trigger: h, start: "top 78%", end: "bottom 75%", scrub: 0.6 }
     });
   });
 });
