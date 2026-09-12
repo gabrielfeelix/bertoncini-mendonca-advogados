@@ -5,22 +5,19 @@
 
 ## Antes de tocar em código, faça isto
 
-**1. Leia as respostas do briefing.** O Juscelino já respondeu parte do
-questionário e há informação ali que resolve placeholders espalhados pelo site.
-As respostas **não estão no repositório**: vivem na tabela
-`briefing_bertoncini_mendonca`, no projeto Supabase `qoifhphjfjykweqymqxi`
-(ver `docs/supabase-briefing.sql`). As perguntas que foram feitas estão em
-`docs/PERGUNTAS.md`, em nove blocos.
+**1. Leia `docs/BRIEFING-RESPOSTAS.md` antes de qualquer outra coisa.** São as 17
+respostas que o Juscelino já deu, extraídas da tabela
+`briefing_bertoncini_mendonca` do Supabase e copiadas para o repositório para
+que ninguém mais dependa de credencial. As perguntas completas estão em
+`docs/PERGUNTAS.md`.
 
-**A credencial desse projeto não está na máquina.** Procurei: este repositório
-não tem `.env`; o `.env` do projeto da Isabella
-(`/home/gabfelix/dev/isabella-pires-arquitetura/.env`) aponta para outro projeto
-Supabase (`bnvjvletrqbvmxgsptpw`), e uma consulta à tabela do briefing lá
-devolve **HTTP 404**; nenhum outro `.env` em `~/dev` referencia
-`qoifhphjfjykweqymqxi`. **Peça ao Gabriel a chave desse projeto ou uma
-exportação da tabela** antes de começar. Note que o Gabriel acredita que a
-credencial está acessível por um `.env`, então vale dizer a ele exatamente o que
-foi procurado.
+**Essas respostas contradizem o que o site tem hoje. Leia o item "O erro grave"
+abaixo antes de planejar qualquer tarefa.**
+
+(Se precisar consultar a tabela de novo: as credenciais estão no `.env` do
+projeto `/home/gabfelix/dev/portfolio`, nas chaves `SERVICE_ROLE` ou
+`SECRET_KEY`. O `.env` deste repositório não existe, e o do projeto da Isabella
+aponta para outro projeto Supabase.)
 
 Isso é a primeira tarefa, não uma nota de rodapé: o site tem hoje **mais de 60
 marcações `data-placeholder="1"`**, e cada resposta do briefing apaga uma.
@@ -51,9 +48,9 @@ cliente em silêncio.
 | 8. Páginas de área | pronta, revisada | `6b1d86a` |
 | 9. Página do escritório | pronta, revisada | `d7f0355` |
 | 10. Banco e CMS | pronta, sem revisão formal | `9400474` |
-| 11. Páginas do blog | em execução ao fim da sessão | — |
+| 11. Páginas do blog | pronta, **sem revisão formal** | `c583849` |
 | 12. Painel de publicação | **NÃO FEITA** | — |
-| 13. Contato, newsletter, legal | **em correção** | `2e7756f`, `c1dfa6e` |
+| 13. Contato, newsletter, legal | corrigida, **re-revisão não feita** | `2e7756f`, `c1dfa6e`, `80d67a9` |
 | 14. Verificação automatizada | **NÃO FEITA** | — |
 | 15. Revisão final | **NÃO FEITA** | — |
 
@@ -66,24 +63,100 @@ pelo Gabriel em 12/09. As três ilhas do protótipo estão revogadas.
 
 ---
 
-## Duas coisas em voo quando a sessão acabou
+## Duas coisas entregues sem revisão
 
-Confira o estado destas antes de planejar:
+Ambas commitadas e com build passando, **nenhuma das duas revisada**:
 
-1. **Tarefa 13, rodada de correção 1.** Três achados Críticos foram despachados
-   ao implementador e o resultado não chegou a ser verificado. Os três estão
-   descritos abaixo, em "Defeitos conhecidos". **Reverifique você mesmo, contra
-   as rotas que `npm run build` emite.**
-2. **Tarefa 11 (blog)** estava em execução. Confira `git log` e o estado de
-   `src/pages/textos/`.
-
-Arquivos não commitados no fim da sessão pertencem a essas duas tarefas.
+1. **Tarefa 13 (`80d67a9`)** — a correção dos três Críticos. O implementador diz
+   ter reproduzido cada defeito antes de corrigir e testado contra as rotas do
+   build: a colisão do campo `assunto` (agora com uma checagem que derruba o
+   build se voltar a acontecer), o redirecionador aberto (agora lista fechada,
+   oito tentativas de escape testadas) e a integração do aviso de cookies no
+   `Base.astro` e da newsletter em `/contato/`. **Reverifique**: foi este mesmo
+   implementador que declarou os três como funcionando quando não funcionavam.
+2. **Tarefa 11 (`c583849`)** — o blog. Lista paginada, artigo, `artigo.css`
+   adaptado, capas otimizadas. Os artigos de exemplo nunca foram ao repositório
+   (serviu um PostgREST falso no scratchpad).
 
 ---
 
+## O ERRO GRAVE: as áreas de atuação do site estão erradas
+
+O site tem hoje **Família** e **Compliance** como áreas confirmadas, com texto
+escrito, página própria e CTA. O briefing diz outra coisa:
+
+> **2.1 / 2.2** — *"Planejamento patrimonial e sucessório (que vai englobar
+> direito civil, direito imobiliário, inventários, direito tributário, direito
+> societário e contratos no geral) e Direito Digital (que envolve proteção de
+> dados e privacidade, propriedade intelectual, contratos eletrônicos e
+> e-commerce, crimes cibernéticos, uso de redes sociais e internet, inteligência
+> artificial e compliance digital)."*
+
+**Família não é área do escritório.** Compliance existe, mas como parte de
+Direito Digital, não como área própria. As duas áreas principais são:
+
+| Área | Quem lidera (q2_3) |
+|---|---|
+| Planejamento Patrimonial e Sucessório | Juscelino |
+| Direito Digital | Beatriz |
+
+E há áreas que eles **não** atendem (q2_4): **Direito do Consumidor e
+Previdenciário**. O site não pode sugerir que atendem.
+
+**O que precisa ser refeito:**
+- `src/content/areas/familia.json` e `compliance.json` — o conteúdo inteiro,
+  incluindo os assuntos, o corpo e as perguntas frequentes.
+- As páginas `/areas/familia/` e `/areas/compliance/` deixam de existir; entram
+  `/areas/planejamento-patrimonial-e-sucessorio/` e `/areas/direito-digital/`
+  (ou os slugs que você julgar melhores).
+- A seção de áreas da home e o `Areas.astro`.
+- `terceira-area.json` e `quarta-area.json` continuam "a confirmar": o briefing
+  não define uma terceira nem uma quarta. O teto de quatro áreas continua valendo.
+- A bio do Juscelino em `/escritorio/`, que hoje diz "direito de família e
+  compliance" (herdado do protótipo).
+
+O texto jurídico que já existe sobre família (divórcio, guarda, pensão,
+inventário) foi verificado contra fontes primárias e está correto — mas é sobre
+a área errada. Só a parte de **inventários** se aproveita, dentro de
+Planejamento Patrimonial e Sucessório.
+
+## O que mais o briefing resolve
+
+- **Formação, com título (q1_7a, q1_7b).** Os dois são bacharéis pela UEM.
+  Juscelino: especialista em Direito Empresarial (PUC/RS) e em Advocacia
+  Consultiva (Legale), pós-graduando em Direito Imobiliário (i9). Beatriz:
+  especialista em Direito Processual Civil (PUC/RS), pós-graduanda em Direito
+  Digital (i9). **Isso destrava a palavra "especialista"**, que o Provimento
+  205/2021 só proíbe sem título — agora há título.
+- **A história da sociedade (q1_3).** Mesma universidade, mesmo ano, ela o chamou
+  para o processo seletivo do Martinelli, mais de quatro anos trabalhando lado a
+  lado, de estagiários a advogados. É o que faltava na página do escritório.
+- **A trajetória do Juscelino (q1_8a)**, cinco posições, com o que fez em cada.
+- **Onde atendem (q2_5, q2_6).** Todo o país, presencialmente em Maringá.
+  **Ainda não têm escritório físico**: usam o coworking do Sicredi Dexis. A
+  página de contato precisa refletir isso, e não pode sugerir sede própria.
+- **Como os clientes chegam hoje (q2_7).** Indicação, WhatsApp. Não há redes
+  sociais nem site ativo.
+
+**Duas coisas do briefing que NÃO vão para o site:**
+- **q1_5** descreve um caso concreto, com fraude descoberta e valor envolvido. É
+  caso de sucesso, **vedado pelo Provimento 205/2021**. Serve para entender o
+  perfil do sócio, não para publicar.
+- **q2_7** tem perguntas do cliente ao Gabriel sobre CRM e ERP. É conversa de
+  projeto.
+
+**A Beatriz continua sem responder.** As perguntas 1.5 e 1.6 têm "Bia:" seguido
+de vazio, e não há resposta dela em nenhum bloco. A bio dela continua
+dependendo da conversa que não aconteceu. O que se sabe dela vem do que o
+Juscelino contou (q1_3, q1_4, q1_7b).
+
 ## O que falta, e a ordem que eu sugiro
 
-### Primeiro: fechar o que está pela metade
+### Primeiro: corrigir as áreas
+É o item acima. Enquanto não for feito, o site anuncia serviços que o escritório
+não presta e omite os dois que ele presta.
+
+### Segundo: fechar o que está pela metade
 Verifique a correção da tarefa 13 e o resultado da 11. Nenhuma das duas pode ser
 dada como pronta sem revisão.
 
