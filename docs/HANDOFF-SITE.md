@@ -1,7 +1,70 @@
-# Handoff: site multipágina, tarefas 12 a 15
+# Handoff: site multipágina
 
 > Escrito em 12/09/2026, ao fim da sessão que executou as tarefas 1 a 11 de
-> `docs/PLANO-SITE.md`. Para o agente que continua.
+> `docs/PLANO-SITE.md`. **Atualizado em 12/09/2026** por uma segunda sessão,
+> que executou a correção das áreas e as tarefas 5, 6, 12 e 14, além de
+> re-revisar a 11 e a 13. Para o agente que continua.
+
+> ## ⚠️ Leia isto antes de tudo: o visual vai ser refeito
+>
+> **Decisão do Gabriel, 12/09/2026.** O site funciona, está correto e está
+> verificado — mas o visual **não** está aprovado e vai mudar em todas as
+> páginas. A avaliação dele, textualmente: *"está muito simples, muito
+> texto, muito pouco componente, tudo muito simplista. Parece que foi uma
+> inteligência artificial que fez."*
+>
+> É uma leitura justa. O que existe hoje é sobretudo **texto empilhado em
+> uma coluna**: parágrafo após parágrafo, com pouca peça visual própria,
+> pouca hierarquia além do tamanho da fonte e quase nenhum componente que
+> não seja lista, chip ou acordeão.
+>
+> **A medida do problema, para não ficar no "achei feio".** Contado no
+> HTML que o build emite:
+>
+> | Rota | Parágrafos | Imagens | SVG |
+> |---|---|---|---|
+> | `/areas/planejamento-patrimonial-e-sucessorio/` | 24 | 1 | 5 |
+> | `/escritorio/` | 30 | 3 | 4 |
+> | `/areas/` | 11 | 1 | 6 |
+>
+> Uma página de área tem **24 parágrafos e uma imagem**. Os SVG são setas e
+> ícones de interface, não peça gráfica. É por isso que o site lê como um
+> documento: quase tudo é `<p>` em coluna única, e o único recurso de
+> hierarquia em uso é o tamanho da fonte.
+>
+> **Onde há mais gordura de texto do que o leitor aguenta:** o corpo das
+> áreas (7 a 9 parágrafos corridos), a página do escritório (as bios longas
+> agora que o briefing as preencheu) e as políticas. São os três lugares
+> onde um redesenho ganha mais.
+>
+> **O que isso significa para quem continuar:**
+>
+> - **O conteúdo NÃO se refaz.** Ele vem do briefing, foi conferido contra
+>   as respostas do cliente e contra o Provimento 205/2021, e a parte
+>   jurídica ainda vai a um advogado. Texto de área, bios, história da
+>   sociedade, perguntas frequentes e políticas **ficam**. O que muda é
+>   como esse conteúdo é apresentado.
+> - **A estrutura de dados ajuda, e foi feita para isso.** As áreas são
+>   JSON com campos separados (`assuntos`, `corpo`, `perguntas`), não um
+>   bloco de texto opaco. Um layout novo consome os mesmos campos sem
+>   tocar no conteúdo.
+> - **Não parta do protótipo como se fosse o alvo final.** Ele continua
+>   sendo o que o cliente aprovou e a referência do sistema de design
+>   (cores, tipografia, grão, movimento), mas o próprio Gabriel reservou
+>   para si a revisão do visual. Trate o protótipo como ponto de partida,
+>   não como teto.
+> - **O que NÃO pode ser perdido no redesenho**, porque é requisito e não
+>   estética: OAB visível e legível (19px na home, 22px em `/escritorio/`),
+>   alvo de toque de 44px em largura **e** altura, contraste AA, tudo
+>   legível e clicável **sem JavaScript**, e `prefers-reduced-motion`
+>   desligando todo movimento. `npm run verifica` cobra os cinco em todas
+>   as rotas — rode-o depois de cada mudança de layout.
+> - **A decisão dos 18px continua aberta e agora é parte do redesenho.**
+>   Ver "Decisão que é do Gabriel" mais abaixo.
+>
+> A Tarefa 15 (revisão final) faz sentido **depois** do redesenho, não
+> antes: varrer voz e inventariar placeholders num visual que vai mudar é
+> trabalho que se perde.
 
 ## Antes de tocar em código, faça isto
 
@@ -11,21 +74,26 @@ respostas que o Juscelino já deu, extraídas da tabela
 que ninguém mais dependa de credencial. As perguntas completas estão em
 `docs/PERGUNTAS.md`.
 
-**Essas respostas contradizem o que o site tem hoje. Leia o item "O erro grave"
-abaixo antes de planejar qualquer tarefa.**
+**Elas já foram aplicadas ao site** (áreas, formação dos sócios, história da
+sociedade, atendimento nacional, ausência de escritório físico). O que
+sobrou pendente delas está no item "CORRIGIDO em 12/09/2026" abaixo.
 
 (Se precisar consultar a tabela de novo: as credenciais estão no `.env` do
 projeto `/home/gabfelix/dev/portfolio`, nas chaves `SERVICE_ROLE` ou
 `SECRET_KEY`. O `.env` deste repositório não existe, e o do projeto da Isabella
 aponta para outro projeto Supabase.)
 
-Isso é a primeira tarefa, não uma nota de rodapé: o site tem hoje **mais de 60
-marcações `data-placeholder="1"`**, e cada resposta do briefing apaga uma.
+O briefing derrubou as marcações `data-placeholder="1"` de mais de 60 para
+**30**. As que restam são, quase todas, dado que ainda não existe: OAB de
+cada sócio, CNPJ, registro da sociedade, telefone, e-mail e domínio. Elas
+não se resolvem escrevendo — só quando o escritório fornecer.
 
 **2. Leia, nesta ordem:** `docs/PLANO-SITE.md` (a spec e as 15 tarefas),
 `docs/DECISOES.md` (a entrada de 12/09/2026 primeiro), `docs/DECISOES-EXECUCAO.md`,
-e `prototipo/index.html` inteiro, uma vez. O protótipo é o sistema de design e
-não se modifica: é a referência do que o cliente aprovou.
+e `prototipo/index.html` inteiro, uma vez. **Não se modifica o protótipo**:
+ele é a referência do sistema de design (cores, tipografia, grão, movimento)
+e do que o cliente aprovou. Mas veja o aviso do redesenho no topo — ele é
+ponto de partida do visual, não teto.
 
 **3. Use a skill `superpowers:subagent-driven-development`**, uma tarefa por vez,
 com revisão depois de cada uma. Funcionou: as revisões pegaram defeitos que
@@ -34,7 +102,7 @@ cliente em silêncio.
 
 ---
 
-## O que está pronto (tarefas 1 a 11)
+## O estado de cada tarefa
 
 | Tarefa | Estado | Commit |
 |---|---|---|
@@ -53,7 +121,8 @@ cliente em silêncio.
 | 13. Contato, newsletter, legal | pronta, **re-revisada** | `2e7756f`, `c1dfa6e`, `80d67a9`, `d0fe974` |
 | — Correção das áreas (briefing) | pronta, **sem revisão formal** | `dcca41d` |
 | 14. Verificação automatizada | pronta, **sem revisão formal** | `35d64c7` |
-| 15. Revisão final | **NÃO FEITA** | — |
+| 15. Revisão final | **ADIADA de propósito**, espera o redesenho | — |
+| — Redesenho visual | **NÃO FEITO**, é o próximo trabalho | — |
 
 **Rotas que existem:** `/areas/`,
 `/areas/planejamento-patrimonial-e-sucessorio/`, `/areas/direito-digital/`,
@@ -213,13 +282,27 @@ Juscelino contou (q1_3, q1_4, q1_7b).
 
 ## O que falta, e a ordem que eu sugiro
 
+> **A ordem mudou em 12/09/2026.** Das 15 tarefas do plano, só a 15 segue
+> aberta — e ela deve esperar. O próximo trabalho grande é o **redesenho
+> visual** (ver o aviso no topo), que vai mexer no layout de todas as
+> páginas. Fazer a revisão final antes dele é varrer uma casa que ainda vai
+> ser reformada.
+>
+> Ordem sugerida hoje:
+> 1. **Redesenho visual** — decidindo junto a questão dos 18px.
+> 2. **Revisão jurídica** do conteúdo das duas áreas novas (é de advogado,
+>    não de agente, e independe do visual).
+> 3. **Tarefa 15**, depois que o visual estiver fechado.
+> 4. **Aplicar as migrações e provar a RLS**, quando houver credencial.
+
 ### ~~Primeiro: corrigir as áreas~~ — FEITO (`dcca41d`)
 Ver o item acima. Falta **revisão**: o conteúdo jurídico das duas áreas novas
 foi escrito numa sessão e não passou por advogado nem por revisor.
 
-### Segundo: fechar o que está pela metade
-Verifique a correção da tarefa 13 e o resultado da 11. Nenhuma das duas pode ser
-dada como pronta sem revisão.
+### ~~Segundo: fechar o que está pela metade~~ — FEITO
+As tarefas 11 e 13 foram re-revisadas contra o servidor. Ver "Tarefas 11 e 13"
+acima: os três Críticos da 13 estão corrigidos, e a re-revisão achou mais dois
+defeitos, também corrigidos (`d0fe974`, `4816a1e`).
 
 ### ~~Tarefa 6: a home~~ — FEITA (`2b1e1b6`)
 A OAB subiu para 19px e ganhou o rótulo "Inscrição na Ordem"; em
@@ -269,9 +352,13 @@ Foi provado que o portão **falha quando deve**: link quebrado injetado e
 kill-switch removido, os dois acusados. Achou e corrigiu três defeitos
 reais de `<title>` e `astro check`.
 
-A Tarefa 15 continua aberta, e tem duas correções de documento
-obrigatórias:
-Duas correções que a 15 tem que fazer em documento:
+### Tarefa 15 — ABERTA, e deve esperar o redesenho
+Varredura de OAB e de voz, inventário de placeholders, Lighthouse por rota e
+atualização de `README.md`. **Faça depois do redesenho visual**: varrer voz e
+inventariar placeholders num layout que vai mudar é trabalho perdido.
+
+As duas correções de documento abaixo, porém, independem do visual e podem
+ser feitas a qualquer momento:
 - **`docs/PLANO-SITE.md` está errado numa premissa de segurança.** Ele diz que a
   armadilha de XSS se resolve porque "aqui o corpo é markdown". **Foi medido:
   não se resolve**, e por dois caminhos, não um. O renderizador do Astro repassa
@@ -312,6 +399,14 @@ e nas respostas das perguntas, 15px nos chips de assunto, 12px em legendas e na
 pílula "a confirmar". Nada foi alterado, porque mudar isso muda a quebra de linha
 e o ritmo de seis seções, e o Gabriel reservou para si a revisão do visual da
 home. **Ele precisa decidir.**
+
+**Atualização de 12/09/2026:** isso deixou de ser uma decisão isolada e passou
+a ser **parte do redesenho** (ver o aviso no topo). Como o layout de todas as
+páginas vai mudar, o momento de resolver os 35 tamanhos é junto com ele, e não
+antes — mexer neles agora seria refazer o mesmo trabalho duas vezes. O
+`verifica.mjs` cobra 18px no corpo do `<body>`; os outros 34 casos são
+declarações locais, que ele não cobra e que continuam valendo o que o
+protótipo definiu.
 
 ### Buraco conhecido no CMS
 **As políticas de RLS não foram provadas em execução.** Sem credencial, nada foi
