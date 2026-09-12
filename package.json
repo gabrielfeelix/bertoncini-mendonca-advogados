@@ -3,11 +3,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "verifica": "node tools/verifica.mjs"
+    "verifica": "node tools/verifica.mjs",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/vercel": "^11.0.9",
+    "astro": "^7.2.10",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.4",
     "gsap": "^3.15.0",
     "lenis": "^1.3.26",
-    "playwright": "^1.47.0"
+    "playwright": "^1.47.0",
+    "typescript": "^5.7.3"
   }
 }
