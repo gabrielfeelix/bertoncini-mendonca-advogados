@@ -45,6 +45,15 @@ import { listarArtigos, NOME_DO_BLOG } from '~/lib/artigos';
    leva à página dela; as que ainda não foram definidas aparecem sem link,
    marcadas "a confirmar", como manda a decisão registrada. */
 const areas = await listarAreas();
+/* O ícone do canto de cada bloco, por slug. Mora aqui, e não no JSON da
+   área, porque é decisão de layout da home e não conteúdo: a página da
+   área usa as marcas das cenas, que são outras. Área sem entrada aqui
+   simplesmente não ganha ícone — é o caso das duas a confirmar. */
+const marcaDaArea: Record<string, 'sucessao' | 'rede'> = {
+  'planejamento-patrimonial-e-sucessorio': 'sucessao',
+  'direito-digital': 'rede',
+};
+
 const areasDaHome = areas.map((area) =>
   area.data.aConfirmar
     ? { nome: area.data.nome, pendente: 'a confirmar' }
@@ -53,6 +62,7 @@ const areasDaHome = areas.map((area) =>
         glosa: area.data.resumo,
         assuntos: area.data.assuntos.slice(0, 5),
         href: `/areas/${area.data.slug}/`,
+        marca: marcaDaArea[area.data.slug],
       },
 );
 

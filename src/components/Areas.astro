@@ -33,6 +33,8 @@ interface Area {
   placeholder?: boolean;
   /** Rótulo da pílula vermelha nas áreas ainda não definidas. */
   pendente?: string;
+  /** Ícone do canto superior direito do bloco. Ausente nas "a confirmar". */
+  marca?: 'sucessao' | 'rede';
 }
 
 interface Props {
@@ -54,6 +56,7 @@ const {
       nome: 'Planejamento Patrimonial e Sucessório',
       glosa: 'Organizar em vida o que, sem organização, vira inventário e disputa entre herdeiros.',
       assuntos: ['Inventário e partilha', 'Testamento e doação', 'Holding familiar', 'Contratos', 'Direito imobiliário'],
+      marca: 'sucessao',
       href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20planejamento%20patrimonial%20e%20sucess%C3%B3rio.`,
       placeholder: site.whatsapp.placeholder,
     },
@@ -61,6 +64,7 @@ const {
       nome: 'Direito Digital',
       glosa: 'Dados pessoais, propriedade intelectual, contratos eletrônicos e o que acontece quando algo dá errado na internet.',
       assuntos: ['Proteção de dados e LGPD', 'Propriedade intelectual', 'Contratos eletrônicos', 'Crimes cibernéticos', 'Compliance digital'],
+      marca: 'rede',
       href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20direito%20digital.`,
       placeholder: site.whatsapp.placeholder,
     },
@@ -99,6 +103,10 @@ const {
             rel="noopener"
           >
             <span class="ordem">{String(i + 1).padStart(2, '0')}</span>
+            {/* O título quebra em três linhas e para na metade da largura:
+                sobrava um vão no alto à direita do bloco. O ícone ocupa
+                esse vão e diz de que área se trata antes da leitura. */}
+            {area.marca && <Marca tipo={area.marca} class="icone" />}
             <h3>{area.nome}</h3>
             {area.glosa && <span class="glosa">{area.glosa}</span>}
             {area.assuntos && area.assuntos.length > 0 && (
@@ -192,6 +200,37 @@ const {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: clamp(12px, 1.2vw, 18px);
+  }
+
+  /* Ocupa o vão no alto à direita, ao lado do número e do título. Medido
+     no bloco real: o título para em x=428 de 625px úteis, deixando ~190px
+     livres. `pointer-events: none` porque o bloco inteiro é o link. */
+  .bloco :global(.icone) {
+    position: absolute;
+    top: clamp(30px, 3vw, 44px);
+    right: clamp(30px, 3vw, 44px);
+    width: clamp(62px, 6.4vw, 92px);
+    pointer-events: none;
+  }
+  /*
+    O bloco escuro tem `--tinta` como fundo, e as marcas usam `--tinta`
+    nas peças cheias: ali elas viravam buracos no card. Redefinir os
+    tokens no escopo do ícone é o que faz a mesma marca servir às duas
+    superfícies sem uma segunda versão do desenho.
+  */
+  .bloco.t1 :global(.icone) {
+    --tinta: #ffffff;
+    --branco: #0b1e3f;
+    --linha: rgba(255, 255, 255, 0.28);
+    --secundario: rgba(255, 255, 255, 0.62);
+    --papel: rgba(255, 255, 255, 0.1);
+  }
+  /* Abaixo de 620px o título usa a largura toda e o ícone encostaria
+     nele. */
+  @media (max-width: 620px) {
+    .bloco :global(.icone) {
+      display: none;
+    }
   }
   .bloco {
     position: relative;

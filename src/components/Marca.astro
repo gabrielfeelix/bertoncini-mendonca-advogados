@@ -33,7 +33,9 @@ interface Props {
     | 'maquina'
     | 'leque'
     | 'conversa'
-    | 'pauta';
+    | 'pauta'
+    | 'sucessao'
+    | 'rede';
   /** Classe extra, para o posicionamento vir de quem usa. */
   class?: string;
 }
@@ -84,6 +86,48 @@ const { tipo, class: classe } = Astro.props;
         fill="var(--tinta)"
       />
       <path d="M96 122h58M96 140h36" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-linecap="round" />
+    </>
+  )}
+
+  {tipo === 'sucessao' && (
+    <>
+      {/* Patrimônio que passa adiante: um bem no topo e a partilha que
+          desce dele. Duas partes definidas e uma ainda em aberto, que é o
+          que o planejamento resolve. Marca do card de Planejamento
+          Patrimonial e Sucessório, na home.
+
+          A barra horizontal e as três descidas são traços separados, um
+          por ramo: a versão anterior desenhava tudo num `path` só com
+          cantos arredondados, e o ramo do meio ficava sem descida
+          enquanto o da direita parava antes da caixa. A pastilha vermelha
+          fica ACIMA da barra, no talo — em cima dela parecia defeito de
+          cruzamento. */}
+      <rect x="76" y="24" width="48" height="48" rx="12" fill="var(--tinta)" />
+      <path d="M100 72v18" stroke="var(--secundario)" stroke-width="3" stroke-linecap="round" />
+      <circle cx="100" cy="82" r="9" fill="var(--imperial)" />
+      <path d="M40 104h120" stroke="var(--secundario)" stroke-width="3" stroke-linecap="round" />
+      <path d="M40 104v22M100 104v22M160 104v22" stroke="var(--secundario)" stroke-width="3" stroke-linecap="round" />
+      <rect x="20" y="126" width="40" height="46" rx="11" fill="var(--branco)" stroke="var(--tinta)" stroke-width="3" />
+      <rect x="80" y="126" width="40" height="46" rx="11" fill="var(--branco)" stroke="var(--tinta)" stroke-width="3" />
+      <rect x="140" y="126" width="40" height="46" rx="11" fill="none" stroke="var(--secundario)" stroke-width="3" stroke-dasharray="7 8" opacity="0.6" />
+    </>
+  )}
+
+  {tipo === 'rede' && (
+    <>
+      {/* Nós ligados: o ambiente eletrônico. Marca do card de Direito
+          Digital, na home. É a `abertura` das páginas de área redesenhada
+          para o tamanho pequeno — menos nós e traço mais grosso, porque a
+          80px a versão original virava renda. */}
+      <circle cx="100" cy="100" r="66" stroke="var(--linha)" stroke-width="3" fill="none" />
+      <path d="M100 34v132M41 67l118 66M159 67L41 133" stroke="var(--linha)" stroke-width="3" />
+      <circle cx="100" cy="34" r="11" fill="var(--tinta)" />
+      <circle cx="159" cy="133" r="11" fill="var(--tinta)" />
+      <circle cx="41" cy="133" r="11" fill="var(--tinta)" />
+      <circle cx="41" cy="67" r="8" fill="var(--branco)" stroke="var(--secundario)" stroke-width="3" />
+      <circle cx="159" cy="67" r="8" fill="var(--branco)" stroke="var(--secundario)" stroke-width="3" />
+      <circle cx="100" cy="166" r="8" fill="var(--branco)" stroke="var(--secundario)" stroke-width="3" />
+      <circle cx="100" cy="100" r="15" fill="var(--imperial)" />
     </>
   )}
 
