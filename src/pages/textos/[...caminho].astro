@@ -1,0 +1,62 @@
+---
+/**
+ * `/textos/...` → `/blog/...`.
+ *
+ * ── Por que isto é uma PÁGINA, e não configuração ───────────────────────
+ *
+ * Três caminhos foram tentados e medidos em produção antes deste:
+ *
+ * 1. `redirects` do Astro. O adaptador da Vercel monta a regex da rota com
+ *    `escapeRegex()`, que fecha em `$` sem barra final opcional — sai
+ *    `^/textos(?:/([^/]+?))$` (ver
+ *    node_modules/@astrojs/vercel/dist/lib/redirects.js). Resultado real:
+ *    `/textos` redirecionava, mas `/textos/`, `/textos/2/` e
+ *    `/textos/algum-artigo/` davam 404. É justamente a forma COM barra
+ *    final que o site usa em todo link, e a que já foi compartilhada.
+ *
+ * 2. `vercel.json`. O adaptador escreve `.vercel/output/config.json` por
+ *    conta própria e as `redirects` de lá não entram no build.
+ *
+ * 3. `routes` na config do `vercel()`. Não existe: as opções do adaptador
+ *    são webAnalytics, includeFiles, excludeFiles, imageService,
+ *    imagesConfig, devImageService, middlewareMode, edgeMiddleware,
+ *    maxDuration, isr, skewProtection e staticHeaders.
+ *
+ * Como rota estática, ela casa a barra final como qualquer outra página do
+ * site. Em saída estática o Astro emite uma página de meta-refresh com
+ * `noindex` e `<link rel="canonical">` apontando para o destino — não é o
+ * cabeçalho 301, mas o canonical é o sinal que consolida a URL antiga na
+ * nova para o buscador, e o visitante chega no lugar certo.
+ *
+ * ── Quando isto pode sair ───────────────────────────────────────────────
+ *
+ * Quando não houver mais tráfego vindo de `/textos/`.
+ */
+import type { GetStaticPaths } from 'astro';
+import { listarArtigos, POR_PAGINA } from '~/lib/artigos';
+
+export const getStaticPaths = (async () => {
+  const artigos = await listarArtigos();
+
+  /* Uma entrada por URL que `/textos/` já pôde ter: a raiz, cada página da
+     lista e cada artigo. `undefined` é a própria `/textos/`.
+
+     Os artigos entram um a um porque uma rota estática só existe para o
+     caminho que foi gerado: sem isto, `/textos/algum-artigo/` continuaria
+     em 404. Enquanto o Supabase não tem credencial a lista volta vazia e
+     só a raiz é gerada — que é o estado normal do projeto hoje, e passa a
+     cobrir os artigos sozinho quando o banco entrar. */
+  const caminhos: (string | undefined)[] = [undefined];
+
+  const totalPaginas = Math.max(1, Math.ceil(Math.max(0, artigos.length - 1) / POR_PAGINA));
+  for (let n = 2; n <= totalPaginas; n++) caminhos.push(String(n));
+
+  for (const artigo of artigos) caminhos.push(artigo.id);
+
+  return caminhos.map((caminho) => ({ params: { caminho }, props: { caminho } }));
+}) satisfies GetStaticPaths;
+
+const { caminho } = Astro.props;
+
+return Astro.redirect(caminho ? `/blog/${caminho}/` : '/blog/', 301);
+---

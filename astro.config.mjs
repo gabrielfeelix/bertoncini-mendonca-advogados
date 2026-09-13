@@ -28,7 +28,11 @@ const hostDoSupabase = (() => {
    ela é página de trabalho não versionada, e um deploy feito da máquina
    local a carrega junto. O `.vercelignore` agora impede a subida; isto
    garante que, se ela subir de outro jeito, ao menos não é anunciada. */
-const ROTAS_FORA_DO_SITEMAP = ['/painel', '/previa'];
+/* `/textos` entrou junto porque virou rota de redirecionamento para
+   `/blog/` (ver src/pages/textos/[...caminho].astro): anunciar no sitemap
+   uma URL que só redireciona é pedir ao buscador que rastreie o caminho
+   antigo em vez do novo. */
+const ROTAS_FORA_DO_SITEMAP = ['/painel', '/previa', '/textos'];
 
 export default defineConfig({
   // Placeholder: o domínio final ainda não foi confirmado com o escritório.
@@ -47,19 +51,6 @@ export default defineConfig({
 
     301 (permanente) e não 302: a mudança é definitiva, e é o 301 que
     transfere a autoridade da URL antiga para a nova.
-  */
-  /*
-    Os 301 de /textos/ para /blog/ NÃO ficam aqui: estão em `vercel.json`.
-
-    Estiveram aqui, em `redirects`, e funcionavam pela metade. O Astro
-    gera para o adaptador uma regex terminada em `$` sem barra final
-    opcional — `^/textos(?:/([^/]+?))$` —, então `/textos` redirecionava
-    mas `/textos/` e `/textos/algum-artigo/` caíam em 404. Como o site
-    inteiro usa barra final, era justamente a forma real dos links
-    compartilhados que deixava de funcionar. Verificado em produção.
-
-    Em `vercel.json` o redirecionamento acontece na borda, antes do
-    roteamento, e `:caminho*` casa as duas formas.
   */
   integrations: [
     // Conteúdo do blog (Tarefas 10-12) será escrito em MDX, como na Isabella.
