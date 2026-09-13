@@ -5,6 +5,23 @@
 > que executou a correção das áreas e as tarefas 5, 6, 12 e 14, além de
 > re-revisar a 11 e a 13. Para o agente que continua.
 
+> ## ⚠️ O redesenho COMEÇOU. Leia `docs/HANDOFF-REDESENHO.md` primeiro
+>
+> **Atualizado em 12/09/2026.** As Tarefas 0 e 1 de
+> `docs/PLANO-REDESENHO.md` estão feitas: o portão passou a cobrar
+> contraste AA e tamanho da OAB, e **a home inteira foi redesenhada**
+> (commits `e7fc844`, `fa10d9b`, `7289599`, `31aae40`).
+>
+> O resto do site ainda está no visual antigo. O estado do redesenho, o
+> vocabulário visual e as armadilhas medidas estão em
+> **`docs/HANDOFF-REDESENHO.md`** — leia aquele antes deste.
+>
+> Uma correção a este documento: ele afirma abaixo que `npm run verifica`
+> cobra os cinco requisitos. **Não cobrava** — contraste e tamanho da OAB
+> estavam de fora até `e7fc844`.
+>
+> O texto abaixo fica como registro do diagnóstico que originou o trabalho.
+
 > ## ⚠️ Leia isto antes de tudo: o visual vai ser refeito
 >
 > **Decisão do Gabriel, 12/09/2026.** O site funciona, está correto e está
