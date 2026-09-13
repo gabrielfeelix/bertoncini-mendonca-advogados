@@ -91,6 +91,7 @@ const socios = [
     nome: 'Juscelino',
     sobrenome: 'Bertoncini',
     foto: '/media/socios/juscelino.jpeg',
+    base: '/media/socios/juscelino',
     alt: 'Retrato de Juscelino Bertoncini',
     oab: site.socios[0].oab.valor,
     oabPlaceholder: site.socios[0].oab.placeholder,
@@ -135,6 +136,7 @@ const socios = [
     nome: 'Beatriz',
     sobrenome: 'Mendonça',
     foto: '/media/socios/beatriz.jpeg',
+    base: '/media/socios/beatriz',
     alt: 'Retrato de Beatriz Mendonça',
     oab: site.socios[1].oab.valor,
     oabPlaceholder: site.socios[1].oab.placeholder,
@@ -172,7 +174,9 @@ const socios = [
         placeholder: site.telefone.placeholder,
       },
     ],
-    estiloFoto: 'object-position:50% 26%;filter:brightness(1.22) contrast(.96) saturate(1.06)',
+    /* O brilho saiu do CSS: a correção está na própria imagem agora
+       (ver Socios.astro). Aqui fica só o enquadramento. */
+    estiloFoto: 'object-position:50% 26%',
   },
 ];
 ---

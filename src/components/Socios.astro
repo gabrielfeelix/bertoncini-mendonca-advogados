@@ -25,6 +25,8 @@ interface Socio {
   sobrenome: string;
   /** Caminho do retrato em `public/`. */
   foto: string;
+  /** Prefixo dos derivados otimizados, sem sufixo de tamanho nem extensão. */
+  base: string;
   /** Texto alternativo do retrato. */
   alt: string;
   /** Inscrição na OAB. Obrigatória pelo Provimento 205/2021. */
@@ -62,6 +64,7 @@ const {
       nome: 'Juscelino',
       sobrenome: 'Bertoncini',
       foto: '/media/socios/juscelino.jpeg',
+      base: '/media/socios/juscelino',
       alt: 'Retrato de Juscelino Bertoncini',
       oab: site.socios[0].oab.valor,
       oabPlaceholder: site.socios[0].oab.placeholder,
@@ -71,11 +74,15 @@ const {
       nome: 'Beatriz',
       sobrenome: 'Mendonça',
       foto: '/media/socios/beatriz.jpeg',
+      base: '/media/socios/beatriz',
       alt: 'Retrato de Beatriz Mendonça',
       oab: site.socios[1].oab.valor,
       oabPlaceholder: site.socios[1].oab.placeholder,
       bio: 'Direito digital. Especialista em Direito Processual Civil pela PUC/RS, com experiência em processos judiciais estratégicos.',
-      estiloFoto: 'object-position:50% 26%;filter:brightness(1.22) contrast(.96) saturate(1.06)',
+      /* O filtro de brilho que existia aqui saiu: a correção passou a ser
+         feita na própria imagem, ao gerar os derivados. Filtro CSS custa
+         repintura a cada frame de animação e não corrigia a moldura. */
+      estiloFoto: 'object-position:50% 26%',
     },
   ],
   variante = 'curta',
@@ -92,7 +99,17 @@ const Assina = nivel;
       <article class="par sobe">
         <figure>
           <div class="moldura revela">
-            <img src={socio.foto} alt={socio.alt} loading="lazy" style={socio.estiloFoto} />
+            {/* As fotos são os retratos REAIS dos sócios, otimizados com
+                sharp a partir dos arquivos originais em `public/media/socios/`.
+                A da Beatriz teve a moldura preta desenhada na própria imagem
+                recortada (~2% de cada lado) e ganhou brilho: a original é
+                muito escura, e moldura dentro da moldura do site ficava
+                estranho. Ver o commit que gerou os derivados. */}
+            <picture>
+              <source type="image/avif" srcset={`${socio.base}-560.avif 560w, ${socio.base}-840.avif 840w`} sizes="(max-width: 900px) 100vw, 46vw" />
+              <source type="image/webp" srcset={`${socio.base}-560.webp 560w, ${socio.base}-840.webp 840w`} sizes="(max-width: 900px) 100vw, 46vw" />
+              <img src={`${socio.base}-840.jpg`} alt={socio.alt} loading="lazy" style={socio.estiloFoto} />
+            </picture>
             <div class="chapa"></div><div class="veu"></div>
             <div class="grao" style="filter:url(#grao)"></div>
             <Assina class="assina">{socio.nome}<br />{socio.sobrenome}</Assina>
