@@ -32,6 +32,7 @@
  * uma rua seria pior do que admitir que ela falta.
  */
 import Base from '~/layouts/Base.astro';
+import Marca from '~/components/Marca.astro';
 import Newsletter from '~/components/Newsletter.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
@@ -115,6 +116,10 @@ const campoComErro =
 >
   <section class="abertura">
     <div class="env">
+      {/* A abertura ocupava só a metade esquerda da tela. A marca fecha a
+          composição à direita sem acrescentar palavra nenhuma — a página
+          já diz em texto tudo o que precisa. */}
+      <Marca tipo="conversa" class="selo" />
       <p class="chapeu">Contato</p>
       <h1 class="display">Conte o que está acontecendo.</h1>
       <p class="linha-fina">
@@ -409,14 +414,70 @@ const campoComErro =
     color: var(--secundario);
   }
 
+  .abertura :global(.env) {
+    position: relative;
+  }
+  .abertura :global(.selo) {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(150px, 16vw, 230px);
+  }
+  /* Abaixo de 1000px a marca encostaria no título: some, e a abertura
+     volta a ser só texto, que é como ela já funcionava. */
+  @media (max-width: 1000px) {
+    .abertura :global(.selo) {
+      display: none;
+    }
+  }
+
   .corpo {
     padding-block: 0 clamp(64px, 8vw, 128px);
   }
   .corpo :global(.env) {
     display: grid;
     grid-template-columns: 1.15fr 0.85fr;
-    gap: clamp(36px, 5vw, 88px);
+    gap: clamp(24px, 3vw, 44px);
     align-items: start;
+  }
+
+  /*
+    As duas colunas viram placas (decisão 1), em vez de conteúdo solto
+    sobre o branco da página: a forma sobre papel, que é o material de
+    componente do projeto, e os dados sobre branco com contorno. Assim a
+    página para de ser uma folha só e passa a ter as duas peças que ela
+    de fato tem — escrever e ligar.
+  */
+  .coluna-forma,
+  .coluna-dados {
+    border-radius: clamp(16px, 2vw, 26px);
+    padding: clamp(24px, 3.2vw, 48px);
+  }
+  .coluna-forma {
+    background: var(--papel);
+  }
+  .coluna-dados {
+    background: var(--branco);
+    border: 1px solid var(--linha);
+    /* Os dados são mais curtos que o formulário e sobrava um vão grande
+       embaixo deles. Grudando no topo, a placa acompanha quem rola
+       preenchendo o formulário — que é exatamente quando alguém pode
+       decidir ligar em vez de escrever. */
+    position: sticky;
+    top: calc(var(--reservaBarra, 88px) + 16px);
+  }
+  /* Sticky só faz sentido com as duas colunas lado a lado. */
+  @media (max-width: 900px) {
+    .coluna-dados {
+      position: static;
+    }
+  }
+  /* Campo sobre papel precisa de fundo branco para o contorno do input
+     não sumir dentro da placa. */
+  .coluna-forma :global(input),
+  .coluna-forma :global(textarea) {
+    background: var(--branco);
   }
   @media (max-width: 900px) {
     .corpo :global(.env) {

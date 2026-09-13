@@ -87,19 +87,28 @@ const ano = new Date().getFullYear();
 </footer>
 
 <style>
+  /*
+    Saíram daqui as duas formas que o redesenho aposentou: o corte
+    diagonal (`clip-path: polygon`), última ocorrência no site, e o
+    degradê do `.lastro`, que puxava para um roxo (#2a2540) que não é cor
+    da marca. Agora é o azul chapado — decisão 2, três superfícies e
+    nenhum degradê em fundo de seção.
+
+    O rodapé continua sendo faixa, e não placa: é a base da página, e
+    placa aqui deixaria uma tira do fundo abaixo dele.
+  */
   .rodape {
     position: relative;
     overflow: hidden;
     background: var(--tinta);
     color: #fff;
     padding-block: clamp(64px, 8vw, 120px) 32px;
-    clip-path: polygon(0 2.6vw, 100% 0, 100% 100%, 0 100%);
   }
   /* Textura de grão só sobre o azul escuro do rodapé — nunca sobre branco. */
   .rodape .lastro {
     position: absolute;
-    inset: -16% -8%;
-    background: linear-gradient(160deg, #0b1e3f 30%, #1a3358 70%, #2a2540);
+    inset: 0;
+    background: var(--tinta);
   }
   .rodape .grao {
     position: absolute;

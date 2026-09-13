@@ -31,7 +31,8 @@ interface Props {
     | 'abertura'
     | 'prova'
     | 'maquina'
-    | 'leque';
+    | 'leque'
+    | 'conversa';
   /** Classe extra, para o posicionamento vir de quem usa. */
   class?: string;
 }
@@ -59,6 +60,29 @@ const { tipo, class: classe } = Astro.props;
       <circle cx="152" cy="48" r="5" fill="var(--secundario)" />
       <circle cx="48" cy="152" r="5" fill="var(--secundario)" />
       <circle cx="100" cy="100" r="13" fill="var(--tinta)" />
+    </>
+  )}
+
+  {tipo === 'conversa' && (
+    <>
+      {/* Dois balões: a mensagem que chega e a resposta. O de baixo é
+          chapado porque é o do escritório — quem responde. Sem reticências
+          nem "digitando": a página não promete prazo, e um balão em
+          animação sugeriria resposta imediata (ver a nota no topo de
+          contato.astro sobre o que a página deliberadamente não diz). */}
+      <path
+        d="M30 34h96a14 14 0 0 1 14 14v40a14 14 0 0 1-14 14H62l-22 20V102h-10a14 14 0 0 1-14-14V48a14 14 0 0 1 14-14z"
+        fill="var(--branco)"
+        stroke="var(--linha)"
+        stroke-width="2.5"
+        stroke-linejoin="round"
+      />
+      <path d="M46 60h64M46 78h40" stroke="var(--secundario)" stroke-width="2.5" stroke-linecap="round" />
+      <path
+        d="M170 96h-78a14 14 0 0 0-14 14v40a14 14 0 0 0 14 14h46l22 20v-20h10a14 14 0 0 0 14-14v-40a14 14 0 0 0-14-14z"
+        fill="var(--tinta)"
+      />
+      <path d="M96 122h58M96 140h36" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-linecap="round" />
     </>
   )}
 

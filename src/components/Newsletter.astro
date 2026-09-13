@@ -203,21 +203,28 @@ if (origem !== '/previa/' && !voltaPermitida(origem)) {
 </script>
 
 <style>
+  /*
+    Placa, não faixa (decisão 1 do redesenho): margem em volta, cantos
+    arredondados, o fundo da página aparecendo nas bordas.
+
+    Saíram daqui as duas formas que o plano aposentou: o corte diagonal
+    (`clip-path: polygon`), que brigava com o canto arredondado, e o
+    degradê azul+vermelho do `.lastro`, substituído pelo azul chapado —
+    decisão 2, três superfícies e nenhum degradê em fundo de seção.
+  */
   .assinar {
     position: relative;
     overflow: hidden;
     background: var(--tinta);
     color: #fff;
-    clip-path: polygon(0 2.6vw, 100% 0, 100% 100%, 0 calc(100% - 2.6vw));
-    padding-block: calc(clamp(60px, 7vw, 110px) + 2.6vw);
+    margin: clamp(16px, 2.4vw, 40px) var(--gutter);
+    border-radius: clamp(18px, 2.2vw, 30px);
+    padding-block: clamp(60px, 7vw, 110px);
   }
   .assinar .lastro {
     position: absolute;
-    inset: -16% -8%;
-    background:
-      radial-gradient(38% 48% at 82% 26%, rgba(81, 116, 147, 0.5), transparent 64%),
-      radial-gradient(40% 44% at 14% 78%, rgba(155, 28, 46, 0.3), transparent 62%),
-      linear-gradient(150deg, #102a50, #0b1e3f);
+    inset: 0;
+    background: var(--tinta);
   }
   /* Grão só sobre a chapa azul escura desta seção. */
   .assinar .grao {
