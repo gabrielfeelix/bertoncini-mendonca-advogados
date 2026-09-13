@@ -161,6 +161,50 @@ const { tipo, class: classe } = Astro.props;
 
   {tipo === 'leque' && (
     <>
+      {/* Duas lâminas de um mesmo eixo: as duas áreas em que o escritório
+          atua. Eram quatro, com duas contornadas para as que faltavam
+          definir; as duas "a confirmar" saíram do site a pedido do
+          cliente, e uma lâmina vazia passaria a não representar nada.
+
+          Vive sobre o azul chapado da seção de áreas na home, então é
+          desenhada em claro. A pastilha pousa no furo central, que é o
+          ponto de onde as duas abrem. */}
+      <path d="M81.1 85.2 L40.1 53.2 A76.0 76.0 0 0 1 89.4 24.7 L96.7 76.2 A24.0 24.0 0 0 0 81.1 85.2 Z" fill="var(--branco)" />
+      <path d="M103.3 76.2 L110.6 24.7 A76.0 76.0 0 0 1 159.9 53.2 L118.9 85.2 A24.0 24.0 0 0 0 103.3 76.2 Z" fill="var(--branco)" />
+      <circle cx="100" cy="100" r="12" fill="var(--imperial)" />
+    </>
+  )}
+
+  {tipo === 'pauta' && (
+    <>
+      {/* Folhas empilhadas: a de cima escrita, as de trás ainda em branco.
+          É a marca do estado vazio de /textos/ — o blog não tem texto
+          publicado, e a página precisa parecer pauta em aberto, não erro.
+
+          As de trás são deslocadas E rodadas: só rodar não bastava, o
+          giro em torno do centro deixava as três quase sobrepostas e a
+          pilha sumia atrás da folha branca da frente. */}
+      <rect
+        x="60" y="44" width="96" height="122" rx="8"
+        fill="var(--papel)" stroke="var(--linha)" stroke-width="2"
+        transform="rotate(9 108 105)"
+      />
+      <rect
+        x="52" y="40" width="96" height="122" rx="8"
+        fill="var(--papel)" stroke="var(--linha)" stroke-width="2"
+        transform="rotate(-5 100 101)"
+      />
+      <rect
+        x="44" y="34" width="96" height="122" rx="8"
+        fill="var(--branco)" stroke="var(--tinta)" stroke-width="2.5"
+      />
+      <path d="M62 64h60M62 84h60M62 104h38" stroke="var(--secundario)" stroke-width="2.5" stroke-linecap="round" />
+      <circle cx="70" cy="132" r="8" fill="var(--imperial)" />
+    </>
+  )}
+
+  {tipo === 'leque' && (
+    <>
       {/* Quatro lâminas de um mesmo eixo: as quatro áreas que o escritório
           comporta — duas firmes, chapadas, e duas ainda por definir, só
           contornadas. Vive sobre o azul da seção, então é desenhada em

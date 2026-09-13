@@ -5,10 +5,14 @@
  * sobre chapa azul com degradê e corte diagonal; virou um mosaico de
  * blocos sobre azul chapado.
  *
- * Duas áreas confirmadas (Planejamento Patrimonial e Sucessório e Direito
- * Digital, conforme o briefing 2.1-2.3) e duas marcadas "a confirmar". Uma
- * área "a confirmar" vira um `<div class="item aberto">` sem link, não um
- * `<a>` morto.
+ * Duas áreas: Planejamento Patrimonial e Sucessório e Direito Digital,
+ * conforme o briefing 2.1-2.3.
+ *
+ * O componente ainda sabe renderizar área "a confirmar" (vira um
+ * `<div class="item aberto">` sem link, nunca um `<a>` morto), mas não há
+ * nenhuma no conteúdo: as duas que existiam foram removidas a pedido do
+ * cliente. O caminho continua aqui porque o teto de quatro áreas é decisão
+ * registrada, e uma terceira pode entrar sem refazer o componente.
  *
  * O vídeo de prévia que seguia o cursor (`.espia`, `data-espia`) saiu no
  * redesenho: ele só existia com mouse, nunca aparecia no celular nem sob
@@ -50,7 +54,7 @@ const whats = site.whatsapp.valor.split('?')[0];
 
 const {
   titulo = 'Áreas de atuação',
-  apoio = 'Duas áreas confirmadas com os sócios. As demais entram quando eles definirem.',
+  apoio = 'As duas áreas em que o escritório atua, e o que cada uma abrange.',
   areas = [
     {
       nome: 'Planejamento Patrimonial e Sucessório',
@@ -68,8 +72,6 @@ const {
       href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20direito%20digital.`,
       placeholder: site.whatsapp.placeholder,
     },
-    { nome: 'Terceira área', pendente: 'a confirmar' },
-    { nome: 'Quarta área', pendente: 'a confirmar' },
   ],
 }: Props = Astro.props;
 ---
@@ -196,10 +198,22 @@ const {
     altura é o que faz a peça parecer montada em vez de listada — é o que
     o Oliveira Pitta faz com as áreas dele.
   */
+  /*
+    Com quatro blocos, a altura desigual era o efeito: dois altos em cima
+    e dois baixos embaixo, encaixados. Com dois lado a lado ela vira só
+    desalinho — o de Direito Digital tem um parágrafo a menos e terminava
+    acima do outro. `align-items: stretch` (padrão do grid) já igualaria,
+    mas o conteúdo de cada bloco precisa empurrar o rodapé para baixo:
+    daí o `margin-top: auto` no `.leva`.
+  */
   .mosaico {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: clamp(12px, 1.2vw, 18px);
+    align-items: stretch;
+  }
+  .bloco .leva {
+    margin-top: auto;
   }
 
   /* Ocupa o vão no alto à direita, ao lado do número e do título. Medido

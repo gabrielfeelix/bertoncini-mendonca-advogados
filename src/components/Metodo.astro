@@ -19,17 +19,6 @@ interface Passo {
   texto: string;
 }
 
-interface Vale {
-  /** Trecho em negrito, primeira linha do item. */
-  forte: string;
-  /** Restante do item. */
-  texto: string;
-  /** true quando o item ainda depende de confirmação dos sócios. */
-  placeholder?: boolean;
-  /** Ressalva em vermelho, visível enquanto o dado for placeholder. */
-  ressalva?: string;
-}
-
 interface Props {
   /** Título da seção. */
   titulo?: string;
@@ -37,10 +26,6 @@ interface Props {
   apoio?: string;
   /** Passos, na ordem. */
   passos?: Passo[];
-  /** Rótulo acessível da lista final. */
-  valemRotulo?: string;
-  /** Itens que valem em todos os casos. */
-  valem?: Vale[];
 }
 
 const {
@@ -68,23 +53,6 @@ const {
       texto: 'Cada movimentação chega para você, inclusive quando a notícia é que nada mudou.',
     },
   ],
-  valemRotulo = 'O que vale em todos os casos',
-  valem = [
-    {
-      forte: 'Quem atende é quem assina.',
-      texto: ' Não há atendente nem estagiário entre você e o sócio.',
-    },
-    {
-      forte: 'O custo vem antes do compromisso.',
-      texto: ' Nenhuma cobrança que você não tenha visto por escrito.',
-    },
-    {
-      forte: 'Resposta em até um dia útil.',
-      texto: '',
-      placeholder: true,
-      ressalva: 'Prazo a confirmar com os sócios antes de publicar.',
-    },
-  ],
 }: Props = Astro.props;
 ---
 
@@ -104,14 +72,6 @@ const {
         </li>
       ))}
     </ol>
-    <ul class="valem sobe" aria-label={valemRotulo}>
-      {valem.map((item) => (
-        <li data-placeholder={item.placeholder ? '1' : undefined}>
-          <b>{item.forte}</b>{item.texto}
-          {item.ressalva && <span style="color:var(--imperial)">{item.ressalva}</span>}
-        </li>
-      ))}
-    </ul>
   </div>
 </section>
 
@@ -216,31 +176,6 @@ const {
   :global(.js) .metodo:global(.viva) .passo:global(.foco) {
     color: var(--tinta);
   }
-  .valem {
-    grid-column: 1 / -1;
-    list-style: none;
-    margin: clamp(40px, 5vw, 68px) 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(10px, 1vw, 14px);
-    font-size: 17px;
-    line-height: 1.5;
-  }
-  .valem li {
-    padding: clamp(20px, 2.2vw, 28px);
-    border: 1px solid var(--linha);
-    border-radius: clamp(12px, 1.4vw, 18px);
-  }
-  .valem b {
-    display: block;
-    font-weight: 600;
-    color: var(--tinta);
-    margin-bottom: 6px;
-  }
-  .valem li {
-    color: var(--secundario);
-  }
   @media (max-width: 900px) {
     .metodo :global(.env) {
       grid-template-columns: 1fr;
@@ -251,10 +186,6 @@ const {
     }
     .metodo .traco {
       display: none;
-    }
-    .valem {
-      grid-template-columns: 1fr;
-      gap: 22px;
     }
   }
 
