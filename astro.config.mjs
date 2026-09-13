@@ -48,16 +48,19 @@ export default defineConfig({
     301 (permanente) e não 302: a mudança é definitiva, e é o 301 que
     transfere a autoridade da URL antiga para a nova.
   */
-  redirects: {
-    /* A lista e as páginas numeradas. Duas regras do Astro aqui: o nome
-       do parâmetro tem de ser o mesmo da rota de destino (`[...page]`), e
-       `/textos` sozinho NÃO entra — o parâmetro rest já casa o caminho
-       vazio, e declarar os dois faz o build recusar por conflito de
-       prioridade. */
-    '/textos/[...page]': { status: 301, destination: '/blog/[...page]' },
-    /* A página de cada artigo. */
-    '/textos/[slug]': { status: 301, destination: '/blog/[slug]' },
-  },
+  /*
+    Os 301 de /textos/ para /blog/ NÃO ficam aqui: estão em `vercel.json`.
+
+    Estiveram aqui, em `redirects`, e funcionavam pela metade. O Astro
+    gera para o adaptador uma regex terminada em `$` sem barra final
+    opcional — `^/textos(?:/([^/]+?))$` —, então `/textos` redirecionava
+    mas `/textos/` e `/textos/algum-artigo/` caíam em 404. Como o site
+    inteiro usa barra final, era justamente a forma real dos links
+    compartilhados que deixava de funcionar. Verificado em produção.
+
+    Em `vercel.json` o redirecionamento acontece na borda, antes do
+    roteamento, e `:caminho*` casa as duas formas.
+  */
   integrations: [
     // Conteúdo do blog (Tarefas 10-12) será escrito em MDX, como na Isabella.
     mdx(),
