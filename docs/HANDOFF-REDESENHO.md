@@ -1,14 +1,21 @@
 # Handoff: o redesenho visual
 
-> Escrito em 12/09/2026, ao fim da sessão que executou as Tarefas 0 e 1 de
-> `docs/PLANO-REDESENHO.md`. Para o agente que continua.
+> Escrito em 12/09/2026, ao fim da sessão que redesenhou a home e
+> `/escritorio/`. Para o agente que continua.
 >
-> **Leia antes:** `docs/PLANO-REDESENHO.md` (a direção e as tarefas),
-> `docs/REFERENCIAS-CLIENTE.md` (o que o cliente gostou, na palavra dele),
-> `docs/BRIEFING-RESPOSTAS.md` (o conteúdo, que não se refaz).
+> **Leia antes, nesta ordem:**
+> 1. `docs/PLANO-REDESENHO.md` — a direção, as quatro decisões e as tarefas.
+> 2. `docs/REFERENCIAS-CLIENTE.md` — o que o cliente gostou, na palavra dele.
+> 3. `docs/BRIEFING-RESPOSTAS.md` — o conteúdo, que **não se refaz**.
 >
 > O `docs/HANDOFF-SITE.md` continua valendo para tudo que **não** é visual:
 > estado das 15 tarefas originais, RLS não provada, pendências do briefing.
+> Ele tem um aviso no topo apontando para cá.
+>
+> **Se for fazer só uma coisa:** as páginas de área
+> (`src/pages/areas/[slug].astro`). É onde sobrou o maior ganho — 24
+> parágrafos e 1 imagem —, e a decisão pendente que ela exige está descrita
+> em "O que falta".
 
 ---
 
@@ -16,6 +23,60 @@
 
 A home e `/escritorio/` foram redesenhadas. O que **ainda está no visual
 antigo**: páginas de área, `/contato/`, `/textos/` e as políticas.
+
+---
+
+## Comece por aqui
+
+```bash
+npm run dev          # num terminal, deixe rodando
+npm run verifica     # noutro, DEPOIS de cada mudança de layout
+npm run check        # tipos e Astro
+```
+
+`npm run preview` **não funciona** neste projeto (adaptador Vercel em modo
+server). Nunca teste contra `/previa` — é página de trabalho não
+versionada, e três defeitos Críticos já passaram por isso.
+
+**Os arquivos que importam para o visual:**
+
+| Onde | O que é |
+|---|---|
+| `src/styles/tokens.css` | Cores e medidas. `--papel` e a largura da coluna são do redesenho |
+| `src/styles/base.css` | `.env` (coluna de 1500px), `.secao`, `.display`, `.botao` |
+| `src/layouts/Base.astro` | `heroSobreposto`, a reserva de espaço da navbar |
+| `src/components/Hero.astro` | Primeira dobra e o encolhimento (leia as armadilhas antes) |
+| `src/components/Ficha.astro` · `Trajetoria.astro` | O repertório novo |
+| `src/components/Areas.astro` | O mosaico de blocos |
+| `tools/verifica.mjs` | O portão. Leia o cabeçalho dele |
+
+**Antes de escrever CSS novo**, veja se `Ficha` ou `Trajetoria` já
+resolvem. O plano pede poucas decisões aplicadas com consistência, não
+componentes novos a cada página.
+
+---
+
+## A receita, do que já funcionou duas vezes
+
+Tanto a home quanto `/escritorio/` seguiram o mesmo caminho. Para a
+próxima página:
+
+1. **Capture a página como ela está**, em 1600px e em 390px. Olhe. O
+   diagnóstico sai da imagem, não do código.
+2. **Conte o que existe**: quantos parágrafos seguidos, quantas peças
+   visuais. Se houver mais de três `<p>` em sequência, ali há trabalho.
+3. **Procure a estrutura que o dado já tem** e o layout joga fora. Na
+   trajetória do Juscelino eram cinco posições dentro de um parágrafo; no
+   corpo das áreas são nove blocos temáticos dentro de um array. **O
+   conteúdo não se reescreve — só se deixa a forma respeitar o que ele já
+   é.**
+4. **Aplique o vocabulário** (placas, três superfícies, relevo por cor).
+   Reuse o repertório.
+5. **Capture de novo, nas duas larguras.** O celular quebra de um jeito
+   que o desktop não mostra — foi assim nas duas páginas.
+6. **Rode o portão.** Depois `npm run check` e `npm run build`.
+7. **Commit em português**, explicando o *porquê* de cada decisão, não só
+   o quê.
 
 ---
 
@@ -28,6 +89,7 @@ antigo**: páginas de área, `/contato/`, `/textos/` e as políticas.
 | `7289599` | O encolhimento passa a começar no primeiro scroll; parallax removido |
 | `31aae40` | Resto da home: mosaico de áreas, faixa em placa, método em cartões |
 | `139651f` | `/escritorio/`: abertura com imagem, história em blocos, `Ficha` e `Trajetoria` |
+| `99be540` | Retratos reais dos sócios, otimizados (moldura recortada, brilho na imagem) |
 
 Estado: **11 rotas passam no `npm run verifica`**, `astro check` sem erros,
 build limpo. Nada foi enviado (sem push, sem deploy), como manda a regra.
