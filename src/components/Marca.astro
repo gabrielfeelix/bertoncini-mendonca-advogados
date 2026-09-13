@@ -1,0 +1,149 @@
+---
+/**
+ * Marca: a ilustração vetorial que acompanha cada cena das páginas de área.
+ *
+ * Por que ilustração própria, e não foto de banco em toda cena: os temas
+ * conceituais (LGPD, propriedade intelectual, contrato, compliance) não
+ * têm imagem fotográfica honesta. O que existe em banco é o clichê que a
+ * pesquisa do projeto marcou como o que todo mundo faz — martelo, balança,
+ * gravata apontando para gráfico. Forma geométrica própria diz o mesmo sem
+ * mentir e sem parecer com ninguém.
+ *
+ * As cenas concretas (crime, inteligência artificial, atendimento) usam
+ * fotografia, que dá peso onde a ilustração não dá. A página mistura as
+ * duas de propósito: ver `[slug].astro`.
+ *
+ * Vocabulário: as três superfícies do projeto (branco, `--tinta` chapado,
+ * `--papel`) e nada mais. Sem degradê — a decisão 2 do plano proíbe.
+ * Todas as marcas são desenhadas numa caixa de 200×200 e escalam por
+ * `viewBox`, então não há arquivo para otimizar nem requisição a fazer.
+ *
+ * `aria-hidden`: são ornamento. O que elas ilustram já está escrito ao
+ * lado, em texto. Leitor de tela não ganha nada lendo "sete círculos".
+ */
+interface Props {
+  /** Qual marca desenhar. */
+  tipo: 'dados' | 'marca' | 'contrato' | 'compliance' | 'abertura' | 'prova' | 'maquina';
+  /** Classe extra, para o posicionamento vir de quem usa. */
+  class?: string;
+}
+
+const { tipo, class: classe } = Astro.props;
+---
+
+<svg
+  class:list={['marca', classe]}
+  viewBox="0 0 200 200"
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  {tipo === 'abertura' && (
+    <>
+      {/* Rede: nós ligados. O ambiente eletrônico, antes de qualquer tema. */}
+      <circle cx="100" cy="100" r="74" stroke="var(--linha)" stroke-width="1.5" />
+      <circle cx="100" cy="100" r="44" stroke="var(--linha)" stroke-width="1.5" />
+      <path d="M100 26v148M26 100h148M48 48l104 104M152 48L48 152" stroke="var(--linha)" stroke-width="1.5" />
+      <circle cx="100" cy="26" r="7" fill="var(--tinta)" />
+      <circle cx="174" cy="100" r="7" fill="var(--tinta)" />
+      <circle cx="100" cy="174" r="7" fill="var(--tinta)" />
+      <circle cx="26" cy="100" r="7" fill="var(--tinta)" />
+      <circle cx="152" cy="48" r="5" fill="var(--secundario)" />
+      <circle cx="48" cy="152" r="5" fill="var(--secundario)" />
+      <circle cx="100" cy="100" r="13" fill="var(--tinta)" />
+    </>
+  )}
+
+  {tipo === 'dados' && (
+    <>
+      {/* Inventário: fileiras de registro, algumas marcadas. O mapeamento. */}
+      <rect x="26" y="30" width="148" height="140" rx="10" fill="var(--papel)" />
+      <rect x="26" y="30" width="148" height="140" rx="10" stroke="var(--linha)" stroke-width="1.5" />
+      <path d="M26 62h148" stroke="var(--linha)" stroke-width="1.5" />
+      {[80, 104, 128, 152].map((y, i) => (
+        <>
+          <rect x="44" y={y - 7} width="14" height="14" rx="4" fill={i < 2 ? 'var(--tinta)' : 'none'} stroke="var(--secundario)" stroke-width="1.5" />
+          <path d={`M70 ${y}h${i === 3 ? 58 : 86}`} stroke="var(--secundario)" stroke-width="1.5" stroke-linecap="round" opacity={i < 2 ? '1' : '0.45'} />
+        </>
+      ))}
+      <circle cx="44" cy="46" r="4" fill="var(--imperial)" />
+      <path d="M58 46h44" stroke="var(--tinta)" stroke-width="2" stroke-linecap="round" />
+    </>
+  )}
+
+  {tipo === 'marca' && (
+    <>
+      {/* Sinete: o registro que dá exclusividade. Círculo dentro de escudo. */}
+      <path d="M100 22l62 24v54c0 38-26 66-62 78-36-12-62-40-62-78V46l62-24z" fill="var(--papel)" stroke="var(--linha)" stroke-width="1.5" />
+      <circle cx="100" cy="98" r="34" stroke="var(--tinta)" stroke-width="2" />
+      <circle cx="100" cy="98" r="20" fill="var(--tinta)" />
+      <path d="M100 78v40M80 98h40" stroke="var(--branco)" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M66 150h68" stroke="var(--secundario)" stroke-width="1.5" stroke-linecap="round" />
+    </>
+  )}
+
+  {tipo === 'contrato' && (
+    <>
+      {/* Duas folhas e o aceite: a prova de que o outro lado concordou. */}
+      <rect x="22" y="34" width="104" height="132" rx="8" fill="var(--branco)" stroke="var(--linha)" stroke-width="1.5" />
+      <rect x="52" y="20" width="104" height="132" rx="8" fill="var(--papel)" stroke="var(--linha)" stroke-width="1.5" />
+      {[52, 72, 92].map((y, i) => (
+        <path d={`M72 ${y}h${i === 2 ? 40 : 64}`} stroke="var(--secundario)" stroke-width="1.5" stroke-linecap="round" />
+      ))}
+      <circle cx="140" cy="128" r="26" fill="var(--tinta)" />
+      <path d="M129 128l8 9 15-17" stroke="var(--branco)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    </>
+  )}
+
+  {tipo === 'prova' && (
+    <>
+      {/* Ampulheta e o registro preservado: a prova é o que se perde por
+          demora, e é o que sustenta todas as outras etapas. */}
+      <rect x="40" y="44" width="96" height="118" rx="9" fill="var(--papel)" stroke="var(--linha)" stroke-width="1.5" />
+      {[72, 92, 112, 132].map((y, i) => (
+        <path d={`M60 ${y}h${i === 3 ? 34 : 56}`} stroke="var(--secundario)" stroke-width="1.5" stroke-linecap="round" opacity={i > 1 ? '0.4' : '1'} />
+      ))}
+      <circle cx="142" cy="138" r="30" fill="var(--branco)" stroke="var(--tinta)" stroke-width="2" />
+      <path d="M142 122v17l11 7" stroke="var(--tinta)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M56 30h64" stroke="var(--imperial)" stroke-width="2.5" stroke-linecap="round" />
+    </>
+  )}
+
+  {tipo === 'maquina' && (
+    <>
+      {/* Entrada, processo opaco e saída — e a pergunta de quem responde
+          pelo erro. O losango é a decisão que ainda é humana. */}
+      <rect x="58" y="58" width="84" height="84" rx="12" fill="var(--tinta)" />
+      <circle cx="100" cy="100" r="17" stroke="var(--branco)" stroke-width="2" opacity="0.55" />
+      <circle cx="100" cy="100" r="6" fill="var(--branco)" opacity="0.8" />
+      {[[100, 22, 100, 58], [100, 142, 100, 178], [22, 100, 58, 100], [142, 100, 178, 100]].map(([x1, y1, x2, y2]) => (
+        <path d={`M${x1} ${y1}L${x2} ${y2}`} stroke="var(--secundario)" stroke-width="1.5" stroke-dasharray="5 6" />
+      ))}
+      <rect x="86" y="10" width="28" height="14" rx="5" fill="var(--papel)" stroke="var(--linha)" stroke-width="1.5" />
+      <rect x="10" y="93" width="28" height="14" rx="5" fill="var(--papel)" stroke="var(--linha)" stroke-width="1.5" />
+      <rect x="162" y="93" width="28" height="14" rx="5" fill="var(--papel)" stroke="var(--linha)" stroke-width="1.5" />
+      <path d="M100 170l13 13-13 13-13-13z" fill="var(--imperial)" />
+    </>
+  )}
+
+  {tipo === 'compliance' && (
+    <>
+      {/* Ciclo: política, controle, resposta, revisão. A rotina que se repete. */}
+      <circle cx="100" cy="100" r="66" stroke="var(--linha)" stroke-width="1.5" stroke-dasharray="8 10" />
+      <rect x="82" y="16" width="36" height="36" rx="9" fill="var(--tinta)" />
+      <rect x="148" y="82" width="36" height="36" rx="9" fill="var(--papel)" stroke="var(--linha)" stroke-width="1.5" />
+      <rect x="82" y="148" width="36" height="36" rx="9" fill="var(--papel)" stroke="var(--linha)" stroke-width="1.5" />
+      <rect x="16" y="82" width="36" height="36" rx="9" fill="var(--papel)" stroke="var(--linha)" stroke-width="1.5" />
+      <path d="M100 74v52M74 100h52" stroke="var(--secundario)" stroke-width="1.5" />
+      <circle cx="100" cy="100" r="11" fill="var(--imperial)" />
+    </>
+  )}
+</svg>
+
+<style>
+  .marca {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>

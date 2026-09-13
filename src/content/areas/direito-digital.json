@@ -45,5 +45,43 @@
     }
   ],
   "ordem": 2,
-  "mensagemWhatsapp": "Olá, preciso de orientação sobre direito digital."
+  "mensagemWhatsapp": "Olá, preciso de orientação sobre direito digital.",
+  "cenas": [
+    {
+      "indice": 1,
+      "rubrica": "Proteção de dados",
+      "marca": "dados"
+    },
+    {
+      "indice": 2,
+      "rubrica": "Propriedade intelectual",
+      "marca": "marca"
+    },
+    {
+      "indice": 3,
+      "rubrica": "Contratos e e-commerce",
+      "marca": "contrato"
+    },
+    {
+      "indice": 4,
+      "rubrica": "Quando algo dá errado",
+      "marca": "prova"
+    },
+    {
+      "indice": 5,
+      "rubrica": "Inteligência artificial",
+      "marca": "maquina"
+    },
+    {
+      "indice": 6,
+      "rubrica": "Compliance digital",
+      "marca": "compliance"
+    },
+    {
+      "indice": 7,
+      "rubrica": "Onde atendemos",
+      "foto": "maringa",
+      "fotoAlt": "A Catedral de Maringá ao anoitecer, vista da avenida, com o céu ainda azul."
+    }
+  ]
 }

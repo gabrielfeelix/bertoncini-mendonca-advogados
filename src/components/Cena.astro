@@ -1,0 +1,131 @@
+---
+/**
+ * Cena: um bloco temático do corpo de uma área, com peça visual ao lado.
+ *
+ * O corpo de uma área são nove parágrafos que o layout antigo empilhava
+ * numa coluna só — 24 parágrafos numa rota, sem uma pausa (ver a captura
+ * "antes" em docs/). Mas eles não são um texto corrido: cada um é um
+ * assunto fechado. Esta é a forma que respeita o que o dado já é, sem
+ * mudar uma palavra do texto — a regra do projeto.
+ *
+ * Alterna o lado da peça visual a cada cena (`invertida`), para a página
+ * ter ritmo em vez de duas colunas paralelas descendo até o fim.
+ *
+ * A peça visual vem por slot, e é de dois tipos de propósito:
+ * ilustração vetorial (`Marca.astro`) nos temas conceituais, fotografia
+ * nos concretos. Ver a nota em `Marca.astro` sobre por que não é foto em
+ * tudo.
+ *
+ * Sem JavaScript: é grade e texto. O movimento existe só no `:hover` do
+ * desktop e morre sob `prefers-reduced-motion`.
+ */
+interface Props {
+  /** Rubrica curta acima do texto. Ornamento tipográfico, não título de seção. */
+  rubrica?: string;
+  /** Inverte o lado da peça visual. */
+  invertida?: boolean;
+  /** Superfície do bloco: branco (padrão) ou papel. */
+  fundo?: 'branco' | 'papel';
+  /** true quando o texto ainda depende de confirmação dos sócios. */
+  placeholder?: boolean;
+}
+
+const { rubrica, invertida = false, fundo = 'branco', placeholder } = Astro.props;
+---
+
+<div class:list={['cena', { invertida, papel: fundo === 'papel' }]}>
+  <div class="peca">
+    <slot name="peca" />
+  </div>
+  <div class="texto">
+    {rubrica && <p class="rubrica">{rubrica}</p>}
+    <p class="fala" data-placeholder={placeholder ? '1' : undefined}><slot /></p>
+  </div>
+</div>
+
+<style>
+  .cena {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(28px, 5vw, 88px);
+    padding-block: clamp(40px, 6vw, 96px);
+  }
+  .cena + .cena {
+    border-top: 1px solid var(--linha);
+  }
+
+  /* A peça troca de lado, mas a ordem no HTML é sempre a mesma: quem lê
+     em leitor de tela recebe texto e ilustração na mesma sequência em
+     todas as cenas. */
+  .invertida .peca {
+    order: 2;
+  }
+
+  .peca {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .peca :global(.marca) {
+    max-width: clamp(240px, 32vw, 420px);
+  }
+
+  /* Fotografia entra pelo mesmo slot e recebe a placa: cantos
+     arredondados e recorte, o vocabulário do redesenho. */
+  .peca :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 18px;
+    display: block;
+  }
+
+  .rubrica {
+    font-family: var(--sans);
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--secundario);
+    margin: 0 0 clamp(12px, 1.6vw, 18px);
+  }
+  /* O filete curto abaixo da rubrica é o que separa uma cena da outra
+     sem precisar de mais uma linha cheia atravessando a página. */
+  .rubrica::after {
+    content: '';
+    display: block;
+    width: 46px;
+    height: 2px;
+    background: var(--imperial);
+    margin-top: 10px;
+  }
+
+  .fala {
+    margin: 0;
+    font-size: clamp(19px, 1.5vw, 22px);
+    line-height: 1.62;
+    max-width: 60ch;
+    color: var(--tinta);
+  }
+
+  @media (max-width: 860px) {
+    .cena {
+      grid-template-columns: 1fr;
+      gap: clamp(20px, 5vw, 32px);
+      padding-block: clamp(32px, 8vw, 48px);
+    }
+    /* No celular a peça vem sempre antes do texto, independente do lado
+       que ocupa no desktop: alternar em coluna única não cria ritmo
+       nenhum, só desalinha. */
+    .invertida .peca {
+      order: 0;
+    }
+    .peca :global(.marca) {
+      max-width: 172px;
+    }
+    .fala {
+      font-size: 19px;
+    }
+  }
+</style>

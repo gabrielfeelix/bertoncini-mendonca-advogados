@@ -57,6 +57,43 @@ const areas = defineCollection({
      * parágrafos com data-placeholder="1".
      */
     corpoAConfirmar: z.array(z.number().int().nonnegative()).default([]),
+    /**
+     * Como cada parágrafo do `corpo` vira uma cena na página da área.
+     *
+     * Existe porque os parágrafos do corpo não são texto corrido: cada um
+     * é um bloco temático fechado, e o layout antigo jogava essa estrutura
+     * fora empilhando tudo numa coluna só. Aqui ela volta — SEM alterar
+     * uma palavra do texto, que veio do briefing e foi conferido contra o
+     * Provimento 205/2021.
+     *
+     * Por que um campo explícito e não derivar de `assuntos` por ordem:
+     * eles batem só até certo ponto. Em `direito-digital` o parágrafo 4
+     * funde "Crimes cibernéticos" com "Redes sociais e internet", e a
+     * partir dali cada rubrica cairia sobre o parágrafo errado — a de
+     * "Compliance digital" acabaria em cima do parágrafo de atendimento.
+     * As áreas também têm contagens diferentes (9 e 8 parágrafos), então
+     * não há ordem única que sirva às duas.
+     *
+     * Parágrafo sem entrada aqui é renderizado em largura cheia, sem
+     * rubrica nem peça visual: é o caso da abertura e do fecho, que são
+     * abertura e fecho mesmo, não temas.
+     */
+    cenas: z
+      .array(
+        z.object({
+          /** Índice do parágrafo em `corpo`. */
+          indice: z.number().int().nonnegative(),
+          /** Rubrica curta acima do parágrafo. Rótulo, nunca afirmação. */
+          rubrica: z.string().min(1),
+          /** Ilustração vetorial (ver Marca.astro) para temas conceituais. */
+          marca: z.enum(['dados', 'marca', 'contrato', 'compliance', 'abertura', 'prova', 'maquina']).optional(),
+          /** Fotografia, para temas concretos. Caminho sem extensão em /media/areas/. */
+          foto: z.string().min(1).optional(),
+          /** Descrição da foto. Obrigatória quando há foto. */
+          fotoAlt: z.string().min(1).optional(),
+        }),
+      )
+      .default([]),
   }),
 });
 

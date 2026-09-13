@@ -14,6 +14,8 @@
 import type { GetStaticPaths } from 'astro';
 import Base from '~/layouts/Base.astro';
 import Perguntas from '~/components/Perguntas.astro';
+import Cena from '~/components/Cena.astro';
+import Marca from '~/components/Marca.astro';
 import Contato from '~/components/Contato.astro';
 import { listarAreas, listarAreasConfirmadas, whatsappDaArea } from '~/lib/areas';
 import { site } from '~/lib/site';
@@ -32,6 +34,18 @@ const pendentes = (await listarAreas()).filter((item) => item.data.aConfirmar);
 const mensagem = dados.mensagemWhatsapp ?? 'Olá, gostaria de falar sobre um caso.';
 const linkWhatsapp = whatsappDaArea(mensagem);
 const aConfirmar = new Set(dados.corpoAConfirmar);
+
+/* O corpo vira uma sequência de cenas. Cada parágrafo que tem entrada em
+   `cenas` ganha rubrica e peça visual; os que não têm (abertura e fecho)
+   saem em largura cheia, que é o que eles são. O texto não muda: só o
+   invólucro. */
+const cenaPorIndice = new Map(dados.cenas.map((c) => [c.indice, c]));
+const blocos = dados.corpo.map((texto, indice) => ({
+  texto,
+  indice,
+  cena: cenaPorIndice.get(indice),
+  placeholder: aConfirmar.has(indice),
+}));
 ---
 
 {/* Nome curto no sufixo: "Planejamento Patrimonial e Sucessório" já tem 37
@@ -77,9 +91,29 @@ const aConfirmar = new Set(dados.corpoAConfirmar);
     </header>
 
     <div class="env corpo">
-      {dados.corpo.map((paragrafo, indice) => (
-        <p data-placeholder={aConfirmar.has(indice) ? '1' : undefined}>{paragrafo}</p>
-      ))}
+      {blocos.map(({ texto, cena, placeholder }, posicao) =>
+        cena ? (
+          <Cena
+            rubrica={cena.rubrica}
+            invertida={posicao % 2 === 0}
+            placeholder={placeholder}
+          >
+            <Fragment slot="peca">
+              {cena.marca && <Marca tipo={cena.marca} />}
+              {cena.foto && (
+                <picture>
+                  <source srcset={`/media/areas/${cena.foto}-900.avif 900w, /media/areas/${cena.foto}-1400.avif 1400w`} sizes="(max-width: 860px) 92vw, 46vw" type="image/avif" />
+                  <source srcset={`/media/areas/${cena.foto}-900.webp 900w, /media/areas/${cena.foto}-1400.webp 1400w`} sizes="(max-width: 860px) 92vw, 46vw" type="image/webp" />
+                  <img src={`/media/areas/${cena.foto}-1400.jpg`} alt={cena.fotoAlt} width="1400" height="1050" loading="lazy" decoding="async" />
+                </picture>
+              )}
+            </Fragment>
+            {texto}
+          </Cena>
+        ) : (
+          <p class="solta" data-placeholder={placeholder ? '1' : undefined}>{texto}</p>
+        ),
+      )}
     </div>
 
     {dados.perguntas.length > 0 && (
@@ -173,15 +207,28 @@ const aConfirmar = new Set(dados.corpoAConfirmar);
     color: var(--secundario);
   }
 
+  /* A coluna estreita saiu: o corpo agora ocupa a largura do `.env`, e é
+     cada cena que controla a sua própria medida de leitura. */
   .corpo {
-    padding-block: clamp(38px, 5vw, 72px);
-    display: grid;
-    gap: clamp(18px, 2.2vw, 26px);
-    max-width: min(1340px, 100%);
+    padding-block: clamp(30px, 4vw, 56px);
   }
-  .corpo p {
-    max-width: 66ch;
-    font-size: 18.5px;
+  /* Abertura e fecho: sem rubrica e sem peça, mas em corpo maior que o
+     antigo — são as duas frases que emolduram a página. */
+  .solta {
+    max-width: 34ch;
+    font-size: clamp(24px, 2.6vw, 36px);
+    font-family: var(--serif);
+    font-weight: 300;
+    line-height: 1.34;
+    color: var(--tinta);
+    margin: 0;
+    padding-block: clamp(30px, 4.5vw, 64px);
+  }
+  .solta + :global(.cena) {
+    border-top: 1px solid var(--linha);
+  }
+  :global(.cena) + .solta {
+    border-top: 1px solid var(--linha);
   }
 
   .outras {
