@@ -32,7 +32,8 @@ interface Props {
     | 'prova'
     | 'maquina'
     | 'leque'
-    | 'conversa';
+    | 'conversa'
+    | 'pauta';
   /** Classe extra, para o posicionamento vir de quem usa. */
   class?: string;
 }
@@ -83,6 +84,34 @@ const { tipo, class: classe } = Astro.props;
         fill="var(--tinta)"
       />
       <path d="M96 122h58M96 140h36" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-linecap="round" />
+    </>
+  )}
+
+  {tipo === 'pauta' && (
+    <>
+      {/* Folhas empilhadas: a de cima escrita, as de trás ainda em branco.
+          É a marca do estado vazio de /textos/ — o blog não tem texto
+          publicado, e a página precisa parecer pauta em aberto, não erro.
+
+          As de trás são deslocadas E rodadas: só rodar não bastava, o
+          giro em torno do centro deixava as três quase sobrepostas e a
+          pilha sumia atrás da folha branca da frente. */}
+      <rect
+        x="60" y="44" width="96" height="122" rx="8"
+        fill="var(--papel)" stroke="var(--linha)" stroke-width="2"
+        transform="rotate(9 108 105)"
+      />
+      <rect
+        x="52" y="40" width="96" height="122" rx="8"
+        fill="var(--papel)" stroke="var(--linha)" stroke-width="2"
+        transform="rotate(-5 100 101)"
+      />
+      <rect
+        x="44" y="34" width="96" height="122" rx="8"
+        fill="var(--branco)" stroke="var(--tinta)" stroke-width="2.5"
+      />
+      <path d="M62 64h60M62 84h60M62 104h38" stroke="var(--secundario)" stroke-width="2.5" stroke-linecap="round" />
+      <circle cx="70" cy="132" r="8" fill="var(--imperial)" />
     </>
   )}
 

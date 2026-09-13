@@ -32,6 +32,7 @@
  */
 import type { GetStaticPaths } from 'astro';
 import Base from '~/layouts/Base.astro';
+import Marca from '~/components/Marca.astro';
 import CartaoTexto from '~/components/CartaoTexto.astro';
 import Newsletter from '~/components/Newsletter.astro';
 import Contato from '~/components/Contato.astro';
@@ -124,6 +125,9 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/textos/' : `/text
     !temArtigos && (
       <section class="vazio">
         <div class="env">
+          <div class="placa">
+            <Marca tipo="pauta" class="selo" />
+            <div>
           <p class="frase">
             Ainda não publicamos nenhum texto por aqui. Os primeiros entram assim que
             estiverem escritos, e você pode receber cada um por e-mail.
@@ -131,6 +135,8 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/textos/' : `/text
           <p class="atalho">
             <a href="/areas/">Ver as áreas de atuação</a>
           </p>
+            </div>
+          </div>
         </div>
       </section>
     )
@@ -244,10 +250,42 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/textos/' : `/text
   .vazio {
     padding-block: clamp(24px, 3vw, 40px) clamp(48px, 6vw, 88px);
   }
+  /*
+    O estado vazio era uma frase solta e um botão, perdidos numa página
+    larga: parecia página quebrada, não pauta em aberto. Vira placa, com
+    a marca da pilha de folhas ao lado — a mesma gramática das outras
+    páginas do redesenho.
+  */
+  .vazio .placa {
+    display: flex;
+    align-items: center;
+    gap: clamp(24px, 4vw, 56px);
+    background: var(--papel);
+    border-radius: clamp(16px, 2vw, 26px);
+    padding: clamp(28px, 4vw, 56px);
+    /* Sem limite, a placa atravessava a tela inteira enquanto o texto
+       ocupava metade dela, e sobrava um campo de papel vazio à direita. */
+    max-width: 920px;
+  }
+  .vazio :global(.selo) {
+    width: clamp(96px, 11vw, 150px);
+    flex: none;
+  }
+  @media (max-width: 700px) {
+    .vazio .placa {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 22px;
+    }
+    .vazio :global(.selo) {
+      width: 84px;
+    }
+  }
   .vazio .frase {
-    max-width: 52ch;
-    font-size: 20px;
-    line-height: 1.6;
+    max-width: 46ch;
+    font-size: clamp(20px, 2vw, 25px);
+    line-height: 1.55;
+    margin: 0;
   }
   .vazio .atalho {
     margin-top: 24px;
@@ -261,6 +299,9 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/textos/' : `/text
     border-radius: 999px;
     font-size: 16.5px;
     text-decoration: none;
+  }
+  .vazio .atalho a {
+    background: var(--branco);
   }
   .vazio .atalho a:hover {
     border-color: var(--tinta);
