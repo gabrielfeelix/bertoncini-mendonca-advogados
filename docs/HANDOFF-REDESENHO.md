@@ -208,12 +208,15 @@ pesquisa do projeto marcou como o que todo mundo faz).
 Abertura com imagem, história em três blocos, `Ficha` no registro e
 `Trajetoria` nas cinco posições do Juscelino.
 
+**Os retratos são os reais** (`public/media/socios/`), otimizados em
+AVIF/WebP. A foto da Beatriz tinha uma moldura preta desenhada na própria
+imagem, recortada, e era muito escura — o brilho saiu do CSS e passou para
+a imagem. (Registro de um erro meu: o handoff dizia antes que eram stock.
+Não são.)
+
 **O que ficou de fora:** o título intercalado na grade de retratos
-(Bergeson) — a seção "Quem assina" continua com o layout antigo de
-`Socios.astro`. E **os retratos dos sócios ainda são stock**, de pessoas
-diferentes das da foto do hero. É decisão de conteúdo, não de layout: ou
-se geram retratos individuais no mesmo estilo da foto nova, ou se faz um
-ensaio real.
+(Bergeson) — a seção "Quem assina" continua com o layout de `Socios.astro`
+herdado do protótipo. É a oportunidade mais clara que sobrou nesta página.
 
 **Cuidado ao mexer:** a OAB é 22px aqui e 19px na home. A nota de
 especificidade em `Socios.astro` (`.par .oab.grande`) precisa sobreviver —
