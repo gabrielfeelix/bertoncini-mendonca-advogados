@@ -1,6 +1,6 @@
 /**
- * Acesso à coleção `artigos`, num lugar só, para a lista (`/textos/`) e para
- * a página do artigo (`/textos/[slug]/`) não repetirem a mesma leitura nem
+ * Acesso à coleção `artigos`, num lugar só, para a lista (`/blog/`) e para
+ * a página do artigo (`/blog/[slug]/`) não repetirem a mesma leitura nem
  * discordarem sobre a ordem.
  *
  * A coleção vem do Supabase pelo loader em `loader-supabase.ts`, e **pode
@@ -15,8 +15,15 @@ export type Artigo = CollectionEntry<'artigos'>;
 /** Quantos artigos cabem numa página da lista, além do destaque. */
 export const POR_PAGINA = 6;
 
-/** O nome próprio do blog. Nunca "Blog". */
-export const NOME_DO_BLOG = 'Em português claro';
+/**
+ * Como o blog se chama na interface.
+ *
+ * Era "Em português claro", nome próprio, e a palavra "blog" não aparecia
+ * para o leitor. O cliente reverteu: "tudo BLOG, sempre, textos nunca" —
+ * a rota virou /blog/ e o rótulo é Blog em todo lugar. Nome próprio de
+ * seção obriga o leitor a descobrir o que a seção é; "Blog" ele já sabe.
+ */
+export const NOME_DO_BLOG = 'Blog';
 
 /**
  * Todos os artigos publicados, do mais novo para o mais velho.

@@ -17,20 +17,20 @@
  */
 
 /** Páginas fixas que montam a newsletter. Comparação exata. */
-const EXATAS = ['/', '/contato/', '/textos/'] as const;
+const EXATAS = ['/', '/contato/', '/blog/'] as const;
 
 /**
  * As páginas de artigo também montam a newsletter, e o slug é dinâmico:
  * não há como listá-las uma a uma. Daí a regra de prefixo.
  *
  * Ela continua sendo lista fechada no que importa para a segurança. O valor
- * precisa começar com `/textos/`, terminar em `/` e não conter mais nenhuma
- * barra no meio — ou seja, casa `/textos/algum-slug/` e não casa
- * `/textos/../evil`, `/textos//evil.com` nem `/textos/a/b/`. Como a rota
+ * precisa começar com `/blog/`, terminar em `/` e não conter mais nenhuma
+ * barra no meio — ou seja, casa `/blog/algum-slug/` e não casa
+ * `/blog/../evil`, `/blog//evil.com` nem `/blog/a/b/`. Como a rota
  * compara o caminho já normalizado pelo parser de URL, não sobra espaço
  * para truque de normalização.
  */
-const ARTIGO = /^\/textos\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/;
+const ARTIGO = /^\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/;
 
 export function voltaPermitida(valor: string): boolean {
   return (EXATAS as readonly string[]).includes(valor) || ARTIGO.test(valor);

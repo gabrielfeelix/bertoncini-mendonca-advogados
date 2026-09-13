@@ -29,8 +29,11 @@ interface Area {
   nome: string;
   /** Frase curta abaixo do nome da área. */
   glosa?: string;
-  /** Assuntos listados em pílulas. */
-  assuntos?: string[];
+  /**
+   * Assuntos da área. String simples ainda vale; a forma com `faz`
+   * acrescenta o que se faz no assunto, e é a que o card usa.
+   */
+  assuntos?: (string | { nome: string; faz?: string })[];
   /** Destino do link. Ausente = área "a confirmar", sem link. */
   href?: string;
   /** true quando o href ainda é placeholder. */
@@ -48,6 +51,16 @@ interface Props {
   apoio?: string;
   /** Lista de áreas, na ordem. */
   areas?: Area[];
+  /**
+   * Quantos assuntos cada bloco mostra.
+   *
+   * Existe porque o bloco é um CARTÃO, não a página da área: com os seis
+   * ou sete assuntos completos ele fica com mais de uma tela de altura, os
+   * dois cartões ficam de alturas muito diferentes (uma área tem seis
+   * assuntos, a outra sete) e o "Falar sobre isso" some abaixo da dobra.
+   * A lista inteira vive na página da área, que é para onde o cartão leva.
+   */
+  limiteAssuntos?: number;
 }
 
 const whats = site.whatsapp.valor.split('?')[0];
@@ -55,11 +68,16 @@ const whats = site.whatsapp.valor.split('?')[0];
 const {
   titulo = 'Áreas de atuação',
   apoio = 'As duas áreas em que o escritório atua, e o que cada uma abrange.',
+  limiteAssuntos = 3,
   areas = [
     {
       nome: 'Planejamento Patrimonial e Sucessório',
       glosa: 'Organizar em vida o que, sem organização, vira inventário e disputa entre herdeiros.',
-      assuntos: ['Inventário e partilha', 'Testamento e doação', 'Holding familiar', 'Contratos', 'Direito imobiliário'],
+      assuntos: [
+        { nome: 'Inventário e partilha', faz: 'Em cartório quando os herdeiros concordam, na Justiça quando não.' },
+        { nome: 'Testamento e doação', faz: 'A transmissão escrita respeitando a legítima.' },
+        { nome: 'Holding familiar', faz: 'A conta feita antes: o que custa contra o que economiza.' },
+      ],
       marca: 'sucessao',
       href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20planejamento%20patrimonial%20e%20sucess%C3%B3rio.`,
       placeholder: site.whatsapp.placeholder,
@@ -67,7 +85,11 @@ const {
     {
       nome: 'Direito Digital',
       glosa: 'Dados pessoais, propriedade intelectual, contratos eletrônicos e o que acontece quando algo dá errado na internet.',
-      assuntos: ['Proteção de dados e LGPD', 'Propriedade intelectual', 'Contratos eletrônicos', 'Crimes cibernéticos', 'Compliance digital'],
+      assuntos: [
+        { nome: 'Proteção de dados e LGPD', faz: 'Mapear o que a empresa coleta e responder o titular no prazo.' },
+        { nome: 'Propriedade intelectual', faz: 'Marca no INPI, e em contrato a quem pertence o que foi criado.' },
+        { nome: 'Crimes cibernéticos', faz: 'Preservar a prova primeiro. É o que mais se perde por demora.' },
+      ],
       marca: 'rede',
       href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20direito%20digital.`,
       placeholder: site.whatsapp.placeholder,
@@ -111,11 +133,35 @@ const {
             {area.marca && <Marca tipo={area.marca} class="icone" />}
             <h3>{area.nome}</h3>
             {area.glosa && <span class="glosa">{area.glosa}</span>}
-            {area.assuntos && area.assuntos.length > 0 && (
-              <ul class="assuntos" aria-label={`Assuntos em ${area.nome}`}>
-                {area.assuntos.map((assunto) => <li>{assunto}</li>)}
-              </ul>
-            )}
+            {area.assuntos && area.assuntos.length > 0 && (()=>{
+              const mostrados = area.assuntos.slice(0, limiteAssuntos);
+              const restantes = area.assuntos.length - mostrados.length;
+              return (
+              /* Lista de serviço, não pílulas. Cada linha é o assunto
+                 seguido do que se faz nele — a pílula dizia só a
+                 palavra-chave, e palavra-chave solta é o que o cliente
+                 reprovou por soar a texto gerado. O texto de `faz` vem do
+                 corpo da área, que passou pela revisão do Provimento
+                 205/2021. */
+              <>
+                <ul class="assuntos" aria-label={`Assuntos em ${area.nome}`}>
+                  {mostrados.map((assunto) => {
+                    const item = typeof assunto === 'string' ? { nome: assunto } : assunto;
+                    return (
+                      <li>
+                        <b>{item.nome}</b>
+                        {item.faz && <span>{item.faz}</span>}
+                      </li>
+                    );
+                  })}
+                </ul>
+                {/* Diz que a lista continua, em vez de cortar em silêncio. */}
+                {restantes > 0 && (
+                  <span class="mais">e mais {restantes} {restantes === 1 ? 'assunto' : 'assuntos'}</span>
+                )}
+              </>
+              );
+            })()}
             <span class="leva">
               <span class="rotulo">Falar sobre isso</span>
               <span class="seta" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -307,26 +353,76 @@ const {
     color: rgba(255, 255, 255, 0.74);
   }
 
+  /*
+    A lista de assuntos.
+
+    Eram pílulas arredondadas: seis etiquetas soltas por card, cada uma
+    uma palavra-chave. O cliente reprovou o formato — "tem cara de
+    inteligência artificial" — e a causa não é o raio da borda, é a
+    etiqueta não dizer nada além do nome do assunto. Aqui cada assunto é
+    uma linha com o nome em cima e o serviço embaixo, separada por filete.
+
+    O filete à esquerda, e não borda em volta: é o que ainda agrupa as
+    linhas sem redesenhar uma caixa por item.
+  */
   .assuntos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 20px 0 0;
+    display: grid;
+    gap: 0;
+    margin: clamp(20px, 2.4vw, 28px) 0 0;
     padding: 0;
     list-style: none;
   }
   .assuntos li {
-    font-size: 16px;
-    padding: 8px 14px;
-    border-radius: 999px;
+    display: grid;
+    gap: 3px;
+    padding: 13px 0 13px 16px;
+    border-inline-start: 2px solid;
+  }
+  .assuntos b {
+    font-weight: 500;
+    font-size: 16.5px;
+    line-height: 1.35;
+  }
+  .assuntos span {
+    font-size: 15.5px;
+    line-height: 1.45;
   }
   .bloco.t0 .assuntos li {
-    border: 1px solid rgba(11, 30, 63, 0.16);
-    color: var(--apoio);
+    border-color: rgba(11, 30, 63, 0.14);
+  }
+  .bloco.t0 .assuntos b {
+    color: var(--tinta);
+  }
+  .bloco.t0 .assuntos span {
+    color: var(--secundario);
   }
   .bloco.t1 .assuntos li {
-    border: 1px solid rgba(255, 255, 255, 0.24);
-    color: rgba(255, 255, 255, 0.86);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .bloco.t1 .assuntos b {
+    color: #fff;
+  }
+  .bloco.t1 .assuntos span {
+    color: rgba(255, 255, 255, 0.68);
+  }
+  .mais {
+    margin-top: 12px;
+    font-size: 15px;
+  }
+  .bloco.t0 .mais {
+    color: var(--secundario);
+  }
+  .bloco.t1 .mais {
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  /* O filete acende na linha sob o cursor: a cor de ação do site, aplicada
+     no menor componente possível. */
+  .bloco:hover .assuntos li:hover {
+    border-color: var(--imperial);
+  }
+  .bloco.t1:hover .assuntos li:hover {
+    border-color: #e0616f;
   }
 
   /* A ação fica no pé do bloco, empurrada pelo `margin-top:auto` — é o que
@@ -348,11 +444,16 @@ const {
     place-items: center;
     transition: transform 0.35s, background-color 0.35s;
   }
-  .bloco.t0 .leva .seta {
-    background: rgba(11, 30, 63, 0.08);
+  /* A seta é vermelho imperial nas duas superfícies: é a cor de ação do
+     site, e o disco quase transparente que estava aqui não era cor
+     nenhuma. Sobre o card claro ela se sustenta sozinha; sobre o escuro
+     ganha um anel de 1px para não se fundir ao fundo. */
+  .bloco .leva .seta {
+    background: var(--imperial);
+    color: #fff;
   }
   .bloco.t1 .leva .seta {
-    background: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
   }
   .bloco:hover .leva .seta {
     transform: translateX(4px);
@@ -394,6 +495,80 @@ const {
     }
     .bloco.vago {
       flex-direction: row;
+    }
+  }
+
+  /*
+    ── A ilustração em movimento no hover ──────────────────────────────
+
+    Pedido do cliente: passar o mouse e a ilustração "começar a rodar".
+    Rodar o SVG inteiro foi o primeiro impulso e está errado para estes
+    dois desenhos: `sucessao` é uma árvore de partilha com texto implícito
+    de cima para baixo, e girada de lado ela deixa de ser uma herança que
+    desce. O que gira é o que no desenho tem eixo.
+
+    Por isso o movimento é por peça, e cada marca ganha o movimento do seu
+    próprio mecanismo:
+      - `rede`  — o anel e as diagonais giram em torno do centro, que é o
+        que a figura já é: nós ligados por um eixo. Giro contínuo.
+      - `sucessao` — não gira: pulsa no nó vermelho e as três caixas da
+        partilha sobem em cascata, que é a direção que o desenho conta.
+
+    `transform-box: fill-box` + `transform-origin: center` é o que faz o
+    giro acontecer em torno do centro da própria peça: sem eles o SVG usa
+    a origem do viewport do elemento e a peça sai de órbita.
+  */
+  .bloco :global(.icone circle),
+  .bloco :global(.icone path),
+  .bloco :global(.icone rect) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* rede: o anel externo e o feixe de diagonais, em sentidos opostos.
+     Os seletores são presos a `.marca-rede` / `.marca-sucessao`, não à
+     posição da tag: as duas marcas usam as mesmas tags, e `> path` sem
+     escopo giraria também a barra da partilha de `sucessao`. */
+  .bloco:hover :global(.marca-rede circle:first-of-type) {
+    animation: gira 9s linear infinite;
+  }
+  .bloco:hover :global(.marca-rede path) {
+    animation: gira 9s linear infinite reverse;
+  }
+  /* rede: o miolo vermelho respira. */
+  .bloco:hover :global(.marca-rede circle:last-of-type) {
+    animation: pulsa 2.4s ease-in-out infinite;
+  }
+
+  /* sucessao: não gira — é uma herança que desce, e de lado deixa de ser
+     isso. O nó vermelho pulsa e as três caixas da partilha sobem em
+     cascata, na direção que o desenho já conta. */
+  .bloco:hover :global(.marca-sucessao circle) {
+    animation: pulsa 2.4s ease-in-out infinite;
+  }
+  .bloco:hover :global(.marca-sucessao rect:nth-of-type(2)) {
+    animation: acena 2.2s ease-in-out infinite;
+  }
+  .bloco:hover :global(.marca-sucessao rect:nth-of-type(3)) {
+    animation: acena 2.2s ease-in-out infinite 0.18s;
+  }
+  .bloco:hover :global(.marca-sucessao rect:nth-of-type(4)) {
+    animation: acena 2.2s ease-in-out infinite 0.36s;
+  }
+
+  @keyframes gira {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes pulsa {
+    50% {
+      transform: scale(1.22);
+    }
+  }
+  @keyframes acena {
+    50% {
+      transform: translateY(-7px);
     }
   }
 

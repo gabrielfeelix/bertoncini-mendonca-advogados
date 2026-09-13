@@ -57,7 +57,7 @@ mkdirSync(SHOTS, { recursive: true });
  * `/painel/` e `/painel/artigo/` ficam de fora: exigem sessão e não são
  * site público. `/previa` fica de fora porque não é versionada nem vai
  * para produção. As páginas de artigo entram dinamicamente, lidas de
- * `/textos/` — assim o verificador cobre o blog quando há banco, e não
+ * `/blog/` — assim o verificador cobre o blog quando há banco, e não
  * reclama quando não há.
  */
 const ROTAS_FIXAS = [
@@ -67,7 +67,7 @@ const ROTAS_FIXAS = [
   '/areas/direito-digital/',
   '/escritorio/',
   '/contato/',
-  '/textos/',
+  '/blog/',
   '/politica-de-privacidade/',
   '/politica-de-cookies/',
 ];
@@ -89,11 +89,11 @@ let rotas = [...ROTAS_FIXAS];
 {
   const pg = await nav.newPage();
   try {
-    await pg.goto(BASE + '/textos/', { waitUntil: 'load', timeout: 15000 });
+    await pg.goto(BASE + '/blog/', { waitUntil: 'load', timeout: 15000 });
     const artigos = await pg.evaluate(() =>
-      [...document.querySelectorAll('a[href^="/textos/"]')]
+      [...document.querySelectorAll('a[href^="/blog/"]')]
         .map((a) => new URL(a.href).pathname)
-        .filter((p) => p !== '/textos/'),
+        .filter((p) => p !== '/blog/'),
     );
     rotas = [...rotas, ...[...new Set(artigos)].slice(0, 3)];
   } catch (e) {

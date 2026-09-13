@@ -28,6 +28,25 @@
     Medido: --tinta 15.2:1 · --secundario 4.54:1 · --imperial 7.46:1.
   */
   --papel:#F4F6F8;
+  /*
+    Verde WhatsApp oficial. Entra como cor de CANAL, não da marca: existe
+    só onde há link de WhatsApp, e nunca como chapa de seção nem em texto.
+
+    Por que ele existe: o botão do cabeçalho usava o disco em --imperial
+    com o símbolo da balança dentro, e ninguém reconhecia ali um botão de
+    WhatsApp. Reconhecimento de canal vale mais que pureza de paleta num
+    escritório cujo canal principal é o WhatsApp.
+
+    #25D366 sobre branco dá 1.8:1 — reprovado para texto, e é por isso que
+    ele NUNCA carrega texto. Serve de chapa com glifo branco por cima (o
+    glifo é forma, não texto, e a marca oficial do WhatsApp é exatamente
+    essa combinação).
+
+    Com o verde assumindo o WhatsApp, --imperial fica livre para o que o
+    cliente pediu: a cor de ação do site, nas setas e nos detalhes.
+  */
+  --whats:#25D366;
+  --whats-fundo:#1EBE5D;
   --serif:"Newsreader",Georgia,serif;
   --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
   /* Respiro lateral: o site inteiro vivia numa coluna de 1340px com até

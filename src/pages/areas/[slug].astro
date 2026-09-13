@@ -16,8 +16,9 @@ import Base from '~/layouts/Base.astro';
 import Perguntas from '~/components/Perguntas.astro';
 import Cena from '~/components/Cena.astro';
 import Marca from '~/components/Marca.astro';
+import Zap from '~/components/Zap.astro';
 import Contato from '~/components/Contato.astro';
-import { listarAreas, listarAreasConfirmadas, whatsappDaArea } from '~/lib/areas';
+import { listarAreas, listarAreasConfirmadas, whatsappDaArea, assuntosDaArea } from '~/lib/areas';
 import { site } from '~/lib/site';
 
 export const getStaticPaths = (async () => {
@@ -34,6 +35,22 @@ const pendentes = (await listarAreas()).filter((item) => item.data.aConfirmar);
 const mensagem = dados.mensagemWhatsapp ?? 'Olá, gostaria de falar sobre um caso.';
 const linkWhatsapp = whatsappDaArea(mensagem);
 const aConfirmar = new Set(dados.corpoAConfirmar);
+const assuntos = assuntosDaArea(dados.assuntos);
+
+/* A marca da CAPA. A página de área ganhou capa a pedido do cliente, "igual
+   aquela de o escritório, no sentido de ter uma capa sobre o assunto".
+   A de /escritorio/ é retrato fotográfico; as áreas não têm foto própria,
+   e foto de banco para tema jurídico é justamente o clichê que a pesquisa
+   do projeto mandou evitar. Então a capa é placa de cor com a ilustração
+   da área, que é o vocabulário que o site já tem.
+
+   O mapa é por slug e não por índice: acrescentar uma terceira área não
+   pode deslocar a marca das duas que existem. */
+const marcaDaCapa: Record<string, 'sucessao' | 'rede'> = {
+  'planejamento-patrimonial-e-sucessorio': 'sucessao',
+  'direito-digital': 'rede',
+};
+const marcaCapa = marcaDaCapa[dados.slug];
 
 /* O corpo vira uma sequência de cenas. Cada parágrafo que tem entrada em
    `cenas` ganha rubrica e peça visual; os que não têm (abertura e fecho)
@@ -69,38 +86,63 @@ const blocos = dados.corpo.map((texto, indice) => {
   paginaAtual="/areas/"
 >
   <article>
-    <header class="abertura">
+    {/* A CAPA: placa azul com espaçamento em volta, o mesmo recorte da
+        capa de /escritorio/. A ilustração dentro dela anima no hover, como
+        os cards da home — é a mesma marca e o mesmo mecanismo. */}
+    {/* A capa carrega a trilha e o H1. A primeira versão repetia o nome:
+        uma vez na placa e outra no título logo abaixo, um embaixo do
+        outro. Quem escreve a capa é o título da página, não um rótulo
+        decorativo com o mesmo texto. */}
+    {marcaCapa && (
       <div class="env">
-        <nav class="trilha" aria-label="Trilha de navegação">
-          <a href="/areas/">Áreas de atuação</a>
-          <span aria-hidden="true">/</span>
-          <span aria-current="page">{dados.nome}</span>
-        </nav>
-        <h1 class="display">{dados.nome}</h1>
+        <header class="capa">
+          <div class="capa-texto">
+            <nav class="trilha" aria-label="Trilha de navegação">
+              <a href="/areas/">Áreas de atuação</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">{dados.nome}</span>
+            </nav>
+            <h1 class="display capa-nome">{dados.nome}</h1>
+          </div>
+          <Marca tipo={marcaCapa} class="selo" />
+        </header>
+      </div>
+    )}
+
+    <div class="abertura">
+      <div class="env">
         <p class="resumo">{dados.resumo}</p>
 
-        {dados.assuntos.length > 0 && (
-          <ul class="chips" aria-label={`Assuntos em ${dados.nome}`}>
-            {dados.assuntos.map((assunto) => <li>{assunto}</li>)}
+        {/* Eram pílulas arredondadas, o mesmo formato que o cliente
+            reprovou na home por soar a texto gerado. Viraram a lista de
+            serviço: o assunto e o que se faz nele, em duas colunas. O
+            texto de `faz` vem do corpo desta área. */}
+        {assuntos.length > 0 && (
+          <ul class="servicos" aria-label={`Assuntos em ${dados.nome}`}>
+            {assuntos.map((assunto) => (
+              <li>
+                <b>{assunto.nome}</b>
+                {assunto.faz && <span>{assunto.faz}</span>}
+              </li>
+            ))}
           </ul>
         )}
 
         <p class="acao">
           <a
-            class="botao"
+            class="botao zap"
             href={linkWhatsapp}
             target="_blank"
             rel="noopener"
             data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
           >
             Falar sobre {dados.nome.toLowerCase()} no WhatsApp
-            <span class="disco" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-              <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
+            <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
           </a>
         </p>
         <p class="nota">{site.horario}. A mensagem já vai com o assunto escrito.</p>
       </div>
-    </header>
+    </div>
 
     <div class="env corpo">
       {blocos.map(({ texto, cena, placeholder, ordemDaCena }) =>
@@ -135,18 +177,38 @@ const blocos = dados.corpo.map((texto, indice) => {
       />
     )}
 
+    {/* "Outras áreas" era uma fileira de pílulas com o nome da área dentro
+        — a mesma forma das pílulas de assunto, e o cliente disse que "não
+        está muito visual". Virou um cartão por área, com a ilustração, o
+        resumo e a seta: quem chega no fim da página está decidindo se o
+        assunto dela é outro, e para isso precisa ver o que a outra área é,
+        não só o nome. */}
     <section class="outras">
       <div class="env">
         <h2>Outras áreas</h2>
-        <ul>
+        <div class="grade-outras">
           {outras.map((item) => (
-            <li><a href={`/areas/${item.data.slug}/`}>{item.data.nome}</a></li>
+            <a class="cartao-area" href={`/areas/${item.data.slug}/`}>
+              {marcaDaCapa[item.data.slug] && (
+                <Marca tipo={marcaDaCapa[item.data.slug]} class="selo-outra" />
+              )}
+              <h3>{item.data.nome}</h3>
+              <p>{item.data.resumo}</p>
+              <span class="leva">
+                Ver a área
+                <span class="seta" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+              </span>
+            </a>
           ))}
           {pendentes.map((item) => (
-            <li><span class="pendente">{item.data.nome}, a confirmar</span></li>
+            <div class="cartao-area vago">
+              <h3>{item.data.nome}</h3>
+              <p>A confirmar com os sócios.</p>
+            </div>
           ))}
-          <li><a href="/areas/">Ver todas as áreas</a></li>
-        </ul>
+        </div>
+        <p class="todas"><a href="/areas/">Ver todas as áreas</a></p>
       </div>
     </section>
   </article>
@@ -159,52 +221,185 @@ const blocos = dados.corpo.map((texto, indice) => {
     padding-block: clamp(32px, 5vw, 72px) clamp(30px, 4vw, 56px);
     border-bottom: 1px solid var(--linha);
   }
+  /* A trilha vive DENTRO da capa, sobre chapa escura: as cores invertem. */
   .trilha {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    font-size: 16px;
-    color: var(--secundario);
-    margin-bottom: 14px;
+    font-size: 15.5px;
+    color: rgba(255, 255, 255, 0.6);
   }
   .trilha a {
     min-height: 44px;
     display: inline-flex;
     align-items: center;
     text-decoration: none;
-    border-bottom: 1px solid var(--linha);
+    color: rgba(255, 255, 255, 0.82);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.28);
   }
   .trilha a:hover {
-    border-color: var(--tinta);
-  }
-  .abertura h1 {
-    font-size: clamp(40px, 7vw, 88px);
+    color: #fff;
+    border-color: #fff;
   }
   .resumo {
-    margin-top: clamp(16px, 2.2vw, 26px);
+    margin-top: 0;
     max-width: 52ch;
     font-size: 19px;
     color: var(--secundario);
   }
 
-  .chips {
+  /*
+    A CAPA. Mesma forma da capa de /escritorio/: placa de cantos
+    arredondados com espaçamento em volta, dentro do `.env`. O que muda é o
+    preenchimento — lá é retrato, aqui é chapa de cor com a ilustração da
+    área, porque foto de área de direito não existe no acervo e foto de
+    banco é o clichê que a pesquisa do projeto mandou evitar.
+
+    `aspect-ratio` em vez de altura fixa: a placa acompanha a largura da
+    tela em vez de virar uma tira em telas grandes.
+  */
+  /*
+    A placa é BAIXA e o conteúdo divide-se em dois: o nome à esquerda, a
+    ilustração à direita. A primeira versão era `place-items: center` com
+    `aspect-ratio: 21/7`, e a ilustração sozinha no meio de uma placa de
+    530px deixava a maior parte vazia — capa não é moldura de ícone.
+
+    Altura por conteúdo + `min-height`, não `aspect-ratio`: a placa passa a
+    ter a altura do que carrega, em vez de crescer com a largura da tela.
+  */
+  .capa {
+    position: relative;
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(20px, 4vw, 60px);
+    margin-top: clamp(14px, 2vw, 26px);
+    padding: clamp(26px, 3.4vw, 52px) clamp(24px, 3.4vw, 56px);
+    background: var(--tinta);
+    border-radius: clamp(16px, 2vw, 26px);
+    min-height: clamp(180px, 22vw, 280px);
+    overflow: hidden;
+  }
+  .capa-texto {
+    display: grid;
     gap: 10px;
+    justify-items: start;
+  }
+  .capa-nome {
+    font-size: clamp(32px, 4.6vw, 68px);
+    color: #fff;
+    max-width: 15ch;
+    margin: 0;
+  }
+  .capa :global(.selo) {
+    width: clamp(96px, 13vw, 190px);
+    flex: none;
+    /* A marca é desenhada para fundo claro: sobre a chapa azul as peças
+       cheias em --tinta virariam buracos. Redefinir os tokens no escopo do
+       ícone é o que faz o mesmo desenho servir às duas superfícies, como
+       nos cards da home. */
+    --tinta: #ffffff;
+    --branco: #0b1e3f;
+    --linha: rgba(255, 255, 255, 0.3);
+    --secundario: rgba(255, 255, 255, 0.66);
+    --papel: rgba(255, 255, 255, 0.1);
+  }
+  /* A ilustração da capa anima ao passar o mouse, como na home. Escopo por
+     tipo de marca: as duas usam as mesmas tags, e um seletor por posição
+     giraria a peça errada na outra. */
+  .capa :global(.selo circle),
+  .capa :global(.selo path),
+  .capa :global(.selo rect) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .capa:hover :global(.marca-rede circle:first-of-type) {
+    animation: gira 9s linear infinite;
+  }
+  .capa:hover :global(.marca-rede path) {
+    animation: gira 9s linear infinite reverse;
+  }
+  .capa:hover :global(.marca-rede circle:last-of-type) {
+    animation: pulsa 2.4s ease-in-out infinite;
+  }
+  .capa:hover :global(.marca-sucessao circle) {
+    animation: pulsa 2.4s ease-in-out infinite;
+  }
+  .capa:hover :global(.marca-sucessao rect:nth-of-type(2)) {
+    animation: acena 2.2s ease-in-out infinite;
+  }
+  .capa:hover :global(.marca-sucessao rect:nth-of-type(3)) {
+    animation: acena 2.2s ease-in-out infinite 0.18s;
+  }
+  .capa:hover :global(.marca-sucessao rect:nth-of-type(4)) {
+    animation: acena 2.2s ease-in-out infinite 0.36s;
+  }
+  @keyframes gira {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes pulsa {
+    50% {
+      transform: scale(1.22);
+    }
+  }
+  @keyframes acena {
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+
+  /*
+    A lista de serviço, no lugar das pílulas.
+
+    Duas colunas em desktop: seis a sete assuntos numa coluna só empurrariam
+    o botão de WhatsApp para fora da primeira tela.
+  */
+  .servicos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 clamp(24px, 3vw, 48px);
     margin: clamp(22px, 3vw, 32px) 0 0;
     padding: 0;
     list-style: none;
   }
-  .chips li {
+  .servicos li {
+    display: grid;
+    gap: 3px;
+    padding: 14px 0 14px 16px;
+    border-inline-start: 2px solid var(--linha);
+    transition: border-color 0.2s;
+  }
+  .servicos li:hover {
+    border-color: var(--imperial);
+  }
+  .servicos b {
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 1.35;
+    color: var(--tinta);
+  }
+  .servicos span {
     font-size: 16px;
-    padding: 10px 16px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid var(--linha);
-    border-radius: 999px;
-    color: var(--apoio);
+    line-height: 1.45;
+    color: var(--secundario);
+  }
+  @media (max-width: 760px) {
+    .servicos {
+      grid-template-columns: 1fr;
+    }
+    /* A ilustração vai para cima do nome: lado a lado em tela estreita
+       espremeria as duas. */
+    .capa {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      gap: 18px;
+    }
+    .capa :global(.selo) {
+      width: 88px;
+    }
   }
 
   .acao {
@@ -253,32 +448,104 @@ const blocos = dados.corpo.map((texto, indice) => {
     font-size: clamp(24px, 3vw, 34px);
     margin-bottom: 18px;
   }
-  .outras ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 14px;
+  /*
+    `auto-fit` com `1fr` esticava o cartão único para a largura toda —
+    são duas áreas no site, então esta lista quase sempre tem UM cartão, e
+    um cartão de 1400px com três linhas de texto fica vazio.
+
+    `auto-fill` + teto de 420px por coluna resolve os dois casos: um
+    cartão fica do tamanho de cartão, e se entrar uma terceira área eles
+    se acomodam lado a lado sem tocar nesta regra.
+  */
+  .grade-outras {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 420px));
+    gap: clamp(12px, 1.4vw, 18px);
   }
-  .outras li a,
-  .outras li .pendente {
+  /* Cartão em --papel, a terceira superfície do projeto: distingue o bloco
+     do branco da página sem introduzir cor nova. */
+  .cartao-area {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: clamp(22px, 2.4vw, 32px);
+    background: var(--papel);
+    border-radius: clamp(14px, 1.6vw, 20px);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s;
+  }
+  .cartao-area:hover {
+    transform: translateY(-3px);
+    background: #eef1f5;
+  }
+  .cartao-area :global(.selo-outra) {
+    position: absolute;
+    top: clamp(18px, 2vw, 26px);
+    right: clamp(18px, 2vw, 26px);
+    width: clamp(44px, 4.6vw, 62px);
+    pointer-events: none;
+    opacity: 0.9;
+  }
+  .cartao-area h3 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(21px, 2.1vw, 27px);
+    line-height: 1.12;
+    max-width: 14ch;
+  }
+  .cartao-area p {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--secundario);
+    max-width: 40ch;
+  }
+  .cartao-area .leva {
+    margin-top: auto;
+    padding-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .cartao-area .seta {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--imperial);
+    color: #fff;
+    transition: transform 0.35s;
+  }
+  .cartao-area:hover .seta {
+    transform: translateX(4px);
+  }
+  .cartao-area.vago {
+    border: 1px dashed var(--linha);
+    background: transparent;
+    color: var(--secundario);
+  }
+  .cartao-area.vago h3 {
+    color: var(--secundario);
+  }
+
+  .todas {
+    margin-top: clamp(18px, 2vw, 26px);
+  }
+  .todas a {
+    font-size: 16.5px;
+    color: var(--apoio);
     min-height: 44px;
     display: inline-flex;
     align-items: center;
-    padding: 10px 18px;
-    border-radius: 999px;
-    border: 1px solid var(--linha);
-    font-size: 16.5px;
+    border-bottom: 1px solid var(--linha);
     text-decoration: none;
   }
-  .outras li a:hover {
+  .todas a:hover {
     border-color: var(--tinta);
-    background: var(--linha);
-  }
-  .outras li .pendente {
-    color: var(--secundario);
-    border-style: dashed;
   }
 
   /* prefers-reduced-motion desliga todo movimento desta página. */

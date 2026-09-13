@@ -87,20 +87,44 @@ export const site = {
  * cheia fixa), com links para páginas reais em vez de âncoras.
  */
 export const navegacao = [
-  { rotulo: 'Áreas de atuação', href: '/areas/' },
+  /* `submenu: 'areas'` diz à navbar que este item abre o menu das áreas ao
+     passar o mouse. As áreas em si vêm da coleção, não daqui: a navbar as
+     lê para uma terceira área aparecer sozinha. */
+  { rotulo: 'Áreas de atuação', href: '/areas/', submenu: 'areas' },
   { rotulo: 'O escritório', href: '/escritorio/' },
-  { rotulo: 'Textos', href: '/textos/' },
+  { rotulo: 'Blog', href: '/blog/' },
   { rotulo: 'Contato', href: '/contato/' },
 ] as const;
 
-/** Colunas do rodapé, migradas do protótipo com rotas reais em vez de âncoras. */
+/**
+ * Colunas do rodapé.
+ *
+ * Os rótulos eram "Navegar", "Falar", "Onde" e "Legal", e o cliente
+ * reprovou os quatro. O defeito não era o texto de cada um, era a classe
+ * gramatical: três são verbo ou advérbio onde a convenção brasileira usa
+ * SUBSTANTIVO — o rótulo nomeia uma categoria de conteúdo, não dá uma
+ * instrução ao leitor. "Legal" tem um problema a mais: em português
+ * colide com o coloquial ("que legal"), e o leitor precisa reler para
+ * entender que se trata de documento jurídico.
+ *
+ * Levantamento de seis escritórios brasileiros (Velloza, Demarest,
+ * Lefosse, BMA, Galvão & Silva, Daniel Frederighi): o vocabulário é
+ * consistente — "Institucional" para o bloco sobre o escritório,
+ * "Áreas de atuação", "Contato". Nenhum deles tem coluna "Legal": as
+ * políticas são links soltos na barra de baixo, que é onde elas entraram
+ * aqui.
+ *
+ * `institucional` também não repete o menu do cabeçalho item a item: uma
+ * coluna que só espelha a navegação principal não acrescenta caminho
+ * nenhum.
+ */
 export const rodape = {
-  navegar: [
-    { rotulo: 'Áreas de atuação', href: '/areas/' },
+  institucional: [
     { rotulo: 'O escritório', href: '/escritorio/' },
-    { rotulo: 'Textos', href: '/textos/' },
+    { rotulo: 'Blog', href: '/blog/' },
     { rotulo: 'Contato', href: '/contato/' },
   ],
+  /* Barra de baixo, junto do copyright — não é coluna. */
   legal: [
     { rotulo: 'Política de privacidade', href: '/politica-de-privacidade/' },
     { rotulo: 'Política de cookies', href: '/politica-de-cookies/' },

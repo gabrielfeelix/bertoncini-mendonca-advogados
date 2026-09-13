@@ -20,6 +20,12 @@
  *
  * `aria-hidden`: são ornamento. O que elas ilustram já está escrito ao
  * lado, em texto. Leitor de tela não ganha nada lendo "sete círculos".
+ *
+ * Cada svg sai com `marca-<tipo>` além de `.marca`. É o que permite a quem
+ * usa animar UMA marca sem acertar as outras: as peças são as mesmas tags
+ * (`circle`, `path`, `rect`) em todas, então um seletor por posição de tag
+ * pega a marca errada — o `path` que em `rede` é o feixe de diagonais, em
+ * `sucessao` é a barra da partilha, e girá-la desmonta o desenho.
  */
 interface Props {
   /** Qual marca desenhar. */
@@ -43,7 +49,7 @@ const { tipo, class: classe } = Astro.props;
 ---
 
 <svg
-  class:list={['marca', classe]}
+  class:list={['marca', `marca-${tipo}`, classe]}
   viewBox="0 0 200 200"
   fill="none"
   aria-hidden="true"
@@ -117,7 +123,7 @@ const { tipo, class: classe } = Astro.props;
   {tipo === 'pauta' && (
     <>
       {/* Folhas empilhadas: a de cima escrita, as de trás ainda em branco.
-          É a marca do estado vazio de /textos/ — o blog não tem texto
+          É a marca do estado vazio de /blog/ — o blog não tem texto
           publicado, e a página precisa parecer pauta em aberto, não erro.
 
           As de trás são deslocadas E rodadas: só rodar não bastava, o

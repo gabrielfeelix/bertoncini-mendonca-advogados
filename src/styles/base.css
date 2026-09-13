@@ -27,12 +27,47 @@ video{display:block}
 .secao{padding-block:var(--bloco)}
 .display{font-family:var(--serif);font-weight:200;line-height:1.02;letter-spacing:-.03em}
 
-/* botao */
+/*
+  botao
+
+  O disco da seta é VERMELHO IMPERIAL. Era `rgba(255,255,255,.18)` —
+  branco translúcido, invisível como cor — e o vermelho tinha ficado só em
+  detalhe de página interna. Decisão do cliente: o imperial passa a ser a
+  cor de ação do site, aplicada nos componentes pequenos (a seta dos
+  botões, o filete das cenas, o filete da linha de assunto sob o cursor), e
+  o verde do WhatsApp fica reservado ao canal de WhatsApp.
+
+  Por que só no disco, e não no botão inteiro: chapa vermelha grande em
+  site de advocacia puxa para alarme, e o azul da marca é quem sustenta a
+  superfície. O vermelho vale como pontuação — é o que faz a paleta parecer
+  interligada em vez de decorada.
+
+  Contraste: o glifo é branco sobre #9B1C2E, 8.6:1 — aprovado em AA.
+*/
 .botao{display:inline-flex;align-items:center;gap:12px;padding:15px 16px 15px 24px;border-radius:999px;
   background:var(--tinta);color:#fff;text-decoration:none;font-size:16px;transition:background .3s,transform .35s cubic-bezier(.2,.8,.2,1);border:0}
 .botao:hover{background:var(--apoio)}
-.botao .disco{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);
-  display:grid;place-items:center;transition:transform .35s}
+.botao .disco{width:30px;height:30px;border-radius:50%;background:var(--imperial);
+  display:grid;place-items:center;transition:transform .35s,background-color .3s}
 .botao:hover .disco{transform:translate(3px,-3px)}
+/* Sobre chapa escura translúcida o disco vermelho perde a borda contra o
+   fundo; um anel claro de 1px devolve o recorte sem clarear o vermelho. */
+.botao.vidro .disco{box-shadow:0 0 0 1px rgba(255,255,255,.28)}
+
+/*
+  .botao.zap — o botão que abre o WhatsApp.
+
+  Precisa existir separado porque a divisão de cor do site é por FUNÇÃO,
+  não por lugar: verde é canal de WhatsApp, vermelho é ação genérica. Todo
+  CTA principal do site hoje é um link de WhatsApp, então sem esta variante
+  o imperial acabaria justamente onde o verde precisa estar, e o cliente
+  pediu o contrário.
+
+  O disco leva o glifo do WhatsApp, não a seta diagonal: quem vê o botão
+  sabe para onde vai antes de ler o rótulo.
+*/
+.botao.zap .disco{background:var(--whats)}
+.botao.zap:hover .disco{background:var(--whats-fundo)}
+.botao.zap.vidro .disco{box-shadow:0 0 0 1px rgba(255,255,255,.34)}
 .botao.vidro{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.34);backdrop-filter:blur(8px)}
 .botao.vidro:hover{background:rgba(255,255,255,.22)}

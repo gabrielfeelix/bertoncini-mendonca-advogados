@@ -1,6 +1,6 @@
 ---
 /**
- * Cartão de artigo da lista `/textos/`. Migrado do protótipo: HTML nas
+ * Cartão de artigo da lista `/blog/`. Migrado do protótipo: HTML nas
  * linhas 691-737, CSS nas linhas 289-326 (`.texto`, `.texto .capa`,
  * `.texto h4`, `.texto .pe`).
  *
@@ -48,7 +48,7 @@ const Titulo = `h${nivel}` as 'h2' | 'h3';
 const tom = tomDaCapa(d.categoria);
 ---
 
-<a class="texto" href={`/textos/${artigo.id}/`}>
+<a class="texto" href={`/blog/${artigo.id}/`}>
   <div class="capa">
     {
       d.capa && d.capaLargura && d.capaAltura ? (

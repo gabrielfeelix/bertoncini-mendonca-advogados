@@ -35,6 +35,29 @@ export default defineConfig({
   site: 'https://www.bertoncinimendonca.adv.br',
   output: 'static',
   adapter: vercel(),
+
+  /*
+    O blog morava em `/textos/` e passou a morar em `/blog/`: decisão do
+    cliente, "tudo BLOG, sempre, textos nunca".
+
+    O redirecionamento existe porque `/textos/` já esteve publicado — o
+    site foi para o ar e o sitemap anunciou essas URLs. Trocar a rota sem
+    redirecionar transforma cada link compartilhado, e cada endereço já
+    visto pelo buscador, em 404, e joga fora o histórico de indexação.
+
+    301 (permanente) e não 302: a mudança é definitiva, e é o 301 que
+    transfere a autoridade da URL antiga para a nova.
+  */
+  redirects: {
+    /* A lista e as páginas numeradas. Duas regras do Astro aqui: o nome
+       do parâmetro tem de ser o mesmo da rota de destino (`[...page]`), e
+       `/textos` sozinho NÃO entra — o parâmetro rest já casa o caminho
+       vazio, e declarar os dois faz o build recusar por conflito de
+       prioridade. */
+    '/textos/[...page]': { status: 301, destination: '/blog/[...page]' },
+    /* A página de cada artigo. */
+    '/textos/[slug]': { status: 301, destination: '/blog/[slug]' },
+  },
   integrations: [
     // Conteúdo do blog (Tarefas 10-12) será escrito em MDX, como na Isabella.
     mdx(),

@@ -28,3 +28,25 @@ export function whatsappDaArea(mensagem: string): string {
   const base = site.whatsapp.valor.split('?')[0];
   return `${base}?text=${encodeURIComponent(mensagem)}`;
 }
+
+/** Um assunto da área já normalizado: nome sempre, `faz` quando existe. */
+export interface Assunto {
+  nome: string;
+  faz?: string;
+}
+
+/**
+ * Normaliza o campo `assuntos`, que o schema aceita em duas formas
+ * (string solta ou objeto com `faz`), para uma só.
+ *
+ * Existe para o layout não precisar saber da diferença: a página pergunta
+ * se há `faz` e decide o formato, em vez de cada template repetir a
+ * checagem de tipo.
+ */
+export function assuntosDaArea(
+  assuntos: readonly (string | { nome: string; faz: string })[],
+): Assunto[] {
+  return assuntos.map((assunto) =>
+    typeof assunto === 'string' ? { nome: assunto } : { nome: assunto.nome, faz: assunto.faz },
+  );
+}

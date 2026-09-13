@@ -1,4 +1,6 @@
 ---
+import Zap from './Zap.astro';
+
 /**
  * Hero: a primeira dobra, redesenhada (Tarefa 1 de `docs/PLANO-REDESENHO.md`).
  *
@@ -181,10 +183,9 @@ const {
         </h1>
 
         <div class="pe">
-          <a class="botao vidro" href={botaoHref} data-placeholder={botaoPlaceholder ? '1' : undefined}>
+          <a class="botao vidro zap" href={botaoHref} data-placeholder={botaoPlaceholder ? '1' : undefined}>
             {botaoRotulo}
-            <span class="disco"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
+            <span class="disco"><Zap tamanho={15} /></span>
           </a>
         </div>
       </div>

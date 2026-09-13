@@ -3,12 +3,30 @@
   "slug": "planejamento-patrimonial-e-sucessorio",
   "resumo": "Organizar em vida o que, sem organização, vira inventário e disputa entre herdeiros.",
   "assuntos": [
-    "Inventário e partilha",
-    "Testamento e doação",
-    "Holding familiar",
-    "Contratos",
-    "Direito imobiliário",
-    "Societário e tributário"
+    {
+      "nome": "Inventário e partilha",
+      "faz": "Abrir e conduzir, em cartório quando os herdeiros concordam, na Justiça quando não."
+    },
+    {
+      "nome": "Testamento e doação",
+      "faz": "Escrever a transmissão respeitando a legítima, que testamento nenhum afasta."
+    },
+    {
+      "nome": "Holding familiar",
+      "faz": "Fazer a conta antes: custo de constituir e manter, contra o que de fato economiza."
+    },
+    {
+      "nome": "Contratos",
+      "faz": "Os instrumentos que ligam bens, sócios e família — pacto antenupcial e regime de bens incluídos."
+    },
+    {
+      "nome": "Direito imobiliário",
+      "faz": "Transferência, usufruto e regularização dos imóveis que entram na partilha."
+    },
+    {
+      "nome": "Societário e tributário",
+      "faz": "Medir o ITCMD de cada caminho antes de escolher, e não quando já não há escolha."
+    }
   ],
   "corpo": [
     "Planejamento patrimonial e sucessório é decidir em vida o destino do patrimônio, em vez de deixar que a lei e o Judiciário decidam depois. É uma área de prevenção: quase tudo o que ela resolve seria, mais tarde, um inventário demorado, um imposto maior que o necessário ou uma discussão entre pessoas da mesma família.",

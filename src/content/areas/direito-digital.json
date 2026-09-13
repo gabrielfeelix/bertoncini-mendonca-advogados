@@ -3,13 +3,34 @@
   "slug": "direito-digital",
   "resumo": "Dados pessoais, propriedade intelectual, contratos eletrônicos e o que acontece quando algo dá errado na internet.",
   "assuntos": [
-    "Proteção de dados e LGPD",
-    "Propriedade intelectual",
-    "Contratos eletrônicos e e-commerce",
-    "Crimes cibernéticos",
-    "Redes sociais e internet",
-    "Inteligência artificial",
-    "Compliance digital"
+    {
+      "nome": "Proteção de dados e LGPD",
+      "faz": "Mapear o que a empresa coleta hoje, definir base legal e dar conta do pedido do titular no prazo."
+    },
+    {
+      "nome": "Propriedade intelectual",
+      "faz": "Registrar a marca no INPI e definir em contrato a quem pertence o que foi criado."
+    },
+    {
+      "nome": "Contratos eletrônicos e e-commerce",
+      "faz": "Termo de uso que descreve o negócio real, e a prova de que o outro lado concordou."
+    },
+    {
+      "nome": "Crimes cibernéticos",
+      "faz": "Preservar a prova primeiro — é a etapa que mais se perde por demora — e depois remover e identificar."
+    },
+    {
+      "nome": "Redes sociais e internet",
+      "faz": "Uso indevido de imagem, perfil falso e conteúdo ofensivo: remoção e responsabilização."
+    },
+    {
+      "nome": "Inteligência artificial",
+      "faz": "Quais dados alimentam o sistema, de quem é o resultado e quem responde pelo erro."
+    },
+    {
+      "nome": "Compliance digital",
+      "faz": "Política escrita com rotina de aplicação, plano de resposta a incidente e revisão periódica."
+    }
   ],
   "corpo": [
     "Direito digital é o conjunto de regras que alcança o que empresas e pessoas fazem por meio da internet: os dados que coletam, o conteúdo que publicam, os contratos que assinam sem papel e os danos que sofrem ou causam em ambiente eletrônico.",

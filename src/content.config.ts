@@ -27,8 +27,36 @@ const areas = defineCollection({
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'slug em minúsculas, separado por hífen'),
     /** Frase curta de apoio. Vai para a meta description e para a lista. */
     resumo: z.string().min(1),
-    /** Assuntos da área, exibidos como chips. */
-    assuntos: z.array(z.string().min(1)),
+    /**
+     * Assuntos da área.
+     *
+     * Aceita duas formas. A string simples continua valendo (é o que as
+     * áreas usavam quando os assuntos eram pílulas). A forma com objeto
+     * acrescenta `faz`: uma frase curta dizendo o que o escritório faz
+     * naquele assunto.
+     *
+     * Por que `faz` existe: como pílula, o assunto era só palavra-chave
+     * solta — "Holding familiar", "LGPD" —, e o cliente reprovou o
+     * formato por soar a texto gerado. O que desfaz isso não é trocar a
+     * forma da pílula, é a etiqueta deixar de ser etiqueta e passar a
+     * dizer o serviço.
+     *
+     * REGRA: `faz` é sempre derivado do `corpo` desta mesma área, que veio
+     * do briefing e foi conferido contra o Provimento 205/2021. Não é
+     * texto novo, é a frase do corpo reduzida. Nada de promessa de
+     * resultado, prazo ou superlativo — é o que a OAB proíbe.
+     */
+    assuntos: z.array(
+      z.union([
+        z.string().min(1),
+        z.object({
+          /** Nome do assunto. */
+          nome: z.string().min(1),
+          /** O que o escritório faz nesse assunto. Uma frase. */
+          faz: z.string().min(1),
+        }),
+      ]),
+    ),
     /** Texto da página, um item por parágrafo. */
     corpo: z.array(z.string().min(1)),
     /** Perguntas frequentes específicas da área. */
@@ -88,7 +116,7 @@ const areas = defineCollection({
           /** Ilustração vetorial (ver Marca.astro) para temas conceituais. */
           /* Só os tipos que uma CENA pode pedir. `Marca.astro` conhece
              outros — leque, conversa, pauta, sucessao, rede —, mas esses
-             são escolhidos em código (home, /contato/, /textos/) e nunca
+             são escolhidos em código (home, /contato/, /blog/) e nunca
              vêm de JSON: listá-los aqui sugeriria que uma cena poderia
              pedi-los. */
           marca: z.enum(['dados', 'marca', 'contrato', 'compliance', 'prova', 'maquina']).optional(),
@@ -110,7 +138,7 @@ const areas = defineCollection({
 });
 
 /**
- * Artigos do blog (`/textos/`).
+ * Artigos do blog (`/blog/`).
  *
  * O schema serve às duas fontes de propósito, e o plano pede isso: o mesmo
  * objeto valida uma linha do Supabase, traduzida pelo loader, e um arquivo

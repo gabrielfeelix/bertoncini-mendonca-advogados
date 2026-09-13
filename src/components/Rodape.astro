@@ -1,61 +1,126 @@
 ---
 /**
- * Rodapé: migrado quase direto do protótipo (CSS linhas 391-408, HTML
- * linhas 811-855 de `prototipo/index.html`). Duas mudanças obrigatórias
- * em relação ao protótipo:
- *  - os links de navegação apontam para rotas reais, não âncoras `#`;
- *  - os dados de contato e o registro da sociedade vêm de `src/lib/site.ts`,
- *    única fonte dos placeholders, marcados com `data-placeholder="1"`.
+ * Rodapé.
  *
- * O bloco de registro (OAB de cada sócio, registro e CNPJ da sociedade) é
- * exigência do Provimento 205/2021 da OAB e continua obrigatório mesmo
- * com valores placeholder.
+ * ── O que estava errado ─────────────────────────────────────────────────
+ *
+ * O cliente reprovou o rodapé inteiro, e os defeitos eram quatro, todos
+ * de estrutura:
+ *
+ * 1. **A logo não funcionava.** Era um PNG de 180px numa grade
+ *    `auto 1fr` ao lado do bloco de registro: a marca ficava encostada à
+ *    esquerda, o registro colado nela, e a metade direita da faixa vazia.
+ *    "Está pra esquerda e na direita parece que falta alguma coisa."
+ * 2. **Os rótulos das colunas.** "Navegar", "Falar", "Onde", "Legal" —
+ *    três são verbo ou advérbio onde a convenção brasileira usa
+ *    substantivo, e "Legal" colide com o coloquial ("que legal"). Ver a
+ *    nota em `src/lib/site.ts`, que guarda o levantamento.
+ * 3. **Quatro colunas de conteúdo desigual.** A de navegação espelhava o
+ *    menu do cabeçalho item a item (caminho nenhum a mais), e a coluna
+ *    "Legal" tinha dois links de política — nenhum escritório brasileiro
+ *    dos seis levantados usa coluna para política, e ninguém navega para
+ *    uma coluna chamada Legal.
+ * 4. **Nenhuma hierarquia.** Uma grade só, do logo ao copyright, então
+ *    tudo pesava igual e a altura virava despejo em vez de organização.
+ *
+ * ── A estrutura nova: três faixas e dois filetes ────────────────────────
+ *
+ * É o padrão comum a Lefosse, Velloza, Demarest e BMA, e o que resolve o
+ * (4): o rodapé não é uma grade, são faixas empilhadas, separadas por
+ * filete, com o vão entre faixas muito maior que o vão entre linhas de uma
+ * mesma coluna (~3:1). O filete é o que faz a altura parecer deliberada.
+ *
+ *   A — identidade.  Marca à esquerda; à DIREITA, a frase de posição e o
+ *       horário. É o que corrige o (1): o lado direito da faixa se enche
+ *       de conteúdo com peso, não de espaço. Lefosse põe a frase, o
+ *       Frederighi põe o horário — aqui vão os dois, porque são os dois
+ *       fatos que o escritório já tem confirmados.
+ *   B — as colunas.  Três, não quatro: Institucional, Áreas de atuação e
+ *       Contato (com o endereço no corpo dela). Coluna que é só endereço é
+ *       coluna fraca; três largas leem melhor que quatro estreitas.
+ *   C — a assinatura.  O nome do escritório em corpo grande, fechando a
+ *       página, e embaixo a barra com copyright, registro da OAB e as
+ *       políticas como links soltos.
+ *
+ * ── O nome grande ───────────────────────────────────────────────────────
+ *
+ * Fica ABAIXO das colunas e ACIMA da barra legal, ocupando a largura do
+ * `.env`. Acima das colunas haveria duas identidades competindo com a
+ * marca da faixa A. Sai só "Bertoncini & Mendonça", sem "Advogados": o
+ * nome de três palavras não cabe em uma linha em corpo de display, e o que
+ * identifica é a parte distintiva. `line-height` apertado e tracking
+ * negativo, porque em corpo grande a tipografia precisa fechar.
+ *
+ * Funciona também como marcação de fim: o rodapé alto encerra a rolagem em
+ * vez de deixá-la escorrer.
+ *
+ * ── O registro da OAB ───────────────────────────────────────────────────
+ *
+ * Vai na barra de baixo, colado ao copyright, no menor corpo da página —
+ * é onde Galvão & Silva e Daniel Frederighi o põem, e a construção formal
+ * é "Sociedade de Advogados inscrita na OAB/...". Continua sendo exigência
+ * do Provimento 205/2021 e continua obrigatório com valor placeholder.
+ *
+ * "Site por Gabriel Felix" fica onde estava: o cliente gostou.
  */
 import { site, rodape } from '../lib/site';
+import Zap from './Zap.astro';
+import { listarAreasConfirmadas } from '../lib/areas';
 
 const ano = new Date().getFullYear();
+
+/* As áreas vêm da coleção, não de uma lista escrita à mão: uma terceira
+   área entra no rodapé sozinha, e nenhuma sai do ar quando é removida. */
+const areas = await listarAreasConfirmadas();
 ---
 
 <footer class="rodape" id="rodape">
-  <div class="lastro"></div>
   <div class="grao" style="filter:url(#grao)"></div>
   <div class="env rodape-env">
-    <div class="marca-pe">
-      <img src="/media/marca/lockup-branco.png" alt={site.nome} width="180" loading="lazy" />
-      <p class="registro" data-placeholder="1">
-        {site.nomeSociedade}<br />
-        Registro {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}<br />
-        {site.socios.map((socio, indice) => (
-          <>
-            {socio.nome}, {socio.oab.valor}
-            {indice < site.socios.length - 1 ? ' · ' : ''}
-          </>
-        ))}
-        <br />
-        {/* Este aviso é texto de trabalho: sai quando as inscrições reais
-            chegarem. Ficava em `--imperial` (#9B1C2E), que sobre o azul do
-            rodapé dá contraste 2.04:1 — reprovado em AA e mal legível.
-            Vermelho escuro só funciona sobre branco (lá dá 8.6:1, e é como
-            a OAB aparece nas páginas). Sobre chapa escura, o destaque vem
-            do branco cheio contra o texto a 55% em volta. */}
-        <span class="aviso-placeholder">Inscrições são placeholder. Entram as reais antes de publicar.</span>
-      </p>
+
+    {/* ── FAIXA A: identidade ─────────────────────────────────────── */}
+    <div class="faixa identidade">
+      <a class="marca-pe" href="/" aria-label={`${site.nome} — início`}>
+        <img src="/media/marca/lockup-branco.png" alt="" width="200" height="46" loading="lazy" />
+      </a>
+      <div class="posicao">
+        {/* As duas frases numa expressão só: quebrar a linha no JSX entre
+            `{site.estado}.` e `{site.atendimentoRodape}` comia o espaço e
+            saía "Maringá, PR.Atendimento online". */}
+        <p class="frase">
+          {`Sociedade de advogados em ${site.cidade}, ${site.estado}. ${site.atendimentoRodape}.`}
+        </p>
+        <p class="hora"><span class="ponto" aria-hidden="true"></span>{site.horario}</p>
+      </div>
     </div>
 
-    <nav class="pe-nav" aria-label="Rodapé">
-      <div>
-        <h4>Navegar</h4>
-        {rodape.navegar.map((item) => <a href={item.href}>{item.rotulo}</a>)}
+    {/* ── FAIXA B: as colunas ─────────────────────────────────────── */}
+    <nav class="faixa colunas" aria-label="Rodapé">
+      <div class="coluna">
+        <h2>Institucional</h2>
+        {rodape.institucional.map((item) => <a href={item.href}>{item.rotulo}</a>)}
       </div>
-      <div>
-        <h4>Falar</h4>
+
+      <div class="coluna">
+        <h2>Áreas de atuação</h2>
+        {areas.map((area) => (
+          <a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a>
+        ))}
+      </div>
+
+      <div class="coluna contato">
+        <h2>Contato</h2>
+        {/* O WhatsApp em primeiro e com o glifo verde: é o canal principal
+            do escritório, e aqui ele precisa ser reconhecível como no
+            cabeçalho. */}
         <a
+          class="zap-link"
           href={site.whatsapp.valor}
           target="_blank"
           rel="noopener"
           data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
         >
-          WhatsApp
+          <Zap tamanho={15} class="glifo" />WhatsApp
         </a>
         <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>
           {site.email.valor}
@@ -63,53 +128,72 @@ const ano = new Date().getFullYear();
         <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefoneE164.placeholder ? '1' : undefined}>
           {site.telefone.valor}
         </a>
-        <p>{site.horario}</p>
-      </div>
-      <div>
-        <h4>Onde</h4>
-        <p>{site.cidade}, {site.estado}<br />{site.atendimentoRodape}</p>
         <a href={site.redes.instagram.valor} data-placeholder={site.redes.instagram.placeholder ? '1' : undefined}>
           Instagram
         </a>
-      </div>
-      <div>
-        <h4>Legal</h4>
-        {rodape.legal.map((item) => <a href={item.href}>{item.rotulo}</a>)}
-        <p>Os textos deste site são informativos e não substituem uma consulta.</p>
+        {/* O endereço é o CORPO desta coluna, não uma quarta coluna. */}
+        <p class="onde">{site.cidade}, {site.estado}<br />{site.atendimento}</p>
       </div>
     </nav>
 
-    <div class="pe-fim">
-      <p>© {ano} {site.nomeCurto}</p>
-      <p><a href="https://gabrielfelix-ux.4yu.com.br" rel="noopener">Site por Gabriel Felix</a></p>
+    {/* ── FAIXA C: assinatura ─────────────────────────────────────── */}
+    <div class="faixa assinatura">
+      <p class="nomao" aria-hidden="true">Bertoncini <i>&amp;</i> Mendonça</p>
+
+      <div class="pe-fim">
+        <div class="registro" data-placeholder="1">
+          <p>© {ano} {site.nomeCurto}</p>
+          <p>
+            Sociedade de Advogados inscrita na {site.registro.oabSociedade.valor}
+            <span class="sep" aria-hidden="true"> · </span>
+            CNPJ {site.registro.cnpj.valor}
+          </p>
+          <p>
+            {site.socios.map((socio, indice) => (
+              <>
+                {socio.nome}, {socio.oab.valor}
+                {indice < site.socios.length - 1 ? <span class="sep" aria-hidden="true"> · </span> : ''}
+              </>
+            ))}
+          </p>
+          {/* Texto de trabalho: sai quando as inscrições reais chegarem. */}
+          <p class="aviso-placeholder">Inscrições são placeholder. Entram as reais antes de publicar.</p>
+        </div>
+
+        <div class="miudos">
+          {/* As políticas como links soltos, não como coluna: nenhum dos
+              seis escritórios levantados usa coluna para isso. */}
+          <p class="politicas">
+            {rodape.legal.map((item, indice) => (
+              <>
+                <a href={item.href}>{item.rotulo}</a>
+                {indice < rodape.legal.length - 1 ? <span class="sep" aria-hidden="true"> · </span> : ''}
+              </>
+            ))}
+          </p>
+          <p class="ressalva">Os textos deste site são informativos e não substituem uma consulta.</p>
+          <p class="credito"><a href="https://gabrielfelix-ux.4yu.com.br" rel="noopener">Site por Gabriel Felix</a></p>
+        </div>
+      </div>
     </div>
   </div>
 </footer>
 
 <style>
   /*
-    Saíram daqui as duas formas que o redesenho aposentou: o corte
-    diagonal (`clip-path: polygon`), última ocorrência no site, e o
-    degradê do `.lastro`, que puxava para um roxo (#2a2540) que não é cor
-    da marca. Agora é o azul chapado — decisão 2, três superfícies e
-    nenhum degradê em fundo de seção.
-
-    O rodapé continua sendo faixa, e não placa: é a base da página, e
-    placa aqui deixaria uma tira do fundo abaixo dele.
+    O rodapé continua sendo FAIXA, e não placa: é a base da página, e
+    placa aqui deixaria uma tira do fundo abaixo dele. Azul chapado, sem
+    degradê — decisão 2 do redesenho, três superfícies e nenhum degradê em
+    fundo de seção.
   */
   .rodape {
     position: relative;
     overflow: hidden;
     background: var(--tinta);
     color: #fff;
-    padding-block: clamp(64px, 8vw, 120px) 32px;
+    padding-block: clamp(56px, 7vw, 104px) 28px;
   }
   /* Textura de grão só sobre o azul escuro do rodapé — nunca sobre branco. */
-  .rodape .lastro {
-    position: absolute;
-    inset: 0;
-    background: var(--tinta);
-  }
   .rodape .grao {
     position: absolute;
     inset: 0;
@@ -120,92 +204,233 @@ const ano = new Date().getFullYear();
   .rodape-env {
     position: relative;
     z-index: 1;
-    display: grid;
-    gap: clamp(40px, 5vw, 72px);
   }
-  .marca-pe {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 32px;
-    align-items: start;
-  }
-  .marca-pe img {
-    opacity: 0.92;
-    height: auto;
-  }
-  .registro {
-    font-size: 15px;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.72);
-    margin: 0;
-  }
-  /* Aviso temporário de placeholder. Branco cheio sobre o azul do rodapé
-     (15.9:1); destaca-se do texto em volta, que está a 72%. */
-  .aviso-placeholder {
-    color: #fff;
-  }
-  .pe-nav {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 32px;
-    padding-top: 40px;
+
+  /*
+    As faixas e os filetes. O vão ENTRE faixas é ~3x o vão entre linhas de
+    uma coluna: é essa diferença que faz o rodapé alto parecer organizado
+    em vez de despejado. O filete só existe a partir da segunda faixa.
+  */
+  .faixa + .faixa {
+    margin-top: clamp(40px, 5vw, 68px);
+    padding-top: clamp(40px, 5vw, 68px);
     border-top: 1px solid rgba(255, 255, 255, 0.14);
   }
-  .pe-nav h4 {
-    font: 500 12px/1 var(--sans);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.5);
-    margin: 0 0 18px;
+
+  /* ── FAIXA A: identidade ──────────────────────────────────────────── */
+  /*
+    Duas colunas, e a da direita é a que corrige o defeito apontado: a
+    marca ficava à esquerda com o lado direito vazio. `1fr auto` com a
+    frase à direita enche a faixa dos dois lados.
+  */
+  .identidade {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: clamp(24px, 4vw, 64px);
+    flex-wrap: wrap;
   }
-  .pe-nav a,
-  .pe-nav p {
-    display: block;
-    font-size: 16px;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.86);
-    text-decoration: none;
-    margin: 0 0 10px;
-  }
-  .pe-nav a {
-    padding-block: 4px;
-    min-height: 44px;
+  /* A marca virou link para a home, então é alvo de toque: precisa dos
+     44px de altura mínima que o verificador cobra. A imagem tem 37px de
+     altura; o `min-height` no link cobre a diferença sem esticar o PNG. */
+  .marca-pe {
     display: inline-flex;
     align-items: center;
+    flex: none;
+    min-height: 44px;
+  }
+  .marca-pe img {
+    display: block;
+    width: clamp(160px, 17vw, 210px);
+    height: auto;
+    opacity: 0.94;
+  }
+  .posicao {
+    display: grid;
+    gap: 10px;
+    justify-items: end;
+    text-align: end;
+  }
+  .posicao .frase {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(17px, 1.5vw, 21px);
+    line-height: 1.4;
+    max-width: 34ch;
+    color: rgba(255, 255, 255, 0.88);
     margin: 0;
   }
-  .pe-nav a:hover {
+  .posicao .hora {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.62);
+    margin: 0;
+  }
+  /* O ponto verde é o mesmo sinal de "atendendo" do resto do site. */
+  .posicao .ponto {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--whats);
+    flex: none;
+  }
+
+  /* ── FAIXA B: as colunas ──────────────────────────────────────────── */
+  /* Três colunas largas, não quatro estreitas. */
+  .colunas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(28px, 4vw, 56px);
+  }
+  .coluna {
+    display: grid;
+    align-content: start;
+    gap: 2px;
+  }
+  .coluna h2 {
+    font: 500 12px/1 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.46);
+    margin: 0 0 14px;
+  }
+  .coluna a {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    align-self: start;
+    font-size: 16.5px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.86);
+    text-decoration: none;
+    padding-block: 9px;
+    min-height: 44px;
+    transition: color 0.2s;
+  }
+  .coluna a:hover {
     color: #fff;
     text-decoration: underline;
     text-underline-offset: 4px;
   }
+  /* O glifo do WhatsApp em verde, como no cabeçalho: o canal se reconhece
+     pela cor antes da palavra. */
+  .zap-link :global(.glifo) {
+    color: var(--whats);
+    flex: none;
+  }
+  .coluna .onde {
+    margin: 14px 0 0;
+    font-size: 15.5px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  /* ── FAIXA C: assinatura ──────────────────────────────────────────── */
+  /*
+    O nome grande. Ocupa a largura do `.env` e é o elemento mais largo do
+    rodapé — é o que fecha a página. `clamp` em vw puro para ele crescer
+    com a tela em vez de parar num teto e voltar a sobrar borda.
+
+    Opacidade baixa em vez de branco cheio: a escala já dá o peso, e em
+    branco cheio ele competiria com o conteúdo das colunas acima. Marcado
+    `aria-hidden` porque é ornamento — o nome do escritório já está no
+    copyright logo abaixo, em texto, e na marca da faixa A.
+  */
+  .nomao {
+    font-family: var(--serif);
+    font-weight: 200;
+    font-size: clamp(38px, 10.6vw, 168px);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    color: rgba(255, 255, 255, 0.14);
+    margin: 0 0 clamp(28px, 3.4vw, 48px);
+    white-space: nowrap;
+  }
+  .nomao i {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* A barra legal: plinto, não quarta faixa — corpo menor e contraste
+     menor que tudo acima. */
   .pe-fim {
     display: flex;
     justify-content: space-between;
-    gap: 16px;
+    gap: clamp(20px, 3vw, 48px);
     flex-wrap: wrap;
-    padding-top: 24px;
+    padding-top: clamp(22px, 2.6vw, 32px);
     border-top: 1px solid rgba(255, 255, 255, 0.14);
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.55);
   }
-  .pe-fim a {
-    color: inherit;
+  .registro,
+  .miudos {
+    display: grid;
+    gap: 5px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .registro p,
+  .miudos p {
+    margin: 0;
+  }
+  .miudos {
+    justify-items: end;
+    text-align: end;
+  }
+  .miudos .ressalva {
+    max-width: 44ch;
+  }
+  .sep {
+    opacity: 0.45;
+  }
+  .politicas a,
+  .credito a {
+    color: rgba(255, 255, 255, 0.72);
+    text-decoration: none;
     min-height: 44px;
     display: inline-flex;
     align-items: center;
   }
+  .politicas a:hover,
+  .credito a:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  /* Aviso temporário de placeholder. Branco cheio sobre o azul do rodapé
+     (15.9:1); destaca-se do texto em volta, que está a 50%.
+     `--imperial` aqui daria 2.04:1 e reprovaria em AA. */
+  .aviso-placeholder {
+    color: #fff;
+    margin-top: 6px;
+  }
+
   @media (max-width: 900px) {
-    .pe-nav {
-      grid-template-columns: repeat(2, 1fr);
+    .colunas {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .marca-pe {
-      grid-template-columns: 1fr;
-      gap: 20px;
+    .identidade {
+      align-items: flex-start;
+    }
+    .posicao {
+      justify-items: start;
+      text-align: start;
+    }
+    /* O nome grande passa a quebrar: em uma linha só ele estouraria a
+       tela estreita, e `white-space: nowrap` o faria transbordar. */
+    .nomao {
+      white-space: normal;
+      font-size: clamp(34px, 12vw, 76px);
+    }
+    .miudos {
+      justify-items: start;
+      text-align: start;
     }
   }
   @media (max-width: 560px) {
-    .pe-nav {
+    .colunas {
       grid-template-columns: 1fr;
     }
   }

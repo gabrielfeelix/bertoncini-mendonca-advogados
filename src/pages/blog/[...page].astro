@@ -1,6 +1,6 @@
 ---
 /**
- * `/textos/` e `/textos/2/`, `/textos/3/`...: a lista do blog.
+ * `/blog/` e `/blog/2/`, `/blog/3/`...: a lista do blog.
  *
  * O blog tem nome próprio, **Em português claro**, e é assim que ele se
  * chama em toda a interface. A palavra "blog" não aparece para o leitor.
@@ -10,10 +10,10 @@
  * páginas, e ele exige que o parâmetro se chame exatamente `page` — é o
  * único nome em inglês do projeto, e é obrigação da ferramenta, não escolha.
  * Com um parâmetro comum (`[page].astro`) a primeira página sairia
- * em `/textos/1/`, e `/textos/` teria de ser uma segunda página duplicada,
+ * em `/blog/1/`, e `/blog/` teria de ser uma segunda página duplicada,
  * com o custo de SEO que conteúdo duplicado traz. Com o parâmetro rest, o
- * Astro entrega `undefined` na primeira página, que vira `/textos/`, e as
- * seguintes viram `/textos/2/`. Uma rota, uma página por conteúdo.
+ * Astro entrega `undefined` na primeira página, que vira `/blog/`, e as
+ * seguintes viram `/blog/2/`. Uma rota, uma página por conteúdo.
  *
  * ── O destaque ──────────────────────────────────────────────────────────
  * O artigo mais recente aparece em evidência no topo da PRIMEIRA página, e
@@ -42,7 +42,7 @@ export const getStaticPaths = (async ({ paginate }) => {
   const artigos = await listarArtigos();
 
   /* A lista vazia também precisa de uma rota: sem isto, `paginate([])` não
-     devolveria caminho nenhum e `/textos/` seria 404 — mas o menu do site
+     devolveria caminho nenhum e `/blog/` seria 404 — mas o menu do site
      aponta para ela em toda página. Um item 404 no menu principal é pior que
      uma página explicando que ainda não há texto. */
   if (artigos.length === 0) {
@@ -61,7 +61,7 @@ export const getStaticPaths = (async ({ paginate }) => {
             currentPage: 1,
             lastPage: 1,
             url: {
-              current: '/textos/',
+              current: '/blog/',
               prev: undefined,
               next: undefined,
               first: undefined,
@@ -97,11 +97,11 @@ const descricao =
   'área. Um assunto por vez, em linguagem simples, pelo escritório ' +
   'Bertoncini & Mendonça, em Maringá, PR.';
 
-/** Endereço de uma página da lista. A primeira é `/textos/`, sem número. */
-const enderecoDaPagina = (numero: number) => (numero === 1 ? '/textos/' : `/textos/${numero}/`);
+/** Endereço de uma página da lista. A primeira é `/blog/`, sem número. */
+const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/${numero}/`);
 ---
 
-<Base titulo={titulo} descricao={descricao} paginaAtual="/textos/">
+<Base titulo={titulo} descricao={descricao} paginaAtual="/blog/">
   <section class="abertura">
     <div class="env">
       <p class="etiqueta">Textos</p>

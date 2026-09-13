@@ -1,6 +1,6 @@
 ---
 /**
- * `/textos/[slug]/`: a página de um artigo.
+ * `/blog/[slug]/`: a página de um artigo.
  *
  * O conteúdo vem da coleção `artigos`, que o loader em
  * `src/lib/loader-supabase.ts` lê do Supabase no build. Esta página não sabe
@@ -71,10 +71,10 @@ const titulo = comNome.length <= 70 ? comNome : comCurto.length <= 70 ? comCurto
 const descricao = d.seoDescricao ?? d.resumo;
 ---
 
-<Base titulo={titulo} descricao={descricao} paginaAtual="/textos/">
+<Base titulo={titulo} descricao={descricao} paginaAtual="/blog/">
   <article class="artigo">
     <nav class="artigo-trilha" aria-label="Trilha de navegação">
-      <a href="/textos/">{NOME_DO_BLOG}</a>
+      <a href="/blog/">{NOME_DO_BLOG}</a>
       <span aria-hidden="true">/</span>
       <span aria-current="page">{d.titulo}</span>
     </nav>
@@ -160,7 +160,7 @@ const descricao = d.seoDescricao ?? d.resumo;
             ))}
           </div>
           <p class="volta">
-            <a href="/textos/">Ver todos os textos</a>
+            <a href="/blog/">Ver todo o blog</a>
           </p>
         </div>
       </section>
