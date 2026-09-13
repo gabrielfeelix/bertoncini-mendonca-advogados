@@ -18,6 +18,7 @@
  * Marcação que a camada de movimento procura: `.sobe` em cada bloco.
  */
 import { site } from '../lib/site';
+import Marca from './Marca.astro';
 
 interface Area {
   /** Nome da área. */
@@ -73,7 +74,13 @@ const {
   <div class="env">
     <div class="topo">
       <h2 class="display sobe">{titulo}</h2>
-      <p class="sobe">{apoio}</p>
+      {/* O leque fecha o vão que sobrava entre o título e a frase de
+          apoio, e diz em forma o que a frase diz em palavra: quatro
+          lâminas do mesmo eixo, duas firmes e duas apagadas. */}
+      <div class="apoio sobe">
+        <Marca tipo="leque" class="leque" />
+        <p>{apoio}</p>
+      </div>
     </div>
 
     {/* Mosaico de blocos: cada área é uma peça de cor com título grande e
@@ -149,10 +156,28 @@ const {
   .areas h2 {
     font-size: clamp(32px, 4.4vw, 60px);
   }
-  .areas .topo p {
+  .areas .apoio {
+    display: flex;
+    align-items: center;
+    gap: clamp(16px, 1.8vw, 26px);
+  }
+  .areas .apoio p {
     color: rgba(255, 255, 255, 0.72);
     font-size: 17px;
-    max-width: 34ch;
+    max-width: 30ch;
+    margin: 0;
+  }
+  .areas :global(.leque) {
+    width: clamp(52px, 5vw, 74px);
+    flex: none;
+  }
+
+  /* Em tela estreita o leque sairia empurrando a frase para duas linhas
+     a mais sem acrescentar nada: o mosaico logo abaixo já diz o mesmo. */
+  @media (max-width: 700px) {
+    .areas :global(.leque) {
+      display: none;
+    }
   }
 
   /*

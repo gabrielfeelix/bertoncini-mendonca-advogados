@@ -23,7 +23,15 @@
  */
 interface Props {
   /** Qual marca desenhar. */
-  tipo: 'dados' | 'marca' | 'contrato' | 'compliance' | 'abertura' | 'prova' | 'maquina';
+  tipo:
+    | 'dados'
+    | 'marca'
+    | 'contrato'
+    | 'compliance'
+    | 'abertura'
+    | 'prova'
+    | 'maquina'
+    | 'leque';
   /** Classe extra, para o posicionamento vir de quem usa. */
   class?: string;
 }
@@ -51,6 +59,27 @@ const { tipo, class: classe } = Astro.props;
       <circle cx="152" cy="48" r="5" fill="var(--secundario)" />
       <circle cx="48" cy="152" r="5" fill="var(--secundario)" />
       <circle cx="100" cy="100" r="13" fill="var(--tinta)" />
+    </>
+  )}
+
+  {tipo === 'leque' && (
+    <>
+      {/* Quatro lâminas de um mesmo eixo: as quatro áreas que o escritório
+          comporta — duas firmes, chapadas, e duas ainda por definir, só
+          contornadas. Vive sobre o azul da seção, então é desenhada em
+          claro.
+
+          O leque é meia-volta inteira (de -88° a 88°), e não um arco curto:
+          com as lâminas só na parte de cima, a base do arco ficava acima do
+          eixo e a pastilha vermelha aparecia solta embaixo, fora do
+          desenho. Assim ela pousa no furo central, que é o que ela é — o
+          ponto de onde tudo abre. Nada de haste: a primeira versão tinha,
+          parecia antena e jogava o peso para baixo. */}
+      <path d="M76.0 99.2 L24.0 97.3 A76.0 76.0 0 0 1 41.8 51.1 L81.6 84.6 A24.0 24.0 0 0 0 76.0 99.2 Z" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="2.5" stroke-linejoin="round" />
+      <path d="M83.3 82.7 L47.2 45.3 A76.0 76.0 0 0 1 92.1 24.4 L97.5 76.1 A24.0 24.0 0 0 0 83.3 82.7 Z" fill="var(--branco)" />
+      <path d="M102.5 76.1 L107.9 24.4 A76.0 76.0 0 0 1 152.8 45.3 L116.7 82.7 A24.0 24.0 0 0 0 102.5 76.1 Z" fill="var(--branco)" />
+      <path d="M118.4 84.6 L158.2 51.1 A76.0 76.0 0 0 1 176.0 97.3 L124.0 99.2 A24.0 24.0 0 0 0 118.4 84.6 Z" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="2.5" stroke-linejoin="round" />
+      <circle cx="100" cy="100" r="12" fill="var(--imperial)" />
     </>
   )}
 
