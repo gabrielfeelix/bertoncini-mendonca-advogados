@@ -44,12 +44,30 @@ const {
 </section>
 
 <style>
+  /*
+    A faixa virou PLACA: cantos arredondados e margem lateral, em vez do
+    corte diagonal (`clip-path`) que ela tinha.
+
+    O corte diagonal brigava com a forma que o site passou a usar desde a
+    primeira dobra — a placa arredondada do Neural Atlas. Duas linguagens
+    de forma na mesma página é o que fazia as seções parecerem coladas de
+    lugares diferentes.
+  */
   .corte {
     position: relative;
     overflow: hidden;
     background: #0b1e3f;
     color: #fff;
-    clip-path: polygon(0 0, 100% 3.6vw, 100% calc(100% - 3.6vw), 0 100%);
+    border-radius: clamp(16px, 2vw, 28px);
+    margin-inline: var(--gutter);
+    max-width: 1500px;
+    margin-block: clamp(20px, 3vw, 40px);
+  }
+  @media (min-width: 1645px) {
+    /* Acima da largura da coluna, centraliza como `.env` faz. */
+    .corte {
+      margin-inline: auto;
+    }
   }
   .corte .filme {
     position: absolute;
@@ -67,7 +85,7 @@ const {
   .corte :global(.env) {
     position: relative;
     z-index: 3;
-    padding-block: calc(var(--bloco) + 3.6vw);
+    padding-block: var(--bloco);
   }
   .corte h2 {
     font-size: clamp(32px, 5.4vw, 72px);
@@ -84,7 +102,7 @@ const {
     z-index: 3;
     left: var(--gutter);
     right: var(--gutter);
-    bottom: calc(3.6vw + 26px);
+    bottom: clamp(20px, 2.4vw, 30px);
     display: flex;
     justify-content: space-between;
     color: rgba(255, 255, 255, 0.5);

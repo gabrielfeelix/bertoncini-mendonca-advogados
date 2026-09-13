@@ -120,7 +120,10 @@ const {
      foco não existe, todos ficam em --tinta. */
   .metodo :global(.env) {
     display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    /* 4fr/8fr, não 5fr/7fr: a coluna da esquerda carrega só um título
+       curto e uma frase, e com 5fr sobrava um vazio grande embaixo dela
+       — o cliente leu a seção como "espalhada". */
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
     gap: clamp(40px, 7vw, 120px);
     align-items: start;
   }
@@ -133,13 +136,10 @@ const {
     max-width: 34ch;
     color: var(--secundario);
   }
+  /* O traço vertical decorativo saiu: com a coluna da esquerda mais
+     estreita e os passos em cartão, ele só marcava o vazio que sobrava. */
   .metodo .traco {
-    margin-top: 40px;
-    width: 1px;
-    height: 120px;
-    background: var(--linha);
-    position: relative;
-    overflow: hidden;
+    display: none;
   }
   .metodo .traco i {
     position: absolute;
@@ -153,23 +153,33 @@ const {
     margin: 0;
     padding: 0;
     display: grid;
-    gap: clamp(36px, 5vw, 72px);
+    gap: clamp(10px, 1vw, 14px);
   }
+  /* Cada passo é um bloco em papel, não uma linha separada por filete.
+     É a mesma decisão do mosaico das áreas: dar forma ao conteúdo em vez
+     de empilhar texto separado por traço. O papel é a terceira superfície
+     do site (--papel), usada aqui como material de componente. */
   .passo {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: clamp(18px, 3vw, 40px);
+    gap: clamp(16px, 2.2vw, 30px);
     align-items: start;
-    padding-top: clamp(20px, 2.4vw, 28px);
-    border-top: 1px solid var(--linha);
+    padding: clamp(22px, 2.4vw, 32px) clamp(22px, 2.6vw, 36px);
+    background: var(--papel);
+    border-radius: clamp(12px, 1.4vw, 18px);
     color: var(--tinta);
-    transition: color 0.5s;
+    transition: color 0.5s, background-color 0.4s;
   }
   .passo .n {
+    /* O número ocupa as DUAS linhas do grid. Sem isto ele forçava a altura
+       da primeira linha (72px de serifada) e abria um vão entre o título e
+       o parágrafo, que a olho lia como texto espalhado. */
+    grid-row: 1 / span 2;
+    align-self: start;
     font-family: var(--serif);
     font-weight: 200;
-    font-size: clamp(40px, 5vw, 72px);
-    line-height: 0.9;
+    font-size: clamp(36px, 4vw, 56px);
+    line-height: 0.85;
     letter-spacing: -0.03em;
     color: var(--imperial);
     opacity: 0.9;
@@ -182,18 +192,26 @@ const {
     line-height: 1.1;
   }
   .passo p {
-    margin-top: 10px;
-    max-width: 46ch;
+    margin-top: 8px;
+    max-width: 52ch;
     color: var(--secundario);
   }
   .passo h3,
   .passo p {
     grid-column: 2;
   }
-  /* Só com JS: o passo fora de foco recua para --secundario e o em foco
-     volta para --tinta. Sem a classe `.js` no <html> nada disso vale. */
-  :global(.js) .metodo:global(.viva) .passo {
-    color: var(--secundario);
+  /* O título centra na sua linha, para encostar no parágrafo em vez de
+     ficar suspenso acima dele. */
+  .passo h3 {
+    align-self: center;
+  }
+  /* O passo em foco se marca pelo FUNDO, não apagando o texto dos outros.
+     Apagar levava `--secundario` sobre `--papel` a 4.54:1 — passa em AA,
+     mas raspa, e o público tem 70 anos. Assim todo o texto fica sempre no
+     contraste cheio e o destaque continua existindo. */
+  :global(.js) .metodo:global(.viva) .passo.foco {
+    background: #fff;
+    box-shadow: 0 1px 0 rgba(11, 30, 63, 0.1), 0 14px 40px rgba(11, 30, 63, 0.08);
   }
   :global(.js) .metodo:global(.viva) .passo:global(.foco) {
     color: var(--tinta);
@@ -201,14 +219,18 @@ const {
   .valem {
     grid-column: 1 / -1;
     list-style: none;
-    margin: clamp(48px, 6vw, 88px) 0 0;
-    padding: clamp(28px, 3vw, 40px) 0 0;
-    border-top: 1px solid var(--tinta);
+    margin: clamp(40px, 5vw, 68px) 0 0;
+    padding: 0;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+    gap: clamp(10px, 1vw, 14px);
     font-size: 17px;
     line-height: 1.5;
+  }
+  .valem li {
+    padding: clamp(20px, 2.2vw, 28px);
+    border: 1px solid var(--linha);
+    border-radius: clamp(12px, 1.4vw, 18px);
   }
   .valem b {
     display: block;

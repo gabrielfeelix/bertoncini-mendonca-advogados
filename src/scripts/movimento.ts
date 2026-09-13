@@ -286,30 +286,12 @@ function ligaMagnetismo(): void {
  * encolhimento sozinho ja e o movimento da primeira dobra.
  */
 
-/** O vídeo que segue o cursor sobre as áreas. */
-function ligaEspia(): void {
-  const caixa = document.getElementById('espia');
-  if (!caixa || matchMedia('(pointer:coarse)').matches) return;
-  const tv = caixa.querySelector('video');
-  if (!tv) return;
-  let atual = '';
-  document.querySelectorAll<HTMLElement>('.item[data-espia]').forEach((it) => {
-    it.addEventListener('mouseenter', () => {
-      const src = it.dataset.espia!;
-      if (src !== atual) {
-        tv.src = src;
-        atual = src;
-        void tv.play().catch(() => {});
-      }
-      caixa.classList.add('viva');
-    });
-    it.addEventListener('mouseleave', () => caixa.classList.remove('viva'));
-    it.addEventListener('mousemove', (e) => {
-      caixa.style.left = `${e.clientX}px`;
-      caixa.style.top = `${e.clientY}px`;
-    });
-  });
-}
+/*
+ * `ligaEspia` (o vídeo que seguia o cursor sobre as áreas) foi REMOVIDA no
+ * redesenho, junto com o `.espia` de Areas.astro: o efeito só existia com
+ * mouse, nunca aparecia no celular nem sob reduced-motion, e o mosaico
+ * novo já diz o que cada área abrange sem depender de hover.
+ */
 
 /* ─────────────────────────────────────────────────────────────────────────
    MONTAGEM
@@ -325,7 +307,6 @@ if (calmo) {
   ligaReveals();
   ligaVideoTardio();
   ligaMagnetismo();
-  ligaEspia();
 
   /* Lenis e GSAP entram sob demanda. Se a importação falhar (rede, bloqueio
      de script), as âncoras ainda ganham o handler nativo com foco — o site
