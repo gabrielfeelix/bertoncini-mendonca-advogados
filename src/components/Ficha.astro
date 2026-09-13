@@ -1,0 +1,118 @@
+---
+/**
+ * Ficha: dado tabular em cartões, no lugar de um `<dl>` corrido.
+ *
+ * Nasceu no redesenho de `/escritorio/`, onde o registro da sociedade
+ * (exigência do Provimento 205/2021) era uma lista de rótulo e valor
+ * separada por filete — legível, mas sem peso nenhum numa página que
+ * precisa afirmar que esses dados existem.
+ *
+ * Continua sendo um `<dl>` no HTML, porque é disso que se trata: pares de
+ * termo e definição. O que muda é a forma, não a semântica.
+ *
+ * Usa `--papel`, a terceira superfície do site, como material de
+ * componente — nunca como fundo de seção (ver docs/PLANO-REDESENHO.md).
+ */
+interface Item {
+  /** Rótulo do dado (o `<dt>`). */
+  rotulo: string;
+  /** Valor (o `<dd>`). */
+  valor: string;
+  /** true quando o valor ainda é placeholder e precisa ser marcado. */
+  placeholder?: boolean;
+  /** Destaca o cartão — usado na OAB, que é a tese do projeto. */
+  destaque?: boolean;
+}
+
+interface Props {
+  itens: Item[];
+  /** Rótulo acessível da lista inteira. */
+  rotulo?: string;
+  /** Quantas colunas em desktop. */
+  colunas?: 2 | 3 | 4;
+}
+
+const { itens, rotulo, colunas = 4 } = Astro.props;
+---
+
+<dl class={`ficha col-${colunas}`} aria-label={rotulo}>
+  {itens.map((item) => (
+    <div class:list={['casa', { destaque: item.destaque }]}>
+      <dt>{item.rotulo}</dt>
+      <dd data-placeholder={item.placeholder ? '1' : undefined}>{item.valor}</dd>
+    </div>
+  ))}
+</dl>
+
+<style>
+  .ficha {
+    display: grid;
+    gap: clamp(10px, 1vw, 14px);
+    margin: 0;
+  }
+  .col-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .col-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .col-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .casa {
+    background: var(--papel);
+    border-radius: clamp(12px, 1.4vw, 18px);
+    padding: clamp(20px, 2.2vw, 28px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  /* O cartão de destaque é o da OAB: o Provimento 205/2021 exige exibir a
+     inscrição, e o levantamento que originou o projeto não achou UM dos 44
+     escritórios que a exibisse. Aqui ela não é nota de rodapé. */
+  .casa.destaque {
+    background: var(--tinta);
+    color: #fff;
+  }
+
+  dt {
+    font-size: 16px;
+    color: var(--secundario);
+    letter-spacing: 0.02em;
+  }
+  .casa.destaque dt {
+    color: rgba(255, 255, 255, 0.72);
+  }
+  dd {
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+  }
+  .casa.destaque dd {
+    font-size: 22px;
+  }
+
+  @media (max-width: 1000px) {
+    .col-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .col-3 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .ficha {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ficha,
+    .ficha * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

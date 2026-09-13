@@ -1,0 +1,174 @@
+---
+/**
+ * Trajetória: barras que expandem, uma por posição.
+ *
+ * Nasceu no redesenho de `/escritorio/`. A trajetória do Juscelino é, no
+ * briefing (q1.8a), uma lista de cinco posições com duração e atribuições
+ * cada uma — e no site virava **um parágrafo de sete linhas** com tudo
+ * dentro. A estrutura existia no dado e o layout a jogava fora.
+ *
+ * Mecanismo de `<details>` nativo, migrado da ideia do Moreira Cruz (a
+ * referência de banca pequena que o cliente mandou): a barra mostra cargo,
+ * lugar e duração; abrir revela o que foi feito ali.
+ *
+ * **Funciona sem JavaScript** — `<details>`/`<summary>` é do navegador.
+ * O `<summary>` tem 44px de altura mínima, e o marcador nativo é
+ * substituído por um sinal próprio, porque o triângulo padrão não tem
+ * tamanho garantido nem contraste declarado.
+ */
+interface Posicao {
+  /** Cargo ou vínculo. */
+  cargo: string;
+  /** Onde. */
+  lugar: string;
+  /** Duração, como o briefing informou. */
+  duracao?: string;
+  /** O que fez ali. Um item por frase. */
+  feitos: string[];
+  /** Abre por padrão — usado na posição mais recente. */
+  aberta?: boolean;
+}
+
+interface Props {
+  posicoes: Posicao[];
+  /** Rótulo acessível da lista. */
+  rotulo?: string;
+}
+
+const { posicoes, rotulo } = Astro.props;
+---
+
+<div class="trajetoria" aria-label={rotulo} role="group">
+  {posicoes.map((p) => (
+    <details class="etapa" open={p.aberta}>
+      <summary>
+        <span class="linha-topo">
+          <span class="cargo">{p.cargo}</span>
+          {p.duracao && <span class="duracao">{p.duracao}</span>}
+        </span>
+        <span class="lugar">{p.lugar}</span>
+        <span class="sinal" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+          </svg>
+        </span>
+      </summary>
+      <ul class="feitos">
+        {p.feitos.map((f) => <li>{f}</li>)}
+      </ul>
+    </details>
+  ))}
+</div>
+
+<style>
+  .trajetoria {
+    display: grid;
+    gap: clamp(8px, 0.8vw, 12px);
+  }
+
+  .etapa {
+    background: var(--papel);
+    border-radius: clamp(12px, 1.4vw, 18px);
+    overflow: hidden;
+  }
+
+  summary {
+    /* O marcador nativo sai: o triângulo do navegador não tem tamanho
+       garantido nem contraste declarado, e o público tem 70 anos. */
+    list-style: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'topo sinal' 'lugar sinal';
+    align-items: center;
+    gap: 4px 18px;
+    padding: clamp(18px, 1.9vw, 24px) clamp(20px, 2.2vw, 28px);
+    min-height: 44px;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .linha-topo {
+    grid-area: topo;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .cargo {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(20px, 1.9vw, 26px);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+  .duracao {
+    font-size: 16px;
+    color: var(--secundario);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .lugar {
+    grid-area: lugar;
+    font-size: 17px;
+    color: var(--secundario);
+  }
+
+  .sinal {
+    grid-area: sinal;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(11, 30, 63, 0.07);
+    color: var(--tinta);
+    display: grid;
+    place-items: center;
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s;
+  }
+  .etapa[open] .sinal {
+    /* O "+" vira "−" girando: sem trocar o ícone, e sem depender de JS. */
+    transform: rotate(45deg);
+    background: var(--tinta);
+    color: #fff;
+  }
+  summary:hover .sinal {
+    background: rgba(11, 30, 63, 0.13);
+  }
+  .etapa[open] summary:hover .sinal {
+    background: var(--apoio);
+  }
+
+  .feitos {
+    margin: 0;
+    padding: 0 clamp(20px, 2.2vw, 28px) clamp(20px, 2.2vw, 28px);
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+  .feitos li {
+    position: relative;
+    padding-left: 20px;
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--secundario);
+    max-width: 68ch;
+  }
+  .feitos li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.66em;
+    width: 6px;
+    height: 1px;
+    background: var(--imperial);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trajetoria,
+    .trajetoria * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

@@ -27,7 +27,64 @@
 import Base from '../layouts/Base.astro';
 import Socios from '../components/Socios.astro';
 import Contato from '../components/Contato.astro';
+import Ficha from '../components/Ficha.astro';
+import Trajetoria from '../components/Trajetoria.astro';
 import { site } from '../lib/site';
+
+/* A trajetória do Juscelino vem do briefing (q1.8a), respondida por ele.
+   Estava no site como UM parágrafo de sete linhas com as cinco posições
+   dentro; a estrutura já existia no dado e o layout a jogava fora.
+   Nenhuma palavra foi acrescentada: só separada por posição. */
+const trajetoriaJuscelino = [
+  {
+    cargo: 'Advogado, antes assistente jurídico e estagiário',
+    lugar: 'Martinelli Advogados',
+    duracao: '4 anos e 6 meses',
+    aberta: true,
+    feitos: [
+      'Começou no contencioso, com processos judiciais estratégicos e de execução, na recuperação de crédito.',
+      'Elaboração de peças processuais em todas as instâncias, relatórios de auditoria e cartas de circularização.',
+      'Depois de um ano e meio foi para o setor consultivo: contratos, notificações extrajudiciais, pareceres jurídicos, compliance, LGPD e propriedade intelectual.',
+      'Estruturação de operações complexas e reuniões técnicas e comerciais com clientes.',
+    ],
+  },
+  {
+    cargo: 'Estágio',
+    lugar: 'Gabinete da 2ª Vara de Família e Sucessões de Maringá',
+    duracao: '8 meses',
+    feitos: [
+      'Elaboração de despachos, decisões interlocutórias e decisões de saneamento.',
+      'Participação em audiências de conciliação e instrução, e auxílio na elaboração de sentenças.',
+    ],
+  },
+  {
+    cargo: 'Estágio',
+    lugar: 'Advocacia Moreno',
+    duracao: '6 meses',
+    feitos: [
+      'Petições iniciais, contestações, impugnações, embargos e recursos, cível e trabalhista, com revisão de advogados.',
+      'Cumprimento de prazos e notificações extrajudiciais.',
+    ],
+  },
+  {
+    cargo: 'Estágio',
+    lugar: '9ª Promotoria de Justiça de Maringá',
+    duracao: '7 meses',
+    feitos: [
+      'Degravação de depoimentos e interrogatórios.',
+      'Elaboração de denúncias em crimes de tráfico, receptação, furto, roubo e estelionato.',
+    ],
+  },
+  {
+    cargo: 'Estágio',
+    lugar: 'CEMA Advocacia',
+    duracao: '1 ano e 3 meses',
+    feitos: [
+      'Petições simples e organização de documentos de inicial, contestação e recursos.',
+      'Contato com clientes para comunicar decisões e acordos.',
+    ],
+  },
+];
 
 const socios = [
   {
@@ -46,10 +103,10 @@ const socios = [
         texto:
           'Bacharel em Direito pela Universidade Estadual de Maringá (UEM). Especialista em Direito Empresarial pela PUC/RS e em Advocacia Consultiva pela Legale. Pós-graduando em Direito Imobiliário pela i9.',
       },
-      {
-        texto:
-          'Passou por escritórios de advocacia, pela 9ª Promotoria de Justiça de Maringá e pelo gabinete da 2ª Vara de Família e Sucessões da comarca. Os últimos quatro anos e meio foram no Martinelli Advogados, onde começou no contencioso, com processos judiciais estratégicos e de execução, e depois foi para o setor consultivo: contratos, pareceres, compliance, LGPD, propriedade intelectual e estruturação de operações.',
-      },
+      /* O parágrafo que resumia as cinco posições saiu daqui: virou a
+         seção "Por onde o Juscelino passou", com uma barra por posição
+         (ver `trajetoriaJuscelino` acima). Manter os dois seria dizer a
+         mesma coisa duas vezes na mesma página. */
       {
         texto:
           'É a fase extrajudicial que ocupa a maior parte do seu trabalho — prevenir o litígio costuma custar menos ao cliente do que vencê-lo.',
@@ -125,12 +182,37 @@ const socios = [
   descricao="Quem somos: os dois sócios de Bertoncini & Mendonça, em Maringá, com inscrição na OAB do Paraná, áreas de atuação e contato direto."
   paginaAtual="/escritorio/"
 >
-  <!-- Abertura: diz o que a página é, sem prometer resultado e sem
-       superlativo. Os dois parágrafos só afirmam o que se sabe. -->
-  <section class="secao abertura">
+  <!-- Abertura: uma ideia por tela, com a imagem carregando o peso.
+       A página antes abria com título e dois parágrafos sobre branco, sem
+       nenhuma peça visual — 30 parágrafos e 3 imagens na rota inteira.
+       O recorte panorâmico é um enquadramento DIFERENTE do hero da home,
+       para não ler como a mesma imagem repetida. -->
+  <section class="abertura">
     <div class="env">
-      <p class="chapeu">O escritório</p>
-      <h1 class="display">Somos dois advogados, e é com um de nós que você fala.</h1>
+      <div class="placa-abre">
+        <picture class="retrato">
+          {/* No celular entra o recorte 4:5 já gerado para o hero da home:
+              ampliar o panorâmico 21:9 numa tela estreita sobrava só um
+              rosto e cortava o outro sócio fora. */}
+          <source media="(max-width: 820px)" type="image/avif" srcset="/media/hero/socios-vert-600.avif 600w, /media/hero/socios-vert-800.avif 800w" sizes="100vw" />
+          <source media="(max-width: 820px)" type="image/webp" srcset="/media/hero/socios-vert-600.webp 600w, /media/hero/socios-vert-800.webp 800w" sizes="100vw" />
+          <source type="image/avif" srcset="/media/hero/escritorio-1200.avif 1200w, /media/hero/escritorio-1600.avif 1600w" sizes="100vw" />
+          <source type="image/webp" srcset="/media/hero/escritorio-1200.webp 1200w, /media/hero/escritorio-1600.webp 1600w" sizes="100vw" />
+          <img
+            src="/media/hero/escritorio-1600.jpg"
+            alt="Juscelino Bertoncini e Beatriz Mendonça, os dois sócios do escritório"
+            width="1672"
+            height="717"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
+        <div class="dizer" data-contraste="externo">
+          <p class="chapeu">O escritório</p>
+          <h1 class="display">Somos dois advogados, e é com um de nós que você fala.</h1>
+        </div>
+      </div>
+
       <p class="linha-fina">
         Bertoncini &amp; Mendonça é uma sociedade nova, com base em Maringá e atendimento
         online para todo o país. Quem recebe o caso na primeira conversa é quem responde
@@ -139,73 +221,88 @@ const socios = [
     </div>
   </section>
 
-  <!-- História da sociedade. A estrutura está pronta; os fatos ainda não
-       existem. Cada lacuna é um parágrafo marcado, com o texto do que
-       falta, para os sócios preencherem no briefing da Tarefa 15. -->
+  <!-- A história, em três blocos com rubrica em vez de seis parágrafos
+       corridos numa coluna com a metade esquerda vazia.
+
+       NENHUMA palavra foi reescrita: o texto é o mesmo, vindo do briefing
+       (q1.3) e já conferido. O que mudou é que cada bloco diz de que
+       assunto trata, e os três se alternam em papel e branco em vez de
+       empilhar. -->
   <section class="secao historia" id="historia">
     <div class="env">
+      <p class="chapeu">A sociedade</p>
       <h2 class="display">Como esta sociedade começou.</h2>
-      <div class="corpo">
-        <p>
-          Os dois entraram no curso de Direito da Universidade Estadual de Maringá no mesmo
-          ano, ele no noturno e ela no matutino, e mal se conheciam. O contato começou
-          quando a Beatriz o procurou para perguntar como era trabalhar no Martinelli
-          Advogados, onde estava tentando uma vaga de estágio. Semanas depois ela foi
-          aprovada, e os dois passaram a trabalhar no mesmo setor.
-        </p>
-        <p>
-          Foram mais de quatro anos lado a lado, de estagiários a assistentes jurídicos e
-          de assistentes jurídicos a advogados, cada um firmando a própria área. A
-          sociedade nasceu daí: de funções que se completam e de uma parceria que já tinha
-          sido testada no dia a dia.
-        </p>
-        <p>
-          As áreas refletem essa divisão. A Beatriz vem do processo civil e do contencioso;
-          o Juscelino, do direito empresarial e da advocacia consultiva, que trabalha antes
-          do litígio. É por isso que o escritório atua em Planejamento Patrimonial e
-          Sucessório e em Direito Digital.
-        </p>
-        <p data-placeholder="1">
-          A data de constituição da sociedade: a confirmar com os sócios. Esta página não
-          registra nenhuma data que ainda não foi confirmada.
-        </p>
-        <p>
-          O que já está decidido é o modo de trabalhar. São dois sócios e nenhuma camada
-          entre o cliente e o processo. Na primeira conversa fica claro o que existe, o que
-          é possível fazer, quanto tempo costuma levar e quanto custa. Só depois disso o
-          caso anda.
-        </p>
-        <p>
-          A sociedade está registrada na Ordem dos Advogados do Brasil, Seccional do
-          Paraná, e os dados de registro ficam abaixo, na forma exigida pelo Provimento
-          205/2021.
-        </p>
+
+      <div class="capitulos">
+        <article class="cap">
+          <span class="rubrica">01 — Onde se conheceram</span>
+          <p>
+            Os dois entraram no curso de Direito da Universidade Estadual de Maringá no mesmo
+            ano, ele no noturno e ela no matutino, e mal se conheciam. O contato começou
+            quando a Beatriz o procurou para perguntar como era trabalhar no Martinelli
+            Advogados, onde estava tentando uma vaga de estágio. Semanas depois ela foi
+            aprovada, e os dois passaram a trabalhar no mesmo setor.
+          </p>
+        </article>
+
+        <article class="cap">
+          <span class="rubrica">02 — Quatro anos lado a lado</span>
+          <p>
+            Foram mais de quatro anos lado a lado, de estagiários a assistentes jurídicos e
+            de assistentes jurídicos a advogados, cada um firmando a própria área. A
+            sociedade nasceu daí: de funções que se completam e de uma parceria que já tinha
+            sido testada no dia a dia.
+          </p>
+        </article>
+
+        <article class="cap">
+          <span class="rubrica">03 — Por que estas áreas</span>
+          <p>
+            As áreas refletem essa divisão. A Beatriz vem do processo civil e do contencioso;
+            o Juscelino, do direito empresarial e da advocacia consultiva, que trabalha antes
+            do litígio. É por isso que o escritório atua em Planejamento Patrimonial e
+            Sucessório e em Direito Digital.
+          </p>
+        </article>
       </div>
 
-      <!-- Registro da sociedade: exigência do Provimento 205/2021. Os dois
-           valores ainda são placeholder (fonte: src/lib/site.ts). -->
-      <dl class="registro">
-        <div>
-          <dt>Sociedade</dt>
-          <dd>{site.nomeSociedade}</dd>
-        </div>
-        <div>
-          <dt>Registro na OAB/PR</dt>
-          <dd data-placeholder={site.registro.oabSociedade.placeholder ? '1' : undefined}>
-            {site.registro.oabSociedade.valor}
-          </dd>
-        </div>
-        <div>
-          <dt>CNPJ</dt>
-          <dd data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>
-            {site.registro.cnpj.valor}
-          </dd>
-        </div>
-        <div>
-          <dt>Base</dt>
-          <dd>{site.cidade}, {site.estado}</dd>
-        </div>
-      </dl>
+      <!-- O modo de trabalhar, em destaque: é a promessa da página, e
+           estava perdida como quinto parágrafo de seis. -->
+      <blockquote class="modo">
+        <p>
+          São dois sócios e nenhuma camada entre o cliente e o processo. Na primeira conversa
+          fica claro o que existe, o que é possível fazer, quanto tempo costuma levar e
+          quanto custa. Só depois disso o caso anda.
+        </p>
+      </blockquote>
+
+      <p class="nota" data-placeholder="1">
+        A data de constituição da sociedade: a confirmar com os sócios. Esta página não
+        registra nenhuma data que ainda não foi confirmada.
+      </p>
+    </div>
+  </section>
+
+  <!-- Registro da sociedade: exigência do Provimento 205/2021. Era um
+       <dl> corrido separado por filete; virou ficha em cartões, com o
+       registro na OAB em destaque — é a tese do projeto, e o levantamento
+       de 44 escritórios não achou UM que exibisse o dele. -->
+  <section class="secao registro-secao">
+    <div class="env">
+      <h2 class="titulo-registro">Registro da sociedade</h2>
+      <p class="apoio-registro">
+        A sociedade está registrada na Ordem dos Advogados do Brasil, Seccional do Paraná.
+        Estes dados são exigidos pelo Provimento 205/2021 e ficam visíveis, não no rodapé.
+      </p>
+      <Ficha
+        rotulo="Dados de registro da sociedade"
+        itens={[
+          { rotulo: 'Registro na OAB/PR', valor: site.registro.oabSociedade.valor, placeholder: site.registro.oabSociedade.placeholder, destaque: true },
+          { rotulo: 'Sociedade', valor: site.nomeSociedade },
+          { rotulo: 'CNPJ', valor: site.registro.cnpj.valor, placeholder: site.registro.cnpj.placeholder },
+          { rotulo: 'Base', valor: `${site.cidade}, ${site.estado}` },
+        ]}
+      />
     </div>
   </section>
 
@@ -221,6 +318,28 @@ const socios = [
   </section>
   <Socios socios={socios} variante="completa" nivel="h3" id="socios" />
 
+  <!-- A trajetória do Juscelino: cinco posições, do briefing q1.8a.
+       Estava como UM parágrafo de sete linhas dentro da bio dele, com as
+       cinco posições e o que fez em cada uma espremidas ali. A estrutura
+       já existia no dado; agora o layout a respeita.
+
+       `<details>` nativo: abre e fecha sem JavaScript. -->
+  <section class="secao percurso">
+    <div class="env">
+      <p class="chapeu">Trajetória</p>
+      <h2 class="display">Por onde o Juscelino passou.</h2>
+      <p class="linha-fina">
+        Cinco posições antes da sociedade, da primeira à mais recente. Abra cada uma para
+        ver o que ele fazia ali.
+      </p>
+      <Trajetoria posicoes={trajetoriaJuscelino} rotulo="Trajetória profissional de Juscelino Bertoncini" />
+      <p class="nota" data-placeholder="1">
+        A trajetória da Beatriz entra aqui quando ela responder o briefing. O que se sabe
+        hoje veio do que o Juscelino contou.
+      </p>
+    </div>
+  </section>
+
   <Contato
     titulo="Fale com um dos dois."
     horario="Segunda a sexta, das 9h às 18h. Fora do horário a mensagem fica registrada."
@@ -228,76 +347,203 @@ const socios = [
 </Base>
 
 <style>
+  /* ── abertura ─────────────────────────────────────────────────────── */
+
   .abertura {
-    padding-block: clamp(56px, 7vw, 104px) clamp(40px, 5vw, 72px);
+    padding-block: clamp(20px, 3vw, 36px) clamp(36px, 5vw, 68px);
+  }
+  /* A placa: mesma forma da primeira dobra da home. É a decisão nº 1 do
+     redesenho — seções são placas, não faixas. */
+  .placa-abre {
+    position: relative;
+    border-radius: clamp(16px, 2vw, 28px);
+    overflow: hidden;
+    background: var(--tinta);
+    isolation: isolate;
+  }
+  .retrato,
+  .retrato img {
+    display: block;
+    width: 100%;
+  }
+  .retrato img {
+    aspect-ratio: 21 / 9;
+    object-fit: cover;
+    object-position: 58% 30%;
+  }
+  /* Escurecimento NEUTRO (preto transparente, nunca cor) apenas onde há
+     texto: a foto mantém a cor dela. Ver docs/PLANO-REDESENHO.md. */
+  .placa-abre::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.68) 0%,
+      rgba(0, 0, 0, 0.4) 34%,
+      transparent 56%
+    );
+    pointer-events: none;
+  }
+  .dizer {
+    position: absolute;
+    z-index: 2;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: min(56%, 46ch);
+    padding: clamp(24px, 3.4vw, 56px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+    text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(0, 0, 0, 0.45);
   }
   .chapeu {
     font-size: 16px;
-    color: var(--secundario);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    opacity: 0.88;
   }
   .abertura h1 {
-    font-size: clamp(36px, 6vw, 82px);
-    max-width: 16ch;
+    font-size: clamp(30px, 3.9vw, 62px);
+    max-width: 15ch;
   }
   .linha-fina {
-    margin-top: 24px;
-    max-width: 54ch;
+    margin-top: clamp(22px, 2.6vw, 32px);
+    max-width: 58ch;
     font-size: 19px;
     color: var(--secundario);
   }
 
-  .historia {
-    padding-block: clamp(48px, 6vw, 96px);
+  /* No celular a foto perde a área livre à esquerda: o texto sai de cima
+     dela e vai para baixo, sobre o azul da própria placa. */
+  @media (max-width: 820px) {
+    .retrato img {
+      /* O recorte vertical já enquadra os dois: basta respeitar a
+         proporção dele, sem ampliar. */
+      aspect-ratio: 4 / 5;
+      object-position: 50% 18%;
+      max-height: 58svh;
+    }
+    .placa-abre::after {
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.55) 0%, transparent 45%);
+    }
+    .dizer {
+      position: static;
+      width: auto;
+      background: var(--tinta);
+      padding-block: clamp(24px, 5vw, 34px);
+    }
+    .abertura h1 {
+      font-size: clamp(28px, 7vw, 40px);
+      max-width: 18ch;
+    }
   }
-  .historia :global(.env) {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(28px, 5vw, 88px);
-    align-items: start;
+
+  /* ── história ─────────────────────────────────────────────────────── */
+
+  .historia {
+    padding-block: clamp(44px, 6vw, 88px);
+  }
+  .historia .chapeu {
+    color: var(--secundario);
+    margin-bottom: 14px;
   }
   .historia h2 {
     font-size: clamp(30px, 4.4vw, 56px);
-    max-width: 14ch;
+    max-width: 16ch;
   }
-  .historia .corpo {
-    font-size: 18px;
-    color: var(--secundario);
-    max-width: 52ch;
-  }
-  .historia .corpo p + p {
-    margin-top: 18px;
-  }
-  /* O registro ocupa a linha inteira do grid, abaixo das duas colunas. */
-  .registro {
-    grid-column: 1 / -1;
-    margin: clamp(28px, 4vw, 48px) 0 0;
-    border-top: 1px solid var(--linha);
+
+  /* Três blocos alternando papel e branco, em vez de seis parágrafos
+     empilhados numa coluna com a metade esquerda vazia. */
+  .capitulos {
+    margin-top: clamp(30px, 4vw, 52px);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 0 clamp(20px, 4vw, 56px);
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(10px, 1vw, 16px);
   }
-  .registro > div {
-    padding: 18px 0;
-    border-bottom: 1px solid var(--linha);
+  .cap {
+    background: var(--papel);
+    border-radius: clamp(12px, 1.4vw, 18px);
+    padding: clamp(24px, 2.4vw, 34px);
   }
-  .registro dt {
+  .cap:nth-child(2) {
+    background: var(--tinta);
+    color: #fff;
+  }
+  .rubrica {
+    display: block;
     font-size: 16px;
+    letter-spacing: 0.04em;
+    color: var(--imperial);
+    margin-bottom: 14px;
+  }
+  .cap:nth-child(2) .rubrica {
+    /* --imperial sobre --tinta dá 2.04:1 e reprova em AA. Sobre a chapa
+       escura o destaque vem do branco cheio, como no rodapé. */
+    color: #fff;
+    opacity: 0.82;
+  }
+  .cap p {
+    font-size: 18px;
+    line-height: 1.6;
     color: var(--secundario);
   }
-  .registro dd {
-    margin: 4px 0 0;
-    font-size: 18px;
-    font-variant-numeric: tabular-nums;
+  .cap:nth-child(2) p {
+    color: rgba(255, 255, 255, 0.86);
   }
+
+  /* O modo de trabalhar era o quinto parágrafo de seis, perdido no meio.
+     É a promessa da página: vira citação em destaque. */
+  .modo {
+    margin: clamp(28px, 3.4vw, 44px) 0 0;
+    padding: clamp(26px, 3vw, 40px) clamp(26px, 3.4vw, 48px);
+    border-left: 3px solid var(--imperial);
+    background: var(--papel);
+    border-radius: 0 clamp(12px, 1.4vw, 18px) clamp(12px, 1.4vw, 18px) 0;
+  }
+  .modo p {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(21px, 2.2vw, 30px);
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    max-width: 44ch;
+  }
+
+  .nota {
+    margin-top: clamp(20px, 2.4vw, 28px);
+    font-size: 18px;
+    color: var(--secundario);
+    max-width: 62ch;
+  }
+
   @media (max-width: 900px) {
-    .historia :global(.env) {
+    .capitulos {
       grid-template-columns: 1fr;
-      gap: 24px;
     }
   }
+
+  /* ── registro ─────────────────────────────────────────────────────── */
+
+  .registro-secao {
+    padding-block: clamp(30px, 4vw, 56px) clamp(44px, 6vw, 88px);
+  }
+  .titulo-registro {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(26px, 3.2vw, 40px);
+    letter-spacing: -0.02em;
+  }
+  .apoio-registro {
+    margin: 16px 0 clamp(24px, 3vw, 34px);
+    max-width: 62ch;
+    font-size: 18px;
+    color: var(--secundario);
+  }
+
+  /* ── sócios e trajetória ──────────────────────────────────────────── */
 
   .cabeca-socios {
     padding-block: clamp(40px, 5vw, 80px) 0;
@@ -306,12 +552,30 @@ const socios = [
     font-size: clamp(30px, 4.4vw, 56px);
   }
 
+  .percurso {
+    padding-block: clamp(48px, 6vw, 92px);
+  }
+  .percurso .chapeu {
+    color: var(--secundario);
+    margin-bottom: 14px;
+  }
+  .percurso h2 {
+    font-size: clamp(30px, 4.4vw, 56px);
+  }
+  .percurso .linha-fina {
+    margin-bottom: clamp(26px, 3vw, 38px);
+  }
+
   /* Todo movimento desligado sob prefers-reduced-motion. */
   @media (prefers-reduced-motion: reduce) {
     .abertura,
     .abertura *,
     .historia,
     .historia *,
+    .registro-secao,
+    .registro-secao *,
+    .percurso,
+    .percurso *,
     .cabeca-socios,
     .cabeca-socios * {
       transition: none !important;
