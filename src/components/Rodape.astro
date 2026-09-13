@@ -38,21 +38,11 @@
  *   B — as colunas.  Três, não quatro: Institucional, Áreas de atuação e
  *       Contato (com o endereço no corpo dela). Coluna que é só endereço é
  *       coluna fraca; três largas leem melhor que quatro estreitas.
- *   C — a assinatura.  O nome do escritório em corpo grande, fechando a
- *       página, e embaixo a barra com copyright, registro da OAB e as
+ *   C — a assinatura.  A barra com copyright, registro da OAB e as
  *       políticas como links soltos.
  *
- * ── O nome grande ───────────────────────────────────────────────────────
- *
- * Fica ABAIXO das colunas e ACIMA da barra legal, ocupando a largura do
- * `.env`. Acima das colunas haveria duas identidades competindo com a
- * marca da faixa A. Sai só "Bertoncini & Mendonça", sem "Advogados": o
- * nome de três palavras não cabe em uma linha em corpo de display, e o que
- * identifica é a parte distintiva. `line-height` apertado e tracking
- * negativo, porque em corpo grande a tipografia precisa fechar.
- *
- * Funciona também como marcação de fim: o rodapé alto encerra a rolagem em
- * vez de deixá-la escorrer.
+ * O nome do escritório em corpo grande, que fechava a página entre as
+ * colunas e a barra legal, saiu a pedido do cliente.
  *
  * ── O registro da OAB ───────────────────────────────────────────────────
  *
@@ -142,8 +132,6 @@ const areas = await listarAreasConfirmadas();
 
     {/* ── FAIXA C: assinatura ─────────────────────────────────────── */}
     <div class="faixa assinatura">
-      <p class="nomao" aria-hidden="true">Bertoncini <i>&amp;</i> Mendonça</p>
-
       <div class="pe-fim">
         <div class="registro" data-placeholder="1">
           <p>© {ano} {site.nomeCurto}</p>
@@ -219,6 +207,13 @@ const areas = await listarAreasConfirmadas();
     margin-top: clamp(40px, 5vw, 68px);
     padding-top: clamp(40px, 5vw, 68px);
     border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  /* A assinatura é o plinto: mesmo filete, respiro menor que o das faixas
+     de cima. É o que a mantém como base da página, e não como mais uma
+     seção de conteúdo. */
+  .faixa + .faixa.assinatura {
+    margin-top: clamp(30px, 3.4vw, 44px);
+    padding-top: clamp(22px, 2.6vw, 32px);
   }
 
   /* ── FAIXA A: identidade ──────────────────────────────────────────── */
@@ -333,39 +328,20 @@ const areas = await listarAreasConfirmadas();
 
   /* ── FAIXA C: assinatura ──────────────────────────────────────────── */
   /*
-    O nome grande. Ocupa a largura do `.env` e é o elemento mais largo do
-    rodapé — é o que fecha a página. `clamp` em vw puro para ele crescer
-    com a tela em vez de parar num teto e voltar a sobrar borda.
+    A barra legal: plinto, não quarta faixa — corpo menor e contraste
+    menor que tudo acima.
 
-    Opacidade baixa em vez de branco cheio: a escala já dá o peso, e em
-    branco cheio ele competiria com o conteúdo das colunas acima. Marcado
-    `aria-hidden` porque é ornamento — o nome do escritório já está no
-    copyright logo abaixo, em texto, e na marca da faixa A.
+    Com a saída do nome grande, esta faixa passou a ter só a barra dentro,
+    e o filete e o respiro apareciam DUAS vezes: um de `.faixa + .faixa` e
+    outro daqui. O da faixa continua sendo o que separa; este vira só
+    `display`, e o plinto recebe menos respiro que as faixas de cima, que
+    é o que o mantém como base e não como mais uma seção.
   */
-  .nomao {
-    font-family: var(--serif);
-    font-weight: 200;
-    font-size: clamp(38px, 10.6vw, 168px);
-    line-height: 0.92;
-    letter-spacing: -0.035em;
-    color: rgba(255, 255, 255, 0.14);
-    margin: 0 0 clamp(28px, 3.4vw, 48px);
-    white-space: nowrap;
-  }
-  .nomao i {
-    font-style: italic;
-    color: rgba(255, 255, 255, 0.2);
-  }
-
-  /* A barra legal: plinto, não quarta faixa — corpo menor e contraste
-     menor que tudo acima. */
   .pe-fim {
     display: flex;
     justify-content: space-between;
     gap: clamp(20px, 3vw, 48px);
     flex-wrap: wrap;
-    padding-top: clamp(22px, 2.6vw, 32px);
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
   }
   .registro,
   .miudos {
@@ -421,12 +397,6 @@ const areas = await listarAreasConfirmadas();
     .posicao {
       justify-items: start;
       text-align: start;
-    }
-    /* O nome grande passa a quebrar: em uma linha só ele estouraria a
-       tela estreita, e `white-space: nowrap` o faria transbordar. */
-    .nomao {
-      white-space: normal;
-      font-size: clamp(34px, 12vw, 76px);
     }
     .miudos {
       justify-items: start;
