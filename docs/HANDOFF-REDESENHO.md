@@ -14,9 +14,8 @@
 
 ## Em uma frase
 
-A home foi redesenhada por inteiro. O resto do site (`/escritorio/`,
-páginas de área, `/contato/`, `/textos/`, políticas) **ainda está no visual
-antigo** e agora destoa dela — é o próximo trabalho.
+A home e `/escritorio/` foram redesenhadas. O que **ainda está no visual
+antigo**: páginas de área, `/contato/`, `/textos/` e as políticas.
 
 ---
 
@@ -28,6 +27,7 @@ antigo** e agora destoa dela — é o próximo trabalho.
 | `fa10d9b` | Primeira dobra: foto dos sócios, navbar sobreposta, placa que encolhe |
 | `7289599` | O encolhimento passa a começar no primeiro scroll; parallax removido |
 | `31aae40` | Resto da home: mosaico de áreas, faixa em placa, método em cartões |
+| `139651f` | `/escritorio/`: abertura com imagem, história em blocos, `Ficha` e `Trajetoria` |
 
 Estado: **11 rotas passam no `npm run verifica`**, `astro check` sem erros,
 build limpo. Nada foi enviado (sem push, sem deploy), como manda a regra.
@@ -67,6 +67,24 @@ internas.
   Contraste vem de `text-shadow` e escurecimento **neutro** (preto
   transparente, nunca azul) só nas bordas onde há texto.
 - **Parallax do hero** e **vídeo que seguia o cursor** (`.espia`).
+
+---
+
+## Componentes do repertório (reusáveis)
+
+Criados no redesenho e prontos para as páginas que faltam:
+
+| Componente | O que faz | Onde já está |
+|---|---|---|
+| `Ficha.astro` | Dado tabular em cartões (`<dl>` por dentro). Tem variante de destaque, usada na OAB. | Registro da sociedade em `/escritorio/` |
+| `Trajetoria.astro` | Barras que expandem, `<details>` nativo, sem JS. | Trajetória do Juscelino |
+
+Os dois usam `--papel` como material de componente. Ambos com 44px de
+alvo, contraste conferido e desligados sob `prefers-reduced-motion`.
+
+**Ainda não existem, e o plano previa:** mosaico de blocos como componente
+(hoje vive dentro de `Areas.astro`), faixas verticais numeradas, e a forma
+que articula duas seções (LexCore).
 
 ---
 
@@ -185,20 +203,24 @@ pesquisa do projeto marcou como o que todo mundo faz).
 
 ## O que falta — na ordem
 
-### 1. `/escritorio/` (30 parágrafos, 3 imagens)
+### ~~1. `/escritorio/`~~ — FEITA (`139651f`)
 
-A página mais pesada de texto do site. Consome:
-- **ficha** para o registro da sociedade (hoje `<dl>` corrido) e formação;
-- **barras que expandem** (Moreira Cruz) para a trajetória do Juscelino,
-  hoje um parágrafo com cinco posições dentro;
-- **título intercalado na grade de retratos** (Bergeson).
+Abertura com imagem, história em três blocos, `Ficha` no registro e
+`Trajetoria` nas cinco posições do Juscelino.
 
-**Cuidado:** a OAB é 22px aqui e 19px na home. Preservar a nota de
-especificidade em `Socios.astro` (`.par .oab.grande`) — aquele bug em que
-a regra da home derrubava a do escritório para 19px vai querer voltar. O
-portão agora pega sozinho.
+**O que ficou de fora:** o título intercalado na grade de retratos
+(Bergeson) — a seção "Quem assina" continua com o layout antigo de
+`Socios.astro`. E **os retratos dos sócios ainda são stock**, de pessoas
+diferentes das da foto do hero. É decisão de conteúdo, não de layout: ou
+se geram retratos individuais no mesmo estilo da foto nova, ou se faz um
+ensaio real.
 
-### 2. Páginas de área (24 parágrafos, 1 imagem)
+**Cuidado ao mexer:** a OAB é 22px aqui e 19px na home. A nota de
+especificidade em `Socios.astro` (`.par .oab.grande`) precisa sobreviver —
+aquele bug em que a regra da home derrubava a do escritório vai querer
+voltar. O portão agora pega sozinho.
+
+### 1. Páginas de área (24 parágrafos, 1 imagem)
 
 Onde o ganho é maior. Os 9 parágrafos do corpo de `direito-digital.json`
 são 9 blocos temáticos distintos — a estrutura já está no dado, o layout
@@ -209,7 +231,7 @@ de rubrica por parágrafo, ou derivar dos `assuntos` por ordem (batem quase
 um a um). O campo opcional é mais robusto e **não altera uma palavra do
 texto**. Ainda não houve OK.
 
-### 3. Tarefa 2 do plano — a escala tipográfica
+### 2. Tarefa 2 do plano — a escala tipográfica
 
 **Não foi feita.** Números medidos nesta sessão (o handoff antigo diz 35,
 que era a contagem do protótipo):
@@ -226,11 +248,11 @@ trocando valores fixos por variáveis (`--corpo`, `--corpo-apoio`,
 `--interface`, `--legenda`), para a decisão virar quatro números num lugar
 só.
 
-### 4. `/contato/`, `/textos/`, políticas
+### 3. `/contato/`, `/textos/`, políticas
 
 Herdam o repertório.
 
-### 5. Tarefa 15 do plano original
+### 4. Tarefa 15 do plano original
 
 Varredura de voz, inventário de placeholders, Lighthouse, README.
 
