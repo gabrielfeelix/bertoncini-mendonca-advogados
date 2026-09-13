@@ -86,11 +86,23 @@ const areas = defineCollection({
           /** Rubrica curta acima do parágrafo. Rótulo, nunca afirmação. */
           rubrica: z.string().min(1),
           /** Ilustração vetorial (ver Marca.astro) para temas conceituais. */
-          marca: z.enum(['dados', 'marca', 'contrato', 'compliance', 'abertura', 'prova', 'maquina']).optional(),
+          /* Só os tipos que uma CENA pode pedir. `Marca.astro` conhece
+             outros — leque, conversa, pauta, sucessao, rede —, mas esses
+             são escolhidos em código (home, /contato/, /textos/) e nunca
+             vêm de JSON: listá-los aqui sugeriria que uma cena poderia
+             pedi-los. */
+          marca: z.enum(['dados', 'marca', 'contrato', 'compliance', 'prova', 'maquina']).optional(),
           /** Fotografia, para temas concretos. Caminho sem extensão em /media/areas/. */
           foto: z.string().min(1).optional(),
           /** Descrição da foto. Obrigatória quando há foto. */
           fotoAlt: z.string().min(1).optional(),
+        })
+        /* Foto é tudo-ou-nada, como a capa do artigo mais abaixo: ou não há
+           foto, ou há caminho E descrição. Sem isto o schema aceitaria uma
+           cena com `foto` e sem `fotoAlt`, e a página emitiria uma imagem
+           sem texto alternativo — que é justamente o que o portão cobra. */
+        .refine((cena) => !cena.foto || !!cena.fotoAlt, {
+          message: 'cena com foto precisa de fotoAlt',
         }),
       )
       .default([]),

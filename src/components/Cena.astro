@@ -24,16 +24,14 @@ interface Props {
   rubrica?: string;
   /** Inverte o lado da peça visual. */
   invertida?: boolean;
-  /** Superfície do bloco: branco (padrão) ou papel. */
-  fundo?: 'branco' | 'papel';
   /** true quando o texto ainda depende de confirmação dos sócios. */
   placeholder?: boolean;
 }
 
-const { rubrica, invertida = false, fundo = 'branco', placeholder } = Astro.props;
+const { rubrica, invertida = false, placeholder } = Astro.props;
 ---
 
-<div class:list={['cena', { invertida, papel: fundo === 'papel' }]}>
+<div class:list={['cena', { invertida }]}>
   <div class="peca">
     <slot name="peca" />
   </div>

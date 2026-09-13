@@ -385,13 +385,4 @@ async function ligaGsap(lenis: { on: (evento: 'scroll', fn: () => void) => void 
     });
   });
 
-  const traco = sec.querySelector('.traco i');
-  const lista = sec.querySelector('.passos');
-  if (traco && lista) {
-    gsap.to(traco, {
-      scaleY: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: lista, start: 'top 60%', end: 'bottom 60%', scrub: true },
-    });
-  }
 }

@@ -28,7 +28,6 @@ interface Props {
     | 'marca'
     | 'contrato'
     | 'compliance'
-    | 'abertura'
     | 'prova'
     | 'maquina'
     | 'leque'
@@ -50,22 +49,6 @@ const { tipo, class: classe } = Astro.props;
   aria-hidden="true"
   focusable="false"
 >
-  {tipo === 'abertura' && (
-    <>
-      {/* Rede: nós ligados. O ambiente eletrônico, antes de qualquer tema. */}
-      <circle cx="100" cy="100" r="74" stroke="var(--linha)" stroke-width="1.5" />
-      <circle cx="100" cy="100" r="44" stroke="var(--linha)" stroke-width="1.5" />
-      <path d="M100 26v148M26 100h148M48 48l104 104M152 48L48 152" stroke="var(--linha)" stroke-width="1.5" />
-      <circle cx="100" cy="26" r="7" fill="var(--tinta)" />
-      <circle cx="174" cy="100" r="7" fill="var(--tinta)" />
-      <circle cx="100" cy="174" r="7" fill="var(--tinta)" />
-      <circle cx="26" cy="100" r="7" fill="var(--tinta)" />
-      <circle cx="152" cy="48" r="5" fill="var(--secundario)" />
-      <circle cx="48" cy="152" r="5" fill="var(--secundario)" />
-      <circle cx="100" cy="100" r="13" fill="var(--tinta)" />
-    </>
-  )}
-
   {tipo === 'conversa' && (
     <>
       {/* Dois balões: a mensagem que chega e a resposta. O de baixo é
@@ -171,55 +154,6 @@ const { tipo, class: classe } = Astro.props;
           ponto de onde as duas abrem. */}
       <path d="M81.1 85.2 L40.1 53.2 A76.0 76.0 0 0 1 89.4 24.7 L96.7 76.2 A24.0 24.0 0 0 0 81.1 85.2 Z" fill="var(--branco)" />
       <path d="M103.3 76.2 L110.6 24.7 A76.0 76.0 0 0 1 159.9 53.2 L118.9 85.2 A24.0 24.0 0 0 0 103.3 76.2 Z" fill="var(--branco)" />
-      <circle cx="100" cy="100" r="12" fill="var(--imperial)" />
-    </>
-  )}
-
-  {tipo === 'pauta' && (
-    <>
-      {/* Folhas empilhadas: a de cima escrita, as de trás ainda em branco.
-          É a marca do estado vazio de /textos/ — o blog não tem texto
-          publicado, e a página precisa parecer pauta em aberto, não erro.
-
-          As de trás são deslocadas E rodadas: só rodar não bastava, o
-          giro em torno do centro deixava as três quase sobrepostas e a
-          pilha sumia atrás da folha branca da frente. */}
-      <rect
-        x="60" y="44" width="96" height="122" rx="8"
-        fill="var(--papel)" stroke="var(--linha)" stroke-width="2"
-        transform="rotate(9 108 105)"
-      />
-      <rect
-        x="52" y="40" width="96" height="122" rx="8"
-        fill="var(--papel)" stroke="var(--linha)" stroke-width="2"
-        transform="rotate(-5 100 101)"
-      />
-      <rect
-        x="44" y="34" width="96" height="122" rx="8"
-        fill="var(--branco)" stroke="var(--tinta)" stroke-width="2.5"
-      />
-      <path d="M62 64h60M62 84h60M62 104h38" stroke="var(--secundario)" stroke-width="2.5" stroke-linecap="round" />
-      <circle cx="70" cy="132" r="8" fill="var(--imperial)" />
-    </>
-  )}
-
-  {tipo === 'leque' && (
-    <>
-      {/* Quatro lâminas de um mesmo eixo: as quatro áreas que o escritório
-          comporta — duas firmes, chapadas, e duas ainda por definir, só
-          contornadas. Vive sobre o azul da seção, então é desenhada em
-          claro.
-
-          O leque é meia-volta inteira (de -88° a 88°), e não um arco curto:
-          com as lâminas só na parte de cima, a base do arco ficava acima do
-          eixo e a pastilha vermelha aparecia solta embaixo, fora do
-          desenho. Assim ela pousa no furo central, que é o que ela é — o
-          ponto de onde tudo abre. Nada de haste: a primeira versão tinha,
-          parecia antena e jogava o peso para baixo. */}
-      <path d="M76.0 99.2 L24.0 97.3 A76.0 76.0 0 0 1 41.8 51.1 L81.6 84.6 A24.0 24.0 0 0 0 76.0 99.2 Z" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="2.5" stroke-linejoin="round" />
-      <path d="M83.3 82.7 L47.2 45.3 A76.0 76.0 0 0 1 92.1 24.4 L97.5 76.1 A24.0 24.0 0 0 0 83.3 82.7 Z" fill="var(--branco)" />
-      <path d="M102.5 76.1 L107.9 24.4 A76.0 76.0 0 0 1 152.8 45.3 L116.7 82.7 A24.0 24.0 0 0 0 102.5 76.1 Z" fill="var(--branco)" />
-      <path d="M118.4 84.6 L158.2 51.1 A76.0 76.0 0 0 1 176.0 97.3 L124.0 99.2 A24.0 24.0 0 0 0 118.4 84.6 Z" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="2.5" stroke-linejoin="round" />
       <circle cx="100" cy="100" r="12" fill="var(--imperial)" />
     </>
   )}

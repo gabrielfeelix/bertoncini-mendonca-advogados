@@ -40,12 +40,24 @@ const aConfirmar = new Set(dados.corpoAConfirmar);
    saem em largura cheia, que é o que eles são. O texto não muda: só o
    invólucro. */
 const cenaPorIndice = new Map(dados.cenas.map((c) => [c.indice, c]));
-const blocos = dados.corpo.map((texto, indice) => ({
-  texto,
-  indice,
-  cena: cenaPorIndice.get(indice),
-  placeholder: aConfirmar.has(indice),
-}));
+
+/* `ordemDaCena` conta CENAS, não parágrafos, e é o que decide de que lado
+   fica a peça visual. Contar pela posição no `corpo` funcionava por
+   acidente nesta área — a abertura é o índice 0 e as cenas caem em 1..7,
+   então a paridade batia. Bastaria uma área cuja primeira cena caísse num
+   índice par, ou dois parágrafos soltos seguidos, para duas cenas
+   consecutivas saírem do mesmo lado e o ritmo sumir. */
+let contaCenas = 0;
+const blocos = dados.corpo.map((texto, indice) => {
+  const cena = cenaPorIndice.get(indice);
+  return {
+    texto,
+    indice,
+    cena,
+    ordemDaCena: cena ? contaCenas++ : -1,
+    placeholder: aConfirmar.has(indice),
+  };
+});
 ---
 
 {/* Nome curto no sufixo: "Planejamento Patrimonial e Sucessório" já tem 37
@@ -91,11 +103,11 @@ const blocos = dados.corpo.map((texto, indice) => ({
     </header>
 
     <div class="env corpo">
-      {blocos.map(({ texto, cena, placeholder }, posicao) =>
+      {blocos.map(({ texto, cena, placeholder, ordemDaCena }) =>
         cena ? (
           <Cena
             rubrica={cena.rubrica}
-            invertida={posicao % 2 === 0}
+            invertida={ordemDaCena % 2 === 1}
             placeholder={placeholder}
           >
             <Fragment slot="peca">

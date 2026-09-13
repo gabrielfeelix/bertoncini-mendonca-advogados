@@ -5,7 +5,7 @@
  * embaixo. Migrado do protótipo (CSS linhas 267-297, HTML linhas 641-676).
  *
  * Marcações para a Tarefa 5: o id `#metodo`, `.sobe` em cada passo, o
- * `.traco i` que a barra vermelha preenche e as classes `.viva`/`.foco`
+ * as classes `.viva`/`.foco`
  * que o JS adiciona. Sem JS o passo em foco não existe e todos ficam em
  * `--tinta`, que é a cor de maior contraste: a degradação escurece o
  * texto, nunca o apaga.
@@ -61,7 +61,6 @@ const {
     <div class="fixa">
       <h2 class="display sobe">{titulo}</h2>
       <p class="sobe">{apoio}</p>
-      <div class="traco" aria-hidden="true"><i></i></div>
     </div>
     <ol class="passos">
       {passos.map((passo) => (
@@ -95,18 +94,6 @@ const {
     margin-top: 18px;
     max-width: 34ch;
     color: var(--secundario);
-  }
-  /* O traço vertical decorativo saiu: com a coluna da esquerda mais
-     estreita e os passos em cartão, ele só marcava o vazio que sobrava. */
-  .metodo .traco {
-    display: none;
-  }
-  .metodo .traco i {
-    position: absolute;
-    inset: 0;
-    background: var(--imperial);
-    transform: scaleY(0);
-    transform-origin: top;
   }
   .passos {
     list-style: none;
@@ -183,9 +170,6 @@ const {
     }
     .metodo .fixa {
       position: static;
-    }
-    .metodo .traco {
-      display: none;
     }
   }
 
