@@ -81,7 +81,11 @@ const areas = await listarAreasConfirmadas();
     {/* ── FAIXA A: identidade ─────────────────────────────────────── */}
     <div class="faixa identidade">
       <a class="marca-pe" href="/" aria-label={`${site.nome} — início`}>
-        <img src="/media/marca/lockup-branco.png" alt="" width="200" height="46" loading="lazy" />
+        {/* 779x298 é o tamanho real do arquivo; `width`/`height` aqui servem
+            para reservar o espaço e evitar o pulo de layout, e o CSS é
+            quem define o tamanho exibido. Estavam 200x46, proporção 4.35
+            contra a real de 2.61: a marca ia para a tela achatada. */}
+        <img src="/media/marca/lockup-branco.png" alt="" width="779" height="298" loading="lazy" />
       </a>
       <div class="posicao">
         {/* As duas frases numa expressão só: quebrar a linha no JSX entre
@@ -241,7 +245,7 @@ const areas = await listarAreasConfirmadas();
   }
   .marca-pe img {
     display: block;
-    width: clamp(160px, 17vw, 210px);
+    width: clamp(150px, 16vw, 196px);
     height: auto;
     opacity: 0.94;
   }

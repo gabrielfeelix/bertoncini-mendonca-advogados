@@ -16,19 +16,29 @@
  * Marcações para a Tarefa 5: o id `#entrada` e as classes `.viva`, `.foi`
  * e `.pulada` que o JS alterna.
  */
+/*
+  O monograma NÃO é quadrado: `mono-branco.png` tem 353x382, proporção
+  0.924. O componente pedia `width={tamanho} height={tamanho}` — 56x56 —
+  e o navegador esticava o desenho 8% na horizontal. Por isso a altura é
+  que manda, e a largura sai dela.
+*/
+const PROPORCAO_MONO = 353 / 382;
+
 interface Props {
   /** Monograma exibido no centro. */
   marca?: string;
-  /** Lado do monograma, em px (o protótipo usa 56). */
+  /** ALTURA do monograma, em px (o protótipo usa 56). */
   tamanho?: number;
 }
 
 const { marca = '/media/marca/mono-branco.png', tamanho = 56 }: Props = Astro.props;
+
+const larguraMono = Math.round(tamanho * PROPORCAO_MONO);
 ---
 
 <div class="entrada" id="entrada" aria-hidden="true">
   <div class="grao" style="filter:url(#grao)"></div>
-  <img src={marca} alt="" width={tamanho} height={tamanho} />
+  <img src={marca} alt="" width={larguraMono} height={tamanho} />
 </div>
 
 <style>
@@ -55,9 +65,11 @@ const { marca = '/media/marca/mono-branco.png', tamanho = 56 }: Props = Astro.pr
     mix-blend-mode: overlay;
     background: #8aa0bc;
   }
+  /* A largura vem do atributo, calculado da proporção real; aqui só a
+     altura, para o CSS não voltar a impor um quadrado. */
   :global(.js) .entrada img {
-    width: 56px;
     height: 56px;
+    width: auto;
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.5s ease 0.05s, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s;

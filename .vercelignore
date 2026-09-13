@@ -11,7 +11,14 @@
 src/pages/previa.astro
 
 # Material que não faz parte do site: protótipo, marca em alta e docs.
-prototipo/
-marca/
-docs/
-tools/shots/
+#
+# A barra INICIAL é obrigatória e não é estilo: sem ela o padrão casa um
+# diretório com aquele nome em QUALQUER nível. Foi assim que `marca/`
+# derrubou `public/media/marca/` junto — as logos que o site usa de
+# verdade — e a cortina de entrada foi para produção pedindo um
+# mono-branco.png que respondia 404, desenhando o ícone de imagem
+# quebrada em cima da chapa azul.
+/prototipo/
+/marca/
+/docs/
+/tools/shots/
