@@ -1,0 +1,17 @@
+# O que não sobe para a Vercel.
+#
+# Existe porque `vercel --prod` envia o DIRETÓRIO DE TRABALHO, e não o que
+# está no GitHub: arquivo ignorado pelo git sobe junto. Foi assim que
+# `/previa/` — página de trabalho, não versionada — foi parar no site
+# publicado num deploy feito da máquina local.
+#
+# Não substitui o .gitignore: os dois precisam listar a prévia, porque
+# resolvem coisas diferentes (um, o que é versionado; outro, o que é
+# publicado).
+src/pages/previa.astro
+
+# Material que não faz parte do site: protótipo, marca em alta e docs.
+prototipo/
+marca/
+docs/
+tools/shots/

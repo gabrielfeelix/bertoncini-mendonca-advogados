@@ -20,6 +20,16 @@ const hostDoSupabase = (() => {
   }
 })();
 
+/* Rotas que não entram no sitemap. A mesma lista é proibida no
+   `/robots.txt` (src/pages/robots.txt.ts) e cada página manda `noindex` —
+   três camadas, porque uma URL de painel indexada é convite.
+
+   `/previa` entrou aqui depois de aparecer no sitemap do site publicado:
+   ela é página de trabalho não versionada, e um deploy feito da máquina
+   local a carrega junto. O `.vercelignore` agora impede a subida; isto
+   garante que, se ela subir de outro jeito, ao menos não é anunciada. */
+const ROTAS_FORA_DO_SITEMAP = ['/painel', '/previa'];
+
 export default defineConfig({
   // Placeholder: o domínio final ainda não foi confirmado com o escritório.
   site: 'https://www.bertoncinimendonca.adv.br',
@@ -32,7 +42,9 @@ export default defineConfig({
        fora do sitemap. As páginas dele também devem mandar `noindex`, e o
        robots.txt deve proibir — três camadas, porque uma URL de painel
        indexada é convite. */
-    sitemap({ filter: (pagina) => !pagina.includes('/painel') }),
+    sitemap({
+      filter: (pagina) => !ROTAS_FORA_DO_SITEMAP.some((rota) => pagina.includes(rota)),
+    }),
   ],
   prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
   image: {
