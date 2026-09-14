@@ -34,12 +34,11 @@ import Faixa from '~/components/Faixa.astro';
 import Metodo from '~/components/Metodo.astro';
 import Newsletter from '~/components/Newsletter.astro';
 import Perguntas from '~/components/Perguntas.astro';
-import Contato from '~/components/Contato.astro';
 import AvisoCookies from '~/components/AvisoCookies.astro';
 import SaibaMais from '~/components/SaibaMais.astro';
 import CartaoTexto from '~/components/CartaoTexto.astro';
 import { listarAreas } from '~/lib/areas';
-import { listarArtigos, NOME_DO_BLOG } from '~/lib/artigos';
+import { listarArtigos } from '~/lib/artigos';
 
 /* As áreas da home vêm da coleção, como em `/areas/`. Uma área confirmada
    leva à página dela; as que ainda não foram definidas aparecem sem link,
@@ -66,10 +65,15 @@ const areasDaHome = areas.map((area) =>
       },
 );
 
-/* Os três textos mais recentes. Enquanto o banco não existe, a lista volta
-   vazia e a seção inteira não é renderizada — uma seção de blog anunciando
-   que não há texto nenhum é pior do que não ter a seção. */
-const ultimosTextos = (await listarArtigos()).slice(0, 3);
+/* Os seis textos mais recentes. Eram três, e passaram a seis quando o
+   bloco de contato saiu da home: a seção de publicações virou o fecho da
+   página, e com três cartões numa grade de três colunas ela fica uma
+   fileira só — pouco peso para o lugar que ocupa agora. Seis fecham duas
+   fileiras cheias.
+
+   Lista vazia não renderiza a seção: uma seção de blog anunciando que não
+   há texto nenhum é pior do que não ter a seção. */
+const ultimosTextos = (await listarArtigos()).slice(0, 6);
 
 /* As perguntas da home são as gerais, sobre atendimento. As específicas de
    cada matéria ficam na página da área. Duas foram reescritas depois do
@@ -127,7 +131,7 @@ const perguntasDaHome = [
     <section class="secao leitor" id="publicacoes">
       <div class="env">
         <div class="cabecalho">
-          <h2 class="nomeia">{NOME_DO_BLOG}</h2>
+          <h2 class="nomeia">Últimas publicações</h2>
           <p class="diz">
             O que escrevemos para quem não é da área. Um assunto por vez, sem citação
             de artigo de lei que ninguém precisa decorar.
@@ -144,7 +148,12 @@ const perguntasDaHome = [
   <Newsletter />
 
   <Perguntas perguntas={perguntasDaHome} />
-  <Contato />
+  {/* O bloco de contato ("Conte o que está acontecendo") saiu daqui a
+      pedido do cliente: a home fecha nas publicações e nas perguntas.
+      Continua nas OUTRAS seis páginas que o usam, e de propósito — lá ele
+      é fim de leitura: quem terminou de ler sobre uma área precisa de um
+      caminho para falar com o escritório, e cartão de blog não substitui
+      isso. Na home o caminho já existe no cabeçalho, no hero e no rodapé. */}
   <AvisoCookies />
 </Base>
 

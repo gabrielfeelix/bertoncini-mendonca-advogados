@@ -74,8 +74,16 @@
 }
 .artigo-trilha a {
   min-height: 44px;
+  /* `min-width` junto com a altura: o rótulo virou "Blog", de quatro
+     letras, e o link ficou com 33px de largura — abaixo do mínimo de alvo
+     de toque, que vale nas DUAS dimensões. Antes o nome era mais longo e o
+     texto sozinho já passava dos 44px, então a falta não aparecia.
+     `justify-content` mantém o sublinhado colado ao texto, e não esticado
+     pela largura mínima. */
+  min-width: 44px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   text-decoration: none;
   border-bottom: 1px solid var(--linha);
 }
@@ -144,6 +152,23 @@
   max-width: none;
   width: min(var(--artigo-capa), calc(100vw - 2 * var(--gutter)));
   object-fit: cover;
+}
+
+/*
+  Crédito da capa. Alinhado à esquerda da própria capa — que é mais larga
+  que a coluna de texto — e não da coluna, senão ele flutuaria solto no
+  meio da margem. Corpo menor e cor de apoio: é obrigação de licença, e
+  precisa estar legível sem disputar com o texto do artigo.
+
+  O `margin-top` negativo recupera parte do respiro da capa: sem ele, a
+  linha ficaria a 48px dela e pareceria legenda de outra coisa.
+*/
+.artigo-credito {
+  margin: calc(-1 * clamp(20px, 3vw, 36px)) auto clamp(28px, 4vw, 48px);
+  width: min(var(--artigo-capa), calc(100vw - 2 * var(--gutter)));
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--secundario);
 }
 
 /* ── O corpo ── */

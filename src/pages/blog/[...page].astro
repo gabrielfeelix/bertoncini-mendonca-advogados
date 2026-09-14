@@ -2,8 +2,10 @@
 /**
  * `/blog/` e `/blog/2/`, `/blog/3/`...: a lista do blog.
  *
- * O blog tem nome próprio, **Em português claro**, e é assim que ele se
- * chama em toda a interface. A palavra "blog" não aparece para o leitor.
+ * O blog se chama **Blog** em toda a interface — decisão do cliente,
+ * "tudo BLOG, sempre, textos nunca". Ele teve nome próprio ("Em português
+ * claro") e o nome foi revogado: nome de seção inventado obriga o leitor a
+ * descobrir o que a seção é, e "Blog" ele já sabe.
  *
  * ── Por que uma rota `[...page]` e não `index.astro` ────────────────────
  * O `paginate()` do Astro precisa de um parâmetro de caminho para numerar as
@@ -104,8 +106,13 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
 <Base titulo={titulo} descricao={descricao} paginaAtual="/blog/">
   <section class="abertura">
     <div class="env">
-      <p class="etiqueta">Textos</p>
-      <h1 class="display">Em <em>português</em> claro</h1>
+      <p class="etiqueta">Blog</p>
+      {/* Era "Em português claro", nome próprio da seção, com a etiqueta
+          "Textos" acima. O cliente reverteu os dois: "tudo BLOG, sempre,
+          textos nunca". O que o nome próprio dizia — que o texto é escrito
+          para quem não é da área — passou a ser dito pela frase de apoio
+          abaixo, que é onde ele de fato se explica. */}
+      <h1 class="display">Escrito para quem <em>não é</em> da área</h1>
       <p class="texto">
         O que escrevemos para quem não é da área. Um assunto por vez, sem citação
         de artigo de lei que ninguém precisa decorar. Nenhum texto daqui
@@ -166,7 +173,7 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
       <section class="lista" aria-labelledby="lista-titulo">
         <div class="env">
           <h2 class="rotulo" id="lista-titulo">
-            {primeira ? 'Os outros textos' : 'Textos'}
+            {primeira ? 'Os outros textos' : 'Mais publicações'}
           </h2>
           <div class="banca">
             {page.data.map((artigo) => (

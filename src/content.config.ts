@@ -14,7 +14,7 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
-import { artigosDoSupabase } from './lib/loader-supabase';
+import { artigosDoRepositorioOuSupabase } from './lib/loader-artigos';
 
 const areas = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/areas' }),
@@ -159,19 +159,44 @@ const areas = defineCollection({
  * sozinho não impede HTML inline (ver `neutralizaHtmlCru` no loader).
  */
 const artigos = defineCollection({
-  loader: artigosDoSupabase(),
+  loader: artigosDoRepositorioOuSupabase(),
   schema: z.object({
     /** Título do artigo, como aparece na página e na lista. */
     titulo: z.string().min(1).max(120),
     /** Frase curta de apoio. Vai para a meta description e para a lista. */
     resumo: z.string().min(1).max(300),
-    /** URL pública da capa no Storage. Ausente quando o artigo não tem capa. */
-    capa: z.url().optional(),
+    /**
+     * Capa do artigo. Ausente quando o artigo não tem capa.
+     *
+     * Aceita URL absoluta (o Storage do Supabase, que é de onde vem a capa
+     * enviada pelo painel) OU caminho absoluto do próprio site
+     * (`/media/capas/...`), que é o caso dos artigos escritos como arquivo
+     * markdown no repositório. Era só `z.url()`, e isso recusava o caminho
+     * local — que o comentário acima já previa como segunda fonte.
+     */
+    capa: z
+      .string()
+      .refine((v) => v.startsWith('/') || /^https?:\/\//.test(v), {
+        message: 'capa deve ser URL absoluta ou caminho começando com /',
+      })
+      .optional(),
     /** Dimensões da capa, medidas no upload. Exigidas pelo <Image> remoto. */
     capaLargura: z.number().int().positive().optional(),
     capaAltura: z.number().int().positive().optional(),
     /** Descrição da capa. Obrigatória sempre que existe capa. */
     capaAlt: z.string().min(1).optional(),
+    /**
+     * Crédito da capa, quando a licença exige atribuição.
+     *
+     * CC BY e CC BY-SA obrigam a creditar autor e licença onde a imagem é
+     * publicada — registrar em `public/media/capas/CREDITOS.md` serve para
+     * o repositório, não cumpre a licença no site. Por isso o crédito
+     * viaja junto do artigo e sai impresso sob a capa.
+     *
+     * Ausente quando a imagem é CC0/domínio público, em que a atribuição é
+     * cortesia e não obrigação.
+     */
+    capaCredito: z.string().min(1).optional(),
     /** Categoria editorial do texto. */
     categoria: z.string().min(1).default('Informativo'),
     /** Quem assina. Vazio quando o texto é do escritório, sem assinatura individual. */

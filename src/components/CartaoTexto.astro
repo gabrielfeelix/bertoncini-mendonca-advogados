@@ -88,6 +88,16 @@ const tom = tomDaCapa(d.categoria);
 
 <style>
   /* Protótipo, linhas 297-326. */
+  /*
+    O cartão é uma PEÇA, não uma imagem com legenda solta embaixo.
+
+    Era capa arredondada e, abaixo dela, título e data soltos sobre o
+    branco da página — a capa tinha forma e o resto não, então o conjunto
+    não lia como um objeto só. Agora a superfície é do cartão inteiro:
+    fundo `--papel` (a terceira superfície do projeto, a mesma dos cartões
+    de "Outras áreas"), raio maior e a capa com o canto de baixo reto,
+    porque ela encosta no corpo em vez de flutuar sobre ele.
+  */
   .texto {
     display: flex;
     flex-direction: column;
@@ -96,12 +106,21 @@ const tom = tomDaCapa(d.categoria);
     /* O cartão inteiro é o alvo de toque, e ele é bem maior que 44px em
        qualquer direção. */
     min-height: 44px;
+    background: var(--papel);
+    border-radius: clamp(14px, 1.5vw, 20px);
+    overflow: hidden;
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s,
+      box-shadow 0.45s;
+  }
+  .texto:hover {
+    transform: translateY(-4px);
+    background: #eef1f5;
+    box-shadow: 0 18px 40px rgba(11, 30, 63, 0.1);
   }
 
   .capa {
     position: relative;
     aspect-ratio: 4 / 3;
-    border-radius: 14px;
     overflow: hidden;
     /* Azul escuro: é o fundo da capa enquanto a imagem carrega, e é a chapa
        inteira quando o artigo não tem capa. O grão só aparece por cima
@@ -164,7 +183,11 @@ const tom = tomDaCapa(d.categoria);
     font-size: clamp(20px, 1.7vw, 24px);
     letter-spacing: -0.02em;
     line-height: 1.2;
-    margin: 18px 0 0;
+    /* O recuo é do corpo do cartão, não uma margem solta: o texto vive
+       dentro da peça. `align-self:start` impede o sublinhado animado de
+       atravessar a largura toda. */
+    align-self: start;
+    margin: clamp(16px, 1.6vw, 20px) clamp(16px, 1.6vw, 22px) 0;
     /* O sublinhado que cresce no hover, do protótipo: gradiente de 0 a 100%
        de largura, e não um `text-decoration`, para a linha poder animar. */
     background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1px;
@@ -178,7 +201,11 @@ const tom = tomDaCapa(d.categoria);
   }
 
   .pe {
-    margin-top: 12px;
+    margin: 10px clamp(16px, 1.6vw, 22px) clamp(16px, 1.6vw, 22px);
+    /* Empurra o pé para a base: numa grade, títulos de uma e de duas
+       linhas deixariam as datas desalinhadas entre cartões vizinhos. */
+    margin-top: auto;
+    padding-top: 10px;
     font-size: 16px;
     color: var(--secundario);
     display: flex;
@@ -197,8 +224,7 @@ const tom = tomDaCapa(d.categoria);
      :focus-visible global (4px) some contra a capa arredondada. */
   .texto:focus-visible {
     outline: 2px solid var(--imperial);
-    outline-offset: 6px;
-    border-radius: 16px;
+    outline-offset: 4px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -207,6 +233,7 @@ const tom = tomDaCapa(d.categoria);
       transition: none !important;
       animation: none !important;
     }
+    .texto:hover,
     .texto:hover .capa :global(img) {
       transform: none;
     }

@@ -134,6 +134,11 @@ const descricao = d.seoDescricao ?? d.resumo;
         />
       )
     }
+    {/* O crédito é obrigação de licença (CC BY e CC BY-SA), não cortesia:
+        precisa aparecer onde a imagem é publicada. Sai só quando existe —
+        capa CC0 não recebe linha nenhuma. Procedência completa em
+        public/media/capas/CREDITOS.md. */}
+    {d.capa && d.capaCredito && <p class="artigo-credito">{d.capaCredito}</p>}
 
     {/* O corpo renderizado do markdown, já com o HTML cru neutralizado pelo
         loader. Nada de set:html aqui. */}
