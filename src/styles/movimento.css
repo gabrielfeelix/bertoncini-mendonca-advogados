@@ -80,6 +80,21 @@
 .js .revela {
   overflow: hidden;
 }
+/*
+  `<picture>` nasce `display: inline` e, como inline, não tem altura
+  própria: mede a linha de texto, ~20px. A `<img>` dentro dele herda desse
+  nada quando pede `height: 100%`, então o retrato dos sócios — que é
+  `<picture>` + `<img height:100%>` dentro de uma moldura absoluta —
+  aparecia como uma tira de 20px, e o `overflow:hidden` daqui cortava o
+  resto. Era uma regressão desta folha: sem o `overflow`, o estouro passava
+  despercebido.
+
+  `display: contents` some com a caixa do `<picture>` e deixa a `<img>`
+  medir contra a moldura, que é quem de fato tem altura.
+*/
+.js .revela > picture {
+  display: contents;
+}
 .js .revela > :is(img, picture, video, .marca),
 .js .revela > picture > img {
   transform: scale(1.06);
