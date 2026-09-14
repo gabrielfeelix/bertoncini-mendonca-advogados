@@ -40,7 +40,11 @@ interface Props {
     | 'conversa'
     | 'pauta'
     | 'sucessao'
-    | 'rede';
+    | 'rede'
+    | 'passo-escreve'
+    | 'passo-conversa'
+    | 'passo-opcoes'
+    | 'passo-anda';
   /** Classe extra, para o posicionamento vir de quem usa. */
   class?: string;
 }
@@ -248,6 +252,81 @@ const { tipo, class: classe } = Astro.props;
       <circle cx="100" cy="100" r="11" fill="var(--imperial)" />
     </>
   )}
+
+  {tipo === 'passo-escreve' && (
+    <>
+      {/* PASSO 01 — a mão escrevendo. A linha de texto se desenha da
+          esquerda para a direita e a caneta anda junto, presa ao mesmo
+          tempo de animação: é o gesto que o cliente pediu por nome.
+          O traço usa `stroke-dasharray`/`dashoffset`, que é o que permite
+          desenhar um caminho progressivamente sem JS. */}
+      <rect x="30" y="34" width="140" height="132" rx="12" fill="var(--branco)" stroke="var(--linha)" stroke-width="2.5" />
+      <path class="linha-escrita l1" d="M54 74h92" stroke="var(--secundario)" stroke-width="3" stroke-linecap="round" />
+      <path class="linha-escrita l2" d="M54 98h72" stroke="var(--secundario)" stroke-width="3" stroke-linecap="round" />
+      <path class="linha-escrita l3" d="M54 122h50" stroke="var(--secundario)" stroke-width="3" stroke-linecap="round" />
+      {/* a caneta: corpo inclinado e ponta no vermelho de ação */}
+      <g class="caneta">
+        <rect x="120" y="96" width="14" height="54" rx="6" transform="rotate(38 127 123)" fill="var(--tinta)" />
+        <path d="M112 146l6 12 9-9z" fill="var(--imperial)" />
+      </g>
+    </>
+  )}
+
+  {tipo === 'passo-conversa' && (
+    <>
+      {/* PASSO 02 — a conversa. Dois balões que pulsam alternados, como
+          quem fala e quem responde. Sem reticências de "digitando": a
+          página não promete prazo de resposta. */}
+      <g class="balao b1">
+        <path d="M26 40h92a14 14 0 0 1 14 14v36a14 14 0 0 1-14 14H58l-20 18V104h-12a14 14 0 0 1-14-14V54a14 14 0 0 1 14-14z"
+          fill="var(--branco)" stroke="var(--linha)" stroke-width="2.5" stroke-linejoin="round" />
+        <path d="M42 64h60M42 82h38" stroke="var(--secundario)" stroke-width="2.5" stroke-linecap="round" />
+      </g>
+      <g class="balao b2">
+        <path d="M174 98h-72a14 14 0 0 0-14 14v36a14 14 0 0 0 14 14h42l20 18v-18h10a14 14 0 0 0 14-14v-36a14 14 0 0 0-14-14z"
+          fill="var(--tinta)" />
+        <path d="M104 122h54M104 140h32" stroke="rgba(255,255,255,0.78)" stroke-width="2.5" stroke-linecap="round" />
+      </g>
+    </>
+  )}
+
+  {tipo === 'passo-opcoes' && (
+    <>
+      {/* PASSO 03 — as opções, os prazos e o custo. Três cartas, e a do
+          meio se destaca: é a comparação antes da escolha. Nenhuma
+          carregando promessa de resultado — são só caminhos. */}
+      <g class="carta c1">
+        <rect x="22" y="62" width="48" height="86" rx="10" fill="var(--branco)" stroke="var(--linha)" stroke-width="2.5" />
+        <path d="M34 84h24M34 100h18" stroke="var(--secundario)" stroke-width="2.5" stroke-linecap="round" />
+      </g>
+      <g class="carta c2">
+        <rect x="76" y="48" width="48" height="100" rx="10" fill="var(--tinta)" />
+        <path d="M88 72h24M88 88h18" stroke="rgba(255,255,255,0.78)" stroke-width="2.5" stroke-linecap="round" />
+        <circle cx="100" cy="120" r="10" fill="var(--imperial)" />
+      </g>
+      <g class="carta c3">
+        <rect x="130" y="62" width="48" height="86" rx="10" fill="var(--branco)" stroke="var(--linha)" stroke-width="2.5" />
+        <path d="M142 84h24M142 100h18" stroke="var(--secundario)" stroke-width="2.5" stroke-linecap="round" />
+      </g>
+    </>
+  )}
+
+  {tipo === 'passo-anda' && (
+    <>
+      {/* PASSO 04 — o caso andando. Marcos numa linha, e o sinal que avança
+          de um para o outro. O último fica em aberto (tracejado): o site
+          não promete desfecho, e o desenho não pode prometer o que o texto
+          recusa. */}
+      <path d="M34 100h132" stroke="var(--linha)" stroke-width="3" stroke-linecap="round" />
+      <path class="trilho-feito" d="M34 100h132" stroke="var(--secundario)" stroke-width="3" stroke-linecap="round" />
+      <circle cx="34" cy="100" r="11" fill="var(--tinta)" />
+      <circle cx="78" cy="100" r="11" fill="var(--tinta)" />
+      <circle cx="122" cy="100" r="11" fill="var(--branco)" stroke="var(--secundario)" stroke-width="3" />
+      <circle cx="166" cy="100" r="11" fill="none" stroke="var(--secundario)" stroke-width="3" stroke-dasharray="5 6" opacity="0.7" />
+      <circle class="sinal" cx="34" cy="100" r="6" fill="var(--imperial)" />
+    </>
+  )}
+
 </svg>
 
 <style>

@@ -10,6 +10,11 @@
  * `--tinta`, que é a cor de maior contraste: a degradação escurece o
  * texto, nunca o apaga.
  */
+import Marca from './Marca.astro';
+
+/** As ilustrações dos passos, na ordem. Uma por passo. */
+const MARCAS_DOS_PASSOS = ['passo-escreve', 'passo-conversa', 'passo-opcoes', 'passo-anda'] as const;
+
 interface Passo {
   /** Número exibido (string, para preservar o zero à esquerda). */
   n: string;
@@ -61,6 +66,22 @@ const {
     <div class="fixa">
       <h2 class="display sobe">{titulo}</h2>
       <p class="sobe">{apoio}</p>
+
+      {/* A coluna da esquerda era só título e frase, e sobrava uma altura
+          enorme de branco ao lado dos quatro passos. Agora ela carrega a
+          ilustração do passo em foco: elas se empilham no mesmo lugar e só
+          a ativa aparece, então a troca acontece no MESMO ponto da tela em
+          vez de a peça pular de posição.
+
+          Sem JS nenhuma ganha `.foco` — e aí a primeira fica visível por
+          `:first-child`, em vez de a coluna ficar vazia. */}
+      <div class="palco" aria-hidden="true">
+        {MARCAS_DOS_PASSOS.slice(0, passos.length).map((marca, i) => (
+          <div class:list={['quadro', `q${i}`]}>
+            <Marca tipo={marca} />
+          </div>
+        ))}
+      </div>
     </div>
     <ol class="passos">
       {passos.map((passo) => (
@@ -75,6 +96,200 @@ const {
 </section>
 
 <style>
+  /*
+    ── O PALCO DAS ILUSTRAÇÕES ────────────────────────────────────────
+
+    As quatro peças ocupam a MESMA célula de grid e se sobrepõem: a troca é
+    um cruzamento no mesmo ponto da tela, não uma peça saindo e outra
+    entrando de outro lugar. `grid-area: 1/1` em todas é o que faz isso sem
+    posicionamento absoluto, então o palco ainda tem a altura da maior.
+
+    Quem manda é a classe `.foco`, que o script já punha no passo ativo
+    desde a Tarefa 5 — não foi preciso observer novo. O CSS abaixo mapeia
+    "o passo N está em foco" para "mostre o quadro N" usando `:has()`.
+  */
+  .metodo .palco {
+    display: grid;
+    margin-top: clamp(24px, 3vw, 36px);
+    width: min(100%, 248px);
+  }
+  .metodo .quadro {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  /* Sem JS (e antes do primeiro foco), a primeira aparece: a coluna nunca
+     fica vazia. */
+  .metodo .quadro:first-child {
+    opacity: 1;
+    transform: none;
+  }
+  /* Com um passo em foco, quem manda é ele — inclusive para apagar a
+     primeira. */
+  .metodo:has(.passo.foco) .quadro {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  .metodo:has(.passo:nth-of-type(1).foco) .q0,
+  .metodo:has(.passo:nth-of-type(2).foco) .q1,
+  .metodo:has(.passo:nth-of-type(3).foco) .q2,
+  .metodo:has(.passo:nth-of-type(4).foco) .q3 {
+    opacity: 1;
+    transform: none;
+  }
+
+  /*
+    ── O MOVIMENTO DE CADA PEÇA ───────────────────────────────────────
+
+    Cada uma anima só ENQUANTO está em foco: as animações são declaradas no
+    quadro visível, então uma peça fora de cena não gasta quadro à toa.
+  */
+
+  /* 01 — a mão escrevendo: as três linhas se desenham em cascata e a
+     caneta anda junto com a primeira. */
+  .metodo :global(.linha-escrita) {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+  }
+  .metodo .quadro:not([style]) :global(.linha-escrita) {
+    stroke-dashoffset: 100;
+  }
+  .metodo:has(.passo:nth-of-type(1).foco) .q0 :global(.l1) {
+    animation: escreve 1.1s ease-out forwards;
+  }
+  .metodo:has(.passo:nth-of-type(1).foco) .q0 :global(.l2) {
+    animation: escreve 1.1s ease-out 0.5s forwards;
+  }
+  .metodo:has(.passo:nth-of-type(1).foco) .q0 :global(.l3) {
+    animation: escreve 1.1s ease-out 1s forwards;
+  }
+  .metodo:has(.passo:nth-of-type(1).foco) .q0 :global(.caneta) {
+    animation: anda-caneta 3.3s ease-in-out infinite;
+  }
+  @keyframes escreve {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes anda-caneta {
+    0% {
+      transform: translate(-58px, 0);
+    }
+    30% {
+      transform: translate(6px, 0);
+    }
+    34% {
+      transform: translate(-58px, 24px);
+    }
+    62% {
+      transform: translate(-16px, 24px);
+    }
+    66% {
+      transform: translate(-58px, 48px);
+    }
+    92%,
+    100% {
+      transform: translate(-38px, 48px);
+    }
+  }
+
+  /* 02 — a conversa: os balões pulsam alternados, um de cada vez. */
+  .metodo:has(.passo:nth-of-type(2).foco) .q1 :global(.b1) {
+    animation: fala 3s ease-in-out infinite;
+  }
+  .metodo:has(.passo:nth-of-type(2).foco) .q1 :global(.b2) {
+    animation: fala 3s ease-in-out 1.5s infinite;
+  }
+  @keyframes fala {
+    0%,
+    40%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.72;
+    }
+    18% {
+      transform: translateY(-5px);
+      opacity: 1;
+    }
+  }
+
+  /* 03 — as opções: as três cartas sobem em cascata, a do meio mais alto. */
+  .metodo:has(.passo:nth-of-type(3).foco) .q2 :global(.c1) {
+    animation: sobe-carta 2.6s ease-in-out infinite;
+  }
+  .metodo:has(.passo:nth-of-type(3).foco) .q2 :global(.c2) {
+    animation: sobe-carta 2.6s ease-in-out 0.2s infinite;
+  }
+  .metodo:has(.passo:nth-of-type(3).foco) .q2 :global(.c3) {
+    animation: sobe-carta 2.6s ease-in-out 0.4s infinite;
+  }
+  @keyframes sobe-carta {
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  /* 04 — o caso andando: o sinal percorre os marcos e o trilho se preenche
+     atrás dele. Para no terceiro marco: o quarto é o que fica em aberto. */
+  .metodo :global(.trilho-feito) {
+    stroke-dasharray: 132;
+    stroke-dashoffset: 132;
+  }
+  .metodo:has(.passo:nth-of-type(4).foco) .q3 :global(.trilho-feito) {
+    animation: preenche 3.4s ease-in-out infinite;
+  }
+  .metodo:has(.passo:nth-of-type(4).foco) .q3 :global(.sinal) {
+    animation: avanca 3.4s ease-in-out infinite;
+  }
+  @keyframes preenche {
+    0% {
+      stroke-dashoffset: 132;
+    }
+    70%,
+    100% {
+      stroke-dashoffset: 44;
+    }
+  }
+  @keyframes avanca {
+    0% {
+      transform: translateX(0);
+    }
+    30% {
+      transform: translateX(44px);
+    }
+    60%,
+    100% {
+      transform: translateX(88px);
+    }
+  }
+  .metodo :global(.sinal) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* O palco desaparece em tela estreita: lá a coluna "fixa" deixa de ser
+     coluna e vira só o cabeçalho da seção, e a ilustração ficaria como um
+     bloco solto entre o título e o primeiro passo. */
+  @media (max-width: 900px) {
+    .metodo .palco {
+      display: none;
+    }
+  }
+
+  /* O kill-switch da seção já existe mais abaixo e cobre estas animações;
+     aqui só o estado final, para nada ficar preso invisível. */
+  @media (prefers-reduced-motion: reduce) {
+    .metodo .quadro:first-child {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .metodo :global(.linha-escrita),
+    .metodo :global(.trilho-feito) {
+      stroke-dashoffset: 0 !important;
+    }
+  }
+
   /* método: coluna fixa à esquerda, passos à direita. Sem JS o passo em
      foco não existe, todos ficam em --tinta. */
   .metodo :global(.env) {
