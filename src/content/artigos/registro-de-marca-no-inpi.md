@@ -1,6 +1,10 @@
 ---
 titulo: "Registro de marca: o que o uso prolongado não garante"
 resumo: "Usar o nome há anos cria proteção frágil. O registro no INPI é o que garante uso exclusivo — e existe o risco concreto de um terceiro registrar antes."
+capa: /media/capas/marca.jpg
+capaLargura: 1600
+capaAltura: 1200
+capaAlt: "Close-up de tipos móveis de metal para impressão tipográfica, guardados soltos nos compartimentos redondos de uma bandeja bege."
 categoria: "Direito digital"
 autor: ""
 publicadoEm: 2026-06-09

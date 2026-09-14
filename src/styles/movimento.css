@@ -49,6 +49,71 @@
   transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/*
+  ── A REVELAÇÃO DAS IMAGENS ──────────────────────────────────────────
+
+  `.revela` já era observada pelo script desde a Tarefa 5 e NUNCA teve
+  regra de CSS: a classe era posta, a classe `.aberta` chegava, e nada
+  acontecia. Isto é o que faltava.
+
+  O gesto: a imagem entra com um leve afastamento de escala enquanto a
+  máscara abre de baixo para cima. O contêiner corta (`overflow:hidden`) e
+  quem anima é a imagem dentro dele — assim a moldura fica parada e só o
+  conteúdo se move, que é o que dá a impressão de a foto "assentar" em vez
+  de deslizar.
+
+  Os tempos vêm da calibragem do portfólio do Gabriel
+  (~/dev/portfolio/site/motion.js): a lição registrada lá é que o tempo da
+  ROLAGEM soma com o tempo da REVELAÇÃO, e a soma é o que faz a página
+  parecer morosa. Por isso a duração é curta — o peso está no scroll, não
+  aqui — e o deslocamento é pequeno: bloco grande andando muito lê como
+  slide, e o que se quer é a peça assentando.
+
+  ONDE NÃO ENTRA, por decisão do cliente:
+    - a primeira dobra (o hero tem o próprio gesto, o zoom-out do vídeo, e
+      dobrar movimento ali atrasa a primeira leitura);
+    - os cartões do blog na home (`.leitor .banca`) — a seção fecha a
+      página e seis peças revelando em sequência viram desfile.
+  Por isso a marcação é opt-in: a classe `.revela` é posta a dedo em quem
+  deve revelar, e não varrida por seletor de imagem.
+*/
+.js .revela {
+  overflow: hidden;
+}
+.js .revela > :is(img, picture, video, .marca),
+.js .revela > picture > img {
+  transform: scale(1.06);
+  opacity: 0;
+  clip-path: inset(12% 0 0 0);
+}
+.js .revela.aberta > :is(img, picture, video, .marca),
+.js .revela.aberta > picture > img {
+  transform: none;
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transition:
+    transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+    clip-path 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.5s ease;
+}
+
+/*
+  `.revela-solta`: para a imagem que NÃO tem contêiner que a corte — a capa
+  do artigo é um `<img>` solto na coluna. Sem moldura não há o que mascarar,
+  então aqui o gesto é só a subida curta com o fade, sem clip.
+*/
+.js .revela-solta {
+  opacity: 0;
+  transform: translateY(14px);
+}
+.js .revela-solta.aberta {
+  opacity: 1;
+  transform: none;
+  transition:
+    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.5s ease;
+}
+
 /* ── o vídeo do hero entra com um leve zoom-out ── */
 .js .hero .filme {
   transform: scale(1.12);
@@ -80,6 +145,15 @@
   .js .sobe {
     transform: none !important;
     opacity: 1 !important;
+  }
+  /* A revelação de imagem também precisa ser reposta à mão: sem isto, a
+     foto ficaria recortada e invisível para sempre. */
+  .js .revela > :is(img, picture, video, .marca),
+  .js .revela > picture > img,
+  .js .revela-solta {
+    transform: none !important;
+    opacity: 1 !important;
+    clip-path: none !important;
   }
   .js .hero .filme {
     transform: none !important;

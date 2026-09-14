@@ -142,7 +142,7 @@ function ancorasSemLenis(): void {
    ──────────────────────────────────────────────────────────────────────── */
 function revelaTudo(): void {
   document.querySelectorAll('.sobe').forEach((n) => n.classList.add('visivel'));
-  document.querySelectorAll('.revela').forEach((n) => n.classList.add('aberta'));
+  document.querySelectorAll('.revela, .revela-solta').forEach((n) => n.classList.add('aberta'));
 }
 
 function ligaReveals(): void {
@@ -179,7 +179,7 @@ function ligaReveals(): void {
     },
     { rootMargin: '0px 0px -12% 0px' },
   );
-  document.querySelectorAll('.revela').forEach((n) => olhoImg.observe(n));
+  document.querySelectorAll('.revela, .revela-solta').forEach((n) => olhoImg.observe(n));
 }
 
 /* Rede de segurança: o foco nunca pode pousar num elemento ainda invisível.
@@ -188,7 +188,7 @@ function ligaReveals(): void {
    o fade de .8s ainda estar correndo — nesse instante o elemento já tem a
    classe e ainda está quase transparente, apagando o foco por quase 1s. */
 document.addEventListener('focusin', (e) => {
-  const alvo = (e.target as HTMLElement | null)?.closest<HTMLElement>('.sobe, .revela');
+  const alvo = (e.target as HTMLElement | null)?.closest<HTMLElement>('.sobe, .revela, .revela-solta');
   if (!alvo) return;
   alvo.style.transition = 'none';
   alvo.classList.add(alvo.classList.contains('sobe') ? 'visivel' : 'aberta');
@@ -314,7 +314,26 @@ if (calmo) {
   void (async () => {
     try {
       const { default: Lenis } = await import('lenis');
-      const lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.9, smoothWheel: true });
+      /*
+        O peso da rolagem. `duration` e não `lerp`: lerp é preso a QUADRO,
+        então numa tela de 120Hz a mesma conta roda duas vezes mais rápido e
+        a página fica mais leve do que foi desenhada. `duration` é preso a
+        tempo e se comporta igual em qualquer monitor.
+
+        1.35 não é chute: é o valor calibrado no portfólio do Gabriel
+        (~/dev/portfolio/site/motion.js, primitiva 8), e a nota de lá importa
+        mais que o número. A referência original (fuel.framer.website) usa
+        `duration: 2.0`, foi isso que entrou primeiro, e foi reprovado —
+        porque o tempo da rolagem SOMA com o tempo das revelações: a página
+        chega devagar no lugar e o conteúdo ainda leva mais um tempo para
+        assentar, então cada dobra cobra duas esperas. 1.35 ainda é 35% acima
+        do default da biblioteca, então o peso continua lá; só parou de ser
+        espera.
+
+        O easing é o default do Lenis — `1.001 - 2^(-10t)`, easeOutExpo —, o
+        mesmo gesto das outras transições do site.
+      */
+      const lenis = new Lenis({ duration: 1.35, smoothWheel: true });
       raiz.classList.add('lenis');
 
       const tique = (t: number) => {
