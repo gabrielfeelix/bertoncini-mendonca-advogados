@@ -15,9 +15,14 @@
  *
  * 2. **O artigo pode não ter capa.** O schema deixa `capa` opcional, e a
  *    tabela trata capa como tudo-ou-nada. Sem capa, o cartão mostra uma
- *    chapa azul com o grão por cima, no lugar da imagem, em vez de um buraco
- *    branco. A chapa é azul escuro, que é a única superfície onde o grão
- *    pode aparecer.
+ *    chapa azul no lugar da imagem, em vez de um buraco branco.
+ *
+ *    O que NÃO existe mais: a camada de cor (`mix-blend-mode: color`) que
+ *    tingia toda foto de azul, e o grão por cima dela. O cliente não quer
+ *    tratamento de cor sobre imagem em lugar nenhum do site — a foto sai
+ *    com a cor dela. Sobrou uma vinheta bem discreta, e ela existe por
+ *    função, não por efeito: o rótulo de categoria é branco e precisa se
+ *    sustentar sobre qualquer imagem.
  *
  * 3. **O `<h4>` do protótipo virou o elemento que a prop `nivel` pedir.** Na
  *    lista o cartão vive sob um `<h2>` de seção, então o título dele é um
@@ -30,7 +35,7 @@
  * `prefers-reduced-motion`.
  */
 import { Image } from 'astro:assets';
-import { dataLegivel, tomDaCapa, type Artigo } from '~/lib/artigos';
+import { dataLegivel, type Artigo } from '~/lib/artigos';
 
 interface Props {
   artigo: Artigo;
@@ -45,7 +50,6 @@ const { artigo, nivel = 3, sizes = '(min-width: 1080px) 320px, (min-width: 620px
 
 const d = artigo.data;
 const Titulo = `h${nivel}` as 'h2' | 'h3';
-const tom = tomDaCapa(d.categoria);
 ---
 
 <a class="texto" href={`/blog/${artigo.id}/`}>
@@ -65,9 +69,11 @@ const tom = tomDaCapa(d.categoria);
         <div class="semcapa" aria-hidden="true" />
       )
     }
-    <div class="tom" style={`--tom:${tom}`} aria-hidden="true"></div>
-    <div class="som" aria-hidden="true"></div>
-    <div class="grao" style="filter:url(#grao)" aria-hidden="true"></div>
+    {/* A chapa de cor azul que cobria a foto saiu: o cliente não quer
+        tratamento de cor sobre imagem em lugar nenhum. Fica só a vinheta,
+        e bem sutil — ela existe para o rótulo de categoria ter contraste
+        contra a foto, não como efeito. */}
+    <div class="vinheta" aria-hidden="true"></div>
     <span class="classe">{d.categoria}</span>
   </div>
 
@@ -135,24 +141,16 @@ const tom = tomDaCapa(d.categoria);
     object-fit: cover;
     transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  .capa .tom {
+  /* Vinheta sutil, só no alto e na base: o rótulo de categoria é branco e
+     precisa se sustentar sobre qualquer foto. A imagem em si fica com a
+     cor dela. */
+  .capa .vinheta {
     position: absolute;
     inset: 0;
-    mix-blend-mode: color;
-    opacity: 0.82;
-    background: var(--tom, #0b1e3f);
-    transition: opacity 0.6s;
-  }
-  .capa .som {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(6, 15, 31, 0.5), transparent 55%);
-  }
-  .capa .grao {
-    position: absolute;
-    inset: 0;
-    opacity: 0.22;
     pointer-events: none;
+    background:
+      linear-gradient(to bottom, rgba(6, 15, 31, 0.3), transparent 26%),
+      linear-gradient(to top, rgba(6, 15, 31, 0.18), transparent 22%);
   }
   .capa .classe {
     position: absolute;
@@ -172,9 +170,6 @@ const tom = tomDaCapa(d.categoria);
 
   .texto:hover .capa :global(img) {
     transform: scale(1.04);
-  }
-  .texto:hover .capa .tom {
-    opacity: 0.5;
   }
 
   .nome {

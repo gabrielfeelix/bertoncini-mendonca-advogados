@@ -48,23 +48,15 @@ export function dataLegivel(valor: Date): string {
   }).format(valor);
 }
 
-/**
- * Cor do tratamento da capa, escolhida pela categoria.
- *
- * O protótipo aplica um `mix-blend-mode: color` sobre a capa com uma das
- * cores do site (linhas 700-730), e cada cartão de lá usa uma cor diferente.
- * Como as capas reais ainda não existem, a escolha aqui é derivada da
- * categoria em vez de sorteada: o mesmo assunto fica com a mesma cor em toda
- * a lista, o que ajuda a reconhecer o tipo de texto de relance. Categoria
- * desconhecida cai na tinta, que é a cor neutra do site.
- */
-export function tomDaCapa(categoria: string): string {
-  const normalizada = categoria
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-  if (normalizada.includes('patrimonial') || normalizada.includes('sucess')) return '#0B1E3F';
-  if (normalizada.includes('digital') || normalizada.includes('dados')) return '#004369';
-  if (normalizada.includes('empresa') || normalizada.includes('contrat')) return '#9B1C2E';
-  return '#517493';
-}
+/*
+  `tomDaCapa()` saiu daqui.
+
+  Ela devolvia uma cor por categoria para o `mix-blend-mode: color` que
+  tingia a capa do cartão — mecanismo herdado do protótipo. O cliente
+  reprovou tratamento de cor sobre imagem em qualquer lugar do site: a
+  foto sai com a cor dela, e no cartão sobrou só uma vinheta sutil, que
+  existe para o rótulo de categoria ter contraste.
+
+  Removida em vez de deixada sem uso: função exportada que ninguém chama é
+  convite para alguém reaplicar o efeito sem saber que ele foi revogado.
+*/

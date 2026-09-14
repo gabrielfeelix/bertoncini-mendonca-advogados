@@ -130,12 +130,27 @@ const perguntasDaHome = [
   {ultimosTextos.length > 0 && (
     <section class="secao leitor" id="publicacoes">
       <div class="env">
+        {/* O "ver todo o blog" vive NO cabeçalho, à direita do título, e
+            não numa faixa abaixo dos cartões: é o padrão de seção com
+            lista — o caminho para a lista completa fica junto do nome da
+            seção, onde quem bate o olho decide se entra. Embaixo, depois
+            de seis cartões, ele já estava longe do que anuncia. */}
         <div class="cabecalho">
-          <h2 class="nomeia">Últimas publicações</h2>
-          <p class="diz">
-            O que escrevemos para quem não é da área. Um assunto por vez, sem citação
-            de artigo de lei que ninguém precisa decorar.
-          </p>
+          <div class="dizeres">
+            <h2 class="nomeia">Últimas publicações</h2>
+            <p class="diz">
+              O que escrevemos para quem não é da área. Um assunto por vez, sem citação
+              de artigo de lei que ninguém precisa decorar.
+            </p>
+          </div>
+          <a class="tudo" href="/blog/">
+            Ver todo o blog
+            <span class="seta" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+              </svg>
+            </span>
+          </a>
         </div>
         <div class="banca">
           {ultimosTextos.map((artigo) => <CartaoTexto artigo={artigo} nivel={3} />)}
@@ -143,7 +158,6 @@ const perguntasDaHome = [
       </div>
     </section>
   )}
-  {ultimosTextos.length > 0 && <SaibaMais href="/blog/">Ver todo o blog</SaibaMais>}
 
   <Newsletter />
 
@@ -166,9 +180,51 @@ const perguntasDaHome = [
     padding-block: clamp(40px, 6vw, 88px) clamp(20px, 3vw, 36px);
     border-top: 1px solid var(--linha);
   }
+  /* Título e frase à esquerda, link à direita, na mesma linha de base.
+     `flex-end` alinha o link pela BASE do bloco de texto, não pelo topo:
+     ele fica na altura da última linha da frase, e não boiando ao lado do
+     título. */
   .leitor .cabecalho {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(20px, 3vw, 48px);
     margin-bottom: clamp(26px, 3.4vw, 44px);
+  }
+  .leitor .dizeres {
     max-width: 62ch;
+  }
+  .leitor .tudo {
+    flex: none;
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border: 1px solid var(--linha);
+    border-radius: 999px;
+    font-size: 17px;
+    text-decoration: none;
+    color: var(--tinta);
+    white-space: nowrap;
+    transition: border-color 0.25s, background-color 0.25s;
+  }
+  .leitor .tudo:hover {
+    border-color: var(--tinta);
+    background: var(--linha);
+  }
+  .leitor .tudo .seta {
+    display: inline-flex;
+  }
+  /* Em tela estreita o link desce para baixo do texto: lado a lado, ele
+     espremeria a frase a três ou quatro palavras por linha. */
+  @media (max-width: 760px) {
+    .leitor .cabecalho {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 22px;
+    }
   }
   .leitor .nomeia {
     font-family: var(--serif);
