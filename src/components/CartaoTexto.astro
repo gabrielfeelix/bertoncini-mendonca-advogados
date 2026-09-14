@@ -33,6 +33,10 @@
  * O cartão inteiro é um `<a>`: funciona clicado e pelo teclado sem uma linha
  * de JavaScript. O movimento de hover é só CSS e some com
  * `prefers-reduced-motion`.
+ *
+ * `.sobe` faz o cartão entrar com a revelação por rolagem, escalonada entre
+ * irmãos: numa grade de seis, eles chegam em cascata em vez de a seção
+ * inteira aparecer de uma vez. O atraso vem de `--i`, escrito pelo script.
  */
 import { Image } from 'astro:assets';
 import { dataLegivel, type Artigo } from '~/lib/artigos';
@@ -52,7 +56,7 @@ const d = artigo.data;
 const Titulo = `h${nivel}` as 'h2' | 'h3';
 ---
 
-<a class="texto" href={`/blog/${artigo.id}/`}>
+<a class="texto sobe" href={`/blog/${artigo.id}/`}>
   <div class="capa">
     {
       d.capa && d.capaLargura && d.capaAltura ? (

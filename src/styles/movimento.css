@@ -39,14 +39,52 @@
 }
 
 /* ── reveal por rolagem ── */
+/*
+  Os números vêm calibrados do portfólio do Gabriel
+  (~/dev/portfolio/site/motion.js): `y: 12`, `duration: 0.44`, curva
+  [0.4, 0, 0.2, 1] e 0.05s entre irmãos. Eram 20px em 0.8s aqui, sem
+  escalonamento nenhum, e a nota registrada lá explica por que isso pesa:
+
+    - o tempo da ROLAGEM (Lenis, 1.35) SOMA com o tempo da revelação, e
+      cada dobra passa a cobrar duas esperas. O cansaço não é de uma peça
+      lenta, é de CADA uma ser um pouco lenta e a página ter muitas — na
+      home são vinte `.sobe`;
+    - 20px de deslocamento lê como slide. Na referência os elementos andam
+      de 6 a 10px. O que se quer é a peça assentando, não entrando.
+
+  ── O ESCALONAMENTO, que é o que faltava ──────────────────────────────
+
+  Sem ele cada elemento revelava por conta própria e um bloco chegava aos
+  pedaços. `--i`, escrito pelo script em cada filho revelável, atrasa um
+  irmão em relação ao outro, e o bloco passa a chegar como um gesto só.
+  O teto de 6 é o que impede uma lista longa de terminar meio segundo
+  depois de começar.
+
+  ── PERFORMANCE ───────────────────────────────────────────────────────
+
+  Só `opacity` e `transform` animam — as duas propriedades que o navegador
+  resolve no compositor, sem recalcular layout nem repintar. Nada de
+  `height`, `top`, `filter` ou `box-shadow` aqui.
+
+  Não existe `will-change` de propósito: ele promove cada elemento a uma
+  camada própria na GPU e, com vinte elementos, o custo de memória supera
+  o ganho. A transição é curta o bastante para o navegador dar conta sem
+  aviso prévio.
+
+  E o observer desliga o elemento assim que revela (`unobserve`), então
+  nada fica sendo medido a cada quadro depois de aparecer.
+*/
 .js .sobe {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(12px);
 }
 .js .sobe.visivel {
   opacity: 1;
   transform: none;
-  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    opacity 0.44s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.44s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 0.05s);
 }
 
 /*

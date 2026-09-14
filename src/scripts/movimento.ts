@@ -151,6 +151,29 @@ function ligaReveals(): void {
     return;
   }
 
+  /*
+    ── O ESCALONAMENTO ────────────────────────────────────────────────
+
+    `--i` é a posição do elemento DENTRO DO GRUPO DE IRMÃOS reveláveis, e o
+    CSS usa isso como atraso da transição. É o que faz um bloco chegar como
+    um gesto só, em vez de cada peça aparecer por conta própria.
+
+    Por irmãos, e não por ordem na página: um índice global faria o
+    vigésimo `.sobe` esperar um segundo inteiro depois de entrar na tela.
+    O que interessa é a relação entre peças vizinhas.
+
+    Teto de 6 pela mesma razão — uma lista longa não pode terminar de
+    revelar muito depois de começar.
+  */
+  const porPai = new Map<Element, number>();
+  document.querySelectorAll<HTMLElement>('.sobe').forEach((n) => {
+    const pai = n.parentElement;
+    if (!pai) return;
+    const i = porPai.get(pai) ?? 0;
+    porPai.set(pai, i + 1);
+    if (i > 0) n.style.setProperty('--i', String(Math.min(i, 6)));
+  });
+
   /* threshold 0: um elemento que só encostou a borda da viewport já revela.
      Um `.sobe` alto (o acordeão de perguntas, por exemplo) pode ganhar foco
      por Tab com só uma fatia visível; com threshold alto isso nunca passava
@@ -160,6 +183,8 @@ function ligaReveals(): void {
       entradas.forEach((e) => {
         if (e.isIntersecting) {
           e.target.classList.add('visivel');
+          /* Para de observar assim que revelou: o reveal acontece UMA vez,
+             e um observer vivo continua custando medição a cada quadro. */
           olho.unobserve(e.target);
         }
       });
