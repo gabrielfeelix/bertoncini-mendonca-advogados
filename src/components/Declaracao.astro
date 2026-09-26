@@ -1,82 +1,275 @@
 ---
 /**
- * Declaração: título grande à esquerda, dois parágrafos de corpo à
- * direita. Migrado do protótipo (CSS linhas 173-177, HTML linhas 546-556).
+ * Declaração: o que o escritório olha, e por que são duas áreas.
  *
- * O `data-palavras` no `<h2>` é a marcação que a Tarefa 5 procura para
- * quebrar o título em palavras e fazer o scrub de opacidade. Sem JS o
- * `<h2>` é texto normal, com opacidade cheia, porque a regra de piso só
- * existe sob `.js`.
+ * Era um título grande e dois parágrafos pequenos em azul-acinzentado, e
+ * a ideia central (briefing q3.4: o patrimônio visto por inteiro, do
+ * imóvel à presença digital) ficava escondida numa enumeração dentro do
+ * título. Agora a enumeração vira a peça: seis blocos, um por coisa que
+ * os sócios dizem olhar, e a COR de cada bloco diz qual área cuida dela.
+ * Azul-tinta é direito digital, papel é planejamento patrimonial, e
+ * contratos, que as duas usam, fica em branco com contorno.
  *
- * PISO DE OPACIDADE .62 (não mexer):
- * o comentário do protótipo (linhas 425-434) é reproduzido literalmente
- * no CSS abaixo. Em resumo: o piso foi subido de .22 para .62 porque a
- * .62 o contraste do título fica em 4.76:1, que passa AA de texto
- * normal, e o público do site tem 70 anos. Não baixar o piso nem
- * alongar a janela do scrub de volta.
+ * Grade de blocos em superfície clara com cantos grandes é o padrão das
+ * páginas de produto da Apple, que os sócios mandaram como referência
+ * (q6.1). O texto de cada bloco usa a hierarquia por cor dentro da frase:
+ * o nome em tinta, o resto em cinza-azulado.
+ *
+ * O `data-palavras` no `<h2>` é a marcação que a camada de movimento
+ * procura para o scrub de opacidade por palavra. PISO DE OPACIDADE .62
+ * (não mexer): a .62 o contraste do título fica em 4.76:1, AA de texto
+ * normal. O público do site tem 70 anos.
  */
-interface Props {
-  /** Texto do `<h2>`, animado palavra a palavra pela Tarefa 5. */
-  titulo?: string;
-  /** Parágrafos do corpo, na ordem. */
-  paragrafos?: string[];
+type Area = 'patrimonial' | 'digital' | 'ambas';
+
+interface Bloco {
+  nome: string;
+  texto: string;
+  area: Area;
+  icone: 'bens' | 'familia' | 'empresa' | 'contratos' | 'dados' | 'digital';
 }
 
-const {
-  /* Briefing q3.4, o que os sócios dizem fazer que a maioria não faz:
-     olhar o patrimônio inteiro, do imóvel à presença digital. É também o
-     que junta as duas áreas do escritório numa ideia só. */
-  titulo = 'Olhamos o que é seu por inteiro: bens, família, empresa, contratos, dados e presença digital.',
-  paragrafos = [
-    'Os assuntos costumam chegar juntos. Quem monta uma holding também tem marca, site e cadastro de clientes. Quem vive de conteúdo precisa de contrato com as marcas, de uma empresa bem organizada e, mais cedo ou mais tarde, de pensar no que acontece com tudo isso numa sucessão.',
-    'Por isso o escritório tem duas áreas que conversam, uma com cada sócio. Vendo o conjunto, conseguimos apontar o risco antes que ele vire processo e explicar, em português claro, o que cada escolha custa hoje e no futuro.',
-  ],
-}: Props = Astro.props;
+const titulo = 'Olhamos o que é seu por inteiro, do imóvel à presença digital.';
+
+const blocos: Bloco[] = [
+  { nome: 'Bens', texto: 'Imóveis, investimentos e participações: em nome de quem estão e quanto custa transmiti-los.', area: 'patrimonial', icone: 'bens' },
+  { nome: 'Família', texto: 'Regime de bens, testamento, doação e uma partilha que não vire disputa entre herdeiros.', area: 'patrimonial', icone: 'familia' },
+  { nome: 'Empresa', texto: 'Holding, acordo de sócios e quem administra o negócio quando o fundador sai.', area: 'patrimonial', icone: 'empresa' },
+  { nome: 'Contratos', texto: 'Os documentos que ligam bens, sócios, clientes, marcas e parceiros.', area: 'ambas', icone: 'contratos' },
+  { nome: 'Dados', texto: 'O que a empresa coleta, por que coleta e como responde a quem pede os próprios dados.', area: 'digital', icone: 'dados' },
+  { nome: 'Presença digital', texto: 'Marca, perfil e conteúdo, e o que fazer quando algo dá errado na internet.', area: 'digital', icone: 'digital' },
+];
+
+const rotuloDaArea: Record<Area, string> = {
+  patrimonial: 'Planejamento patrimonial',
+  digital: 'Direito digital',
+  ambas: 'As duas áreas',
+};
 ---
 
-<section class="secao declaracao">
+<section class="secao declaracao" aria-labelledby="declaracao-titulo">
   <div class="env">
-    <h2 class="display" data-palavras>{titulo}</h2>
-    <div class="corpo sobe">
-      {paragrafos.map((texto) => <p>{texto}</p>)}
+    <div class="cabeca">
+      <p class="olho sobe">O que nos diferencia</p>
+      <h2 class="display" id="declaracao-titulo" data-palavras>{titulo}</h2>
+      <ul class="legenda sobe" aria-label="Legenda das cores">
+        <li><span class="ponto patrimonial" aria-hidden="true"></span>Planejamento patrimonial e sucessório</li>
+        <li><span class="ponto digital" aria-hidden="true"></span>Direito digital</li>
+      </ul>
     </div>
+
+    <ul class="grade">
+      {blocos.map((bloco) => (
+        <li class:list={['bloco', bloco.area, 'sobe']}>
+          <span class="icone" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+              {bloco.icone === 'bens' && (<><path d="M3.5 11 12 4l8.5 7" /><path d="M5.5 9.5V20h13V9.5" /><path d="M10 20v-5.5h4V20" /></>)}
+              {bloco.icone === 'familia' && (<><circle cx="8" cy="7.5" r="2.6" /><circle cx="16" cy="7.5" r="2.6" /><path d="M3.5 19.5c0-3 2-5.2 4.5-5.2s4.5 2.2 4.5 5.2" /><path d="M11.5 19.5c0-3 2-5.2 4.5-5.2s4.5 2.2 4.5 5.2" /></>)}
+              {bloco.icone === 'empresa' && (<><path d="M4 20V6.5L11 4v16" /><path d="M11 9h9v11" /><path d="M3 20h18" /><path d="M7 9h1M7 12.5h1M7 16h1M14.5 12.5h2M14.5 16h2" /></>)}
+              {bloco.icone === 'contratos' && (<><path d="M6 3.5h8.5L18.5 7.5V20.5H6z" /><path d="M14 3.5v4.5h4.5" /><path d="M9 11.5h6.5M9 14.5h6.5M9 17.5h3.5" /></>)}
+              {bloco.icone === 'dados' && (<><ellipse cx="12" cy="6" rx="7" ry="2.6" /><path d="M5 6v6c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6V6" /><path d="M5 12v6c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6v-6" /></>)}
+              {bloco.icone === 'digital' && (<><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" /><circle cx="12" cy="11" r="2.8" /><path d="M14.8 11c0 1.5.6 2.2 1.4 2.2" /><path d="M11 18.5h2" /></>)}
+            </svg>
+          </span>
+          <span class="area">{rotuloDaArea[bloco.area]}</span>
+          <h3>{bloco.nome}</h3>
+          <p>{bloco.texto}</p>
+        </li>
+      ))}
+    </ul>
+
+    <p class="fecho sobe">
+      <b>Duas áreas, uma com cada sócio.</b> Os assuntos costumam chegar juntos: quem monta uma
+      holding também tem marca e cadastro de clientes, e quem vive de conteúdo precisa de contrato
+      e, cedo ou tarde, de pensar na sucessão. Vendo o conjunto, conseguimos apontar o risco antes
+      que ele vire processo.
+    </p>
   </div>
 </section>
 
 <style>
-  .declaracao :global(.env) {
+  .cabeca {
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: clamp(30px, 6vw, 110px);
-    align-items: start;
+    gap: 18px;
+    max-width: 1100px;
+    margin-bottom: clamp(36px, 4.4vw, 64px);
   }
-  @media (max-width: 940px) {
-    .declaracao :global(.env) {
-      grid-template-columns: 1fr;
-      gap: 28px;
-    }
+  .olho {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--imperial);
   }
   .declaracao h2 {
-    font-size: clamp(30px, 4.4vw, 60px);
-    max-width: 20ch;
+    font-size: clamp(34px, 5.2vw, 76px);
+    max-width: 18ch;
   }
-  .declaracao .corpo {
+  .legenda {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    font-size: 16px;
+    color: var(--tinta);
+  }
+  .legenda li {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ponto {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+  .ponto.patrimonial {
+    background: var(--papel);
+    box-shadow: inset 0 0 0 1px #c9d1da;
+  }
+  .ponto.digital {
+    background: var(--tinta);
+  }
+
+  .grade {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(10px, 1.1vw, 16px);
+  }
+  .bloco {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: clamp(220px, 20vw, 290px);
+    padding: clamp(22px, 2.4vw, 34px);
+    border-radius: clamp(18px, 2vw, 28px);
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .bloco:hover {
+    transform: translateY(-4px);
+  }
+  .bloco.patrimonial {
+    background: var(--papel);
+    color: var(--tinta);
+  }
+  .bloco.digital {
+    background: var(--tinta);
+    color: #fff;
+  }
+  .bloco.ambas {
+    background: #fff;
+    color: var(--tinta);
+    box-shadow: inset 0 0 0 1px var(--linha);
+  }
+  .icone {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+  }
+  .patrimonial .icone,
+  .ambas .icone {
+    background: #fff;
+    color: var(--imperial);
+    box-shadow: inset 0 0 0 1px var(--linha);
+  }
+  .digital .icone {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .area {
+    position: absolute;
+    top: clamp(22px, 2.4vw, 34px);
+    right: clamp(22px, 2.4vw, 34px);
+    font-size: 15px;
+    letter-spacing: 0.02em;
+  }
+  .patrimonial .area,
+  .ambas .area {
     color: var(--secundario);
-    max-width: 48ch;
-    font-size: 17.5px;
   }
-  .declaracao .corpo p + p {
-    margin-top: 18px;
+  .digital .area {
+    color: rgba(255, 255, 255, 0.78);
+  }
+  .bloco h3 {
+    padding-top: clamp(36px, 4vw, 56px);
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(28px, 2.6vw, 38px);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .bloco p {
+    margin-top: 10px;
+    font-size: 17px;
+    line-height: 1.5;
+    max-width: 36ch;
+  }
+  .patrimonial p,
+  .ambas p {
+    color: var(--secundario);
+  }
+  .digital p {
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .fecho {
+    margin-top: clamp(32px, 4vw, 56px);
+    max-width: 62ch;
+    font-size: clamp(19px, 1.6vw, 22px);
+    line-height: 1.5;
+    color: var(--secundario);
+  }
+  .fecho b {
+    font-weight: 500;
+    color: var(--tinta);
+  }
+
+  @media (max-width: 1000px) {
+    .grade {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  /* No celular cada bloco vira uma linha, ícone à esquerda: seis blocos
+     altos empilhados davam quase quatro telas de rolagem para uma ideia. */
+  @media (max-width: 560px) {
+    .grade {
+      grid-template-columns: 1fr;
+    }
+    .bloco {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      column-gap: 16px;
+      padding: 20px;
+      border-radius: 18px;
+    }
+    .icone {
+      width: 44px;
+      height: 44px;
+      grid-row: 1 / span 3;
+    }
+    .area {
+      position: static;
+      font-size: 15px;
+    }
+    .bloco h3 {
+      padding-top: 2px;
+      font-size: 26px;
+    }
+    .bloco p {
+      margin-top: 6px;
+    }
   }
 
   /* palavras: sem JS o h2 é texto normal. Com JS e movimento, cada palavra
-     vira um span que vai de 62% a 100% de opacidade conforme a rolagem.
-     Piso em .62 (não .22) e janela do scrub encurtada para terminar dentro
-     da seção, de propósito: quem para de rolar no meio nunca vê o texto
-     travado ilegível. A .62 o contraste do título fica em 4.76:1, que passa
-     AA de texto normal; a .55 passava só como texto grande, com folga de
-     0.27. O público do site tem 70 anos. Não baixar o piso nem alongar a
-     janela de volta. */
+     vai de 62% a 100% de opacidade conforme a rolagem. Não baixar o piso. */
   :global(.js) [data-palavras] :global(.w) {
     display: inline-block;
     opacity: 0.62;
@@ -86,12 +279,6 @@ const {
     :global(.js) [data-palavras] :global(.w) {
       opacity: 1;
     }
-  }
-
-  /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
-     traz o kill-switch global do protótipo; este bloco garante que o
-     componente já cumpra a regra sozinho, em qualquer página. */
-  @media (prefers-reduced-motion: reduce) {
     .declaracao,
     .declaracao * {
       transition: none !important;

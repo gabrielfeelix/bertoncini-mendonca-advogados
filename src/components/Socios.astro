@@ -35,6 +35,10 @@ interface Socio {
   oabPlaceholder?: boolean;
   /** Bio curta (modo `curta`) ou primeiro parágrafo (modo `completa`). */
   bio: string;
+  /** Começo da bio em destaque (a área), no modo `curta`. */
+  lead?: string;
+  /** Página da área do sócio, no modo `curta`. */
+  href?: string;
   /** true quando a bio ainda é placeholder a escrever com o sócio. */
   bioPlaceholder?: boolean;
   /** Parágrafos extras da bio, só usados no modo `completa`. */
@@ -56,6 +60,8 @@ interface Props {
   nivel?: 'h2' | 'h3';
   /** id da `<section>`, quando a página precisa apontar para ela. */
   id?: string;
+  /** Título da seção (só no modo `curta`, na home). */
+  titulo?: string;
 }
 
 const {
@@ -68,7 +74,9 @@ const {
       alt: 'Retrato de Juscelino Bertoncini',
       oab: site.socios[0].oab.valor,
       oabPlaceholder: site.socios[0].oab.placeholder,
-      bio: 'Planejamento patrimonial e sucessório. Especialista em Direito Empresarial e em Advocacia Consultiva, trabalha na fase que antecede o processo: contratos, sociedades, imóveis e a organização do patrimônio.',
+      lead: 'Planejamento patrimonial e sucessório.',
+      href: '/areas/planejamento-patrimonial-e-sucessorio/',
+      bio: 'Especialista em Direito Empresarial e em Advocacia Consultiva, trabalha na fase que antecede o processo: contratos, sociedades, imóveis e a organização do patrimônio.',
     },
     {
       nome: 'Beatriz',
@@ -78,7 +86,9 @@ const {
       alt: 'Retrato de Beatriz Mendonça',
       oab: site.socios[1].oab.valor,
       oabPlaceholder: site.socios[1].oab.placeholder,
-      bio: 'Direito digital. Especialista em Direito Processual Civil e pós-graduanda em Direito Digital, conduz os casos que precisam ir ao Judiciário e atende quem trabalha na internet.',
+      lead: 'Direito digital.',
+      href: '/areas/direito-digital/',
+      bio: 'Especialista em Direito Processual Civil e pós-graduanda em Direito Digital, conduz os casos que precisam ir ao Judiciário e atende quem trabalha na internet.',
       /* O filtro de brilho que existia aqui saiu: a correção passou a ser
          feita na própria imagem, ao gerar os derivados. Filtro CSS custa
          repintura a cada frame de animação e não corrigia a moldura. */
@@ -88,6 +98,7 @@ const {
   variante = 'curta',
   nivel = 'h3',
   id = 'socios',
+  titulo = 'Você fala com um dos sócios do começo ao fim.',
 }: Props = Astro.props;
 
 const Assina = nivel;
@@ -95,6 +106,12 @@ const Assina = nivel;
 
 <section class="secao socios" id={id} class:list={{ completa: variante === 'completa' }}>
   <div class="env">
+    {variante === 'curta' && (
+      <div class="socios-cabeca">
+        <p class="olho sobe">Quem atende</p>
+        <h2 class="display sobe">{titulo}</h2>
+      </div>
+    )}
     {socios.map((socio) => (
       <article class="par sobe">
         <figure>
@@ -161,7 +178,13 @@ const Assina = nivel;
               <span class="oab-rotulo">Inscrição na Ordem</span>
               <span class="oab-numero">{socio.oab}</span>
             </p>
-            <p class="bio">{socio.bio}</p>
+            <p class="bio">{socio.lead && <b>{socio.lead} </b>}{socio.bio}</p>
+            {socio.href && (
+              <a class="ver-area" href={socio.href}>
+                Ver a área
+                <span class="seta" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+              </a>
+            )}
           </>
         )}
       </article>
@@ -181,7 +204,7 @@ const Assina = nivel;
       gap: 64px;
     }
   }
-  .socios .par:nth-child(2) {
+  .socios .par + .par {
     margin-top: clamp(0px, 9vw, 132px);
   }
   .par figure {
@@ -262,10 +285,55 @@ const Assina = nivel;
     font-size: 19px;
   }
   .par .bio {
-    margin-top: 12px;
+    margin-top: 14px;
     color: var(--secundario);
-    font-size: 16.5px;
-    max-width: 36ch;
+    font-size: 18px;
+    line-height: 1.55;
+    max-width: 40ch;
+  }
+  .par .bio b {
+    font-weight: 500;
+    color: var(--tinta);
+  }
+  .socios-cabeca {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 16px;
+    margin-bottom: clamp(8px, 2vw, 24px);
+  }
+  .socios-cabeca .olho {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--imperial);
+  }
+  .socios-cabeca h2 {
+    font-size: clamp(34px, 4.6vw, 64px);
+    max-width: 16ch;
+  }
+  .ver-area {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    margin-top: 10px;
+    font-size: 17px;
+    color: var(--tinta);
+    text-decoration: none;
+  }
+  .ver-area .seta {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--imperial);
+    color: #fff;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .ver-area:hover .seta {
+    transform: translateX(3px);
   }
 
   /* ---- variante completa (página do escritório) ----
@@ -275,7 +343,7 @@ const Assina = nivel;
   /* Na página do escritório os dois sócios ficam alinhados: o desnível
      de 132px é gesto editorial da home e atrapalha a leitura em par de
      duas bios longas. */
-  .socios.completa .par:nth-child(2) {
+  .socios.completa .par + .par {
     margin-top: 0;
   }
   .socios.completa .par .bio {

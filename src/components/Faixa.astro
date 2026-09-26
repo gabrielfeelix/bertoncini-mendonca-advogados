@@ -26,8 +26,11 @@ interface Props {
 
 const {
   video = '/media/faixa.mp4',
-  titulo = 'Quem atende na primeira conversa é quem assina a petição.',
-  apoio = 'Não existe camada intermediária entre você e o seu processo. São dois sócios, e o contato é direto com eles, do começo ao fim.',
+  /* Valor de atuação dos sócios (briefing q3.2, "Planejamento") e a frase
+     de q3.3. A faixa dizia "quem atende é quem assina", o que a seção dos
+     sócios, logo acima, agora diz no próprio título. */
+  titulo = 'Decisões importantes merecem ser pensadas antes de virarem urgência.',
+  apoio = 'Nosso trabalho resolve a questão de hoje olhando para o que ela vai causar depois: no patrimônio, na família, na empresa e na sua presença na internet.',
   cantoEsquerdo = 'Bertoncini & Mendonça',
   cantoDireito = 'Maringá, Paraná',
 }: Props = Astro.props;
