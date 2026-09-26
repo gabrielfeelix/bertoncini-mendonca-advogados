@@ -27,6 +27,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     email: texto(dados, 'email', 254),
     telefone: texto(dados, 'telefone', 40),
     assunto: texto(dados, 'assunto', 120),
+    perfil: texto(dados, 'perfil', 40),
+    conheceu: texto(dados, 'conheceu', 60),
     mensagem: texto(dados, 'mensagem', 5000),
   };
 

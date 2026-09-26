@@ -42,9 +42,9 @@ interface Props {
 
 const {
   titulo = 'Conte o que está acontecendo.',
-  botaoRotulo = 'Abrir conversa no WhatsApp',
-  botaoHref = site.whatsapp.valor,
-  botaoPlaceholder = site.whatsapp.placeholder,
+  botaoRotulo = 'Contar o seu caso',
+  botaoHref = '/contato/#formulario',
+  botaoPlaceholder = false,
   horario = 'Segunda a sexta, das 9h às 18h. Fora do horário a mensagem fica registrada.',
   dados = [
     {
@@ -70,10 +70,23 @@ const {
     <div>
       <h2 class="display sobe">{titulo}</h2>
       <div class="acao sobe">
-        <a class="botao zap" href={botaoHref} data-placeholder={botaoPlaceholder ? '1' : undefined}>
-          {botaoRotulo}
-          <span class="disco"><Zap tamanho={15} /></span>
-        </a>
+        {/* Formulário primeiro, WhatsApp ao lado com menos peso (briefing q7.5). */}
+        <div class="acoes">
+          <a class="botao" href={botaoHref} data-placeholder={botaoPlaceholder ? '1' : undefined}>
+            {botaoRotulo}
+            <span class="disco" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
+          </a>
+          <a
+            class="botao zap contorno"
+            href={site.whatsapp.valor}
+            target="_blank"
+            rel="noopener"
+            data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
+          >
+            WhatsApp
+            <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
+          </a>
+        </div>
       </div>
       <p class="horario sobe"><span class="ponto"></span>{horario}</p>
     </div>

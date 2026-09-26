@@ -46,6 +46,9 @@ const pendentes = (await listarAreas()).filter((item) => item.data.aConfirmar);
 
 const mensagem = dados.mensagemWhatsapp ?? 'Olá, gostaria de falar sobre um caso.';
 const linkWhatsapp = whatsappDaArea(mensagem);
+/* O formulário é o canal principal (briefing q7.5). O link leva o slug e
+   /contato/ chega com o assunto já escolhido. */
+const linkFormulario = `/contato/?assunto=${dados.slug}#formulario`;
 const aConfirmar = new Set(dados.corpoAConfirmar);
 
 /* O mapa é por slug e não por índice: acrescentar uma terceira área não
@@ -126,22 +129,45 @@ const numero = (n: number) => String(n + 1).padStart(2, '0');
           <h1 class="display capa-nome">{dados.nome}</h1>
           <p class="tese">{dados.resumo}</p>
           <div class="capa-acao">
-            <a
-              class="botao zap vidro"
-              href={linkWhatsapp}
-              target="_blank"
-              rel="noopener"
-              data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
-            >
-              Falar sobre {dados.nome.toLowerCase()}
-              <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
-            </a>
-            <p class="nota">{site.horario}. A mensagem já vai com o assunto escrito.</p>
+            <div class="acoes">
+              <a class="botao vidro" href={linkFormulario}>
+                Contar o seu caso
+                <span class="disco" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
+              </a>
+              <a
+                class="botao zap contorno vidro"
+                href={linkWhatsapp}
+                target="_blank"
+                rel="noopener"
+                data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
+              >
+                WhatsApp
+                <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
+              </a>
+            </div>
+            <p class="nota">Pelo formulário, a mensagem já chega com o assunto escolhido.</p>
           </div>
         </div>
         {marcaCapa && <Marca tipo={marcaCapa} class="selo" />}
       </header>
     </div>
+
+    {/* PARA QUEM É. Vem do briefing (q4.1). Quem chega precisa se
+        reconhecer antes de ler o que a área abrange; é a pergunta que a
+        pessoa faz nos primeiros segundos. */}
+    {dados.publicos.length > 0 && (
+      <section class="env publicos" aria-labelledby="publicos-titulo">
+        <h2 id="publicos-titulo" class="publicos-titulo">Para quem é</h2>
+        <ul class:list={['publicos-grade', `n${dados.publicos.length}`]}>
+          {dados.publicos.map((publico) => (
+            <li>
+              <h3>{publico.titulo}</h3>
+              <p>{publico.texto}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
 
     {/* O DOCUMENTO. Índice à esquerda, texto à direita. */}
     <div class="env leitura">
@@ -201,7 +227,7 @@ const numero = (n: number) => String(n + 1).padStart(2, '0');
               <p class="quem-nome">{socio.nome}</p>
               <p class="quem-oab" data-placeholder={socio.oab.placeholder ? '1' : undefined}>{socio.oab.valor}</p>
               <p class="quem-linha">{socio.linha}</p>
-              <a class="quem-link" href="/escritorio/">Formação e trajetória</a>
+              <a class="quem-link" href="/escritorio/#socios">Formação e perfil</a>
             </div>
           </section>
         )}
@@ -237,18 +263,22 @@ const numero = (n: number) => String(n + 1).padStart(2, '0');
                 ))}
               </>
             )}
-            <p class="placa-acao">
+            <div class="placa-acao acoes">
+              <a class="botao" href={linkFormulario}>
+                Contar o seu caso
+                <span class="disco" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
+              </a>
               <a
-                class="botao zap"
+                class="botao zap contorno"
                 href={linkWhatsapp}
                 target="_blank"
                 rel="noopener"
                 data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
               >
-                Falar sobre {dados.nome.toLowerCase()} no WhatsApp
+                WhatsApp
                 <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
               </a>
-            </p>
+            </div>
           </div>
         </section>
       </div>
@@ -339,6 +369,58 @@ const numero = (n: number) => String(n + 1).padStart(2, '0');
 </script>
 
 <style>
+  /* ── para quem é ─────────────────────────────────────────────────── */
+  .publicos {
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+  .publicos-titulo {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(28px, 3vw, 40px);
+    margin-bottom: clamp(18px, 2vw, 26px);
+  }
+  .publicos-grade {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .publicos-grade.n4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .publicos-grade li {
+    background: var(--papel);
+    border-radius: clamp(14px, 1.6vw, 20px);
+    padding: clamp(20px, 2.2vw, 28px);
+    border-top: 3px solid var(--imperial);
+  }
+  .publicos-grade h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .publicos-grade p {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--tinta);
+  }
+  @media (max-width: 1080px) {
+    .publicos-grade,
+    .publicos-grade.n4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 620px) {
+    .publicos-grade,
+    .publicos-grade.n4 {
+      grid-template-columns: 1fr;
+    }
+  }
+
   /* ── Capa ─────────────────────────────────────────────────────────── */
   .capa {
     position: relative;
@@ -886,6 +968,9 @@ const numero = (n: number) => String(n + 1).padStart(2, '0');
     .capa :global(.selo) {
       order: -1;
       width: 84px;
+    }
+    .capa-acao .acoes {
+      width: 100%;
     }
     .capa-acao .botao {
       width: 100%;

@@ -21,7 +21,6 @@
  *
  * Marcação que a camada de movimento procura: `.sobe` em cada bloco.
  */
-import { site } from '../lib/site';
 import Marca from './Marca.astro';
 
 interface Area {
@@ -40,6 +39,8 @@ interface Area {
   placeholder?: boolean;
   /** Rótulo da pílula vermelha nas áreas ainda não definidas. */
   pendente?: string;
+  /** Para quem é a área, numa frase (briefing q4.1). */
+  publico?: string;
   /** Ícone do canto superior direito do bloco. Ausente nas "a confirmar". */
   marca?: 'sucessao' | 'rede';
 }
@@ -63,7 +64,6 @@ interface Props {
   limiteAssuntos?: number;
 }
 
-const whats = site.whatsapp.valor.split('?')[0];
 
 const {
   titulo = 'Áreas de atuação',
@@ -79,8 +79,7 @@ const {
         { nome: 'Holding familiar', faz: 'A conta feita antes: o que custa contra o que economiza.' },
       ],
       marca: 'sucessao',
-      href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20planejamento%20patrimonial%20e%20sucess%C3%B3rio.`,
-      placeholder: site.whatsapp.placeholder,
+      href: '/areas/planejamento-patrimonial-e-sucessorio/',
     },
     {
       nome: 'Direito Digital',
@@ -91,8 +90,7 @@ const {
         { nome: 'Crimes cibernéticos', faz: 'Preservar a prova primeiro. É o que mais se perde por demora.' },
       ],
       marca: 'rede',
-      href: `${whats}?text=Ol%C3%A1%2C%20preciso%20de%20orienta%C3%A7%C3%A3o%20sobre%20direito%20digital.`,
-      placeholder: site.whatsapp.placeholder,
+      href: '/areas/direito-digital/',
     },
   ],
 }: Props = Astro.props;
@@ -123,8 +121,6 @@ const {
             class:list={['bloco', 'sobe', `t${i % 2}`]}
             href={area.href}
             data-placeholder={area.placeholder ? '1' : undefined}
-            target="_blank"
-            rel="noopener"
           >
             <span class="ordem">{String(i + 1).padStart(2, '0')}</span>
             {/* O título quebra em três linhas e para na metade da largura:
@@ -133,6 +129,9 @@ const {
             {area.marca && <Marca tipo={area.marca} class="icone" />}
             <h3>{area.nome}</h3>
             {area.glosa && <span class="glosa">{area.glosa}</span>}
+            {area.publico && (
+              <span class="publico"><b>Para quem</b>{area.publico}</span>
+            )}
             {area.assuntos && area.assuntos.length > 0 && (()=>{
               const mostrados = area.assuntos.slice(0, limiteAssuntos);
               const restantes = area.assuntos.length - mostrados.length;
@@ -163,7 +162,7 @@ const {
               );
             })()}
             <span class="leva">
-              <span class="rotulo">Falar sobre isso</span>
+              <span class="rotulo">Ver a área</span>
               <span class="seta" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
             </span>
@@ -351,6 +350,37 @@ const {
   }
   .bloco.t1 .glosa {
     color: rgba(255, 255, 255, 0.74);
+  }
+  /* "Para quem": o rótulo em linha própria, pequeno, e a frase abaixo. */
+  .publico {
+    display: grid;
+    gap: 4px;
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 17px;
+    line-height: 1.45;
+    max-width: 46ch;
+  }
+  .publico b {
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .bloco.t0 .publico {
+    background: #fff;
+    color: var(--tinta);
+  }
+  .bloco.t0 .publico b {
+    color: var(--imperial);
+  }
+  .bloco.t1 .publico {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+  .bloco.t1 .publico b {
+    color: rgba(255, 255, 255, 0.8);
   }
 
   /*

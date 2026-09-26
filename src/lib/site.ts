@@ -1,7 +1,8 @@
 /**
  * Dados canônicos do site. Fonte única para SEO, cabeçalho e rodapé.
  *
- * ATENÇÃO: telefone, e-mail, OAB de cada sócio, CNPJ e registro da
+ * A OAB de cada sócio, o domínio e o Instagram vieram do briefing de
+ * 23/09/2026 e são reais. ATENÇÃO: telefone, e-mail, CNPJ e registro da
  * sociedade AINDA NÃO EXISTEM. Os valores abaixo são exatamente os
  * placeholders do protótipo aprovado (`prototipo/index.html`) e cada um
  * está marcado com `placeholder: true` para a Tarefa 15 conseguir
@@ -22,8 +23,7 @@ export const site = {
   nome: 'Bertoncini & Mendonça Advogados',
   nomeCurto: 'Bertoncini & Mendonça',
   nomeSociedade: 'Bertoncini & Mendonça Sociedade de Advogados',
-  // Placeholder: domínio final ainda não confirmado com o escritório
-  // (mesmo valor de astro.config.mjs).
+  // Domínio confirmado no briefing (q8.4).
   url: 'https://www.bertoncinimendonca.adv.br',
   descricao:
     'Advocacia com atuação em Planejamento Patrimonial e Sucessório e em ' +
@@ -70,24 +70,36 @@ export const site = {
   socios: [
     {
       nome: 'Juscelino Bertoncini',
-      oab: { valor: 'OAB/PR 000.000', placeholder: true } satisfies CampoPlaceholder,
+      // Briefing q1.7.
+      oab: { valor: 'OAB/PR 124.838', placeholder: false } satisfies CampoPlaceholder,
       retrato: '/media/socios/juscelino',
       area: 'planejamento-patrimonial-e-sucessorio',
-      linha: 'Trabalha na fase que antecede o processo, para que o problema não se consolide.',
+      linha:
+        'Especialista em Direito Empresarial e em Advocacia Consultiva. Trabalha na fase que antecede o processo: contratos, sociedades, imóveis e a organização do patrimônio.',
     },
     {
       nome: 'Beatriz Mendonça',
-      oab: { valor: 'OAB/PR 000.000', placeholder: true } satisfies CampoPlaceholder,
+      oab: { valor: 'OAB/PR 124.839', placeholder: false } satisfies CampoPlaceholder,
       retrato: '/media/socios/beatriz',
       area: 'direito-digital',
-      linha: 'Especialista em Direito Processual Civil, com experiência em processos judiciais estratégicos.',
+      linha:
+        'Especialista em Direito Processual Civil e pós-graduanda em Direito Digital. Conduz os casos que precisam ir ao Judiciário e atende quem trabalha na internet.',
     },
   ],
 
   redes: {
-    // Placeholder: link do Instagram ainda não fornecido (o protótipo usa "#").
-    instagram: { valor: '#', placeholder: true } satisfies CampoPlaceholder,
+    // Briefing q8.6: @bertoncinimendonca.adv, no ar em 17/11/2026.
+    instagram: {
+      valor: 'https://www.instagram.com/bertoncinimendonca.adv/',
+      placeholder: false,
+    } satisfies CampoPlaceholder,
+    instagramArroba: '@bertoncinimendonca.adv',
   },
+
+  /* Os dois avisos que o escritório pediu como obrigatórios (briefing q9.3).
+     O primeiro é o texto deles, palavra por palavra. */
+  avisoInformativo:
+    'As informações disponibilizadas neste site possuem caráter exclusivamente informativo e não substituem a análise jurídica individualizada de cada situação.',
 } as const;
 
 /**

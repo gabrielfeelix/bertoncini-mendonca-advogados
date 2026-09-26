@@ -53,8 +53,8 @@ const {
   <div class="env">
     <h2 class="display sobe">{titulo}</h2>
     <div class="sobe">
-      {perguntas.map((item) => (
-        <details class="q">
+      {perguntas.map((item, n) => (
+        <details class="q" id={`pergunta-${n + 1}`}>
           <summary>{item.pergunta}<span class="cruz"></span></summary>
           <p class="resposta">{item.resposta}</p>
         </details>
@@ -62,6 +62,21 @@ const {
     </div>
   </div>
 </section>
+
+<script>
+  /* Quem chega por um link `#pergunta-N` (a seção "O que as pessoas nos
+     perguntam", na home) encontra a resposta já aberta. Sem este script o
+     link ainda rola até a pergunta; só não a abre. */
+  const abre = () => {
+    const alvo = location.hash ? document.getElementById(location.hash.slice(1)) : null;
+    if (alvo instanceof HTMLDetailsElement) {
+      alvo.open = true;
+      alvo.scrollIntoView({ block: 'center' });
+    }
+  };
+  abre();
+  window.addEventListener('hashchange', abre);
+</script>
 
 <style>
   .perguntas :global(.env) {
@@ -81,6 +96,7 @@ const {
     max-width: 14ch;
   }
   .q {
+    scroll-margin-top: 120px;
     border-top: 1px solid var(--linha);
   }
   .q:last-child {

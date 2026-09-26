@@ -55,6 +55,7 @@
  */
 import { site, rodape } from '../lib/site';
 import Zap from './Zap.astro';
+import AvisoGolpe from './AvisoGolpe.astro';
 import { listarAreasConfirmadas } from '../lib/areas';
 
 const ano = new Date().getFullYear();
@@ -122,20 +123,25 @@ const areas = await listarAreasConfirmadas();
         <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefoneE164.placeholder ? '1' : undefined}>
           {site.telefone.valor}
         </a>
-        <a href={site.redes.instagram.valor} data-placeholder={site.redes.instagram.placeholder ? '1' : undefined}>
-          Instagram
+        <a href={site.redes.instagram.valor} target="_blank" rel="noopener">
+          Instagram {site.redes.instagramArroba}
         </a>
         {/* O endereço é o CORPO desta coluna, não uma quarta coluna. */}
         <p class="onde">{site.cidade}, {site.estado}<br />{site.atendimento}</p>
       </div>
     </nav>
 
+    {/* ── Aviso do golpe do falso advogado (briefing q9.3) ────────── */}
+    <div class="faixa golpe-faixa">
+      <AvisoGolpe variante="curto" escuro={true} />
+    </div>
+
     {/* ── FAIXA C: assinatura ─────────────────────────────────────── */}
     <div class="faixa assinatura">
       <div class="pe-fim">
-        <div class="registro" data-placeholder="1">
+        <div class="registro">
           <p>© {ano} {site.nomeCurto}</p>
-          <p>
+          <p data-placeholder="1">
             Sociedade de Advogados inscrita na {site.registro.oabSociedade.valor}
             <span class="sep" aria-hidden="true"> · </span>
             CNPJ {site.registro.cnpj.valor}
@@ -148,8 +154,9 @@ const areas = await listarAreasConfirmadas();
               </>
             ))}
           </p>
-          {/* Texto de trabalho: sai quando as inscrições reais chegarem. */}
-          <p class="aviso-placeholder">Inscrições são placeholder. Entram as reais antes de publicar.</p>
+          {/* Texto de trabalho: sai quando o registro e o CNPJ chegarem. As
+              inscrições dos sócios já são as reais (briefing q1.7). */}
+          <p class="aviso-placeholder">Registro da sociedade e CNPJ são placeholder. Entram os reais antes de publicar.</p>
         </div>
 
         <div class="miudos">
@@ -163,7 +170,8 @@ const areas = await listarAreasConfirmadas();
               </>
             ))}
           </p>
-          <p class="ressalva">Os textos deste site são informativos e não substituem uma consulta.</p>
+          {/* Texto do escritório, palavra por palavra (briefing q9.3). */}
+          <p class="ressalva">{site.avisoInformativo}</p>
           <p class="credito"><a href="https://gabrielfelix-ux.4yu.com.br" rel="noopener">Site por Gabriel Felix</a></p>
         </div>
       </div>
@@ -211,6 +219,10 @@ const areas = await listarAreasConfirmadas();
   /* A assinatura é o plinto: mesmo filete, respiro menor que o das faixas
      de cima. É o que a mantém como base da página, e não como mais uma
      seção de conteúdo. */
+  .faixa + .faixa.golpe-faixa {
+    margin-top: clamp(30px, 3.4vw, 44px);
+    padding-top: clamp(18px, 2vw, 26px);
+  }
   .faixa + .faixa.assinatura {
     margin-top: clamp(30px, 3.4vw, 44px);
     padding-top: clamp(22px, 2.6vw, 32px);
@@ -360,7 +372,7 @@ const areas = await listarAreasConfirmadas();
     text-align: end;
   }
   .miudos .ressalva {
-    max-width: 44ch;
+    max-width: 52ch;
   }
   .sep {
     opacity: 0.45;

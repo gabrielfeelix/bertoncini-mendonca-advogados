@@ -146,10 +146,8 @@ const descricao = d.seoDescricao ?? d.resumo;
       <Content />
     </div>
 
-    <p class="ressalva">
-      Este texto é informativo e não substitui a orientação sobre o seu caso. A
-      resposta certa depende dos documentos e das datas de cada situação.
-    </p>
+    {/* Texto do escritório, palavra por palavra (briefing q9.3). */}
+    <p class="ressalva">{site.avisoInformativo}</p>
   </article>
 
   {

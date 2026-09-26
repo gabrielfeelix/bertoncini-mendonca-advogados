@@ -4,6 +4,14 @@
   "resumo": "Organizar em vida o que, sem organização, vira inventário e disputa entre herdeiros.",
   "assuntos": [
     {
+      "nome": "Holding familiar",
+      "faz": "Fazer a conta antes: custo de constituir e manter, contra o que de fato economiza."
+    },
+    {
+      "nome": "Empresa familiar e acordo de sócios",
+      "faz": "Escrever quem administra e como os herdeiros entram, enquanto todos estão de acordo."
+    },
+    {
       "nome": "Inventário e partilha",
       "faz": "Abrir e conduzir, em cartório quando os herdeiros concordam, na Justiça quando não."
     },
@@ -12,8 +20,8 @@
       "faz": "Escrever a transmissão respeitando a legítima, que testamento nenhum afasta."
     },
     {
-      "nome": "Holding familiar",
-      "faz": "Fazer a conta antes: custo de constituir e manter, contra o que de fato economiza."
+      "nome": "Compra de imóvel",
+      "faz": "Analisar matrícula, certidões e vendedores antes da assinatura, enquanto ainda dá para negociar."
     },
     {
       "nome": "Contratos",
@@ -35,6 +43,8 @@
     "A existência de testamento, por muito tempo, levava o inventário necessariamente ao Judiciário. O Provimento CNJ 149/2023 e a Resolução CNJ 571/2024 abriram hipóteses de via extrajudicial mesmo havendo testamento ou interessado incapaz, observadas condições específicas e, em geral, manifestação do Ministério Público. É um ponto em que a regra mudou há pouco e em que vale examinar o caso concreto antes de presumir o caminho judicial.",
     "Antes disso há o que se pode fazer em vida. Doação com reserva de usufruto, testamento, pacto antenupcial, alteração de regime de bens e a constituição de uma holding familiar são instrumentos para organizar a transmissão, definir quem administra o que e reduzir a chance de litígio. Cada um tem custo, efeito tributário e limite legal próprios: a legítima dos herdeiros necessários, por exemplo, não pode ser afastada por testamento.",
     "O ITCMD, imposto estadual sobre herança e doação, costuma ser o fator que define o momento e a forma da transmissão. Planejar não é deixar de pagar imposto: é saber qual é o custo de cada caminho antes de escolher, e não descobri-lo quando já não há escolha.",
+    "Na empresa familiar, a sucessão também é uma questão societária. O acordo de sócios, as regras para a entrada de herdeiros e a definição de quem administra depois evitam que a morte ou a saída de um sócio paralise o negócio. São cláusulas que se escrevem com todos de acordo, antes de qualquer conflito.",
+    "Na compra de um imóvel, a análise vem antes da assinatura: matrícula atualizada, certidões do imóvel e dos vendedores, débitos de condomínio e de IPTU, e a situação de quem vende perante a Justiça. Essa verificação, a due diligence imobiliária, mostra o risco da operação enquanto ainda é possível negociar ou desistir.",
     "Atendemos todo o país, de forma online, e presencialmente em Maringá.",
     "O trabalho começa por entender o que existe: quais bens, em nome de quem, com que dívidas e quais pessoas envolvidas. Explicamos as opções, o que cada uma exige e o que custa, antes de começar. Nenhum resultado é prometido, porque nenhum advogado decide sozinho o desfecho de um processo."
   ],
@@ -58,6 +68,30 @@
     {
       "pergunta": "Quanto tempo demora um inventário?",
       "resposta": "O extrajudicial, com documentação em ordem e acordo entre os herdeiros, costuma se resolver em poucos meses. O judicial depende da comarca, da complexidade do patrimônio e de haver ou não disputa, e pode levar anos. A lei prevê que o inventário seja aberto em até dois meses da morte, e o atraso costuma gerar multa sobre o ITCMD."
+    },
+    {
+      "pergunta": "Holding realmente protege o patrimônio?",
+      "resposta": "Ela organiza, mas não blinda. A holding muda a titularidade dos bens e facilita a administração e a sucessão, mas não serve para esconder patrimônio de credor: uma operação feita para fraudar dívida que já existe pode ser desfeita pela Justiça. A proteção que ela oferece vem da organização, de um contrato social bem escrito e de regras claras entre os herdeiros."
+    },
+    {
+      "pergunta": "Posso doar um imóvel e continuar morando nele?",
+      "resposta": "Sim. A doação com reserva de usufruto transfere a propriedade e mantém com quem doou o direito de usar o imóvel e de receber os aluguéis enquanto viver. Quando o usufrutuário morre, o usufruto se extingue e a propriedade fica inteira com quem recebeu a doação, sem inventário daquele bem."
+    },
+    {
+      "pergunta": "Posso impedir que meu filho venda o imóvel que recebeu?",
+      "resposta": "Em alguns casos. Na doação e no testamento é possível incluir cláusulas de inalienabilidade, impenhorabilidade e incomunicabilidade. Sobre a legítima dos herdeiros necessários, porém, o testamento só pode impor essas restrições declarando uma justa causa. A cláusula também limita quem recebe, então a decisão depende do objetivo da família."
+    },
+    {
+      "pergunta": "Pacto antenupcial realmente protege o patrimônio?",
+      "resposta": "Ele define o regime de bens do casamento e, com isso, o que é de cada um e o que é comum num divórcio. Precisa ser feito por escritura pública antes do casamento. Sozinho, ele não afasta todos os efeitos na herança: dependendo do regime, o cônjuge continua sendo herdeiro. Funciona melhor combinado com o restante do planejamento."
+    },
+    {
+      "pergunta": "Preciso fazer testamento mesmo tendo filhos?",
+      "resposta": "Não é obrigatório, mas costuma ser útil. Com filhos, metade do patrimônio é a legítima deles; a outra metade pode ir para quem você escolher, inclusive para um dos filhos. O testamento também indica qual bem fica com quem dentro da parte de cada um e pode nomear tutor para filho menor."
+    },
+    {
+      "pergunta": "O que acontece com as minhas contas e arquivos digitais quando eu morrer?",
+      "resposta": "Ainda não há lei específica sobre herança digital no Brasil. O que tem valor econômico, como criptoativos, saldo em plataformas e direitos autorais, entra no inventário. Contas pessoais seguem as regras de cada plataforma e decisões judiciais caso a caso. Por isso vale deixar por escrito o que deve acontecer com cada conta e quem pode acessá-la."
     }
   ],
   "ordem": 1,
@@ -81,9 +115,32 @@
     },
     {
       "indice": 6,
+      "rubrica": "Empresa familiar e sócios"
+    },
+    {
+      "indice": 7,
+      "rubrica": "Compra de imóvel"
+    },
+    {
+      "indice": 8,
       "rubrica": "Onde atendemos",
       "foto": "maringa",
       "fotoAlt": "A Catedral de Maringá ao anoitecer, vista da avenida, com o céu ainda azul."
+    }
+  ],
+  "publicoCurto": "Empresários e famílias com patrimônio a organizar, dividir ou proteger.",
+  "publicos": [
+    {
+      "titulo": "Empresários",
+      "texto": "Que querem separar o patrimônio pessoal do da empresa, organizar a sucessão no negócio e saber o custo tributário de cada caminho antes de escolher."
+    },
+    {
+      "titulo": "Famílias",
+      "texto": "Que querem decidir em vida como os bens serão divididos, diminuir a chance de disputa entre herdeiros e o tempo e o custo de um inventário."
+    },
+    {
+      "titulo": "Quem compra ou regulariza imóvel",
+      "texto": "Que precisa analisar documentos e riscos antes de assinar, ou colocar em ordem um imóvel que está irregular."
     }
   ]
 }

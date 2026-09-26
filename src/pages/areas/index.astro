@@ -26,6 +26,7 @@ const paraOComponente = areas.map((area) =>
     : {
         nome: area.data.nome,
         glosa: area.data.resumo,
+        publico: area.data.publicoCurto,
         assuntos: area.data.assuntos,
         href: `/areas/${area.data.slug}/`,
       },
@@ -44,9 +45,9 @@ const descricao =
       <p class="etiqueta">Áreas de atuação</p>
       <h1 class="display">Em que assuntos atuamos.</h1>
       <p class="texto">
-        Duas áreas estão confirmadas com os sócios e têm página própria, com o que
-        cada uma abrange e as perguntas que mais recebemos sobre ela. As demais
-        entram aqui quando forem definidas.
+        O escritório atua em duas áreas, uma com cada sócio. Em cada página está para quem
+        a área é, o que ela abrange e as perguntas que mais recebemos. Fora delas, também
+        atuamos em questões de direito imobiliário, tributário e cível.
       </p>
     </div>
   </section>

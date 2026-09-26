@@ -57,6 +57,10 @@ export interface Contato {
   email: string;
   telefone: string;
   assunto: string;
+  /** Pessoa física ou empresa. Triagem pedida no briefing (q2.7 e q4.5). */
+  perfil: string;
+  /** Como a pessoa chegou ao escritório: indicação, Instagram, Google etc. (q2.7). */
+  conheceu: string;
   mensagem: string;
 }
 
@@ -72,6 +76,8 @@ export function enviaEmailDeContato(
     ['E-mail', dados.email],
     ['Telefone', dados.telefone || 'não informado'],
     ['Assunto', dados.assunto || 'não informado'],
+    ['Quem escreve', dados.perfil || 'não informado'],
+    ['Como conheceu', dados.conheceu || 'não informado'],
   ];
 
   return chama('/smtp/email', chave, {
@@ -79,7 +85,7 @@ export function enviaEmailDeContato(
     to: [{ email: destino }],
     // Responder no e-mail encaminhado responde direto para quem escreveu.
     replyTo: { email: dados.email, name: dados.nome },
-    subject: `Contato pelo site: ${dados.nome}`,
+    subject: `Contato pelo site: ${dados.nome}${dados.assunto ? ` · ${dados.assunto}` : ''}`,
     textContent: [
       ...linhas.map(([r, v]) => `${r}: ${v}`),
       '',
@@ -122,6 +128,8 @@ export function registraContato(chave: string, listaId: number, dados: Contato) 
       NOME: dados.nome,
       TELEFONE: dados.telefone,
       ASSUNTO: dados.assunto,
+      PERFIL: dados.perfil,
+      CONHECEU: dados.conheceu,
       ULTIMA_MENSAGEM: dados.mensagem.slice(0, 250),
       ORIGEM: 'formulario-contato',
     },

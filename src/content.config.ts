@@ -57,6 +57,18 @@ const areas = defineCollection({
         }),
       ]),
     ),
+    /**
+     * Para quem é a área, numa frase. Vai para o bloco da área na home.
+     * Vem do briefing (q4.1): a descrição do cliente de cada sócio.
+     */
+    publicoCurto: z.string().min(1).optional(),
+    /**
+     * Para quem é a área, por grupo. A página da área abre com isto: quem
+     * chega precisa se reconhecer antes de ler o que a área abrange.
+     */
+    publicos: z
+      .array(z.object({ titulo: z.string().min(1), texto: z.string().min(1) }))
+      .default([]),
     /** Texto da página, um item por parágrafo. */
     corpo: z.array(z.string().min(1)),
     /** Perguntas frequentes específicas da área. */

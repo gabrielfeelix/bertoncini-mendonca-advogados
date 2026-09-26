@@ -1,0 +1,165 @@
+---
+/**
+ * Aviso do golpe do falso advogado.
+ *
+ * Pedido do escritório como obrigatório (briefing q9.3): o site precisa
+ * dizer por quais números e endereços o escritório fala com o cliente, e
+ * que ele não entra em contato por outro número ou outra forma.
+ *
+ * Dois tamanhos:
+ * - `completo`: bloco próprio, com a lista de canais. Vive em /contato/.
+ * - `curto`: uma faixa de duas linhas, para o rodapé e o fim dos artigos.
+ *
+ * Os canais vêm de `site.ts`. Telefone e e-mail ainda são placeholder e o
+ * aviso herda a marcação: um aviso de golpe com número errado é pior do que
+ * nenhum aviso, e a Tarefa 15 precisa encontrá-lo antes de publicar.
+ */
+import { site } from '../lib/site';
+
+interface Props {
+  variante?: 'completo' | 'curto';
+  /** Superfície de quem monta: `escuro` no rodapé azul. */
+  escuro?: boolean;
+}
+
+const { variante = 'completo', escuro = false } = Astro.props;
+
+const canais = [
+  { rotulo: 'Telefone e WhatsApp', valor: site.telefone.valor, href: `tel:${site.telefoneE164.valor}`, placeholder: site.telefone.placeholder },
+  { rotulo: 'E-mail', valor: site.email.valor, href: `mailto:${site.email.valor}`, placeholder: site.email.placeholder },
+  { rotulo: 'Instagram', valor: site.redes.instagramArroba, href: site.redes.instagram.valor, placeholder: site.redes.instagram.placeholder },
+];
+---
+
+{variante === 'completo' ? (
+  <section class="golpe" aria-labelledby="golpe-titulo">
+    <div class="golpe-cabeca">
+      <span class="escudo" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3 5 6v5.5c0 4.2 2.9 8 7 9.5 4.1-1.5 7-5.3 7-9.5V6l-7-3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path>
+          <path d="M12 8v5M12 16.2v.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+        </svg>
+      </span>
+      <div>
+        <h2 id="golpe-titulo">Atenção ao golpe do falso advogado</h2>
+        <p>
+          Há golpistas usando o nome de escritórios e de advogados para pedir pagamento de
+          custas, taxas ou "liberação" de valores de processo. Nós só falamos com você pelos
+          canais abaixo. Não pedimos pagamento por outro número, por outro perfil nem por link
+          enviado por terceiros. Se receber uma mensagem assim em nosso nome, não pague e
+          confirme conosco antes.
+        </p>
+      </div>
+    </div>
+    <dl class="golpe-canais">
+      {canais.map((canal) => (
+        <div>
+          <dt>{canal.rotulo}</dt>
+          <dd><a href={canal.href} data-placeholder={canal.placeholder ? '1' : undefined}>{canal.valor}</a></dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+) : (
+  <p class:list={['golpe-curto', { escuro }]}>
+    <strong>Golpe do falso advogado:</strong> só entramos em contato pelo telefone{' '}
+    <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefone.placeholder ? '1' : undefined}>{site.telefone.valor}</a>{' '}
+    e pelo e-mail{' '}
+    <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>.{' '}
+    Não pedimos pagamento por outro número ou outra forma.
+  </p>
+)}
+
+<style>
+  .golpe {
+    border-radius: clamp(16px, 2vw, 24px);
+    background: var(--papel);
+    border: 1px solid var(--linha);
+    padding: clamp(24px, 3.4vw, 44px);
+    display: grid;
+    gap: clamp(22px, 2.6vw, 32px);
+  }
+  .golpe-cabeca {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(16px, 2vw, 24px);
+    align-items: start;
+  }
+  .escudo {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: #fff;
+    color: var(--imperial);
+    border: 1px solid var(--linha);
+  }
+  .golpe h2 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(24px, 2.4vw, 32px);
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .golpe p {
+    font-size: 18px;
+    color: var(--tinta);
+    max-width: 68ch;
+  }
+  .golpe-canais {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 0;
+  }
+  .golpe-canais > div {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px 18px;
+    border: 1px solid var(--linha);
+  }
+  .golpe-canais dt {
+    font-size: 16px;
+    color: var(--secundario);
+  }
+  .golpe-canais dd {
+    margin: 4px 0 0;
+  }
+  .golpe-canais a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 18px;
+    color: var(--tinta);
+    text-underline-offset: 4px;
+    word-break: break-word;
+  }
+  @media (max-width: 820px) {
+    .golpe-canais {
+      grid-template-columns: 1fr;
+    }
+    .golpe-cabeca {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .golpe-curto {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--tinta);
+    max-width: 90ch;
+  }
+  .golpe-curto a {
+    display: inline-block;
+    padding-block: 10px;
+    color: inherit;
+    text-underline-offset: 3px;
+  }
+  .golpe-curto.escuro {
+    color: rgba(255, 255, 255, 0.86);
+  }
+  .golpe-curto.escuro strong {
+    color: #fff;
+  }
+</style>

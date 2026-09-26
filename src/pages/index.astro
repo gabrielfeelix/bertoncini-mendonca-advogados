@@ -37,6 +37,7 @@ import Perguntas from '~/components/Perguntas.astro';
 import AvisoCookies from '~/components/AvisoCookies.astro';
 import SaibaMais from '~/components/SaibaMais.astro';
 import CartaoTexto from '~/components/CartaoTexto.astro';
+import Situacoes from '~/components/Situacoes.astro';
 import { listarAreas } from '~/lib/areas';
 import { listarArtigos } from '~/lib/artigos';
 
@@ -59,11 +60,45 @@ const areasDaHome = areas.map((area) =>
     : {
         nome: area.data.nome,
         glosa: area.data.resumo,
+        publico: area.data.publicoCurto,
         assuntos: area.data.assuntos.slice(0, 5),
         href: `/areas/${area.data.slug}/`,
         marca: marcaDaArea[area.data.slug],
       },
 );
+
+/* "O que as pessoas nos perguntam": seis perguntas por área, escolhidas
+   entre as que o briefing listou (q7.4) e que já têm resposta no JSON da
+   área. Escolhidas pelo texto, e não pela posição, para que reordenar o
+   JSON não troque a pergunta da home em silêncio. */
+const perguntasEscolhidas: Record<string, string[]> = {
+  'planejamento-patrimonial-e-sucessorio': [
+    'Holding realmente protege o patrimônio?',
+    'Posso doar um imóvel e continuar morando nele?',
+    'Posso impedir que meu filho venda o imóvel que recebeu?',
+    'Preciso fazer testamento mesmo tendo filhos?',
+    'O inventário precisa ser feito na Justiça?',
+    'O que acontece com as minhas contas e arquivos digitais quando eu morrer?',
+  ],
+  'direito-digital': [
+    'Alguém criou um perfil falso com meu nome e minha foto. O que posso fazer?',
+    'Minha conta foi banida ou restringida. Dá para recuperar pela Justiça?',
+    'Recebi uma proposta de parceria com uma marca. O que verificar antes de aceitar?',
+    'Preciso registrar minha marca?',
+    'Posso colocar dados de clientes no ChatGPT?',
+    'A LGPD se aplica à minha empresa, mesmo sendo pequena?',
+  ],
+};
+const gruposDePerguntas = areas
+  .filter((area) => !area.data.aConfirmar && perguntasEscolhidas[area.data.slug])
+  .map((area) => ({
+    nome: area.data.nome,
+    slug: area.data.slug,
+    marca: marcaDaArea[area.data.slug],
+    perguntas: perguntasEscolhidas[area.data.slug]
+      .map((texto) => ({ texto, indice: area.data.perguntas.findIndex((p) => p.pergunta === texto) }))
+      .filter((p) => p.indice >= 0),
+  }));
 
 /* Os seis textos mais recentes. Eram três, e passaram a seis quando o
    bloco de contato saiu da home: a seção de publicações virou o fecho da
@@ -81,24 +116,29 @@ const ultimosTextos = (await listarArtigos()).slice(0, 6);
    físico (q2_6) — a home não pode sugerir sede nem limitar ao Paraná. */
 const perguntasDaHome = [
   {
-    pergunta: 'Quanto custa uma consulta?',
+    pergunta: 'A primeira conversa é cobrada?',
     resposta:
-      'Depende do caso. Na primeira conversa entendemos a situação e informamos o valor antes de você assumir qualquer compromisso.',
+      'Depende do caso. Antes de marcar, dizemos se a conversa inicial é cobrada e qual o valor, para você decidir sem surpresa.',
   },
   {
     pergunta: 'Como funciona do primeiro contato até o caso andar?',
     resposta:
-      'Você envia uma mensagem contando o que aconteceu. Respondemos marcando uma conversa por vídeo. Nela você recebe as opções, os prazos e o custo. Se decidir seguir, assumimos o caso e informamos cada movimentação, inclusive quando a notícia é que nada mudou.',
+      'Você escreve pelo formulário do site, pelo WhatsApp ou por e-mail contando o que aconteceu. Respondemos para marcar uma conversa, por vídeo ou presencial em Maringá. Nela você recebe as opções, os prazos e o custo. Se decidir seguir, assumimos o caso e informamos cada movimentação, inclusive quando a notícia é que nada mudou.',
   },
   {
-    pergunta: 'Preciso ir até um escritório?',
+    pergunta: 'Vocês atendem empresas ou pessoas físicas?',
     resposta:
-      'Não. O atendimento é online, por mensagem e por chamada de vídeo, e isso cobre todas as etapas do caso. Quando um encontro presencial for necessário, combinamos em Maringá, com hora marcada.',
+      'Os dois. A maior parte do trabalho é com empresas e empresários, e atendemos também pessoas e famílias nas duas áreas.',
   },
   {
     pergunta: 'Vocês atendem fora de Maringá?',
     resposta:
-      'Sim, em todo o país. O caso tramita online na maior parte do tempo, e o atendimento presencial acontece em Maringá quando é necessário.',
+      'Sim, em todo o país. O atendimento é online, por mensagem e por chamada de vídeo, e cobre todas as etapas. Quando um encontro presencial for necessário, combinamos em Maringá, com hora marcada.',
+  },
+  {
+    pergunta: 'E se o meu assunto não for de nenhuma das duas áreas?',
+    resposta:
+      'Escreva mesmo assim. Também atuamos em questões de direito imobiliário, tributário e cível. Se o caso não for para nós, dizemos isso na primeira conversa.',
   },
   {
     pergunta: 'Quanto tempo demora um processo?',
@@ -120,6 +160,8 @@ const perguntasDaHome = [
 
   <Areas areas={areasDaHome} />
   <SaibaMais href="/areas/" escuro={true}>Ver as áreas em detalhe</SaibaMais>
+
+  {gruposDePerguntas.length > 0 && <Situacoes grupos={gruposDePerguntas} />}
 
   <Socios />
   <SaibaMais href="/escritorio/">Conhecer o escritório</SaibaMais>

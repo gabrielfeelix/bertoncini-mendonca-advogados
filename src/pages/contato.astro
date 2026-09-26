@@ -37,6 +37,8 @@ import Newsletter from '~/components/Newsletter.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
 import Zap from '../components/Zap.astro';
+import AvisoGolpe from '~/components/AvisoGolpe.astro';
+import { listarAreasConfirmadas } from '~/lib/areas';
 
 /*
   Esta página é renderizada a cada pedido, e não pré-gerada no build.
@@ -82,8 +84,30 @@ const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
   `faltando` pode ser nome ou mensagem. Apontamos o primeiro que voltou vazio.
 */
 const valores = {
-  nome: '', email: '', telefone: '', assunto: '', mensagem: '',
+  nome: '', email: '', telefone: '', assunto: '', perfil: '', conheceu: '', mensagem: '',
 };
+
+/* A lista de assuntos. Antes era texto livre porque as áreas ainda estavam
+   sendo definidas; o briefing de 23/09 fechou as duas, e os sócios pediram
+   triagem já na entrada (q2.7). "Outro assunto" e "Ainda não sei" existem
+   para ninguém forçar o caso numa caixa errada. */
+const areasConfirmadas = await listarAreasConfirmadas();
+const ASSUNTOS = [
+  ...areasConfirmadas.map((a) => a.data.nome),
+  'Outro assunto',
+  'Ainda não sei',
+];
+
+/* De onde a pessoa veio. Os sócios pediram para separar indicação de
+   Instagram, Google e YouTube (q2.7): é o dado que diz qual canal traz
+   cliente, e só quem escreve sabe responder. */
+const ORIGENS = ['Indicação de alguém', 'Instagram', 'Google', 'YouTube', 'LinkedIn', 'Outro'];
+
+/* A página da área manda `?assunto=<slug>`: quem veio de lá chega com o
+   assunto já escolhido. */
+const slugDoAssunto = Astro.url.searchParams.get('assunto');
+const areaDoLink = areasConfirmadas.find((a) => a.data.slug === slugDoAssunto);
+if (areaDoLink) valores.assunto = areaDoLink.data.nome;
 
 /*
   IMPORTANTE 6: sem JavaScript, um 303 devolve a página do zero e o navegador
@@ -117,46 +141,22 @@ const campoComErro =
 >
   <section class="abertura">
     <div class="env">
-      {/* A abertura ocupava só a metade esquerda da tela. A marca fecha a
-          composição à direita sem acrescentar palavra nenhuma — a página
-          já diz em texto tudo o que precisa. */}
       <Marca tipo="conversa" class="selo" />
       <p class="chapeu">Contato</p>
       <h1 class="display">Conte o que está acontecendo.</h1>
       <p class="linha-fina">
-        Escreva com suas palavras. Não é preciso usar termo técnico nem organizar a
-        história antes. Quem lê a sua mensagem é um dos sócios.
+        Escreva com as suas palavras, sem termo técnico e sem organizar a história antes. Pelo
+        formulário a sua mensagem já chega com o assunto separado, e a primeira conversa começa
+        de onde você parou. Quem lê é um dos sócios.
       </p>
     </div>
   </section>
 
-  <section class="canais">
-    <div class="env">
-      <a
-        class="botao zap"
-        href={site.whatsapp.valor}
-        target="_blank"
-        rel="noopener"
-        data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
-      >
-        Abrir conversa no WhatsApp
-        <span class="disco" aria-hidden="true">
-          <Zap tamanho={15} />
-        </span>
-      </a>
-      <p class="horario">{site.horario}. Fora do horário a mensagem fica registrada.</p>
-    </div>
-  </section>
-
-  <section class="corpo">
+  <section class="corpo" id="formulario">
     <div class="env">
       <div class="coluna-forma">
-        <h2>Ou escreva por aqui</h2>
+        <h2>Escreva por aqui</h2>
 
-        {/* A mensagem de resultado vem antes do formulário e é o alvo da
-            âncora `#resultado-contato` que a rota usa no 303: quem voltou sem
-            JavaScript chega com a mensagem na altura dos olhos, não precisa
-            procurar. */}
         <p
           id="resultado-contato"
           class:list={['resultado', { visto: envio === 'ok' || envio === 'erro', falhou: envio === 'erro' }]}
@@ -179,19 +179,33 @@ const campoComErro =
         )}
 
         <form class="forma" method="post" action="/api/contato">
-          <div class="campo">
-            <label for="nome">Seu nome</label>
-            <input
-              id="nome"
-              name="nome"
-              type="text"
-              required
-              autocomplete="name"
-              maxlength="120"
-              value={valores.nome}
-              aria-invalid={campoComErro === 'nome' ? 'true' : undefined}
-              aria-describedby={campoComErro === 'nome' ? 'resultado-contato' : undefined}
-            />
+          <div class="par-campos">
+            <div class="campo">
+              <label for="nome">Seu nome</label>
+              <input
+                id="nome"
+                name="nome"
+                type="text"
+                required
+                autocomplete="name"
+                maxlength="120"
+                value={valores.nome}
+                aria-invalid={campoComErro === 'nome' ? 'true' : undefined}
+                aria-describedby={campoComErro === 'nome' ? 'resultado-contato' : undefined}
+              />
+            </div>
+
+            <div class="campo">
+              <label for="telefone">Telefone <span class="opcional">(opcional)</span></label>
+              <input
+                id="telefone"
+                name="telefone"
+                type="tel"
+                autocomplete="tel"
+                maxlength="40"
+                value={valores.telefone}
+              />
+            </div>
           </div>
 
           <div class="campo">
@@ -210,24 +224,28 @@ const campoComErro =
             <p class="ajuda" id="ajuda-email">É por aqui que respondemos.</p>
           </div>
 
-          <div class="campo">
-            <label for="telefone">Telefone <span class="opcional">(opcional)</span></label>
-            <input
-              id="telefone"
-              name="telefone"
-              type="tel"
-              autocomplete="tel"
-              maxlength="40"
-              value={valores.telefone}
-            />
-          </div>
+          {/* Pessoa física ou empresa: os sócios atendem os dois, com empresa
+              na frente (q4.5), e a conversa muda conforme quem escreve. */}
+          <fieldset class="campo escolha">
+            <legend>Quem está escrevendo <span class="opcional">(opcional)</span></legend>
+            <div class="opcoes">
+              {['Pessoa física', 'Empresa'].map((opcao) => (
+                <label class="opcao">
+                  <input type="radio" name="perfil" value={opcao} checked={valores.perfil === opcao} />
+                  <span>{opcao}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
-          {/* Texto livre, não lista de áreas: a lista de áreas do escritório
-              ainda está sendo fechada, e uma lista incompleta induz a pessoa
-              a enquadrar o caso na caixa errada. */}
           <div class="campo">
             <label for="assunto">Sobre o que é <span class="opcional">(opcional)</span></label>
-            <input id="assunto" name="assunto" type="text" maxlength="120" value={valores.assunto} />
+            <select id="assunto" name="assunto">
+              <option value="" selected={!valores.assunto}>Escolha um assunto</option>
+              {ASSUNTOS.map((assunto) => (
+                <option value={assunto} selected={valores.assunto === assunto}>{assunto}</option>
+              ))}
+            </select>
           </div>
 
           <div class="campo">
@@ -239,13 +257,23 @@ const campoComErro =
               rows="7"
               maxlength="5000"
               aria-invalid={campoComErro === 'mensagem' ? 'true' : undefined}
-              aria-describedby={campoComErro === 'mensagem' ? 'resultado-contato' : undefined}
+              aria-describedby={campoComErro === 'mensagem' ? 'ajuda-mensagem resultado-contato' : 'ajuda-mensagem'}
             >{valores.mensagem}</textarea>
+            <p class="ajuda" id="ajuda-mensagem">
+              Algumas linhas bastam: o que aconteceu, desde quando e o que você gostaria de resolver.
+            </p>
           </div>
 
-          {/* Iscas: fora da vista e fora do foco por teclado. Nunca
-              `display:none`, para que a isca continue sendo enviada por um
-              robô e continue ignorada por um leitor de tela. */}
+          <div class="campo">
+            <label for="conheceu">Como conheceu o escritório <span class="opcional">(opcional)</span></label>
+            <select id="conheceu" name="conheceu">
+              <option value="" selected={!valores.conheceu}>Escolha uma opção</option>
+              {ORIGENS.map((origem) => (
+                <option value={origem} selected={valores.conheceu === origem}>{origem}</option>
+              ))}
+            </select>
+          </div>
+
           <div class="iscas" aria-hidden="true">
             {CAMPOS_ISCA.map((campo) => (
               <input type="text" name={campo} tabindex="-1" autocomplete="off" />
@@ -262,8 +290,24 @@ const campoComErro =
         </form>
       </div>
 
-      <aside class="coluna-dados" aria-label="Dados de contato">
-        <h2>Os dados diretos</h2>
+      <aside class="coluna-dados" aria-label="Outros canais">
+        <h2>Outros canais</h2>
+        <p class="canais-apoio">
+          Se preferir, fale pelo WhatsApp, por telefone ou por e-mail. {site.horario}; fora do
+          horário a mensagem fica registrada.
+        </p>
+        <a
+          class="botao zap contorno"
+          href={site.whatsapp.valor}
+          target="_blank"
+          rel="noopener"
+          data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
+        >
+          WhatsApp
+          <span class="disco" aria-hidden="true">
+            <Zap tamanho={15} />
+          </span>
+        </a>
         <dl class="dados">
           <div class="dado">
             <dt>Telefone</dt>
@@ -282,25 +326,19 @@ const campoComErro =
             </dd>
           </div>
           <div class="dado">
-            <dt>Horário</dt>
-            <dd>{site.horario}</dd>
+            <dt>Instagram</dt>
+            <dd>
+              <a href={site.redes.instagram.valor} target="_blank" rel="noopener">{site.redes.instagramArroba}</a>
+            </dd>
           </div>
           <div class="dado">
             <dt>Atendimento</dt>
             <dd>{site.atendimento}</dd>
           </div>
+          {/* Briefing q2.6: sem sede própria ainda; reunião presencial em
+              coworking, em Maringá. O endereço não é publicado como sede. */}
           <div class="dado">
-            <dt>Base</dt>
-            <dd>{site.cidade}, {site.estado}</dd>
-          </div>
-          {/* Briefing q2_6: o escritório ainda não tem sede própria, e a
-              maior parte do atendimento é online. A reunião presencial
-              acontece em coworking, em Maringá. O endereço do coworking não
-              é publicado: quem precisa de reunião presencial combina antes,
-              e anunciar como sede um espaço compartilhado sugeriria uma
-              estrutura que não existe. */}
-          <div class="dado">
-            <dt>Atendimento presencial</dt>
+            <dt>Presencial</dt>
             <dd>Em Maringá, com hora marcada. O endereço é combinado na confirmação da reunião.</dd>
           </div>
         </dl>
@@ -313,8 +351,17 @@ const campoComErro =
           <p data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>
             CNPJ {site.registro.cnpj.valor}
           </p>
+          <p>{site.socios.map((s) => `${s.nome}, ${s.oab.valor}`).join(' · ')}</p>
         </div>
       </aside>
+    </div>
+  </section>
+
+  {/* Pedido do escritório (briefing q9.3): dizer por onde falamos, para
+      ninguém pagar golpista em nosso nome. */}
+  <section class="golpe-secao">
+    <div class="env">
+      <AvisoGolpe />
     </div>
   </section>
 
@@ -399,19 +446,6 @@ const campoComErro =
     color: var(--secundario);
   }
 
-  .canais {
-    padding-block: 0 clamp(40px, 5vw, 72px);
-  }
-  .canais :global(.env) {
-    display: flex;
-    align-items: center;
-    gap: 16px 28px;
-    flex-wrap: wrap;
-  }
-  .horario {
-    font-size: 16px;
-    color: var(--secundario);
-  }
 
   .abertura :global(.env) {
     position: relative;
@@ -432,7 +466,94 @@ const campoComErro =
   }
 
   .corpo {
-    padding-block: 0 clamp(64px, 8vw, 128px);
+    padding-block: 0 clamp(48px, 6vw, 88px);
+    scroll-margin-top: 100px;
+  }
+  .golpe-secao {
+    padding-block: 0 clamp(64px, 8vw, 120px);
+  }
+  .par-campos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+  @media (max-width: 620px) {
+    .par-campos {
+      grid-template-columns: 1fr;
+    }
+  }
+  .escolha {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .escolha legend {
+    padding: 0;
+    margin-bottom: 8px;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--tinta);
+  }
+  .opcoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .opcao {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 0 20px 0 16px;
+    border-radius: 999px;
+    border: 1px solid var(--secundario);
+    background: #fff;
+    cursor: pointer;
+    font-size: 17px !important;
+    font-weight: 400 !important;
+  }
+  /* Especificidade maior que `.campo :is(input, textarea)`, que dá
+     largura cheia e 52px de altura aos campos de texto. */
+  .campo .opcao input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    accent-color: var(--tinta);
+  }
+  .opcao:has(input:checked) {
+    border-color: var(--tinta);
+    box-shadow: inset 0 0 0 1px var(--tinta);
+  }
+  .campo select {
+    font: 400 18px/1.5 var(--sans);
+    color: var(--tinta);
+    background: #fff;
+    border: 1px solid var(--secundario);
+    border-radius: 10px;
+    padding: 12px 44px 12px 16px;
+    min-height: 52px;
+    width: 100%;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 10 10' fill='none'%3E%3Cpath d='M2 3.5 5 6.5l3-3' stroke='%230B1E3F' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+  }
+  .campo select:focus-visible {
+    outline: 2px solid var(--imperial);
+    outline-offset: 2px;
+  }
+  .canais-apoio {
+    font-size: 17px;
+    color: var(--secundario);
+    margin: -12px 0 20px;
+  }
+  .coluna-dados .botao {
+    margin-bottom: 20px;
   }
   .corpo :global(.env) {
     display: grid;
@@ -677,7 +798,6 @@ const campoComErro =
 
   @media (prefers-reduced-motion: reduce) {
     .abertura, .abertura *,
-    .canais, .canais *,
     .corpo, .corpo * {
       transition: none !important;
       animation: none !important;

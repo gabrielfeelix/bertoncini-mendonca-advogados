@@ -1,8 +1,12 @@
 {
   "nome": "Direito Digital",
   "slug": "direito-digital",
-  "resumo": "Dados pessoais, propriedade intelectual, contratos eletrônicos e o que acontece quando algo dá errado na internet.",
+  "resumo": "Para quem vive e trabalha na internet: contratos, marca, dados pessoais e o que fazer quando algo dá errado.",
   "assuntos": [
+    {
+      "nome": "Criadores de conteúdo",
+      "faz": "Contrato com marcas, conta banida, conteúdo copiado e alvará para participação de criança."
+    },
     {
       "nome": "Proteção de dados e LGPD",
       "faz": "Mapear o que a empresa coleta hoje, definir base legal e dar conta do pedido do titular no prazo."
@@ -34,6 +38,7 @@
   ],
   "corpo": [
     "Direito digital é o conjunto de regras que alcança o que empresas e pessoas fazem por meio da internet: os dados que coletam, o conteúdo que publicam, os contratos que assinam sem papel e os danos que sofrem ou causam em ambiente eletrônico.",
+    "Para quem trabalha com conteúdo, o perfil é fonte de renda, e os problemas jurídicos são próprios: contrato de publicidade e de parceria com marcas, conta desativada ou restringida pela plataforma, conteúdo copiado por outra pessoa, uso indevido da marca e, quando há criança em conteúdo publicitário, o alvará judicial que costuma ser exigido para a participação dela. Cada caso tem um caminho, extrajudicial ou judicial, e o primeiro passo costuma ser reunir a prova do que aconteceu.",
     "A Lei 13.709/2018, a LGPD, exige base legal para cada tratamento de dado pessoal, informação clara ao titular, registro das operações e resposta aos pedidos de acesso, correção e exclusão. A adequação começa por um mapeamento: o que a empresa coleta hoje, por que coleta, com quem compartilha e por quanto tempo guarda. Sem esse inventário não há como definir base legal, escrever um aviso de privacidade honesto nem responder a um titular dentro do prazo.",
     "Propriedade intelectual, no ambiente digital, é o que protege a marca, o software, o texto, a imagem e a identidade visual de um negócio. Registrar a marca no INPI, definir em contrato a quem pertence o que foi criado e reagir a uso indevido são medidas que valem mais antes do problema do que depois dele.",
     "Contratos eletrônicos e e-commerce envolvem termos de uso, política de privacidade, regras de entrega e de troca, e a prova de que o outro lado de fato concordou. Um termo de uso copiado de outro site costuma não descrever o que aquele negócio realmente faz, e é justamente nesse descompasso que ele deixa de proteger.",
@@ -44,6 +49,18 @@
     "O trabalho começa por um diagnóstico do que já existe. Muita coisa costuma estar em uso sem estar escrita, e a primeira entrega é enxergar o que a empresa faz hoje."
   ],
   "perguntas": [
+    {
+      "pergunta": "Alguém criou um perfil falso com meu nome e minha foto. O que posso fazer?",
+      "resposta": "Primeiro, guardar a prova: o link do perfil e capturas de tela com data e, quando o caso pede, ata notarial. Depois, denunciar à plataforma. Se o perfil não sair do ar, ou se for preciso saber quem está por trás dele, o Marco Civil da Internet permite pedir à Justiça a remoção e os dados de acesso do responsável."
+    },
+    {
+      "pergunta": "Minha conta foi banida ou restringida. Dá para recuperar pela Justiça?",
+      "resposta": "Muitas vezes, sim. Quando a plataforma desativa a conta sem explicar o motivo ou sem dar chance de defesa, e o recurso interno não resolve, é possível pedir o restabelecimento na Justiça, às vezes em caráter de urgência. O desfecho depende do caso e dos termos de uso; a análise começa pelo histórico da conta e pelas mensagens trocadas com a plataforma."
+    },
+    {
+      "pergunta": "Recebi uma proposta de parceria com uma marca. O que verificar antes de aceitar?",
+      "resposta": "O que exatamente você vai entregar e em que prazo; por quanto tempo e em quais canais a marca pode usar a sua imagem e o seu conteúdo; se há exclusividade; como e quando o pagamento acontece; e o que acontece se uma das partes quiser encerrar antes. Vale conferir também como a publicação deve ser identificada como publicidade."
+    },
     {
       "pergunta": "A LGPD se aplica à minha empresa, mesmo sendo pequena?",
       "resposta": "Sim. A LGPD não tem corte por porte ou faturamento: alcança quem trata dados pessoais, e isso inclui cadastro de cliente, currículo recebido, lista de e-mails e imagem de câmera. O que muda com o porte é a proporção das medidas, não a existência da obrigação. A ANPD editou regras simplificadas para agentes de pequeno porte."
@@ -63,6 +80,18 @@
     {
       "pergunta": "Posso usar em contrato o texto gerado por inteligência artificial?",
       "resposta": "Como ponto de partida, sim; como versão final, não. O texto gerado não conhece o caso concreto, costuma reproduzir cláusulas incompatíveis entre si e às vezes cita norma que não existe ou já foi revogada. A revisão por advogado é o que transforma o rascunho em documento que se sustenta."
+    },
+    {
+      "pergunta": "Posso colocar dados de clientes no ChatGPT?",
+      "resposta": "Com cuidado. Inserir dado pessoal numa ferramenta de inteligência artificial é tratamento de dado pela LGPD: precisa de base legal, de informação ao titular e de atenção ao que o fornecedor faz com o que recebe. O caminho mais seguro costuma ser anonimizar antes, usar versões corporativas com contrato de tratamento de dados e ter uma regra interna sobre o que pode ser inserido."
+    },
+    {
+      "pergunta": "Minha empresa precisa de um encarregado de dados (DPO)?",
+      "resposta": "Pela LGPD, a regra é que sim. A ANPD dispensou os agentes de pequeno porte dessa indicação, desde que mantenham um canal de comunicação com os titulares. Mesmo dispensada, a empresa precisa saber quem responde internamente pelos pedidos e pelos incidentes."
+    },
+    {
+      "pergunta": "Quem é dono de um conteúdo criado por inteligência artificial?",
+      "resposta": "Ainda não há resposta fechada no Brasil. A Lei de Direitos Autorais protege obras criadas por pessoas, e o conteúdo gerado sem contribuição criativa humana relevante tem proteção incerta. Em trabalho feito com IA, o que define a titularidade na prática é o contrato entre quem encomendou e quem produziu, junto com os termos da ferramenta usada."
     }
   ],
   "ordem": 2,
@@ -70,33 +99,56 @@
   "cenas": [
     {
       "indice": 1,
-      "rubrica": "Proteção de dados"
+      "rubrica": "Criadores de conteúdo"
     },
     {
       "indice": 2,
-      "rubrica": "Propriedade intelectual"
+      "rubrica": "Proteção de dados"
     },
     {
       "indice": 3,
-      "rubrica": "Contratos e e-commerce"
+      "rubrica": "Propriedade intelectual"
     },
     {
       "indice": 4,
-      "rubrica": "Quando algo dá errado"
+      "rubrica": "Contratos e e-commerce"
     },
     {
       "indice": 5,
-      "rubrica": "Inteligência artificial"
+      "rubrica": "Quando algo dá errado"
     },
     {
       "indice": 6,
-      "rubrica": "Compliance digital"
+      "rubrica": "Inteligência artificial"
     },
     {
       "indice": 7,
+      "rubrica": "Compliance digital"
+    },
+    {
+      "indice": 8,
       "rubrica": "Onde atendemos",
       "foto": "maringa",
       "fotoAlt": "A Catedral de Maringá ao anoitecer, vista da avenida, com o céu ainda azul."
+    }
+  ],
+  "publicoCurto": "Criadores de conteúdo, infoprodutores, e-commerces, agências e empresas que dependem da internet.",
+  "publicos": [
+    {
+      "titulo": "Criadores de conteúdo e infoprodutores",
+      "texto": "Contrato de publicidade e de parceria, registro de marca, conta banida ou restringida, conteúdo copiado e alvará para a participação de criança em publicidade."
+    },
+    {
+      "titulo": "E-commerces e empresas",
+      "texto": "Termos de uso, política de privacidade, adequação à LGPD e uso de inteligência artificial no atendimento e na operação."
+    },
+    {
+      "titulo": "Agências e assessorias",
+      "texto": "Contratos com clientes e com criadores, direitos sobre o que é produzido e responsabilidade pelo que é publicado."
+    },
+    {
+      "titulo": "Pessoas",
+      "texto": "Perfil falso, conta invadida, foto publicada sem autorização e ofensa na internet."
     }
   ]
 }

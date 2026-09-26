@@ -71,3 +71,16 @@ video{display:block}
 .botao.zap.vidro .disco{box-shadow:0 0 0 1px rgba(255,255,255,.34)}
 .botao.vidro{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.34);backdrop-filter:blur(8px)}
 .botao.vidro:hover{background:rgba(255,255,255,.22)}
+
+/*
+  .botao.contorno — a ação secundária, ao lado da principal.
+
+  Existe porque o briefing (q7.5) inverteu a hierarquia dos canais: o
+  formulário do site é o principal, porque chega com uma prévia do caso, e
+  o WhatsApp continua disponível mas em segundo plano. Os dois lado a lado
+  com o mesmo peso não diriam qual é o caminho preferido.
+*/
+.botao.contorno{background:transparent;color:var(--tinta);box-shadow:inset 0 0 0 1px var(--linha)}
+.botao.contorno:hover{background:var(--papel);box-shadow:inset 0 0 0 1px var(--tinta)}
+.botao.contorno.vidro{color:#fff;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.34)}
+.acoes{display:flex;flex-wrap:wrap;align-items:center;gap:12px}

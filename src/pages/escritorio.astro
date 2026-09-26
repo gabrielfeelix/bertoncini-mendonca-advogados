@@ -55,7 +55,10 @@ const perfis = [
     enquadra: '50% 30%',
     socio: site.socios[0],
     lado: 'Antes do processo',
-    bio: 'Trabalha na fase que antecede o processo, para que o problema não se consolide.',
+    bio: 'Especialista em direito empresarial e em advocacia consultiva. Trabalha na fase que antecede o processo (contratos, pareceres, estruturação de operações, LGPD e compliance) para que o problema não se consolide.',
+    porque:
+      'Sempre gostei de ler, e estudar história, filosofia e sociologia me deu um senso de justiça mais ativo. Morar sozinho para fazer a faculdade me mostrou que sou resolutivo: diante de um problema, vou atrás da saída. Na advocacia juntei as duas coisas, estudar e ajudar alguém a garantir um direito.',
+    fora: 'Ler, ver filmes e séries (MasterChef incluído), jogar vôlei, viajar e conhecer cafés e restaurantes novos.',
     formacao: [
       'Bacharel em Direito pela UEM',
       'Especialista em Direito Empresarial pela PUC/RS',
@@ -72,7 +75,10 @@ const perfis = [
     enquadra: '50% 24%',
     socio: site.socios[1],
     lado: 'Quando há processo',
-    bio: 'Especialista em Direito Processual Civil, com experiência em processos judiciais estratégicos.',
+    bio: 'Especialista em processo civil, com experiência em processos judiciais estratégicos em todas as instâncias e em due diligence de operações de fusão e aquisição. Atende quem trabalha e ganha dinheiro na internet.',
+    porque:
+      'Na adolescência comecei a me interessar por política e por assuntos sociais. Meu pai percebeu e passou a me desafiar em debates, e eu fui gostando de argumentar e de encontrar furos nas premissas dele. Dali o Direito virou possibilidade, e na faculdade tive certeza de que queria advogar.',
+    fora: 'Ler romances e histórias de investigação criminal, ir ao cinema, a cafés e restaurantes, e viajar com a família e os amigos.',
     formacao: [
       'Bacharel em Direito pela UEM',
       'Especialista em Direito Processual Civil pela PUC/RS',
@@ -84,9 +90,28 @@ const perfis = [
 /* A história em três frases, do briefing (q1.3), sem nomes de lugar de
    trabalho e sem estágio. */
 const batidas = [
-  'Entraram no curso de Direito da UEM no mesmo ano, e mal se conheciam.',
-  'Depois, mais de quatro anos lado a lado, cada um firmando a própria área.',
-  'Daí nasceu a sociedade: duas funções que se completam.',
+  'Entraram no curso de Direito da UEM no mesmo ano, ela de manhã e ele à noite, e quase não se falavam.',
+  'Trabalharam mais de quatro anos no mesmo escritório, de estagiários a advogados, cada um firmando a própria área.',
+  'A sociedade junta as duas: ele trabalha antes do processo, ela quando o processo existe.',
+];
+
+/* Missão e valores: texto dos sócios (briefing q3.1 e q3.2), com ajuste
+   mínimo de forma. A linha de recusa (q3.5) entra em tom sóbrio, como eles
+   pediram, e sem adjetivo. */
+const missao =
+  'Ajudar pessoas, famílias e empresas a construir, proteger e transmitir o seu patrimônio com segurança, planejamento e tranquilidade.';
+const valoresFundamentais = [
+  { nome: 'Respeito', texto: 'Tratamos cada pessoa, a sua história, as suas escolhas e os seus interesses com consideração, escuta e seriedade.' },
+  { nome: 'Igualdade', texto: 'Toda pessoa merece o mesmo respeito e a mesma dedicação, qualquer que seja a sua origem, condição ou posição social.' },
+  { nome: 'Dignidade', texto: 'Por trás de cada patrimônio, conflito ou decisão jurídica existe uma pessoa, uma família e uma história, e é assim que as tratamos.' },
+];
+const valoresDeAtuacao = [
+  { nome: 'Clareza', texto: 'Conhecimento jurídico não deve criar distância entre o advogado e o cliente.' },
+  { nome: 'Proximidade', texto: 'Conhecer a realidade do cliente para além do problema jurídico.' },
+  { nome: 'Segurança', texto: 'Mais do que resolver problemas, buscar evitar que eles aconteçam.' },
+  { nome: 'Planejamento', texto: 'Decisões importantes pensadas antes de se tornarem urgências.' },
+  { nome: 'Responsabilidade', texto: 'Cada patrimônio tem uma história, e cada decisão tem consequências.' },
+  { nome: 'Estratégia', texto: 'A melhor solução é a que faz sentido para o contexto de quem a recebe.' },
 ];
 ---
 
@@ -124,7 +149,8 @@ const batidas = [
 
       <p class="linha-fina">
         Uma sociedade nova, com base em Maringá e atendimento online para todo o país. Quem
-        recebe o caso na primeira conversa é quem responde por ele até o fim.
+        recebe o caso na primeira conversa é quem responde por ele até o fim, e a conversa é
+        em português claro, sem distância entre quem advoga e quem é atendido.
       </p>
     </div>
   </section>
@@ -183,6 +209,11 @@ const batidas = [
 
           <p class="bio">{perfil.bio}</p>
 
+          <figure class="porque">
+            <blockquote><p>{perfil.porque}</p></blockquote>
+            <figcaption>Por que o Direito, nas palavras de {perfil.nome}</figcaption>
+          </figure>
+
           <p class="oab" data-placeholder={perfil.socio.oab.placeholder ? '1' : undefined}>
             <span class="oab-rotulo">Inscrição na Ordem</span>
             <span class="oab-numero">{perfil.socio.oab.valor}</span>
@@ -200,6 +231,10 @@ const batidas = [
               </dd>
             </div>
             <div>
+              <dt>Fora daqui</dt>
+              <dd>{perfil.fora}</dd>
+            </div>
+            <div>
               <dt>Contato</dt>
               <dd class="contato">
                 <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
@@ -210,6 +245,51 @@ const batidas = [
         </div>
       </article>
     ))}
+  </section>
+
+  <!-- 3b. O QUE ORIENTA O TRABALHO: missão, valores e a linha de recusa. -->
+  <section class="valores" aria-labelledby="valores-titulo">
+    <div class="env">
+      <div class="missao">
+        <p class="chapeu-valores">Missão</p>
+        <h2 id="valores-titulo" class="missao-texto">{missao}</h2>
+        <p class="missao-apoio">
+          Estamos ao lado dos nossos clientes nas decisões que estruturam o patrimônio e o futuro
+          deles, com orientação clara, próxima e estratégica, para que escolhas importantes sejam
+          feitas com consciência.
+        </p>
+      </div>
+
+      <div class="fundamentais">
+        <h3 class="rotulo-valores">Valores fundamentais</h3>
+        <ol>
+          {valoresFundamentais.map((valor, n) => (
+            <li>
+              <span class="num" aria-hidden="true">{String(n + 1).padStart(2, '0')}</span>
+              <h4>{valor.nome}</h4>
+              <p>{valor.texto}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="atuacao">
+        <h3 class="rotulo-valores">Como isso aparece no trabalho</h3>
+        <dl>
+          {valoresDeAtuacao.map((valor) => (
+            <div>
+              <dt>{valor.nome}</dt>
+              <dd>{valor.texto}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <p class="recusa">
+        <strong>O que não aceitamos.</strong> Não atuamos em casos que favoreçam a propagação do
+        machismo, do racismo ou da homofobia.
+      </p>
+    </div>
   </section>
 
   <!-- 4. REGISTRO: exigência do Provimento 205/2021, em ficha, visível e
@@ -242,6 +322,145 @@ const batidas = [
 </Base>
 
 <style>
+  /* ── 3b. valores ──────────────────────────────────────────────────── */
+  .valores {
+    padding-block: clamp(72px, 9vw, 150px) clamp(40px, 5vw, 72px);
+  }
+  .missao {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    max-width: 1100px;
+    margin-bottom: clamp(48px, 6vw, 96px);
+  }
+  .chapeu-valores,
+  .rotulo-valores {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--imperial);
+  }
+  .missao-texto {
+    font-family: var(--serif);
+    font-weight: 200;
+    font-size: clamp(30px, 4.2vw, 60px);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+  .missao-apoio {
+    max-width: 60ch;
+    font-size: 19px;
+    color: var(--secundario);
+  }
+  .fundamentais ol {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .fundamentais li {
+    background: var(--tinta);
+    color: #fff;
+    border-radius: clamp(16px, 2vw, 24px);
+    padding: clamp(24px, 2.8vw, 40px);
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+  }
+  .fundamentais .num {
+    font-family: var(--serif);
+    font-size: 20px;
+    color: #ef7a8d;
+  }
+  .fundamentais h4 {
+    margin: 0 0 12px;
+    padding-top: clamp(40px, 5vw, 72px);
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(30px, 3vw, 42px);
+    letter-spacing: -0.02em;
+  }
+  .fundamentais li p {
+    font-size: 17px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.84);
+  }
+  .atuacao {
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+  .atuacao dl {
+    margin: 18px 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--linha);
+  }
+  .atuacao dl > div {
+    padding: 22px 24px 26px 0;
+    border-bottom: 1px solid var(--linha);
+  }
+  .atuacao dt {
+    font-family: var(--serif);
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+  .atuacao dd {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--secundario);
+    max-width: 34ch;
+  }
+  .recusa {
+    margin-top: clamp(36px, 4vw, 56px);
+    padding: 20px 24px;
+    border-radius: 14px;
+    background: var(--papel);
+    border-left: 3px solid var(--tinta);
+    font-size: 18px;
+    max-width: 80ch;
+  }
+  @media (max-width: 980px) {
+    .fundamentais ol,
+    .atuacao dl {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 620px) {
+    .fundamentais ol,
+    .atuacao dl {
+      grid-template-columns: 1fr;
+    }
+    .fundamentais li {
+      min-height: 0;
+    }
+  }
+
+  /* ── por que o Direito ─────────────────────────────────────────────── */
+  .porque {
+    margin: 22px 0 0;
+    padding: 18px 0 0 20px;
+    border-left: 2px solid var(--imperial);
+  }
+  .porque blockquote {
+    margin: 0;
+  }
+  .porque blockquote p {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 19px;
+    line-height: 1.5;
+  }
+  .porque figcaption {
+    margin-top: 10px;
+    font-size: 16px;
+    opacity: 0.8;
+  }
+
   .visualmente-oculto {
     position: absolute;
     width: 1px;
@@ -662,8 +881,8 @@ const batidas = [
     max-width: 38ch;
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(20px, 1.7vw, 24px);
-    line-height: 1.4;
+    font-size: clamp(19px, 1.5vw, 22px);
+    line-height: 1.45;
   }
   .escura .bio {
     color: rgba(255, 255, 255, 0.9);

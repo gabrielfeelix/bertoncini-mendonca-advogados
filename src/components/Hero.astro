@@ -1,5 +1,4 @@
 ---
-import Zap from './Zap.astro';
 
 /**
  * Hero: a primeira dobra, redesenhada (Tarefa 1 de `docs/PLANO-REDESENHO.md`).
@@ -95,17 +94,21 @@ const {
   video = '/media/hero.mp4',
   poster = '/media/hero-poster.jpg',
   imagemAlt = 'Juscelino Bertoncini e Beatriz Mendonça, os dois sócios do escritório',
+  /* Briefing q3.2 ("Segurança: mais do que resolver problemas, buscamos
+     evitar que eles aconteçam") e q3.4 (o patrimônio visto por inteiro,
+     inclusive o digital). "O que é seu" cobre as duas áreas: imóvel,
+     empresa e herança, e também marca, conta e conteúdo. */
   linhas = [
-    { antes: 'Você vai' },
-    { enfase: 'entender', depois: ' cada' },
-    { antes: 'passo do seu caso.' },
+    { antes: 'Cuidamos do que' },
+    { antes: 'é seu ', enfase: 'antes' },
+    { antes: 'do problema.' },
   ],
   marcaEsquerda = 'Sociedade de advogados',
   marcaDireita = 'Maringá, Paraná',
   dizForte = 'Juscelino Bertoncini e Beatriz Mendonça.',
-  diz = ' Explicamos o que está acontecendo antes de agir, e seguimos explicando depois.',
-  botaoRotulo = 'Falar pelo WhatsApp',
-  botaoHref = '#contato',
+  diz = ' Planejamento patrimonial e sucessório e direito digital, para empresas e pessoas, com atendimento online em todo o país.',
+  botaoRotulo = 'Contar o seu caso',
+  botaoHref = '/contato/#formulario',
   botaoPlaceholder = false,
 }: Props = Astro.props;
 ---
@@ -183,9 +186,13 @@ const {
         </h1>
 
         <div class="pe">
-          <a class="botao vidro zap" href={botaoHref} data-placeholder={botaoPlaceholder ? '1' : undefined}>
+          {/* O formulário é o canal principal (briefing q7.5): a seta
+              imperial, não o disco verde do WhatsApp. */}
+          <a class="botao vidro" href={botaoHref} data-placeholder={botaoPlaceholder ? '1' : undefined}>
             {botaoRotulo}
-            <span class="disco"><Zap tamanho={15} /></span>
+            <span class="disco" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></svg>
+            </span>
           </a>
         </div>
       </div>

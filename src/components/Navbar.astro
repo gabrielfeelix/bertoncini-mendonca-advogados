@@ -13,7 +13,6 @@
  * ficar preso numa barra escondida.
  */
 import { site, navegacao } from '../lib/site';
-import Zap from './Zap.astro';
 import { listarAreasConfirmadas } from '../lib/areas';
 
 interface Props {
@@ -95,19 +94,18 @@ const areas = await listarAreasConfirmadas();
       )}
     </nav>
 
-    <a
-      class="fala"
-      href={site.whatsapp.valor}
-      target="_blank"
-      rel="noopener"
-      data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
-    >
-      {/* Glifo do WhatsApp, não a balança da marca: o disco é verde e
-          quem bate o olho precisa reconhecer o canal. Desenho em `fill`
-          sólido branco sobre a chapa verde — é a forma oficial, e num
-          disco de 32px um contorno vira renda. */}
-      <span class="disco" aria-hidden="true"><Zap /></span>
-      <span class="rotulo">WhatsApp</span>
+    {/* O botão do topo leva ao FORMULÁRIO, não ao WhatsApp. O briefing
+        (q7.5) pôs o formulário como canal principal: a mensagem chega com
+        uma prévia do caso. O WhatsApp continua no menu do celular, no
+        rodapé e em /contato/, como segundo caminho. */}
+    <a class="fala" href="/contato/#formulario" aria-label="Enviar mensagem ao escritório">
+      <span class="disco" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M3.5 6.5h17v11h-17z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"></path>
+          <path d="m4 7 8 6 8-6" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"></path>
+        </svg>
+      </span>
+      <span class="rotulo">Enviar mensagem</span>
     </a>
 
     <details class="movel" id="movel">
@@ -416,14 +414,14 @@ const areas = await listarAreasConfirmadas();
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--whats);
+    background: var(--imperial);
     display: grid;
     place-items: center;
     flex-shrink: 0;
     transition: background-color 0.25s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .fala:hover .disco {
-    background: var(--whats-fundo);
+    background: #b3243a;
     transform: scale(1.06);
   }
 
