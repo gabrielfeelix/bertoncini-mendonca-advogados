@@ -1,5 +1,7 @@
 # Handoff — 10/09/2026
 
+> **Desatualizado.** O handoff atual é `docs/HANDOFF-2026-09-26.md`.
+
 > Para o próximo agente. Lê este arquivo primeiro, depois os quatro que ele aponta.
 > Estado: **protótipo da homepage completo, aguardando dados reais do briefing.**
 
