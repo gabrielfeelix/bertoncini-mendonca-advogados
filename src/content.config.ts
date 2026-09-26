@@ -86,7 +86,7 @@ const areas = defineCollection({
      */
     corpoAConfirmar: z.array(z.number().int().nonnegative()).default([]),
     /**
-     * Como cada parágrafo do `corpo` vira uma cena na página da área.
+     * Como cada parágrafo do `corpo` vira uma seção na página da área.
      *
      * Existe porque os parágrafos do corpo não são texto corrido: cada um
      * é um bloco temático fechado, e o layout antigo jogava essa estrutura
@@ -102,9 +102,16 @@ const areas = defineCollection({
      * As áreas também têm contagens diferentes (9 e 8 parágrafos), então
      * não há ordem única que sirva às duas.
      *
-     * Parágrafo sem entrada aqui é renderizado em largura cheia, sem
-     * rubrica nem peça visual: é o caso da abertura e do fecho, que são
-     * abertura e fecho mesmo, não temas.
+     * A página lê três papéis daqui:
+     * - cena só com rubrica: uma seção numerada do corpo, e uma entrada
+     *   no índice lateral;
+     * - cena com foto: sai do corpo e vai para a placa "Onde atendemos";
+     * - parágrafo sem cena: abertura (os que vêm antes da primeira cena)
+     *   ou fecho (os que vêm depois), que não são temas.
+     *
+     * Não há mais ilustração por cena. Cada tema ganhava um ícone
+     * genérico (escudo, relógio, prancheta) que não dizia nada sobre o
+     * texto ao lado, e o cliente leu a página como "nada com nada".
      */
     cenas: z
       .array(
@@ -113,13 +120,6 @@ const areas = defineCollection({
           indice: z.number().int().nonnegative(),
           /** Rubrica curta acima do parágrafo. Rótulo, nunca afirmação. */
           rubrica: z.string().min(1),
-          /** Ilustração vetorial (ver Marca.astro) para temas conceituais. */
-          /* Só os tipos que uma CENA pode pedir. `Marca.astro` conhece
-             outros — leque, conversa, pauta, sucessao, rede —, mas esses
-             são escolhidos em código (home, /contato/, /blog/) e nunca
-             vêm de JSON: listá-los aqui sugeriria que uma cena poderia
-             pedi-los. */
-          marca: z.enum(['dados', 'marca', 'contrato', 'compliance', 'prova', 'maquina']).optional(),
           /** Fotografia, para temas concretos. Caminho sem extensão em /media/areas/. */
           foto: z.string().min(1).optional(),
           /** Descrição da foto. Obrigatória quando há foto. */

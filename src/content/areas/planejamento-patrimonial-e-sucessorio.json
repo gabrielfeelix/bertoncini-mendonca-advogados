@@ -61,5 +61,29 @@
     }
   ],
   "ordem": 1,
-  "mensagemWhatsapp": "Olá, preciso de orientação sobre planejamento patrimonial e sucessório."
+  "mensagemWhatsapp": "Olá, preciso de orientação sobre planejamento patrimonial e sucessório.",
+  "cenas": [
+    {
+      "indice": 2,
+      "rubrica": "Inventário"
+    },
+    {
+      "indice": 3,
+      "rubrica": "Inventário com testamento"
+    },
+    {
+      "indice": 4,
+      "rubrica": "O que se faz em vida"
+    },
+    {
+      "indice": 5,
+      "rubrica": "ITCMD"
+    },
+    {
+      "indice": 6,
+      "rubrica": "Onde atendemos",
+      "foto": "maringa",
+      "fotoAlt": "A Catedral de Maringá ao anoitecer, vista da avenida, com o céu ainda azul."
+    }
+  ]
 }

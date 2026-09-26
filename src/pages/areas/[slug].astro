@@ -7,18 +7,30 @@
  * quarta aparecem em `/areas/` marcadas "a confirmar" e sem link, então
  * nenhum link do site aponta para uma rota que não existe.
  *
- * A página inteira é HTML estático: não há um único comportamento aqui que
- * dependa de JavaScript. O acordeão das perguntas é `<details>` nativo
- * (`Perguntas.astro`) e o CTA é um `<a>`.
+ * A FORMA. A versão anterior era um zigue-zague de "cenas": parágrafo de
+ * um lado, ícone genérico do outro, sete vezes, com o mesmo peso. O
+ * cliente leu como "nada com nada". As páginas de área que funcionam
+ * (Macfarlanes, Farrer, Cooley, Mattos Filho, Arauz) têm a mesma
+ * estrutura, e é a que esta segue:
+ *
+ * 1. capa com o nome e a tese da área (o `resumo`) e a ação;
+ * 2. o texto como documento: índice fixo à esquerda, seções numeradas
+ *    à direita, em coluna de leitura. O índice é o que dá a quem chega a
+ *    visão do que a área cobre sem precisar de uma lista duplicada;
+ * 3. quem atende, com rosto e OAB — o "key contact" do Farrer;
+ * 4. onde e como começa, em placa, com a segunda chamada.
+ *
+ * O texto não muda uma palavra: só o invólucro. A página funciona sem
+ * JavaScript; o script do fim só marca no índice a seção que está na
+ * tela.
  */
 import type { GetStaticPaths } from 'astro';
 import Base from '~/layouts/Base.astro';
 import Perguntas from '~/components/Perguntas.astro';
-import Cena from '~/components/Cena.astro';
 import Marca from '~/components/Marca.astro';
 import Zap from '~/components/Zap.astro';
 import Contato from '~/components/Contato.astro';
-import { listarAreas, listarAreasConfirmadas, whatsappDaArea, assuntosDaArea } from '~/lib/areas';
+import { listarAreas, listarAreasConfirmadas, whatsappDaArea } from '~/lib/areas';
 import { site } from '~/lib/site';
 
 export const getStaticPaths = (async () => {
@@ -35,16 +47,8 @@ const pendentes = (await listarAreas()).filter((item) => item.data.aConfirmar);
 const mensagem = dados.mensagemWhatsapp ?? 'Olá, gostaria de falar sobre um caso.';
 const linkWhatsapp = whatsappDaArea(mensagem);
 const aConfirmar = new Set(dados.corpoAConfirmar);
-const assuntos = assuntosDaArea(dados.assuntos);
 
-/* A marca da CAPA. A página de área ganhou capa a pedido do cliente, "igual
-   aquela de o escritório, no sentido de ter uma capa sobre o assunto".
-   A de /escritorio/ é retrato fotográfico; as áreas não têm foto própria,
-   e foto de banco para tema jurídico é justamente o clichê que a pesquisa
-   do projeto mandou evitar. Então a capa é placa de cor com a ilustração
-   da área, que é o vocabulário que o site já tem.
-
-   O mapa é por slug e não por índice: acrescentar uma terceira área não
+/* O mapa é por slug e não por índice: acrescentar uma terceira área não
    pode deslocar a marca das duas que existem. */
 const marcaDaCapa: Record<string, 'sucessao' | 'rede'> = {
   'planejamento-patrimonial-e-sucessorio': 'sucessao',
@@ -52,29 +56,49 @@ const marcaDaCapa: Record<string, 'sucessao' | 'rede'> = {
 };
 const marcaCapa = marcaDaCapa[dados.slug];
 
-/* O corpo vira uma sequência de cenas. Cada parágrafo que tem entrada em
-   `cenas` ganha rubrica e peça visual; os que não têm (abertura e fecho)
-   saem em largura cheia, que é o que eles são. O texto não muda: só o
-   invólucro. */
+/* O corpo em três papéis, lidos de `cenas` (ver o schema):
+   - antes da primeira cena: a abertura;
+   - cena só com rubrica: seção numerada, com entrada no índice;
+   - cena com foto: a placa "Onde atendemos";
+   - depois das cenas, sem cena: o fecho, que diz como o trabalho começa. */
 const cenaPorIndice = new Map(dados.cenas.map((c) => [c.indice, c]));
+const primeiraCena = Math.min(...dados.cenas.map((c) => c.indice));
 
-/* `ordemDaCena` conta CENAS, não parágrafos, e é o que decide de que lado
-   fica a peça visual. Contar pela posição no `corpo` funcionava por
-   acidente nesta área — a abertura é o índice 0 e as cenas caem em 1..7,
-   então a paridade batia. Bastaria uma área cuja primeira cena caísse num
-   índice par, ou dois parágrafos soltos seguidos, para duas cenas
-   consecutivas saírem do mesmo lado e o ritmo sumir. */
-let contaCenas = 0;
-const blocos = dados.corpo.map((texto, indice) => {
+type Paragrafo = { texto: string; placeholder: boolean };
+const abertura: Paragrafo[] = [];
+const fecho: Paragrafo[] = [];
+const secoes: (Paragrafo & { id: string; rubrica: string })[] = [];
+let onde: (Paragrafo & { rubrica: string; foto: string; fotoAlt: string }) | undefined;
+
+const ids = new Set<string>();
+const idDe = (rubrica: string) => {
+  const base = rubrica
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  let id = base;
+  for (let n = 2; ids.has(id); n++) id = `${base}-${n}`;
+  ids.add(id);
+  return id;
+};
+
+dados.corpo.forEach((texto, indice) => {
+  const paragrafo = { texto, placeholder: aConfirmar.has(indice) };
   const cena = cenaPorIndice.get(indice);
-  return {
-    texto,
-    indice,
-    cena,
-    ordemDaCena: cena ? contaCenas++ : -1,
-    placeholder: aConfirmar.has(indice),
-  };
+  if (!cena) {
+    (indice < primeiraCena ? abertura : fecho).push(paragrafo);
+  } else if (cena.foto && cena.fotoAlt && !onde) {
+    onde = { ...paragrafo, rubrica: cena.rubrica, foto: cena.foto, fotoAlt: cena.fotoAlt };
+  } else {
+    secoes.push({ ...paragrafo, id: idDe(cena.rubrica), rubrica: cena.rubrica });
+  }
 });
+
+/* Quem atende: o sócio cuja área é esta. A divisão está em `site.socios`. */
+const socio = site.socios.find((s) => s.area === dados.slug);
+const numero = (n: number) => String(n + 1).padStart(2, '0');
 ---
 
 {/* Nome curto no sufixo: "Planejamento Patrimonial e Sucessório" já tem 37
@@ -86,103 +110,162 @@ const blocos = dados.corpo.map((texto, indice) => {
   paginaAtual="/areas/"
 >
   <article>
-    {/* A CAPA: placa azul com espaçamento em volta, o mesmo recorte da
-        capa de /escritorio/. A ilustração dentro dela anima no hover, como
-        os cards da home — é a mesma marca e o mesmo mecanismo. */}
-    {/* A capa carrega a trilha e o H1. A primeira versão repetia o nome:
-        uma vez na placa e outra no título logo abaixo, um embaixo do
-        outro. Quem escreve a capa é o título da página, não um rótulo
-        decorativo com o mesmo texto. */}
-    {marcaCapa && (
-      <div class="env">
-        <header class="capa revela">
-          <div class="capa-texto">
-            <nav class="trilha" aria-label="Trilha de navegação">
-              <a href="/areas/">Áreas de atuação</a>
-              <span aria-hidden="true">/</span>
-              <span aria-current="page">{dados.nome}</span>
-            </nav>
-            <h1 class="display capa-nome">{dados.nome}</h1>
+    {/* A CAPA carrega a trilha, o H1, a tese e a ação. A tese (o `resumo`)
+        ficava solta abaixo da placa, em 19px, e a placa dizia só o nome:
+        quem chegava via um título e mais nada. As referências põem a frase
+        que define a área junto do nome, e é ela que diz em três segundos
+        se a pessoa está no lugar certo. */}
+    <div class="env">
+      <header class="capa">
+        <div class="capa-texto">
+          <nav class="trilha" aria-label="Trilha de navegação">
+            <a href="/areas/">Áreas de atuação</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{dados.nome}</span>
+          </nav>
+          <h1 class="display capa-nome">{dados.nome}</h1>
+          <p class="tese">{dados.resumo}</p>
+          <div class="capa-acao">
+            <a
+              class="botao zap vidro"
+              href={linkWhatsapp}
+              target="_blank"
+              rel="noopener"
+              data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
+            >
+              Falar sobre {dados.nome.toLowerCase()}
+              <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
+            </a>
+            <p class="nota">{site.horario}. A mensagem já vai com o assunto escrito.</p>
           </div>
-          <Marca tipo={marcaCapa} class="selo" />
-        </header>
-      </div>
-    )}
+        </div>
+        {marcaCapa && <Marca tipo={marcaCapa} class="selo" />}
+      </header>
+    </div>
 
-    <div class="abertura">
-      <div class="env">
-        <p class="resumo">{dados.resumo}</p>
-
-        {/* Eram pílulas arredondadas, o mesmo formato que o cliente
-            reprovou na home por soar a texto gerado. Viraram a lista de
-            serviço: o assunto e o que se faz nele, em duas colunas. O
-            texto de `faz` vem do corpo desta área. */}
-        {assuntos.length > 0 && (
-          <ul class="servicos" aria-label={`Assuntos em ${dados.nome}`}>
-            {assuntos.map((assunto) => (
+    {/* O DOCUMENTO. Índice à esquerda, texto à direita. */}
+    <div class="env leitura">
+      <aside class="lateral" aria-label="Nesta página">
+        <div class="lateral-fixa">
+          <p class="lateral-rotulo">Nesta página</p>
+          <ol class="indice">
+            {secoes.map((secao, n) => (
               <li>
-                <b>{assunto.nome}</b>
-                {assunto.faz && <span>{assunto.faz}</span>}
+                <a href={`#${secao.id}`} data-indice={secao.id}>
+                  <span class="indice-num" aria-hidden="true">{numero(n)}</span>
+                  {secao.rubrica}
+                </a>
               </li>
             ))}
+          </ol>
+          <ul class="indice indice-extra">
+            {socio && <li><a href="#quem-atende" data-indice="quem-atende">Quem atende</a></li>}
+            {onde && <li><a href="#onde-atendemos" data-indice="onde-atendemos">{onde.rubrica}</a></li>}
+            {dados.perguntas.length > 0 && <li><a href="#perguntas">Perguntas frequentes</a></li>}
           </ul>
+        </div>
+      </aside>
+
+      <div class="texto">
+        {abertura.length > 0 && (
+          <div class="abertura">
+            {abertura.map((p, n) => (
+              <p class={n === 0 ? 'lead' : 'lead-apoio'} data-placeholder={p.placeholder ? '1' : undefined}>
+                {p.texto}
+              </p>
+            ))}
+          </div>
         )}
 
-        <p class="acao">
-          <a
-            class="botao zap"
-            href={linkWhatsapp}
-            target="_blank"
-            rel="noopener"
-            data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
-          >
-            Falar sobre {dados.nome.toLowerCase()} no WhatsApp
-            <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
-          </a>
-        </p>
-        <p class="nota">{site.horario}. A mensagem já vai com o assunto escrito.</p>
+        {secoes.map((secao, n) => (
+          <section class="secao-area" id={secao.id} aria-labelledby={`${secao.id}-titulo`}>
+            <p class="secao-num" aria-hidden="true">{numero(n)}</p>
+            <h2 id={`${secao.id}-titulo`}>{secao.rubrica}</h2>
+            <p data-placeholder={secao.placeholder ? '1' : undefined}>{secao.texto}</p>
+          </section>
+        ))}
+
+        {/* QUEM ATENDE. O cartão fica no fim do texto e não na lateral:
+            a lateral é fixa, e um retrato preso ao lado do texto o tempo
+            todo pesa mais do que informa. Aqui ele chega quando a pessoa
+            terminou de ler e vai decidir se escreve. */}
+        {socio && (
+          <section class="quem" id="quem-atende" aria-labelledby="quem-titulo">
+            <picture class="quem-foto">
+              <source type="image/avif" srcset={`${socio.retrato}-560.avif`} />
+              <source type="image/webp" srcset={`${socio.retrato}-560.webp`} />
+              <img src={`${socio.retrato}-840.jpg`} alt={`Retrato de ${socio.nome}`} width="560" height="700" loading="lazy" decoding="async" />
+            </picture>
+            <div class="quem-texto">
+              <h2 id="quem-titulo" class="quem-rotulo">Quem atende</h2>
+              <p class="quem-nome">{socio.nome}</p>
+              <p class="quem-oab" data-placeholder={socio.oab.placeholder ? '1' : undefined}>{socio.oab.valor}</p>
+              <p class="quem-linha">{socio.linha}</p>
+              <a class="quem-link" href="/escritorio/">Formação e trajetória</a>
+            </div>
+          </section>
+        )}
       </div>
     </div>
 
-    <div class="env corpo">
-      {blocos.map(({ texto, cena, placeholder, ordemDaCena }) =>
-        cena ? (
-          <Cena
-            rubrica={cena.rubrica}
-            invertida={ordemDaCena % 2 === 1}
-            placeholder={placeholder}
-          >
-            <Fragment slot="peca">
-              {cena.marca && <Marca tipo={cena.marca} />}
-              {cena.foto && (
-                <picture>
-                  <source srcset={`/media/areas/${cena.foto}-900.avif 900w, /media/areas/${cena.foto}-1400.avif 1400w`} sizes="(max-width: 860px) 92vw, 46vw" type="image/avif" />
-                  <source srcset={`/media/areas/${cena.foto}-900.webp 900w, /media/areas/${cena.foto}-1400.webp 1400w`} sizes="(max-width: 860px) 92vw, 46vw" type="image/webp" />
-                  <img src={`/media/areas/${cena.foto}-1400.jpg`} alt={cena.fotoAlt} width="1400" height="1050" loading="lazy" decoding="async" />
-                </picture>
-              )}
-            </Fragment>
-            {texto}
-          </Cena>
-        ) : (
-          <p class="solta" data-placeholder={placeholder ? '1' : undefined}>{texto}</p>
-        ),
-      )}
-    </div>
-
-    {dados.perguntas.length > 0 && (
-      <Perguntas
-        titulo={`Perguntas frequentes sobre ${dados.nome.toLowerCase()}`}
-        perguntas={dados.perguntas}
-      />
+    {/* ONDE E COMO COMEÇA. Os dois parágrafos que não são tema — onde o
+        escritório atende e como o trabalho começa — viram a placa de
+        fechamento, com a segunda chamada. É o ponto em que quem leu até
+        aqui decide, e o botão precisa estar onde a decisão acontece. */}
+    {(onde || fecho.length > 0) && (
+      <div class="env">
+        <section class="placa" id="onde-atendemos" aria-labelledby="placa-titulo">
+          {onde && (
+            <picture class="placa-foto">
+              <source srcset={`/media/areas/${onde.foto}-900.avif 900w, /media/areas/${onde.foto}-1400.avif 1400w`} sizes="(max-width: 860px) 92vw, 44vw" type="image/avif" />
+              <source srcset={`/media/areas/${onde.foto}-900.webp 900w, /media/areas/${onde.foto}-1400.webp 1400w`} sizes="(max-width: 860px) 92vw, 44vw" type="image/webp" />
+              <img src={`/media/areas/${onde.foto}-1400.jpg`} alt={onde.fotoAlt} width="1400" height="1050" loading="lazy" decoding="async" />
+            </picture>
+          )}
+          <div class="placa-texto">
+            {onde && (
+              <>
+                <h2 id="placa-titulo">{onde.rubrica}</h2>
+                <p data-placeholder={onde.placeholder ? '1' : undefined}>{onde.texto}</p>
+              </>
+            )}
+            {fecho.length > 0 && (
+              <>
+                {onde ? <h3>Como o trabalho começa</h3> : <h2 id="placa-titulo">Como o trabalho começa</h2>}
+                {fecho.map((p) => (
+                  <p data-placeholder={p.placeholder ? '1' : undefined}>{p.texto}</p>
+                ))}
+              </>
+            )}
+            <p class="placa-acao">
+              <a
+                class="botao zap"
+                href={linkWhatsapp}
+                target="_blank"
+                rel="noopener"
+                data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
+              >
+                Falar sobre {dados.nome.toLowerCase()} no WhatsApp
+                <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
+              </a>
+            </p>
+          </div>
+        </section>
+      </div>
     )}
 
-    {/* "Outras áreas" era uma fileira de pílulas com o nome da área dentro
-        — a mesma forma das pílulas de assunto, e o cliente disse que "não
-        está muito visual". Virou um cartão por área, com a ilustração, o
-        resumo e a seta: quem chega no fim da página está decidindo se o
-        assunto dela é outro, e para isso precisa ver o que a outra área é,
-        não só o nome. */}
+    {dados.perguntas.length > 0 && (
+      <div id="perguntas" class="ancora-perguntas">
+        <Perguntas
+          titulo={`Perguntas frequentes sobre ${dados.nome.toLowerCase()}`}
+          perguntas={dados.perguntas}
+        />
+      </div>
+    )}
+
+    {/* Um cartão por área, com a ilustração, o resumo e a seta: quem chega
+        no fim da página está decidindo se o assunto dela é outro, e para
+        isso precisa ver o que a outra área é, não só o nome. */}
     <section class="outras">
       <div class="env">
         <h2>Outras áreas</h2>
@@ -216,84 +299,119 @@ const blocos = dados.corpo.map((texto, indice) => {
   <Contato />
 </Base>
 
-<style>
-  .abertura {
-    padding-block: clamp(32px, 5vw, 72px) clamp(30px, 4vw, 56px);
-    border-bottom: 1px solid var(--linha);
+<script>
+  /* Marca no índice a seção que está na tela. Só enfeite de orientação:
+     sem este script o índice continua sendo uma lista de links que
+     funciona. A "seção atual" é a última cujo topo já passou de 35% da
+     altura da janela — com IntersectionObserver puro, duas seções curtas
+     visíveis ao mesmo tempo disputavam a marca e ela piscava. */
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.indice a[data-indice]')];
+  const alvos = links
+    .map((a) => document.getElementById(a.dataset.indice ?? ''))
+    .filter((el): el is HTMLElement => !!el);
+
+  if (alvos.length) {
+    let pendente = false;
+    const marca = () => {
+      pendente = false;
+      const linha = window.innerHeight * 0.35;
+      let atual: HTMLElement | undefined;
+      for (const alvo of alvos) {
+        if (alvo.getBoundingClientRect().top <= linha) atual = alvo;
+      }
+      for (const a of links) {
+        if (atual && a.dataset.indice === atual.id) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      }
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!pendente) {
+          pendente = true;
+          requestAnimationFrame(marca);
+        }
+      },
+      { passive: true },
+    );
+    marca();
   }
-  /* A trilha vive DENTRO da capa, sobre chapa escura: as cores invertem. */
+</script>
+
+<style>
+  /* ── Capa ─────────────────────────────────────────────────────────── */
+  .capa {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(24px, 5vw, 80px);
+    margin-top: clamp(14px, 2vw, 26px);
+    padding: clamp(28px, 4vw, 64px) clamp(24px, 4vw, 72px);
+    background: var(--tinta);
+    color: #fff;
+    border-radius: clamp(16px, 2vw, 26px);
+    overflow: hidden;
+  }
+  .capa-texto {
+    display: grid;
+    justify-items: start;
+    min-width: 0;
+  }
   .trilha {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    font-size: 15.5px;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.66);
   }
   .trilha a {
     min-height: 44px;
     display: inline-flex;
     align-items: center;
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.82);
+    color: rgba(255, 255, 255, 0.86);
     border-bottom: 1px solid rgba(255, 255, 255, 0.28);
   }
   .trilha a:hover {
     color: #fff;
     border-color: #fff;
   }
-  .resumo {
-    margin-top: 0;
-    max-width: 52ch;
-    font-size: 19px;
-    color: var(--secundario);
-  }
-
-  /*
-    A CAPA. Mesma forma da capa de /escritorio/: placa de cantos
-    arredondados com espaçamento em volta, dentro do `.env`. O que muda é o
-    preenchimento — lá é retrato, aqui é chapa de cor com a ilustração da
-    área, porque foto de área de direito não existe no acervo e foto de
-    banco é o clichê que a pesquisa do projeto mandou evitar.
-
-    `aspect-ratio` em vez de altura fixa: a placa acompanha a largura da
-    tela em vez de virar uma tira em telas grandes.
-  */
-  /*
-    A placa é BAIXA e o conteúdo divide-se em dois: o nome à esquerda, a
-    ilustração à direita. A primeira versão era `place-items: center` com
-    `aspect-ratio: 21/7`, e a ilustração sozinha no meio de uma placa de
-    530px deixava a maior parte vazia — capa não é moldura de ícone.
-
-    Altura por conteúdo + `min-height`, não `aspect-ratio`: a placa passa a
-    ter a altura do que carrega, em vez de crescer com a largura da tela.
-  */
-  .capa {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: clamp(20px, 4vw, 60px);
-    margin-top: clamp(14px, 2vw, 26px);
-    padding: clamp(26px, 3.4vw, 52px) clamp(24px, 3.4vw, 56px);
-    background: var(--tinta);
-    border-radius: clamp(16px, 2vw, 26px);
-    min-height: clamp(180px, 22vw, 280px);
-    overflow: hidden;
-  }
-  .capa-texto {
-    display: grid;
-    gap: 10px;
-    justify-items: start;
-  }
   .capa-nome {
-    font-size: clamp(32px, 4.6vw, 68px);
+    margin: clamp(10px, 1.4vw, 18px) 0 0;
+    font-size: clamp(38px, 5.4vw, 80px);
     color: #fff;
-    max-width: 15ch;
-    margin: 0;
+    max-width: 14ch;
   }
+  .tese {
+    margin: clamp(16px, 2vw, 26px) 0 0;
+    max-width: 38ch;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(20px, 1.9vw, 27px);
+    line-height: 1.38;
+    color: rgba(255, 255, 255, 0.84);
+  }
+  .capa-acao {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 22px;
+    margin-top: clamp(26px, 3.2vw, 44px);
+  }
+  .capa-acao .botao {
+    min-height: 48px;
+  }
+  .capa-acao .nota {
+    margin: 0;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 38ch;
+  }
+
   .capa :global(.selo) {
-    width: clamp(96px, 13vw, 190px);
+    width: clamp(120px, 17vw, 250px);
     flex: none;
     /* A marca é desenhada para fundo claro: sobre a chapa azul as peças
        cheias em --tinta virariam buracos. Redefinir os tokens no escopo do
@@ -351,93 +469,273 @@ const blocos = dados.corpo.map((texto, indice) => {
     }
   }
 
+  /* ── O documento ──────────────────────────────────────────────────── */
   /*
-    A lista de serviço, no lugar das pílulas.
-
-    Duas colunas em desktop: seis a sete assuntos numa coluna só empurrariam
-    o botão de WhatsApp para fora da primeira tela.
+    Duas colunas: índice e texto. A coluna do texto tem teto de 760px —
+    a medida de leitura de ~70 caracteres em 19px —, e o que sobra da
+    largura vai para o espaço entre as duas, não para linhas mais longas.
+    `space-between` alinha o texto à borda direita da capa: com `start`
+    sobrava uma faixa vazia à direita, e a página parecia torta.
   */
-  .servicos {
+  .leitura {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 clamp(24px, 3vw, 48px);
-    margin: clamp(22px, 3vw, 32px) 0 0;
+    grid-template-columns: minmax(200px, 280px) minmax(0, 760px);
+    justify-content: space-between;
+    gap: clamp(40px, 9vw, 160px);
+    padding-block: clamp(48px, 6.5vw, 104px) clamp(40px, 5vw, 80px);
+  }
+  .lateral-fixa {
+    position: sticky;
+    top: 32px;
+  }
+  .lateral-rotulo {
+    margin: 0 0 12px;
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--secundario);
+  }
+  .indice {
+    margin: 0;
     padding: 0;
     list-style: none;
+    border-top: 1px solid var(--linha);
   }
-  .servicos li {
-    display: grid;
-    gap: 3px;
-    padding: 14px 0 14px 16px;
-    border-inline-start: 2px solid var(--linha);
-    transition: border-color 0.2s;
+  .indice a {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    min-height: 44px;
+    padding: 11px 0 11px 16px;
+    border-bottom: 1px solid var(--linha);
+    font-size: 16.5px;
+    line-height: 1.3;
+    color: var(--apoio);
+    text-decoration: none;
+    transition: color 0.2s;
   }
-  .servicos li:hover {
-    border-color: var(--imperial);
+  /* O filete à esquerda é o marcador da seção atual e do hover. */
+  .indice a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: var(--imperial);
+    transform: scaleY(0);
+    transition: transform 0.25s;
   }
-  .servicos b {
-    font-weight: 500;
-    font-size: 17px;
-    line-height: 1.35;
+  .indice a:hover,
+  .indice a[aria-current] {
     color: var(--tinta);
   }
-  .servicos span {
-    font-size: 16px;
-    line-height: 1.45;
+  .indice a:hover::before,
+  .indice a[aria-current]::before {
+    transform: scaleY(1);
+  }
+  .indice-num {
+    flex: none;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
     color: var(--secundario);
   }
-  @media (max-width: 760px) {
-    .servicos {
-      grid-template-columns: 1fr;
-    }
-    /* A ilustração vai para cima do nome: lado a lado em tela estreita
-       espremeria as duas. */
-    .capa {
-      flex-direction: column-reverse;
-      align-items: flex-start;
-      gap: 18px;
-    }
-    .capa :global(.selo) {
-      width: 88px;
-    }
+  .indice a[aria-current] .indice-num {
+    color: var(--imperial);
+  }
+  .indice-extra {
+    margin-top: 22px;
   }
 
-  .acao {
-    margin-top: clamp(26px, 3.4vw, 38px);
+  .texto {
+    min-width: 0;
   }
-  .acao .botao {
-    min-height: 44px;
+  .abertura {
+    padding-bottom: clamp(36px, 4.5vw, 64px);
   }
-  .nota {
-    margin-top: 14px;
-    font-size: 16px;
-    color: var(--secundario);
-  }
-
-  /* A coluna estreita saiu: o corpo agora ocupa a largura do `.env`, e é
-     cada cena que controla a sua própria medida de leitura. */
-  .corpo {
-    padding-block: clamp(30px, 4vw, 56px);
-  }
-  /* Abertura e fecho: sem rubrica e sem peça, mas em corpo maior que o
-     antigo — são as duas frases que emolduram a página. */
-  .solta {
-    max-width: 34ch;
-    font-size: clamp(24px, 2.6vw, 36px);
+  .lead {
+    margin: 0;
     font-family: var(--serif);
     font-weight: 300;
-    line-height: 1.34;
+    font-size: clamp(25px, 2.5vw, 35px);
+    line-height: 1.32;
+    letter-spacing: -0.01em;
     color: var(--tinta);
-    margin: 0;
-    padding-block: clamp(30px, 4.5vw, 64px);
   }
-  .solta + :global(.cena) {
-    border-top: 1px solid var(--linha);
-  }
-  :global(.cena) + .solta {
-    border-top: 1px solid var(--linha);
+  .lead-apoio {
+    margin: clamp(18px, 2vw, 26px) 0 0;
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--apoio);
   }
 
+  /* Cada seção: número, título, texto. O número em vermelho imperial é o
+     único acento da coluna; tudo o mais é tinta sobre branco. */
+  .secao-area {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    column-gap: 8px;
+    padding-block: clamp(30px, 3.6vw, 48px);
+    border-top: 1px solid var(--linha);
+    scroll-margin-top: 24px;
+  }
+  .secao-num {
+    grid-row: 1;
+    margin: 0;
+    padding-top: 0.5em;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    color: var(--imperial);
+  }
+  .secao-area h2 {
+    grid-column: 2;
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(25px, 2.3vw, 32px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--tinta);
+  }
+  .secao-area > p:last-child {
+    grid-column: 2;
+    margin: 14px 0 0;
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--tinta);
+  }
+
+  /* ── Quem atende ──────────────────────────────────────────────────── */
+  .quem {
+    display: grid;
+    grid-template-columns: clamp(120px, 13vw, 168px) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(20px, 2.6vw, 36px);
+    margin-top: clamp(20px, 2.4vw, 32px);
+    padding: clamp(20px, 2.4vw, 30px);
+    background: var(--papel);
+    border-radius: clamp(14px, 1.6vw, 20px);
+    scroll-margin-top: 24px;
+  }
+  .quem-foto img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 22%;
+    border-radius: 12px;
+  }
+  .quem-texto {
+    display: grid;
+    justify-items: start;
+  }
+  .quem-rotulo {
+    margin: 0 0 8px;
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--secundario);
+  }
+  .quem-nome {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(25px, 2.3vw, 32px);
+    line-height: 1.1;
+    color: var(--tinta);
+  }
+  .quem-oab {
+    margin: 6px 0 0;
+    font-size: 16px;
+    color: var(--imperial);
+    font-variant-numeric: tabular-nums;
+  }
+  .quem-linha {
+    margin: 12px 0 0;
+    max-width: 44ch;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--apoio);
+  }
+  .quem-link {
+    margin-top: 8px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 16.5px;
+    color: var(--tinta);
+    text-decoration: none;
+    border-bottom: 1px solid var(--linha);
+  }
+  .quem-link:hover {
+    border-color: var(--tinta);
+  }
+
+  /* ── Onde e como começa ───────────────────────────────────────────── */
+  .placa {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: clamp(24px, 4vw, 64px);
+    padding: clamp(14px, 1.6vw, 20px);
+    background: var(--papel);
+    border-radius: clamp(16px, 2vw, 26px);
+    scroll-margin-top: 24px;
+  }
+  .placa-foto {
+    display: block;
+    min-height: 100%;
+  }
+  .placa-foto img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    object-fit: cover;
+    border-radius: clamp(12px, 1.4vw, 18px);
+  }
+  .placa-texto {
+    padding: clamp(10px, 3vw, 44px) clamp(8px, 2.6vw, 40px) clamp(10px, 3vw, 44px) 0;
+    align-self: center;
+  }
+  .placa h2,
+  .placa h3 {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(25px, 2.3vw, 32px);
+    line-height: 1.15;
+    color: var(--tinta);
+  }
+  .placa h3 {
+    margin-top: clamp(26px, 3vw, 38px);
+    padding-top: clamp(22px, 2.6vw, 32px);
+    border-top: 1px solid var(--linha);
+  }
+  .placa-texto p {
+    margin: 12px 0 0;
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--tinta);
+    max-width: 52ch;
+  }
+  .placa-texto .placa-acao {
+    margin-top: clamp(24px, 3vw, 36px);
+  }
+  .placa-acao .botao {
+    min-height: 48px;
+  }
+
+  .ancora-perguntas {
+    scroll-margin-top: 24px;
+  }
+
+  /* ── Outras áreas ─────────────────────────────────────────────────── */
   .outras {
     border-top: 1px solid var(--linha);
     padding-block: clamp(34px, 4.5vw, 64px);
@@ -449,21 +747,15 @@ const blocos = dados.corpo.map((texto, indice) => {
     margin-bottom: 18px;
   }
   /*
-    `auto-fit` com `1fr` esticava o cartão único para a largura toda —
-    são duas áreas no site, então esta lista quase sempre tem UM cartão, e
-    um cartão de 1400px com três linhas de texto fica vazio.
-
-    `auto-fill` + teto de 420px por coluna resolve os dois casos: um
-    cartão fica do tamanho de cartão, e se entrar uma terceira área eles
-    se acomodam lado a lado sem tocar nesta regra.
+    `auto-fill` + teto de 420px por coluna: com duas áreas no site esta
+    lista quase sempre tem UM cartão, e `1fr` o esticaria para a largura
+    toda, vazio.
   */
   .grade-outras {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 420px));
     gap: clamp(12px, 1.4vw, 18px);
   }
-  /* Cartão em --papel, a terceira superfície do projeto: distingue o bloco
-     do branco da página sem introduzir cor nova. */
   .cartao-area {
     position: relative;
     display: flex;
@@ -531,7 +823,6 @@ const blocos = dados.corpo.map((texto, indice) => {
   .cartao-area.vago h3 {
     color: var(--secundario);
   }
-
   .todas {
     margin-top: clamp(18px, 2vw, 26px);
   }
@@ -546,6 +837,91 @@ const blocos = dados.corpo.map((texto, indice) => {
   }
   .todas a:hover {
     border-color: var(--tinta);
+  }
+
+  /* ── Telas menores ────────────────────────────────────────────────── */
+  /* Em tela baixa o índice fixo não cabe inteiro: deixa de ser fixo em
+     vez de cortar as últimas entradas. */
+  @media (max-height: 700px) {
+    .lateral-fixa {
+      position: static;
+    }
+  }
+  @media (max-width: 960px) {
+    /* O índice vira sumário no topo, em placa: numa coluna só ele não tem
+       lado para ficar, e fixo taparia o texto. */
+    .leitura {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      padding-top: clamp(28px, 5vw, 48px);
+    }
+    .lateral {
+      order: 2;
+      margin-block: 0 clamp(8px, 2vw, 16px);
+    }
+    .lateral-fixa {
+      position: static;
+      padding: 18px 20px 8px;
+      background: var(--papel);
+      border-radius: 16px;
+    }
+    .indice-extra {
+      display: none;
+    }
+    .texto {
+      display: contents;
+    }
+    .abertura {
+      order: 1;
+    }
+    .secao-area,
+    .quem {
+      order: 3;
+    }
+  }
+  @media (max-width: 760px) {
+    .capa {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .capa :global(.selo) {
+      order: -1;
+      width: 84px;
+    }
+    .capa-acao .botao {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .placa {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .placa-foto img {
+      min-height: 0;
+      aspect-ratio: 4 / 3;
+    }
+    .placa-texto {
+      padding: 6px 8px 14px;
+    }
+    .placa-acao .botao {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .secao-area {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .secao-num {
+      padding-top: 0;
+      margin-bottom: 6px;
+    }
+    .secao-area h2,
+    .secao-area > p:last-child {
+      grid-column: 1;
+    }
+  }
+  @media (max-width: 520px) {
+    .quem {
+      grid-template-columns: 96px minmax(0, 1fr);
+      align-items: start;
+    }
   }
 
   /* prefers-reduced-motion desliga todo movimento desta página. */

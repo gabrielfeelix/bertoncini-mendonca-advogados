@@ -70,33 +70,27 @@
   "cenas": [
     {
       "indice": 1,
-      "rubrica": "Proteção de dados",
-      "marca": "dados"
+      "rubrica": "Proteção de dados"
     },
     {
       "indice": 2,
-      "rubrica": "Propriedade intelectual",
-      "marca": "marca"
+      "rubrica": "Propriedade intelectual"
     },
     {
       "indice": 3,
-      "rubrica": "Contratos e e-commerce",
-      "marca": "contrato"
+      "rubrica": "Contratos e e-commerce"
     },
     {
       "indice": 4,
-      "rubrica": "Quando algo dá errado",
-      "marca": "prova"
+      "rubrica": "Quando algo dá errado"
     },
     {
       "indice": 5,
-      "rubrica": "Inteligência artificial",
-      "marca": "maquina"
+      "rubrica": "Inteligência artificial"
     },
     {
       "indice": 6,
-      "rubrica": "Compliance digital",
-      "marca": "compliance"
+      "rubrica": "Compliance digital"
     },
     {
       "indice": 7,

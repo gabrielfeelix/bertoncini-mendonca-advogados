@@ -64,14 +64,23 @@ export const site = {
     cnpj: { valor: '00.000.000/0001-00', placeholder: true } satisfies CampoPlaceholder,
   },
 
+  /* `area` e `linha` alimentam o bloco "Quem atende" da página de cada
+     área. A divisão vem do briefing (q2_3) e é a mesma que /escritorio/
+     imprime em `atuacao`; `linha` é a bio curta de lá, sem texto novo. */
   socios: [
     {
       nome: 'Juscelino Bertoncini',
       oab: { valor: 'OAB/PR 000.000', placeholder: true } satisfies CampoPlaceholder,
+      retrato: '/media/socios/juscelino',
+      area: 'planejamento-patrimonial-e-sucessorio',
+      linha: 'Trabalha na fase que antecede o processo, para que o problema não se consolide.',
     },
     {
       nome: 'Beatriz Mendonça',
       oab: { valor: 'OAB/PR 000.000', placeholder: true } satisfies CampoPlaceholder,
+      retrato: '/media/socios/beatriz',
+      area: 'direito-digital',
+      linha: 'Especialista em Direito Processual Civil, com experiência em processos judiciais estratégicos.',
     },
   ],
 
