@@ -7,10 +7,10 @@
  *
  * 1. a foto dos dois e a frase que define a sociedade;
  * 2. três fatos que se leem em segundos — prática, áreas, onde;
- * 3. a história, curta, em duas colunas;
- * 4. a divisão do trabalho: quem cuida do quê, com link para a área;
- * 5. o perfil de cada sócio: OAB, formação, anos de prática e contato;
- * 6. o registro da sociedade e o contato.
+ * 3. a sociedade: a história em duas colunas e, logo abaixo, a divisão
+ *    do trabalho — quem cuida do quê, com link para a área;
+ * 4. o perfil de cada sócio: OAB, formação, anos de prática e contato;
+ * 5. o registro da sociedade e o contato.
  *
  * O QUE NÃO ENTRA, por decisão do cliente: a trajetória de cada um —
  * estágios, nomes de escritórios, órgãos e lugares por onde passaram.
@@ -144,66 +144,45 @@ const pratica = 'Mais de quatro anos';
     </div>
   </section>
 
-  <!-- A história: título à esquerda, texto à direita, como o Macfarlanes e
-       a Oliveira Pitta. Eram três cartões, e o primeiro contava por onde
-       os dois passaram, com nome de escritório e estágio — o que o
-       cliente pediu para sair. O texto é o mesmo do briefing (q1.3), sem
-       os nomes e sem os estágios. -->
-  <section class="secao historia" id="historia">
+  <!-- A SOCIEDADE: a história e a divisão do trabalho num bloco só,
+       porque a divisão é a consequência da história.
+
+       Antes eram duas seções, cada uma com título embaixo à esquerda e
+       texto pendurado no topo à direita — os dois lados não se tocavam.
+       Agora o chapéu corre por cima das duas colunas, e o título e a
+       primeira frase começam na mesma linha.
+
+       Saiu a citação em cartão com filete vermelho ("São dois sócios e
+       nenhuma camada..."): o formato e a frase liam como texto gerado, e
+       o que ela dizia de concreto já está na linha fina da abertura. -->
+  <section class="secao sociedade" id="historia" aria-labelledby="sociedade-titulo">
     <div class="env">
-      <div class="duas">
-        <div>
-          <p class="chapeu">A sociedade</p>
-          <h2 class="display">Como esta sociedade começou.</h2>
-        </div>
-        <div class="historia-texto">
-          <p>
+      <div class="sociedade-grade">
+        <p class="chapeu">A sociedade</p>
+        <h2 class="display" id="sociedade-titulo">Como esta sociedade começou.</h2>
+        <div class="sociedade-texto">
+          <p class="lead">
             Os dois entraram no curso de Direito da Universidade Estadual de Maringá no mesmo
-            ano, ele no noturno e ela no matutino, e mal se conheciam. Depois passaram a
-            trabalhar no mesmo setor, e foram mais de quatro anos lado a lado, cada um
-            firmando a própria área.
+            ano, ele no noturno e ela no matutino, e mal se conheciam.
           </p>
           <p>
-            A sociedade nasceu daí: de funções que se completam e de uma parceria que já tinha
-            sido testada no dia a dia.
+            Depois passaram a trabalhar no mesmo setor, e foram mais de quatro anos lado a
+            lado, cada um firmando a própria área. A sociedade nasceu daí: de funções que se
+            completam e de uma parceria que já tinha sido testada no dia a dia.
+          </p>
+          <p>
+            As áreas refletem essa divisão. A Beatriz vem do processo civil e do contencioso; o
+            Juscelino, do direito empresarial e da advocacia consultiva, que trabalha antes do
+            litígio.
+          </p>
+          <p class="nota" data-placeholder="1">
+            A data de constituição da sociedade: a confirmar com os sócios.
           </p>
         </div>
       </div>
 
-      <!-- O modo de trabalhar, em destaque: é a promessa da página. -->
-      <blockquote class="modo">
-        <p>
-          São dois sócios e nenhuma camada entre o cliente e o processo. Na primeira conversa
-          fica claro o que existe, o que é possível fazer, quanto tempo costuma levar e
-          quanto custa. Só depois disso o caso anda.
-        </p>
-      </blockquote>
-
-      <p class="nota" data-placeholder="1">
-        A data de constituição da sociedade: a confirmar com os sócios. Esta página não
-        registra nenhuma data que ainda não foi confirmada.
-      </p>
-    </div>
-  </section>
-
-  <!-- A DIVISÃO. Era o terceiro cartão da história, um parágrafo. É a
-       estrutura do escritório — um antes do processo, outro dentro dele —
-       e merece forma própria: duas metades, cada uma levando à sua área,
-       como o "What we do" do Macfarlanes. -->
-  <section class="secao divisao" aria-labelledby="divisao-titulo">
-    <div class="env">
-      <div class="duas">
-        <div>
-          <p class="chapeu">Por que estas áreas</p>
-          <h2 class="display" id="divisao-titulo">Um antes do processo, outro dentro dele.</h2>
-        </div>
-        <p class="divisao-apoio">
-          As áreas refletem essa divisão. A Beatriz vem do processo civil e do contencioso; o
-          Juscelino, do direito empresarial e da advocacia consultiva, que trabalha antes do
-          litígio.
-        </p>
-      </div>
-
+      <!-- A divisão em duas metades, cada uma levando à sua área, como o
+           "What we do" do Macfarlanes. -->
       <div class="metades">
         {perfis.map((perfil, n) => (
           <a class:list={['metade', { escura: n === 1 }]} href={`/areas/${perfil.socio.area}/`}>
@@ -481,66 +460,69 @@ const pratica = 'Mais de quatro anos';
     font-size: clamp(32px, 4.2vw, 56px);
     max-width: 14ch;
   }
-  .duas {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-    gap: clamp(24px, 5vw, 88px);
-    align-items: end;
-  }
-  @media (max-width: 960px) {
-    .duas {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
 
-  /* ── história ─────────────────────────────────────────────────────── */
+  /* ── a sociedade ──────────────────────────────────────────────────── */
 
-  .historia {
-    padding-block: clamp(56px, 7vw, 112px) clamp(40px, 5vw, 72px);
+  .sociedade {
+    padding-block: clamp(56px, 7vw, 112px) clamp(48px, 6vw, 88px);
     border-top: 1px solid var(--linha);
   }
-  .historia-texto p {
+  /* O chapéu ocupa a linha de cima inteira; título e texto começam juntos
+     na linha de baixo. */
+  .sociedade-grade {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    column-gap: clamp(24px, 5vw, 88px);
+    align-items: start;
+  }
+  .sociedade-grade .chapeu {
+    grid-column: 1 / -1;
+  }
+  .sociedade-grade h2 {
+    margin: 0;
+  }
+  .sociedade-texto {
+    max-width: 60ch;
+  }
+  .sociedade-texto p {
     font-size: 19px;
     line-height: 1.65;
-    color: var(--tinta);
-    max-width: 58ch;
+    color: var(--apoio);
   }
-  .historia-texto p + p {
+  .sociedade-texto p + p {
     margin-top: 16px;
   }
-  .modo {
-    margin: clamp(40px, 5vw, 72px) 0 0;
-    padding: clamp(28px, 3.4vw, 48px) clamp(28px, 3.8vw, 56px);
-    border-left: 3px solid var(--imperial);
-    background: var(--papel);
-    border-radius: 0 clamp(12px, 1.4vw, 18px) clamp(12px, 1.4vw, 18px) 0;
-  }
-  .modo p {
+  /* A primeira frase em serifa, o mesmo gesto da abertura das áreas. O
+     tamanho acompanha o título ao lado para as duas colunas começarem no
+     mesmo peso visual. */
+  .sociedade-texto .lead {
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(22px, 2.3vw, 32px);
-    line-height: 1.35;
-    letter-spacing: -0.015em;
-    max-width: 46ch;
+    font-size: clamp(23px, 2.2vw, 31px);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--tinta);
+    padding-top: 0.25em;
   }
-  .nota {
-    margin-top: clamp(18px, 2vw, 24px);
-    font-size: 16.5px;
+  .sociedade-texto .lead + p {
+    margin-top: clamp(20px, 2.2vw, 28px);
+  }
+  .sociedade-texto .nota {
+    margin-top: 22px;
+    font-size: 16px;
     color: var(--secundario);
-    max-width: 62ch;
+  }
+  @media (max-width: 960px) {
+    .sociedade-grade {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .sociedade-texto {
+      margin-top: clamp(22px, 4vw, 32px);
+    }
   }
 
   /* ── divisão ──────────────────────────────────────────────────────── */
 
-  .divisao {
-    padding-block: clamp(40px, 5vw, 72px);
-  }
-  .divisao-apoio {
-    font-size: 19px;
-    line-height: 1.65;
-    color: var(--apoio);
-    max-width: 52ch;
-  }
   .metades {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -810,8 +792,7 @@ const pratica = 'Mais de quatro anos';
   /* Todo movimento desligado sob prefers-reduced-motion. */
   @media (prefers-reduced-motion: reduce) {
     .abertura *,
-    .historia *,
-    .divisao *,
+    .sociedade *,
     .quem *,
     .registro-secao * {
       transition: none !important;
