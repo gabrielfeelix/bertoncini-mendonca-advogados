@@ -2,27 +2,34 @@
 /**
  * /escritorio/ — a página que responde "quem são vocês".
  *
- * A FORMA segue o que as páginas "sobre" que funcionam repetem
- * (Macfarlanes, Oliveira Pitta, Bersay, o perfil de sócio do Arauz):
+ * Quatro blocos, cada um com a sua superfície:
  *
- * 1. a foto dos dois e a frase que define a sociedade;
- * 2. três fatos que se leem em segundos — prática, áreas, onde;
- * 3. a sociedade: a história em duas colunas e, logo abaixo, a divisão
- *    do trabalho — quem cuida do quê, com link para a área;
- * 4. o perfil de cada sócio: OAB, formação, anos de prática e contato;
- * 5. o registro da sociedade e o contato.
+ * 1. ABERTURA (branco): a foto dos dois e a frase que define a sociedade.
+ * 2. O ENCONTRO (azul-tinta, tela cheia): o memorável da página. Os dois
+ *    sobrenomes entram cada um por um lado e se encontram no "&" enquanto
+ *    a pessoa rola; três frases curtas contam a história. Substitui os
+ *    parágrafos de história, que o cliente leu como "texto carregado com
+ *    cara de IA".
+ * 3. OS SÓCIOS (meio a meio): a tela partida em duas metades — o
+ *    consultivo, antes do processo, em papel; o contencioso, dentro dele,
+ *    em tinta. É a divisão do escritório virando a própria forma da seção,
+ *    e junta num lugar só o que antes era cartão de área + perfil.
+ * 4. REGISTRO e CONTATO.
  *
- * O QUE NÃO ENTRA, por decisão do cliente: a trajetória de cada um —
- * estágios, nomes de escritórios, órgãos e lugares por onde passaram.
- * De experiência, fica só o tempo de prática. A formação acadêmica
- * continua: é ela que sustenta o título de especialista, que o
- * Provimento 205/2021 só permite com o título existente.
+ * O MOVIMENTO é CSS puro, por linha do tempo de rolagem
+ * (`animation-timeline: view()`), sem biblioteca. Onde o navegador não
+ * suporta, ou com `prefers-reduced-motion`, a seção aparece parada e
+ * completa — os nomes já juntos, as três frases visíveis.
  *
- * REGRA QUE CONTINUA: nenhum fato sobre as pessoas é inventado. O que
- * falta está marcado com `data-placeholder="1"`.
+ * O QUE NÃO ENTRA, por decisão do cliente: a trajetória de cada um
+ * (estágios, nomes de escritórios, órgãos e lugares). De experiência,
+ * fica só o tempo de prática. A formação continua: é ela que sustenta o
+ * título de especialista, que o Provimento 205/2021 só permite com o
+ * título existente.
  *
- * A OAB de cada sócio fica em 22px, em vermelho imperial sobre branco
- * (8.6:1), no perfil de cada um — o portão confere o piso nesta rota.
+ * Nenhum fato sobre as pessoas é inventado; o que falta está marcado com
+ * `data-placeholder="1"`. A OAB de cada sócio fica em 22px — o portão
+ * confere o piso nesta rota.
  */
 import Base from '../layouts/Base.astro';
 import Contato from '../components/Contato.astro';
@@ -32,46 +39,55 @@ import { listarAreasConfirmadas } from '../lib/areas';
 
 const areas = await listarAreasConfirmadas();
 const nomeDaArea = (slug: string) => areas.find((a) => a.data.slug === slug)?.data.nome ?? '';
-const resumoDaArea = (slug: string) => areas.find((a) => a.data.slug === slug)?.data.resumo ?? '';
 
-/* A formação vem do briefing (q1.7a e q1.7b), respondido pelos sócios.
-   "Mais de quatro anos" é o tempo de prática que eles contam lado a lado
-   (q1.3) — o único número de experiência que o briefing sustenta. */
+/* A formação vem do briefing (q1.7a e q1.7b). "Mais de quatro anos" é o
+   tempo de prática que eles contam lado a lado (q1.3) — o único número de
+   experiência que o briefing sustenta. */
+const pratica = 'Mais de quatro anos de prática jurídica';
+
 const perfis = [
   {
-    nome: 'Juscelino Bertoncini',
+    nome: 'Juscelino',
+    sobrenome: 'Bertoncini',
     base: '/media/socios/juscelino',
     largura: 840,
     altura: 1119,
     enquadra: '50% 30%',
     socio: site.socios[0],
-    papel: 'Consultivo, antes do processo',
-    bio: 'Trabalha na fase que antecede o processo, para que o problema não se consolide. Prevenir o litígio costuma custar menos ao cliente do que vencê-lo.',
+    lado: 'Antes do processo',
+    bio: 'Trabalha na fase que antecede o processo, para que o problema não se consolide.',
     formacao: [
-      'Bacharel em Direito pela Universidade Estadual de Maringá (UEM)',
+      'Bacharel em Direito pela UEM',
       'Especialista em Direito Empresarial pela PUC/RS',
       'Especialista em Advocacia Consultiva pela Legale',
       'Pós-graduando em Direito Imobiliário pela i9',
     ],
   },
   {
-    nome: 'Beatriz Mendonça',
+    nome: 'Beatriz',
+    sobrenome: 'Mendonça',
     base: '/media/socios/beatriz',
     largura: 840,
     altura: 1278,
     enquadra: '50% 24%',
     socio: site.socios[1],
-    papel: 'Contencioso, quando há processo',
+    lado: 'Quando há processo',
     bio: 'Especialista em Direito Processual Civil, com experiência em processos judiciais estratégicos.',
     formacao: [
-      'Bacharel em Direito pela Universidade Estadual de Maringá (UEM)',
+      'Bacharel em Direito pela UEM',
       'Especialista em Direito Processual Civil pela PUC/RS',
       'Pós-graduanda em Direito Digital pela i9',
     ],
   },
 ];
 
-const pratica = 'Mais de quatro anos';
+/* A história em três frases, do briefing (q1.3), sem nomes de lugar de
+   trabalho e sem estágio. */
+const batidas = [
+  'Entraram no curso de Direito da UEM no mesmo ano, e mal se conheciam.',
+  'Depois, mais de quatro anos lado a lado, cada um firmando a própria área.',
+  'Daí nasceu a sociedade: duas funções que se completam.',
+];
 ---
 
 <Base
@@ -79,9 +95,7 @@ const pratica = 'Mais de quatro anos';
   descricao="Quem somos: os dois sócios de Bertoncini & Mendonça, em Maringá, com inscrição na OAB do Paraná, formação, áreas de atuação e contato direto."
   paginaAtual="/escritorio/"
 >
-  <!-- Abertura: a foto dos dois carrega o peso. O recorte panorâmico é um
-       enquadramento DIFERENTE do hero da home, para não ler como a mesma
-       imagem repetida. -->
+  <!-- 1. ABERTURA -->
   <section class="abertura">
     <div class="env">
       <div class="placa-abre">
@@ -108,173 +122,107 @@ const pratica = 'Mais de quatro anos';
         </div>
       </div>
 
-      {/* A linha fina e os fatos lado a lado. A linha fina sozinha, em 19px
-          cinza sob uma foto de 600px, sumia; os fatos são o que a
-          Oliveira Pitta e o Bersay põem logo depois da abertura, e o que
-          quem chega quer saber primeiro. Sem número de processos nem de
-          clientes: o Provimento 205/2021 proíbe. */}
-      <div class="depois-abre">
-        <p class="linha-fina">
-          Bertoncini &amp; Mendonça é uma sociedade nova, com base em Maringá e atendimento
-          online para todo o país. Quem recebe o caso na primeira conversa é quem responde
-          por ele até o fim.
-        </p>
-        <dl class="fatos">
-          <div>
-            <dt>{pratica}</dt>
-            <dd>de prática, cada sócio</dd>
-          </div>
-          <div>
-            <dt>Duas áreas</dt>
-            <dd>
-              {areas.map((area, n) => (
-                <>
-                  {n > 0 && ' e '}
-                  {area.data.nome.toLowerCase()}
-                </>
-              ))}
-            </dd>
-          </div>
-          <div>
-            <dt>Maringá</dt>
-            <dd>e online, para todo o país</dd>
-          </div>
-        </dl>
-      </div>
-    </div>
-  </section>
-
-  <!-- A SOCIEDADE: a história e a divisão do trabalho num bloco só,
-       porque a divisão é a consequência da história.
-
-       Antes eram duas seções, cada uma com título embaixo à esquerda e
-       texto pendurado no topo à direita — os dois lados não se tocavam.
-       Agora o chapéu corre por cima das duas colunas, e o título e a
-       primeira frase começam na mesma linha.
-
-       Saiu a citação em cartão com filete vermelho ("São dois sócios e
-       nenhuma camada..."): o formato e a frase liam como texto gerado, e
-       o que ela dizia de concreto já está na linha fina da abertura. -->
-  <section class="secao sociedade" id="historia" aria-labelledby="sociedade-titulo">
-    <div class="env">
-      <div class="sociedade-grade">
-        <p class="chapeu">A sociedade</p>
-        <h2 class="display" id="sociedade-titulo">Como esta sociedade começou.</h2>
-        <div class="sociedade-texto">
-          <p class="lead">
-            Os dois entraram no curso de Direito da Universidade Estadual de Maringá no mesmo
-            ano, ele no noturno e ela no matutino, e mal se conheciam.
-          </p>
-          <p>
-            Depois passaram a trabalhar no mesmo setor, e foram mais de quatro anos lado a
-            lado, cada um firmando a própria área. A sociedade nasceu daí: de funções que se
-            completam e de uma parceria que já tinha sido testada no dia a dia.
-          </p>
-          <p>
-            As áreas refletem essa divisão. A Beatriz vem do processo civil e do contencioso; o
-            Juscelino, do direito empresarial e da advocacia consultiva, que trabalha antes do
-            litígio.
-          </p>
-          <p class="nota" data-placeholder="1">
-            A data de constituição da sociedade: a confirmar com os sócios.
-          </p>
-        </div>
-      </div>
-
-      <!-- A divisão em duas metades, cada uma levando à sua área, como o
-           "What we do" do Macfarlanes. -->
-      <div class="metades">
-        {perfis.map((perfil, n) => (
-          <a class:list={['metade', { escura: n === 1 }]} href={`/areas/${perfil.socio.area}/`}>
-            <span class="metade-papel">{perfil.papel}</span>
-            <span class="metade-area">{nomeDaArea(perfil.socio.area)}</span>
-            <span class="metade-resumo">{resumoDaArea(perfil.socio.area)}</span>
-            <span class="metade-quem">Com {perfil.nome}</span>
-            <span class="metade-leva">
-              Ver a área
-              <span class="seta" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
-            </span>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- QUEM ASSINA. Um perfil por sócio, no desenho do perfil de sócio do
-       Arauz: retrato de um lado, do outro o que se confere — OAB,
-       formação, tempo de prática, contato. Antes eram dois retratos de
-       página inteira seguidos de uma coluna de texto corrido, com a
-       trajetória misturada à bio. -->
-  <section class="secao quem" id="socios" aria-labelledby="quem-titulo">
-    <div class="env">
-      <p class="chapeu">Quem assina</p>
-      <h2 class="display" id="quem-titulo">Os sócios.</h2>
-
-      <div class="perfis">
-        {perfis.map((perfil) => (
-          <article class="perfil">
-            <div class="perfil-foto revela">
-              <picture>
-                <source type="image/avif" srcset={`${perfil.base}-560.avif 560w, ${perfil.base}-840.avif 840w`} sizes="(max-width: 820px) 92vw, 34vw" />
-                <source type="image/webp" srcset={`${perfil.base}-560.webp 560w, ${perfil.base}-840.webp 840w`} sizes="(max-width: 820px) 92vw, 34vw" />
-                <img
-                  src={`${perfil.base}-840.jpg`}
-                  alt={`Retrato de ${perfil.nome}`}
-                  width={perfil.largura}
-                  height={perfil.altura}
-                  loading="lazy"
-                  decoding="async"
-                  style={`object-position:${perfil.enquadra}`}
-                />
-              </picture>
-            </div>
-
-            <div class="perfil-texto">
-              <a class="perfil-area" href={`/areas/${perfil.socio.area}/`}>{nomeDaArea(perfil.socio.area)}</a>
-              <h3 class="perfil-nome">{perfil.nome}</h3>
-              <p class="oab" data-placeholder={perfil.socio.oab.placeholder ? '1' : undefined}>
-                <span class="oab-rotulo">Inscrição na Ordem</span>
-                <span class="oab-numero">{perfil.socio.oab.valor}</span>
-              </p>
-              <p class="perfil-bio">{perfil.bio}</p>
-
-              <dl class="perfil-dados">
-                <div>
-                  <dt>Prática</dt>
-                  <dd>{pratica} de prática jurídica</dd>
-                </div>
-                <div>
-                  <dt>Formação</dt>
-                  <dd>
-                    <ul>
-                      {perfil.formacao.map((item) => <li>{item}</li>)}
-                    </ul>
-                  </dd>
-                </div>
-                <div>
-                  <dt>Contato</dt>
-                  <dd class="perfil-contato">
-                    <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
-                    <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefone.placeholder ? '1' : undefined}>{site.telefone.valor}</a>
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- Registro da sociedade: exigência do Provimento 205/2021, em ficha,
-       com o registro na OAB em destaque. -->
-  <section class="secao registro-secao">
-    <div class="env">
-      <h2 class="titulo-registro">Registro da sociedade</h2>
-      <p class="apoio-registro">
-        A sociedade está registrada na Ordem dos Advogados do Brasil, Seccional do Paraná.
-        Estes dados são exigidos pelo Provimento 205/2021 e ficam visíveis, não no rodapé.
+      <p class="linha-fina">
+        Uma sociedade nova, com base em Maringá e atendimento online para todo o país. Quem
+        recebe o caso na primeira conversa é quem responde por ele até o fim.
       </p>
+    </div>
+  </section>
+
+  <!-- 2. O ENCONTRO. A seção é alta (a rolagem dentro dela é a linha do
+       tempo da animação) e o conteúdo fica preso na tela enquanto isso.
+       Sem suporte, a altura volta ao normal e tudo aparece parado. -->
+  <section class="encontro" aria-labelledby="encontro-titulo">
+    <div class="encontro-tela">
+      <span class="fio" aria-hidden="true"></span>
+      <h2 class="encontro-nomes" id="encontro-titulo">
+        <span class="nome nome-b">Bertoncini</span>
+        <span class="e" aria-hidden="true">&amp;</span>
+        <span class="visualmente-oculto"> e </span>
+        <span class="nome nome-m">Mendonça</span>
+      </h2>
+      <ol class="batidas">
+        {batidas.map((frase, n) => <li style={`--n:${n}`}>{frase}</li>)}
+      </ol>
+      <p class="encontro-nota" data-placeholder="1">Data de constituição da sociedade a confirmar com os sócios.</p>
+    </div>
+  </section>
+
+  <!-- 3. OS SÓCIOS. Meio a meio, sem a coluna do `.env`: a divisão vai de
+       borda a borda. A ordem no HTML é a de leitura, e em celular as duas
+       metades empilham. -->
+  <section class="socios-meio" id="socios" aria-labelledby="socios-titulo">
+    <h2 class="visualmente-oculto" id="socios-titulo">Os sócios</h2>
+    {perfis.map((perfil, n) => (
+      <article class:list={['metade', n === 0 ? 'clara' : 'escura']}>
+        <div class="metade-dentro">
+          <p class="lado">{perfil.lado}</p>
+
+          <div class="foto">
+            <picture>
+              <source type="image/avif" srcset={`${perfil.base}-560.avif 560w, ${perfil.base}-840.avif 840w`} sizes="(max-width: 900px) 70vw, 24vw" />
+              <source type="image/webp" srcset={`${perfil.base}-560.webp 560w, ${perfil.base}-840.webp 840w`} sizes="(max-width: 900px) 70vw, 24vw" />
+              <img
+                src={`${perfil.base}-840.jpg`}
+                alt={`Retrato de ${perfil.nome} ${perfil.sobrenome}`}
+                width={perfil.largura}
+                height={perfil.altura}
+                loading="lazy"
+                decoding="async"
+                style={`object-position:${perfil.enquadra}`}
+              />
+            </picture>
+          </div>
+
+          <h3 class="nome-socio">{perfil.nome}<br />{perfil.sobrenome}</h3>
+
+          <a class="area" href={`/areas/${perfil.socio.area}/`}>
+            {nomeDaArea(perfil.socio.area)}
+            <span class="seta" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+          </a>
+
+          <p class="bio">{perfil.bio}</p>
+
+          <p class="oab" data-placeholder={perfil.socio.oab.placeholder ? '1' : undefined}>
+            <span class="oab-rotulo">Inscrição na Ordem</span>
+            <span class="oab-numero">{perfil.socio.oab.valor}</span>
+          </p>
+
+          <dl class="dados">
+            <div>
+              <dt>Prática</dt>
+              <dd>{pratica}</dd>
+            </div>
+            <div>
+              <dt>Formação</dt>
+              <dd>
+                <ul>{perfil.formacao.map((item) => <li>{item}</li>)}</ul>
+              </dd>
+            </div>
+            <div>
+              <dt>Contato</dt>
+              <dd class="contato">
+                <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
+                <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefone.placeholder ? '1' : undefined}>{site.telefone.valor}</a>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </article>
+    ))}
+  </section>
+
+  <!-- 4. REGISTRO: exigência do Provimento 205/2021, em ficha, visível e
+       não no rodapé. -->
+  <section class="registro-secao">
+    <div class="env">
+      <div class="registro-cabeca">
+        <h2 class="titulo-registro">Registro da sociedade</h2>
+        <p class="apoio-registro">
+          Inscrita na Ordem dos Advogados do Brasil, Seccional do Paraná. Dados exigidos pelo
+          Provimento 205/2021.
+        </p>
+      </div>
       <Ficha
         rotulo="Dados de registro da sociedade"
         itens={[
@@ -294,12 +242,20 @@ const pratica = 'Mais de quatro anos';
 </Base>
 
 <style>
-  /* ── abertura ─────────────────────────────────────────────────────── */
+  .visualmente-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ── 1. abertura ──────────────────────────────────────────────────── */
 
   .abertura {
-    padding-block: clamp(20px, 3vw, 36px) clamp(36px, 5vw, 68px);
+    padding-block: clamp(20px, 3vw, 36px) clamp(48px, 6vw, 96px);
   }
-  /* A placa: mesma forma da primeira dobra da home. */
   .placa-abre {
     position: relative;
     border-radius: clamp(16px, 2vw, 28px);
@@ -317,18 +273,12 @@ const pratica = 'Mais de quatro anos';
     object-fit: cover;
     object-position: 58% 30%;
   }
-  /* Escurecimento NEUTRO (preto transparente, nunca cor) apenas onde há
-     texto: a foto mantém a cor dela. Ver docs/PLANO-REDESENHO.md. */
+  /* Escurecimento NEUTRO apenas onde há texto: a foto mantém a cor. */
   .placa-abre::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.68) 0%,
-      rgba(0, 0, 0, 0.4) 34%,
-      transparent 56%
-    );
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.68) 0%, rgba(0, 0, 0, 0.4) 34%, transparent 56%);
     pointer-events: none;
   }
   .dizer {
@@ -355,51 +305,15 @@ const pratica = 'Mais de quatro anos';
     font-size: clamp(30px, 3.9vw, 62px);
     max-width: 15ch;
   }
-
-  .depois-abre {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-    align-items: start;
-    gap: clamp(28px, 5vw, 88px);
-    margin-top: clamp(30px, 3.6vw, 52px);
-  }
   .linha-fina {
-    margin: 0;
-    max-width: 40ch;
+    margin: clamp(28px, 3.4vw, 48px) 0 0;
+    max-width: 44ch;
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(21px, 1.9vw, 27px);
-    line-height: 1.4;
+    font-size: clamp(22px, 2.1vw, 30px);
+    line-height: 1.38;
     color: var(--tinta);
   }
-  /* Os fatos: três colunas com filete no topo, como os números da
-     Oliveira Pitta — mas em palavras, porque o que o escritório tem para
-     afirmar é tempo, área e lugar, não volume. */
-  .fatos {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(16px, 2vw, 28px);
-    margin: 0;
-  }
-  .fatos div {
-    padding-top: 16px;
-    border-top: 2px solid var(--tinta);
-  }
-  .fatos dt {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(22px, 2vw, 28px);
-    line-height: 1.15;
-    color: var(--tinta);
-  }
-  .fatos dd {
-    margin: 8px 0 0;
-    font-size: 16.5px;
-    line-height: 1.5;
-    color: var(--secundario);
-  }
-  /* No celular a foto perde a área livre à esquerda: o texto sai de cima
-     dela e vai para baixo, sobre o azul da própria placa. */
   @media (max-width: 820px) {
     .retrato img {
       aspect-ratio: 4 / 5;
@@ -420,184 +334,317 @@ const pratica = 'Mais de quatro anos';
       max-width: 18ch;
     }
   }
-  @media (max-width: 960px) {
-    .depois-abre {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-  @media (max-width: 620px) {
-    .fatos {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0;
-    }
-    .fatos div {
-      display: grid;
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
-      gap: 16px;
-      padding-block: 14px;
-      border-top-width: 1px;
-      border-color: var(--linha);
-    }
-    .fatos div:first-child {
-      border-top: 2px solid var(--tinta);
-    }
-    .fatos dt {
-      font-size: 21px;
-    }
-    .fatos dd {
-      margin: 0;
-    }
-  }
 
-  /* ── seções: cabeçalho em duas colunas ────────────────────────────── */
+  /* ── 2. o encontro ────────────────────────────────────────────────── */
 
-  .secao .chapeu {
-    color: var(--secundario);
-    margin-bottom: 14px;
-    opacity: 1;
+  /*
+    Estado PARADO (sem suporte ou com movimento reduzido): uma seção
+    escura comum, nomes juntos, frases visíveis. Tudo o que se move está
+    no @supports mais abaixo.
+  */
+  .encontro {
+    position: relative;
+    background: var(--tinta);
+    color: #fff;
+    overflow: clip;
   }
-  .secao h2.display {
-    font-size: clamp(32px, 4.2vw, 56px);
-    max-width: 14ch;
-  }
-
-  /* ── a sociedade ──────────────────────────────────────────────────── */
-
-  .sociedade {
-    padding-block: clamp(56px, 7vw, 112px) clamp(48px, 6vw, 88px);
-    border-top: 1px solid var(--linha);
-  }
-  /* O chapéu ocupa a linha de cima inteira; título e texto começam juntos
-     na linha de baixo. */
-  .sociedade-grade {
+  .encontro-tela {
+    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-    column-gap: clamp(24px, 5vw, 88px);
-    align-items: start;
+    align-content: center;
+    justify-items: center;
+    gap: clamp(36px, 5vw, 64px);
+    min-height: min(100svh, 860px);
+    padding: clamp(80px, 10vw, 140px) var(--gutter);
+    text-align: center;
   }
-  .sociedade-grade .chapeu {
-    grid-column: 1 / -1;
+  /* O fio vertical no centro: a linha que depois parte a tela dos sócios
+     ao meio. Aqui ele é o eixo onde os dois nomes se encontram. */
+  .fio {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.22) 20%, rgba(255, 255, 255, 0.22) 80%, transparent);
+    transform-origin: top;
   }
-  .sociedade-grade h2 {
+  .encontro-nomes {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0 0.22em;
     margin: 0;
-  }
-  .sociedade-texto {
-    max-width: 60ch;
-  }
-  .sociedade-texto p {
-    font-size: 19px;
-    line-height: 1.65;
-    color: var(--apoio);
-  }
-  .sociedade-texto p + p {
-    margin-top: 16px;
-  }
-  /* A primeira frase em serifa, o mesmo gesto da abertura das áreas. O
-     tamanho acompanha o título ao lado para as duas colunas começarem no
-     mesmo peso visual. */
-  .sociedade-texto .lead {
     font-family: var(--serif);
+    font-weight: 200;
+    font-size: clamp(46px, 8.6vw, 144px);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+  .nome {
+    display: inline-block;
+    will-change: transform;
+  }
+  /* O "&" é a peça que junta os dois nomes, como no logotipo. Um tom mais
+     claro do vermelho imperial, para passar em contraste sobre a tinta. */
+  .e {
+    display: inline-block;
+    font-style: italic;
     font-weight: 300;
-    font-size: clamp(23px, 2.2vw, 31px);
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-    color: var(--tinta);
-    padding-top: 0.25em;
+    color: #e2526a;
   }
-  .sociedade-texto .lead + p {
-    margin-top: clamp(20px, 2.2vw, 28px);
+  .batidas {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 48px);
+    width: min(100%, 1100px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
   }
-  .sociedade-texto .nota {
-    margin-top: 22px;
+  .batidas li {
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: clamp(18px, 1.35vw, 20px);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.86);
+  }
+  .encontro-nota {
+    position: relative;
+    margin: 0;
     font-size: 16px;
-    color: var(--secundario);
+    color: rgba(255, 255, 255, 0.66);
   }
-  @media (max-width: 960px) {
-    .sociedade-grade {
+  @media (max-width: 760px) {
+    /* Com os nomes empilhados não há eixo para o fio marcar, e ele
+       cortaria as frases ao meio. */
+    .fio {
+      display: none;
+    }
+    .encontro-nomes {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.06em;
+    }
+    .batidas {
       grid-template-columns: minmax(0, 1fr);
     }
-    .sociedade-texto {
-      margin-top: clamp(22px, 4vw, 32px);
+  }
+
+  /*
+    O MOVIMENTO. A seção fica 2,6 telas alta, a tela interna fica presa
+    (sticky), e a rolagem através da seção é a linha do tempo:
+
+      0–42%   os sobrenomes vêm dos lados até o centro, o fio desce
+      34–54%  o "&" aparece entre eles
+      50–80%  as três frases entram, uma de cada vez
+
+    O último quinto é respiro: a composição completa fica parada na tela
+    antes de a seção sair.
+  */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .encontro {
+        height: 260svh;
+        view-timeline-name: --encontro;
+        view-timeline-axis: block;
+      }
+      .encontro-tela {
+        position: sticky;
+        top: 0;
+        height: 100svh;
+        min-height: 0;
+      }
+      .nome,
+      .e,
+      .fio,
+      .batidas li,
+      .encontro-nota {
+        animation-timeline: --encontro;
+        animation-fill-mode: both;
+        animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      .nome-b {
+        animation-name: vem-da-esquerda;
+        animation-range: contain 0% contain 42%;
+      }
+      .nome-m {
+        animation-name: vem-da-direita;
+        animation-range: contain 0% contain 42%;
+      }
+      .fio {
+        animation-name: desce;
+        animation-range: contain 0% contain 45%;
+      }
+      .e {
+        animation-name: surge;
+        animation-range: contain 34% contain 54%;
+      }
+      .batidas li {
+        animation-name: entra;
+        animation-range: contain calc(50% + var(--n) * 9%) contain calc(62% + var(--n) * 9%);
+      }
+      .encontro-nota {
+        animation-name: entra;
+        animation-range: contain 76% contain 84%;
+      }
+    }
+  }
+  @keyframes vem-da-esquerda {
+    from {
+      transform: translateX(-34vw);
+      opacity: 0.18;
+    }
+    40% {
+      opacity: 1;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+  @keyframes vem-da-direita {
+    from {
+      transform: translateX(34vw);
+      opacity: 0.18;
+    }
+    40% {
+      opacity: 1;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+  @keyframes desce {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+  @keyframes surge {
+    from {
+      transform: scale(0.4) rotate(-12deg);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+  @keyframes entra {
+    from {
+      transform: translateY(24px);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
     }
   }
 
-  /* ── divisão ──────────────────────────────────────────────────────── */
+  /* ── 3. os sócios, meio a meio ────────────────────────────────────── */
 
-  .metades {
+  .socios-meio {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(10px, 1vw, 16px);
-    margin-top: clamp(30px, 3.6vw, 52px);
   }
   .metade {
-    display: flex;
-    flex-direction: column;
-    min-height: clamp(240px, 22vw, 320px);
-    padding: clamp(24px, 3vw, 44px);
+    padding: clamp(56px, 7vw, 120px) clamp(24px, 5vw, 96px);
+  }
+  .metade.clara {
     background: var(--papel);
     color: var(--tinta);
-    border-radius: clamp(14px, 1.6vw, 22px);
-    text-decoration: none;
-    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s;
-  }
-  .metade:hover {
-    transform: translateY(-3px);
-    background: #eef1f5;
   }
   .metade.escura {
     background: var(--tinta);
     color: #fff;
+    /* O fio do encontro continua aqui: a borda entre as duas metades. */
+    border-left: 1px solid rgba(255, 255, 255, 0.14);
   }
-  .metade.escura:hover {
-    background: #102a55;
+  .metade-dentro {
+    display: grid;
+    justify-items: start;
+    max-width: 560px;
+    margin-inline: auto;
   }
-  .metade-papel {
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+  .lado {
+    margin: 0;
+    font-size: 17px;
     color: var(--secundario);
   }
-  .escura .metade-papel {
-    color: rgba(255, 255, 255, 0.72);
+  .escura .lado {
+    color: rgba(255, 255, 255, 0.7);
   }
-  .metade-area {
-    margin-top: 16px;
+
+  /* Retrato: entra por uma cortina que abre do centro, o mesmo gesto do
+     fio que se abre — só onde há linha do tempo de rolagem. */
+  .foto {
+    width: min(100%, 360px);
+    margin-top: clamp(22px, 2.6vw, 34px);
+    border-radius: clamp(14px, 1.6vw, 20px);
+    overflow: hidden;
+    background: var(--tinta);
+  }
+  .foto img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .metade:hover .foto img {
+    transform: scale(1.035);
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .foto {
+        animation: cortina linear both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 40%;
+      }
+    }
+  }
+  @keyframes cortina {
+    from {
+      clip-path: inset(0 50% 0 50% round 20px);
+    }
+    to {
+      clip-path: inset(0 0 0 0 round 20px);
+    }
+  }
+
+  .nome-socio {
+    margin: clamp(24px, 2.8vw, 36px) 0 0;
     font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(28px, 3vw, 42px);
-    line-height: 1.08;
-    letter-spacing: -0.02em;
-    max-width: 16ch;
+    font-weight: 200;
+    font-size: clamp(44px, 5vw, 76px);
+    line-height: 0.96;
+    letter-spacing: -0.035em;
   }
-  .metade-resumo {
-    margin-top: 14px;
-    max-width: 42ch;
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--apoio);
-  }
-  .escura .metade-resumo {
-    color: rgba(255, 255, 255, 0.82);
-  }
-  .metade-quem {
-    margin-top: 18px;
-    font-size: 16px;
-    letter-spacing: 0.02em;
-    color: var(--apoio);
-  }
-  .escura .metade-quem {
-    color: rgba(255, 255, 255, 0.82);
-  }
-  .metade-leva {
-    margin-top: auto;
-    padding-top: 24px;
+  .area {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     min-height: 44px;
-    font-size: 16.5px;
+    margin-top: 14px;
+    font-size: 18px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .area:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
   .seta {
+    flex: none;
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -607,87 +654,31 @@ const pratica = 'Mais de quatro anos';
     color: #fff;
     transition: transform 0.35s;
   }
-  .metade:hover .seta {
+  .area:hover .seta {
     transform: translateX(4px);
   }
-  @media (max-width: 720px) {
-    .metades {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .metade {
-      min-height: 0;
-    }
-  }
-
-  /* ── perfis ───────────────────────────────────────────────────────── */
-
-  .quem {
-    padding-block: clamp(56px, 7vw, 112px) clamp(40px, 5vw, 72px);
-  }
-  .perfis {
-    display: grid;
-    gap: clamp(20px, 2.4vw, 32px);
-    margin-top: clamp(32px, 4vw, 56px);
-  }
-  .perfil {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: clamp(28px, 5vw, 88px);
-    align-items: start;
-    padding-top: clamp(20px, 2.4vw, 32px);
-    border-top: 1px solid var(--linha);
-  }
-  .perfil-foto {
-    border-radius: clamp(14px, 1.6vw, 20px);
-    overflow: hidden;
-    background: var(--tinta);
-  }
-  .perfil-foto img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-  }
-  .perfil-texto {
-    display: grid;
-    justify-items: start;
-    padding-top: clamp(4px, 1vw, 16px);
-  }
-  .perfil-area {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    font-size: 16px;
-    letter-spacing: 0.04em;
-    color: var(--imperial);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-  }
-  .perfil-area:hover {
-    border-color: currentColor;
-  }
-  .perfil-nome {
-    margin: 4px 0 0;
+  .bio {
+    margin: 16px 0 0;
+    max-width: 38ch;
     font-family: var(--serif);
-    font-weight: 200;
-    font-size: clamp(38px, 4.4vw, 64px);
-    line-height: 1;
-    letter-spacing: -0.03em;
-    color: var(--tinta);
+    font-weight: 300;
+    font-size: clamp(20px, 1.7vw, 24px);
+    line-height: 1.4;
   }
+  .escura .bio {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
   /* A OAB: 22px nesta rota, é o piso que o portão cobra. */
   .oab {
     display: grid;
     gap: 2px;
-    margin: clamp(18px, 2vw, 26px) 0 0;
-    padding: 10px 16px;
+    margin: clamp(22px, 2.4vw, 30px) 0 0;
+    padding-left: 14px;
     border-left: 2px solid var(--imperial);
   }
   .oab-rotulo {
-    font-size: 14px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 15px;
     color: var(--secundario);
   }
   .oab-numero {
@@ -695,105 +686,117 @@ const pratica = 'Mais de quatro anos';
     color: var(--imperial);
     font-variant-numeric: tabular-nums;
   }
-  .perfil-bio {
-    margin: clamp(20px, 2.2vw, 28px) 0 0;
-    max-width: 50ch;
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(20px, 1.7vw, 24px);
-    line-height: 1.42;
-    color: var(--tinta);
+  /* Sobre a tinta, o vermelho imperial reprova (2:1). A OAB passa a
+     branco cheio e o filete carrega a cor. */
+  .escura .oab {
+    border-color: #e2526a;
   }
-  .perfil-dados {
+  .escura .oab-rotulo {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .escura .oab-numero {
+    color: #fff;
+  }
+
+  .dados {
     width: 100%;
-    margin: clamp(24px, 2.8vw, 36px) 0 0;
+    margin: clamp(26px, 3vw, 38px) 0 0;
   }
-  .perfil-dados > div {
+  .dados > div {
     display: grid;
-    grid-template-columns: 120px minmax(0, 1fr);
+    grid-template-columns: 104px minmax(0, 1fr);
     gap: 16px;
-    padding-block: 14px;
+    padding-block: 13px;
     border-top: 1px solid var(--linha);
   }
-  .perfil-dados > div:last-child {
-    border-bottom: 1px solid var(--linha);
+  .escura .dados > div {
+    border-color: rgba(255, 255, 255, 0.16);
   }
-  .perfil-dados dt {
+  .dados dt {
     font-size: 16px;
     color: var(--secundario);
-    padding-top: 1px;
   }
-  .perfil-dados dd {
+  .escura .dados dt {
+    color: rgba(255, 255, 255, 0.68);
+  }
+  .dados dd {
     margin: 0;
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--tinta);
+    font-size: 16.5px;
+    line-height: 1.5;
   }
-  .perfil-dados ul {
+  .dados ul {
     margin: 0;
     padding: 0;
     list-style: none;
     display: grid;
-    gap: 6px;
+    gap: 4px;
   }
-  /* Os links de contato têm 44px de altura (alvo de toque); a margem
-     negativa devolve a linha ao ritmo das outras. */
-  .perfil-contato {
+  /* Links de contato com 44px de altura (alvo de toque); a margem negativa
+     devolve a linha ao ritmo das outras. */
+  .contato {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 24px;
+    gap: 0 20px;
     margin-block: -11px !important;
   }
-  .perfil-contato a {
+  .contato a {
     min-height: 44px;
     display: inline-flex;
     align-items: center;
-    color: var(--tinta);
+    color: inherit;
     text-decoration: underline;
-    text-decoration-color: var(--linha);
+    text-decoration-color: rgba(127, 140, 160, 0.5);
     text-underline-offset: 4px;
   }
-  .perfil-contato a:hover {
+  .contato a:hover {
     text-decoration-color: currentColor;
   }
-  @media (max-width: 820px) {
-    .perfil {
+
+  @media (max-width: 900px) {
+    .socios-meio {
       grid-template-columns: minmax(0, 1fr);
     }
-    .perfil-foto {
-      max-width: 420px;
+    .metade.escura {
+      border-left: 0;
     }
   }
-  @media (max-width: 480px) {
-    .perfil-dados > div {
+  @media (max-width: 460px) {
+    .dados > div {
       grid-template-columns: minmax(0, 1fr);
-      gap: 6px;
+      gap: 4px;
     }
   }
 
-  /* ── registro ─────────────────────────────────────────────────────── */
+  /* ── 4. registro ──────────────────────────────────────────────────── */
 
   .registro-secao {
-    padding-block: clamp(30px, 4vw, 56px) clamp(44px, 6vw, 88px);
+    padding-block: clamp(56px, 7vw, 104px) clamp(40px, 5vw, 72px);
+  }
+  .registro-cabeca {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px 40px;
+    margin-bottom: clamp(22px, 2.6vw, 32px);
   }
   .titulo-registro {
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(26px, 3.2vw, 40px);
+    font-size: clamp(28px, 3.2vw, 42px);
     letter-spacing: -0.02em;
   }
   .apoio-registro {
-    margin: 16px 0 clamp(24px, 3vw, 34px);
-    max-width: 62ch;
-    font-size: 18px;
+    margin: 0;
+    max-width: 52ch;
+    font-size: 17px;
     color: var(--secundario);
   }
 
-  /* Todo movimento desligado sob prefers-reduced-motion. */
   @media (prefers-reduced-motion: reduce) {
     .abertura *,
-    .sociedade *,
-    .quem *,
+    .encontro *,
+    .socios-meio *,
     .registro-secao * {
       transition: none !important;
       animation: none !important;
