@@ -1,23 +1,21 @@
 ---
 /**
- * "O que chega até nós": as perguntas que os sócios mais ouvem, agrupadas
- * por área, cada uma levando à resposta na página da área.
+ * "O que chega até nós" sobre a faixa (redesenho de 21/10/2026, a partir
+ * da seção de depoimentos de marketinglab.framer.ai).
  *
- * As perguntas vêm do briefing (q7.4), na forma em que o cliente as faz,
- * e as respostas já estão no JSON de cada área. Esta seção não tem texto
- * próprio além do título: ela serve para a pessoa se reconhecer numa
- * pergunta e ir direto para a resposta.
+ * Depoimento de cliente é vedado pelo Provimento 205/2021, então o lugar
+ * dos depoimentos vai para as perguntas reais que os sócios ouvem, na forma
+ * em que o cliente as faz (briefing, q7.4). O efeito é o mesmo: o fundo
+ * (a biblioteca à noite, `fundo-perguntas`) e a frase da antiga
+ * `Faixa.astro` ficam parados (`sticky`) enquanto os cartões sobem por cima,
+ * alternando os lados. A vinheta é preta, não marinho: só dá contraste ao
+ * texto, sem tingir a foto.
  *
- * Cada link aponta para o `id` do `<details>` correspondente
- * (`#pergunta-N`), e o script de `Perguntas.astro` abre a resposta quando
- * a página carrega com esse endereço.
+ * Cada cartão leva à resposta na página da área (`#pergunta-N`).
  */
-import Marca from './Marca.astro';
-
 interface Grupo {
   nome: string;
   slug: string;
-  marca?: 'sucessao' | 'rede';
   perguntas: { texto: string; indice: number }[];
 }
 
@@ -26,166 +24,183 @@ interface Props {
 }
 
 const { grupos } = Astro.props;
+
+/* Quatro por área, intercaladas: a coluna da esquerda e a da direita não
+   ficam cada uma com uma área. */
+const POR_AREA = 4;
+const cartas = Array.from({ length: POR_AREA }).flatMap((_, i) =>
+  grupos
+    .filter((g) => g.perguntas[i])
+    .map((g) => ({ area: g.nome, slug: g.slug, ...g.perguntas[i] })),
+);
 ---
 
-<section class="secao situacoes" id="situacoes" aria-labelledby="situacoes-titulo">
-  <div class="env">
-    <div class="topo">
-      <div>
-        <p class="olho sobe">Perguntas frequentes</p>
-        <h2 class="display sobe" id="situacoes-titulo">O que as pessoas nos perguntam</h2>
-      </div>
-      <p class="apoio sobe">
-        Algumas das dúvidas que chegam na primeira conversa, do jeito que elas chegam. Cada uma
-        tem resposta curta na página da área.
-      </p>
-    </div>
-
-    <div class="grupos">
-      {grupos.map((grupo) => (
-        <div class="grupo sobe">
-          <div class="grupo-cabeca">
-            {grupo.marca && <Marca tipo={grupo.marca} class="grupo-icone" />}
-            <h3>{grupo.nome}</h3>
-          </div>
-          <ul>
-            {grupo.perguntas.map((pergunta) => (
-              <li>
-                <a href={`/areas/${grupo.slug}/#pergunta-${pergunta.indice + 1}`}>
-                  <span>{pergunta.texto}</span>
-                  <span class="seta" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-          <a class="todas" href={`/areas/${grupo.slug}/#perguntas`}>Todas as perguntas sobre {grupo.nome.toLowerCase()}</a>
-        </div>
-      ))}
+<section class="situacoes" aria-labelledby="situacoes-titulo">
+  <div class="fundo">
+    <picture aria-hidden="true">
+      <source type="image/avif" srcset="/media/novas/fundo-perguntas.avif" />
+      <source type="image/webp" srcset="/media/novas/fundo-perguntas.webp" />
+      <img class="filme" src="/media/novas/fundo-perguntas.jpg" alt="" width="1664" height="936" loading="lazy" decoding="async" />
+    </picture>
+    <div class="lavagem" aria-hidden="true"></div>
+    <div class="frase env">
+      <h2 id="situacoes-titulo">Decisões importantes merecem ser pensadas antes de virarem urgência.</h2>
+      <p>Algumas das dúvidas que chegam na primeira conversa, do jeito que elas chegam.</p>
     </div>
   </div>
+
+  <ol class="cartas env">
+    {cartas.map((c) => (
+      <li>
+        <a href={`/areas/${c.slug}/#pergunta-${c.indice + 1}`}>
+          <span class="area">{c.area}</span>
+          <span class="pergunta">“{c.texto}”</span>
+          <span class="ler">
+            Ler a resposta
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ol>
 </section>
 
 <style>
   .situacoes {
-    padding-block: var(--bloco) 0;
+    position: relative;
+    background: #050e22;
+    color: #fff;
   }
-  .topo {
+  .fundo {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    gap: clamp(20px, 4vw, 64px);
-    align-items: end;
-    margin-bottom: clamp(32px, 4vw, 56px);
+    place-items: center;
   }
-  .olho {
-    margin-bottom: 16px;
-    font-size: 16px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--imperial);
+  .filme {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
-  .topo h2 {
-    font-size: clamp(34px, 4.6vw, 64px);
+  .lavagem {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60% 50% at 50% 50%, rgba(0, 0, 0, 0.45), transparent 70%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 40%, rgba(0, 0, 0, 0.55));
+  }
+  .frase {
+    position: relative;
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+  }
+  .frase h2 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(38px, 5.6vw, 84px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
     max-width: 16ch;
   }
-  .apoio {
+  .frase p {
+    max-width: 40ch;
     font-size: 18px;
-    color: var(--secundario);
-    max-width: 46ch;
+    color: rgba(255, 255, 255, 0.72);
   }
-  .grupos {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(14px, 1.6vw, 22px);
-  }
-  .grupo {
-    background: var(--papel);
-    border-radius: clamp(16px, 2vw, 26px);
-    padding: clamp(22px, 2.8vw, 40px);
+
+  /* Os cartões entram depois do fundo, mas puxados 100vh para cima: correm
+     por cima dele enquanto ele está grudado. */
+  .cartas {
+    position: relative;
+    list-style: none;
+    margin: -100vh auto 0;
+    padding-block: 85vh 30vh;
     display: flex;
     flex-direction: column;
   }
-  .grupo-cabeca {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding-bottom: 18px;
-    border-bottom: 1px solid var(--linha);
+  .cartas li {
+    width: min(100%, 360px);
   }
-  .grupo-cabeca :global(.grupo-icone) {
-    width: 48px;
-    height: auto;
-    flex: none;
-  }
-  .grupo h3 {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(22px, 2vw, 28px);
-    line-height: 1.15;
-  }
-  .grupo ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    flex: 1;
-  }
-  .grupo li {
-    border-bottom: 1px solid var(--linha);
-  }
-  .grupo li a {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    min-height: 56px;
-    padding: 12px 0;
-    font-family: var(--serif);
-    font-size: 19px;
-    line-height: 1.35;
-    color: var(--tinta);
-    text-decoration: none;
-  }
-  .grupo li a .seta {
-    flex: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    color: var(--imperial);
-    background: #fff;
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.25s, color 0.25s;
-  }
-  .grupo li a:hover span:first-child {
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-thickness: 1px;
-  }
-  .grupo li a:hover .seta {
-    transform: translateX(3px);
-    background: var(--imperial);
-    color: #fff;
-  }
-  .todas {
+  .cartas li:nth-child(odd) {
     align-self: flex-start;
+    margin-left: 4%;
+  }
+  .cartas li:nth-child(even) {
+    align-self: flex-end;
+    margin-right: 4%;
+    margin-top: -14vh;
+  }
+  .cartas li + li:nth-child(odd) {
+    margin-top: 6vh;
+  }
+  .cartas a {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 260px;
+    padding: 26px 26px 24px;
+    border-radius: 18px;
+    background: rgba(26, 36, 56, 0.86);
+    backdrop-filter: blur(14px);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+      0 30px 60px -20px rgba(0, 0, 0, 0.6);
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .cartas a:hover {
+    background: rgba(36, 50, 76, 0.92);
+    transform: translateY(-4px);
+  }
+  .area {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    margin-top: 18px;
-    font-size: 17px;
-    color: var(--apoio);
-    text-underline-offset: 4px;
+    gap: 8px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
   }
-  @media (max-width: 900px) {
-    .topo,
-    .grupos {
-      grid-template-columns: 1fr;
+  .area::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--imperial);
+    box-shadow: 0 0 0 3px rgba(155, 28, 46, 0.3);
+  }
+  .pergunta {
+    font-size: 21px;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+  .ler {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  @media (max-width: 760px) {
+    .cartas li,
+    .cartas li:nth-child(odd),
+    .cartas li:nth-child(even) {
+      align-self: center;
+      margin: 18px 0 0;
+    }
+    .cartas {
+      padding-block: 80vh 20vh;
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .grupo li a .seta {
+    .cartas a {
       transition: none;
     }
   }
