@@ -1,0 +1,217 @@
+---
+/**
+ * As publicações na home (redesenho de 21/10/2026, a partir do "Blog &
+ * Insights" de marketinglab.framer.ai): o texto mais recente em destaque,
+ * largo, com foto de um lado e resumo do outro, e os dois seguintes em
+ * cartões comuns embaixo.
+ *
+ * Eram seis cartões iguais numa grade. Três, com hierarquia, dizem mais:
+ * o destaque responde "o que eles escreveram por último" sem o leitor
+ * precisar comparar seis capas.
+ *
+ * Lista vazia não renderiza a seção (quem chama já checa).
+ */
+import { Image } from 'astro:assets';
+import CartaoTexto from './CartaoTexto.astro';
+import { dataLegivel, type Artigo } from '~/lib/artigos';
+
+interface Props {
+  artigos: Artigo[];
+}
+
+const { artigos } = Astro.props;
+const [destaque, ...resto] = artigos;
+const d = destaque.data;
+---
+
+<section class="blog" id="publicacoes" aria-labelledby="blog-titulo">
+  <div class="env">
+    <header class="cab">
+      <h2 id="blog-titulo">Últimas publicações</h2>
+      <div class="lado">
+        <p>
+          O que escrevemos para quem não é da área. Um assunto por vez, sem citação de artigo de lei
+          que ninguém precisa decorar.
+        </p>
+        <a class="botao" href="/blog/">
+          Ver todo o blog
+          <span class="disco" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <a class="destaque sobe" href={`/blog/${destaque.id}/`}>
+      <div class="capa">
+        {d.capa && d.capaLargura && d.capaAltura ? (
+          <Image
+            src={d.capa}
+            alt={d.capaAlt ?? ''}
+            width={d.capaLargura}
+            height={d.capaAltura}
+            widths={[640, 900, 1200]}
+            sizes="(min-width: 900px) 600px, 92vw"
+            loading="lazy"
+          />
+        ) : (
+          <div class="semcapa" aria-hidden="true" />
+        )}
+      </div>
+      <div class="corpo">
+        <span class="classe">{d.categoria}</span>
+        <h3>{d.titulo}</h3>
+        <p class="resumo">{d.resumo}</p>
+        <p class="pe">
+          <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
+          {d.tempoLeitura && <span> · {d.tempoLeitura} min de leitura</span>}
+        </p>
+        <span class="ler">Ler o texto</span>
+      </div>
+    </a>
+
+    {resto.length > 0 && (
+      <div class="par">
+        {resto.slice(0, 2).map((artigo) => <CartaoTexto artigo={artigo} sizes="(min-width: 900px) 600px, 92vw" />)}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .blog {
+    padding-block: clamp(72px, 9vw, 136px) clamp(48px, 6vw, 88px);
+    background: var(--branco);
+  }
+  .cab {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: clamp(24px, 4vw, 64px);
+    margin-bottom: clamp(32px, 4vw, 56px);
+  }
+  .cab h2 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(36px, 4.6vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--tinta);
+    max-width: 9ch;
+  }
+  .lado {
+    max-width: 40ch;
+    display: grid;
+    gap: 20px;
+    justify-items: start;
+  }
+  .lado p {
+    font-size: 17px;
+    color: var(--secundario);
+  }
+
+  .destaque {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(20px, 2.4vw, 32px);
+    padding: 10px;
+    border-radius: 22px;
+    background: var(--papel);
+    box-shadow: inset 0 0 0 1px var(--linha);
+    text-decoration: none;
+    color: var(--tinta);
+  }
+  .capa {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--linha);
+  }
+  .capa :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .destaque:hover .capa :global(img) {
+    transform: scale(1.04);
+  }
+  .corpo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: clamp(10px, 1.6vw, 22px) clamp(6px, 1vw, 14px) 4px 0;
+  }
+  .classe {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--branco);
+    font-size: 14px;
+  }
+  .classe::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--imperial);
+  }
+  .corpo h3 {
+    margin-top: 18px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(24px, 2.4vw, 34px);
+    line-height: 1.12;
+    letter-spacing: -0.025em;
+  }
+  .resumo {
+    margin-top: 14px;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--secundario);
+    max-width: 48ch;
+  }
+  .pe {
+    margin-top: 16px;
+    font-size: 15px;
+    color: var(--secundario);
+  }
+  .ler {
+    margin-top: auto;
+    align-self: stretch;
+    display: grid;
+    place-items: center;
+    min-height: 48px;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: #fff;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  .destaque:hover .ler {
+    background: var(--imperial);
+  }
+  .par {
+    margin-top: clamp(20px, 2.4vw, 32px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(20px, 2.4vw, 32px);
+  }
+
+  @media (max-width: 900px) {
+    .cab,
+    .destaque,
+    .par {
+      grid-template-columns: 1fr;
+    }
+    .cab {
+      flex-direction: column;
+    }
+    .ler {
+      margin-top: 22px;
+    }
+  }
+</style>
