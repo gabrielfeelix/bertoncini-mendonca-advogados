@@ -285,6 +285,27 @@ function ligaVideoTardio(): void {
   olho.observe(tardio);
 }
 
+/**
+ * Rótulo que rola: no hover o texto do botão sobe e uma cópia entra por
+ * baixo (padrão de marketinglab.framer.ai). A cópia é a sombra do próprio
+ * texto, deslocada uma linha para baixo — sem duplicar texto no DOM, então
+ * leitor de tela e seleção continuam lendo o rótulo uma vez só.
+ */
+function ligaRotulosQueRolam(): void {
+  document.querySelectorAll<HTMLElement>('.botao, .fala').forEach((b) => {
+    if (b.querySelector('.rola')) return;
+    b.childNodes.forEach((no) => {
+      if (no.nodeType !== Node.TEXT_NODE || !no.textContent?.trim()) return;
+      const caixa = document.createElement('span');
+      caixa.className = 'rola';
+      const dentro = document.createElement('span');
+      dentro.textContent = no.textContent.trim();
+      caixa.append(dentro);
+      no.replaceWith(caixa);
+    });
+  });
+}
+
 /** Magnetismo: o botão desliza até 6px na direção do cursor. */
 function ligaMagnetismo(): void {
   if (!matchMedia('(pointer:fine)').matches) return;
@@ -332,6 +353,7 @@ if (calmo) {
   ligaReveals();
   ligaVideoTardio();
   ligaMagnetismo();
+  ligaRotulosQueRolam();
 
   /* Lenis e GSAP entram sob demanda. Se a importação falhar (rede, bloqueio
      de script), as âncoras ainda ganham o handler nativo com foco — o site
@@ -359,6 +381,10 @@ if (calmo) {
         mesmo gesto das outras transições do site.
       */
       const lenis = new Lenis({ duration: 1.35, smoothWheel: true });
+      /* Exposto para quem precisa mexer na rolagem sem brigar com ele (o
+         acordeão de `Servicos.astro`): mover a janela por fora faz o Lenis
+         puxar de volta para a posição que ele guarda. */
+      window.rolagem = lenis;
       raiz.classList.add('lenis');
 
       const tique = (t: number) => {
@@ -386,7 +412,7 @@ if (calmo) {
 }
 
 /**
- * GSAP: a declaração palavra a palavra e o método.
+ * GSAP: a declaração palavra a palavra. O método é só CSS (sticky).
  *
  * O piso de opacidade da declaração é .62, e a janela do scrub é curta de
  * propósito (protótipo, linhas 425-432): a .62 o contraste do título fica
@@ -408,24 +434,6 @@ async function ligaGsap(lenis: { on: (evento: 'scroll', fn: () => void) => void 
       stagger: 0.04,
       ease: 'none',
       scrollTrigger: { trigger: h, start: 'top 78%', end: 'bottom 75%', scrub: 0.6 },
-    });
-  });
-
-  const sec = document.getElementById('metodo');
-  if (!sec) return;
-  sec.classList.add('viva');
-  const passos = sec.querySelectorAll<HTMLElement>('.passo');
-  passos.forEach((p) => {
-    ScrollTrigger.create({
-      trigger: p,
-      start: 'top 62%',
-      end: 'bottom 38%',
-      onToggle: (s) => {
-        if (s.isActive) {
-          passos.forEach((q) => q.classList.remove('foco'));
-          p.classList.add('foco');
-        }
-      },
     });
   });
 
