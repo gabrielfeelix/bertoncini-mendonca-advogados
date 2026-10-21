@@ -1,0 +1,329 @@
+---
+/**
+ * Os sócios em cartões que se empilham (redesenho de 21/10/2026, a partir
+ * do "Work That Delivers Results" de marketinglab.framer.ai).
+ *
+ * Cada cartão é `sticky`, e cada um gruda 18px abaixo do anterior: o
+ * seguinte sobe por cima e a borda de cima dos anteriores fica aparecendo,
+ * como abas de fichário, todas na mesma largura. Era com escala (o de trás
+ * encolhia 5%), e as larguras diferentes liam como desnível. Só CSS.
+ *
+ * O cartão do escritório é `.cheia`: a foto ocupa o cartão inteiro e o
+ * texto vai por cima, em branco, sobre a parte escura da própria foto.
+ *
+ * O terceiro cartão é o escritório. Substitui o "Conhecer o escritório"
+ * solto que vinha depois da seção: o caminho fica dentro da pilha, no
+ * mesmo formato dos sócios.
+ *
+ * A OAB entra com rótulo, como exige o Provimento 205/2021 (ver a nota em
+ * `index.astro`).
+ */
+import { site } from '../lib/site';
+
+interface Ficha {
+  titulo: string;
+  texto: string;
+  linhas: { rotulo: string; valor: string }[];
+  href: string;
+  acao: string;
+  base: string;
+  alt: string;
+  posicao?: string;
+  /** Foto ocupando o cartão inteiro, com o texto por cima. */
+  cheia?: boolean;
+}
+
+const fichas: Ficha[] = [
+  {
+    titulo: 'Juscelino Bertoncini',
+    texto:
+      'Especialista em Direito Empresarial e em Advocacia Consultiva, trabalha na fase que antecede o processo: contratos, sociedades, imóveis e a organização do patrimônio.',
+    linhas: [
+      { rotulo: 'Inscrição na Ordem', valor: site.socios[0].oab.valor },
+      { rotulo: 'Atua em', valor: 'Planejamento patrimonial e sucessório' },
+    ],
+    href: '/areas/planejamento-patrimonial-e-sucessorio/',
+    acao: 'Ver a área',
+    base: '/media/socios/juscelino',
+    alt: 'Retrato de Juscelino Bertoncini',
+  },
+  {
+    titulo: 'Beatriz Mendonça',
+    texto:
+      'Especialista em Direito Processual Civil e pós-graduanda em Direito Digital, conduz os casos que precisam ir ao Judiciário e atende quem trabalha na internet.',
+    linhas: [
+      { rotulo: 'Inscrição na Ordem', valor: site.socios[1].oab.valor },
+      { rotulo: 'Atua em', valor: 'Direito digital' },
+    ],
+    href: '/areas/direito-digital/',
+    acao: 'Ver a área',
+    base: '/media/socios/beatriz',
+    alt: 'Retrato de Beatriz Mendonça',
+    posicao: '50% 26%',
+  },
+  {
+    titulo: 'O escritório',
+    texto:
+      'Sociedade de advogados em Maringá, com atendimento online para todo o país. Quem atende você do primeiro contato ao fim do caso é um dos sócios.',
+    linhas: [
+      { rotulo: 'Onde', valor: 'Maringá, PR · online para todo o país' },
+      { rotulo: 'Atendimento', valor: 'Segunda a sexta, 9h às 18h' },
+    ],
+    href: '/escritorio/',
+    acao: 'Conhecer o escritório',
+    base: '/media/hero/escritorio',
+    alt: 'Juscelino Bertoncini e Beatriz Mendonça no escritório',
+    posicao: '70% 28%',
+    cheia: true,
+  },
+];
+
+const tamanhos = (base: string) =>
+  base.includes('/hero/')
+    ? { avif: `${base}-1200.avif`, webp: `${base}-1200.webp`, jpg: `${base}-1600.jpg` }
+    : { avif: `${base}-840.avif`, webp: `${base}-840.webp`, jpg: `${base}-840.jpg` };
+---
+
+<section class="pilha" id="socios" aria-labelledby="socios-titulo">
+  <div class="env">
+    <header class="cab">
+      <h2 id="socios-titulo">Você fala com um dos sócios do começo ao fim.</h2>
+      <p>Dois advogados, uma área cada, e nenhum caso passado adiante para um estagiário.</p>
+    </header>
+
+    <ol class="fichas">
+      {fichas.map((f, i) => {
+        const t = tamanhos(f.base);
+        return (
+          <li class:list={['ficha', { cheia: f.cheia }]} style={`--i:${i}`}>
+            <div class="texto">
+              <h3>{f.titulo}</h3>
+              <p class="bio">{f.texto}</p>
+              <dl>
+                {f.linhas.map((l) => (
+                  <div>
+                    <dt>{l.rotulo}</dt>
+                    <dd>{l.valor}</dd>
+                  </div>
+                ))}
+              </dl>
+              <a class="botao" href={f.href}>
+                {f.acao}
+                <span class="disco" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg>
+                </span>
+              </a>
+            </div>
+            <picture class="foto">
+              <source type="image/avif" srcset={t.avif} />
+              <source type="image/webp" srcset={t.webp} />
+              <img src={t.jpg} alt={f.alt} loading="lazy" decoding="async" style={f.posicao ? `object-position:${f.posicao}` : undefined} />
+            </picture>
+          </li>
+        );
+      })}
+    </ol>
+  </div>
+</section>
+
+
+<style>
+  .pilha {
+    --topo: 200px;
+    background: var(--branco);
+    padding-block: clamp(80px, 9vw, 136px) clamp(60px, 6vw, 96px);
+  }
+  .cab {
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 16px;
+    margin-bottom: clamp(40px, 5vw, 72px);
+  }
+  .cab h2 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(32px, 4.2vw, 60px);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    color: var(--tinta);
+    max-width: 20ch;
+  }
+  .cab p {
+    max-width: 48ch;
+    font-size: 18px;
+    color: var(--secundario);
+  }
+
+  .fichas {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    max-width: 1200px;
+    display: grid;
+    gap: 40vh;
+    padding-bottom: 8vh;
+  }
+  .ficha {
+    position: sticky;
+    top: calc(var(--topo) + var(--i) * 18px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: min(560px, calc(100vh - var(--topo) - 40px));
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--papel);
+    box-shadow:
+      0 0 0 1px var(--linha),
+      0 30px 60px -30px rgba(11, 30, 63, 0.35);
+  }
+  .texto {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(28px, 3.4vw, 52px);
+  }
+  h3 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(26px, 2.4vw, 34px);
+    letter-spacing: -0.025em;
+    color: var(--tinta);
+  }
+  .bio {
+    margin-top: 14px;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--secundario);
+    max-width: 46ch;
+  }
+  dl {
+    margin: 26px 0 30px;
+  }
+  dl div {
+    padding-block: 16px;
+    border-top: 1px solid #d5dbe2;
+  }
+  dt {
+    font-size: 14px;
+    color: var(--secundario);
+    margin-bottom: 6px;
+  }
+  dd {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    color: var(--tinta);
+  }
+  dd::before {
+    content: '';
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--imperial);
+    flex: none;
+  }
+  .botao {
+    margin-top: auto;
+    align-self: flex-start;
+  }
+  .foto {
+    display: block;
+    position: relative;
+  }
+  .foto img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── o cartão do escritório: foto inteira, texto por cima ─────── */
+  .cheia {
+    grid-template-columns: 1fr;
+    background: var(--tinta);
+    box-shadow: 0 30px 60px -30px rgba(11, 30, 63, 0.5);
+  }
+  .cheia .foto {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .cheia .foto img {
+    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .cheia:hover .foto img {
+    transform: scale(1.03);
+  }
+  /* Vinheta preta, só de contraste: a foto não é tingida. */
+  .cheia .foto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(3, 8, 18, 0.88) 0%, rgba(3, 8, 18, 0.62) 38%, rgba(3, 8, 18, 0) 68%);
+  }
+  .cheia .texto {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+  }
+  .cheia h3 {
+    color: #fff;
+  }
+  .cheia .bio {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .cheia dl div {
+    border-top-color: rgba(255, 255, 255, 0.18);
+  }
+  .cheia dt {
+    color: rgba(255, 255, 255, 0.62);
+  }
+  .cheia dd {
+    color: #fff;
+  }
+  .cheia .botao {
+    background: #fff;
+    color: var(--tinta);
+  }
+  .cheia .botao:hover {
+    background: var(--papel);
+  }
+
+  @media (max-width: 900px) {
+    .cheia .foto {
+      position: relative;
+    }
+    .cheia .foto::after {
+      background: linear-gradient(0deg, rgba(3, 8, 18, 0.7), transparent 60%);
+    }
+    .cheia .texto {
+      max-width: none;
+    }
+    .fichas {
+      gap: 24px;
+      padding-bottom: 0;
+    }
+    .ficha {
+      position: relative;
+      top: auto;
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+    .foto {
+      order: -1;
+      aspect-ratio: 4 / 3;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ficha {
+      position: relative;
+      top: auto;
+    }
+    .fichas {
+      gap: 32px;
+    }
+  }
+</style>
