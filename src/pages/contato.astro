@@ -32,7 +32,6 @@
  * uma rua seria pior do que admitir que ela falta.
  */
 import Base from '~/layouts/Base.astro';
-import Marca from '~/components/Marca.astro';
 import Newsletter from '~/components/Newsletter.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
@@ -139,15 +138,16 @@ const campoComErro =
   descricao="Fale com o escritório Bertoncini & Mendonça. Formulário, WhatsApp, telefone e e-mail. Atendimento online para todo o país e presencial em Maringá, PR."
   paginaAtual="/contato/"
 >
+  {/* Redesenho de 21/10/2026, a partir da página "Contact" de
+      marketinglab.framer.ai: título e apoio lado a lado, formulário com
+      imagem ao lado, canais em cartões embaixo. O formulário, a validação e
+      as iscas são os mesmos de antes. */}
   <section class="abertura">
     <div class="env">
-      <Marca tipo="conversa" class="selo" />
-      <p class="chapeu">Contato</p>
-      <h1 class="display">Conte o que está acontecendo.</h1>
+      <h1>Conte o que está acontecendo.</h1>
       <p class="linha-fina">
-        Escreva com as suas palavras, sem termo técnico e sem organizar a história antes. Pelo
-        formulário a sua mensagem já chega com o assunto separado, e a primeira conversa começa
-        de onde você parou. Quem lê é um dos sócios.
+        Escreva com as suas palavras, sem termo técnico e sem organizar a história antes. Quem lê é
+        um dos sócios, e a primeira conversa começa de onde você parou.
       </p>
     </div>
   </section>
@@ -290,70 +290,73 @@ const campoComErro =
         </form>
       </div>
 
-      <aside class="coluna-dados" aria-label="Outros canais">
-        <h2>Outros canais</h2>
-        <p class="canais-apoio">
-          Se preferir, fale pelo WhatsApp, por telefone ou por e-mail. {site.horario}; fora do
-          horário a mensagem fica registrada.
-        </p>
-        <a
-          class="botao zap contorno"
-          href={site.whatsapp.valor}
-          target="_blank"
-          rel="noopener"
-          data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
-        >
-          WhatsApp
-          <span class="disco" aria-hidden="true">
-            <Zap tamanho={15} />
-          </span>
-        </a>
-        <dl class="dados">
-          <div class="dado">
-            <dt>Telefone</dt>
-            <dd>
-              <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefone.placeholder ? '1' : undefined}>
-                {site.telefone.valor}
-              </a>
-            </dd>
-          </div>
-          <div class="dado">
-            <dt>E-mail</dt>
-            <dd>
-              <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>
-                {site.email.valor}
-              </a>
-            </dd>
-          </div>
-          <div class="dado">
-            <dt>Instagram</dt>
-            <dd>
-              <a href={site.redes.instagram.valor} target="_blank" rel="noopener">{site.redes.instagramArroba}</a>
-            </dd>
-          </div>
-          <div class="dado">
-            <dt>Atendimento</dt>
-            <dd>{site.atendimento}</dd>
-          </div>
-          {/* Briefing q2.6: sem sede própria ainda; reunião presencial em
-              coworking, em Maringá. O endereço não é publicado como sede. */}
-          <div class="dado">
-            <dt>Presencial</dt>
-            <dd>Em Maringá, com hora marcada. O endereço é combinado na confirmação da reunião.</dd>
-          </div>
-        </dl>
-
-        <div class="registro">
-          <p>{site.nomeSociedade}</p>
-          <p data-placeholder={site.registro.oabSociedade.placeholder ? '1' : undefined}>
-            {site.registro.oabSociedade.valor}
-          </p>
-          <p data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>
-            CNPJ {site.registro.cnpj.valor}
-          </p>
-          <p>{site.socios.map((s) => `${s.nome}, ${s.oab.valor}`).join(' · ')}</p>
-        </div>
+      <aside class="coluna-imagem" aria-label="Quem responde">
+        <figure>
+          <picture>
+            <source type="image/avif" srcset="/media/novas/contato-lateral.avif" />
+            <source type="image/webp" srcset="/media/novas/contato-lateral.webp" />
+            <img src="/media/novas/contato-lateral.jpg" alt="" width="1100" height="1375" loading="lazy" decoding="async" />
+          </picture>
+          <figcaption>
+            <span class="avatares" aria-hidden="true">
+              <img src="/media/socios/juscelino-560.webp" alt="" width="40" height="40" loading="lazy" />
+              <img src="/media/socios/beatriz-560.webp" alt="" width="40" height="40" loading="lazy" style="object-position:50% 20%" />
+            </span>
+            <span>
+              <strong>Quem lê é um dos sócios.</strong>
+              {site.horario}. Fora do horário, a mensagem fica registrada.
+            </span>
+          </figcaption>
+        </figure>
       </aside>
+    </div>
+  </section>
+
+  <section class="canais" aria-labelledby="canais-titulo">
+    <div class="env">
+      <header>
+        <h2 id="canais-titulo">Se preferir, por outro caminho</h2>
+        <p>{site.atendimento}. Presencial em Maringá, com hora marcada: o endereço é combinado na confirmação da reunião.</p>
+      </header>
+      <ul class="cartoes-canais">
+        <li>
+          <a href={site.whatsapp.valor} target="_blank" rel="noopener" data-placeholder={site.whatsapp.placeholder ? '1' : undefined}>
+            <span class="icone zap-icone" aria-hidden="true"><Zap tamanho={20} /></span>
+            <strong>WhatsApp</strong>
+            <span>O caminho mais rápido</span>
+          </a>
+        </li>
+        <li>
+          <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefone.placeholder ? '1' : undefined}>
+            <span class="icone" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" /></svg></span>
+            <strong>{site.telefone.valor}</strong>
+            <span>Telefone</span>
+          </a>
+        </li>
+        <li>
+          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>
+            <span class="icone" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></span>
+            <strong>{site.email.valor}</strong>
+            <span>E-mail</span>
+          </a>
+        </li>
+        <li>
+          <a href={site.redes.instagram.valor} target="_blank" rel="noopener">
+            <span class="icone" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" /></svg></span>
+            <strong>{site.redes.instagramArroba}</strong>
+            <span>Instagram</span>
+          </a>
+        </li>
+      </ul>
+      <p class="registro-linha">
+        {site.nomeSociedade}
+        <span aria-hidden="true"> · </span>
+        <span data-placeholder={site.registro.oabSociedade.placeholder ? '1' : undefined}>{site.registro.oabSociedade.valor}</span>
+        <span aria-hidden="true"> · </span>
+        <span data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>CNPJ {site.registro.cnpj.valor}</span>
+        <span aria-hidden="true"> · </span>
+        {site.socios.map((s) => `${s.nome}, ${s.oab.valor}`).join(' · ')}
+      </p>
     </div>
   </section>
 
@@ -801,6 +804,236 @@ const campoComErro =
     .corpo, .corpo * {
       transition: none !important;
       animation: none !important;
+    }
+  }
+</style>
+
+<style>
+  /* ── Redesenho de 21/10/2026: sobrepõe o que vem acima ──────────── */
+  .abertura {
+    padding-block: clamp(140px, 15vw, 200px) clamp(36px, 4vw, 56px);
+    background: none;
+  }
+  .abertura :global(.env) {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: clamp(24px, 5vw, 80px);
+  }
+  .abertura h1 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(40px, 5.4vw, 78px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--tinta);
+    max-width: 12ch;
+  }
+  .abertura .linha-fina {
+    max-width: 40ch;
+    margin: 0;
+    text-align: right;
+    font-size: 17px;
+    color: var(--secundario);
+  }
+
+  .corpo :global(.env) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(24px, 3vw, 44px);
+    align-items: stretch;
+  }
+  .corpo h2 {
+    font-family: var(--sans);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .campo :is(input, textarea),
+  .campo select {
+    border: 0;
+    border-radius: 14px;
+    background: var(--papel);
+    box-shadow: inset 0 0 0 1px var(--linha);
+    transition: box-shadow 0.25s, background-color 0.25s;
+  }
+  .campo :is(input, textarea):hover,
+  .campo select:hover {
+    box-shadow: inset 0 0 0 1px #c9d1da;
+  }
+  .campo :is(input, textarea):focus-visible,
+  .campo select:focus-visible {
+    background: var(--branco);
+    box-shadow: inset 0 0 0 2px var(--tinta);
+    outline: none;
+  }
+  .enviar {
+    width: 100%;
+    justify-content: center;
+    min-height: 54px;
+  }
+
+  .coluna-imagem figure {
+    position: sticky;
+    top: 110px;
+    margin: 0;
+    height: min(760px, calc(100vh - 140px));
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  .coluna-imagem picture {
+    display: contents;
+  }
+  .coluna-imagem figure picture > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .coluna-imagem figure:hover picture > img {
+    transform: scale(1.04);
+  }
+  .coluna-imagem figcaption {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(11, 30, 63, 0.62);
+    backdrop-filter: blur(14px);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .coluna-imagem strong {
+    display: block;
+    color: #fff;
+    font-weight: 600;
+  }
+  .avatares {
+    display: flex;
+    flex: none;
+  }
+  .avatares img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px var(--tinta);
+  }
+  .avatares img + img {
+    margin-left: -12px;
+  }
+
+  .canais {
+    padding-block: clamp(72px, 9vw, 130px);
+  }
+  .canais header {
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+    margin-bottom: clamp(32px, 4vw, 52px);
+  }
+  .canais h2 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(32px, 4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    color: var(--tinta);
+  }
+  .canais header p {
+    max-width: 54ch;
+    font-size: 17px;
+    color: var(--secundario);
+  }
+  .cartoes-canais {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .cartoes-canais a {
+    height: 100%;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 6px;
+    padding: 28px 18px;
+    border-radius: 20px;
+    background: var(--papel);
+    box-shadow: inset 0 0 0 1px var(--linha);
+    text-align: center;
+    text-decoration: none;
+    color: var(--tinta);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s;
+  }
+  .cartoes-canais a:hover {
+    transform: translateY(-4px);
+    box-shadow: inset 0 0 0 1px #c9d1da, 0 24px 40px -24px rgba(11, 30, 63, 0.35);
+  }
+  .cartoes-canais .icone {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    background: var(--tinta);
+    color: #fff;
+  }
+  .cartoes-canais .zap-icone {
+    background: var(--whats);
+  }
+  .cartoes-canais strong {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 18px;
+    overflow-wrap: anywhere;
+  }
+  .cartoes-canais span:last-child {
+    font-size: 15px;
+    color: var(--secundario);
+  }
+  .registro-linha {
+    margin-top: 28px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--secundario);
+  }
+
+  @media (max-width: 900px) {
+    .abertura :global(.env) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .abertura .linha-fina {
+      text-align: left;
+    }
+    .corpo :global(.env) {
+      grid-template-columns: 1fr;
+    }
+    .coluna-imagem figure {
+      position: relative;
+      top: auto;
+      height: 420px;
+    }
+    .cartoes-canais {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  /* E-mail e Instagram são longos: em duas colunas estreitas quebravam no
+     meio da palavra. */
+  @media (max-width: 480px) {
+    .cartoes-canais {
+      grid-template-columns: 1fr;
     }
   }
 </style>
