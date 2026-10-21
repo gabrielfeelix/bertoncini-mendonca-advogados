@@ -52,7 +52,7 @@ const {
 <section class="secao perguntas" id="perguntas">
   <div class="env">
     <h2 class="display sobe">{titulo}</h2>
-    <div class="sobe">
+    <div class="lista sobe">
       {perguntas.map((item, n) => (
         <details class="q" id={`pergunta-${n + 1}`}>
           <summary>{item.pergunta}<span class="cruz"></span></summary>
@@ -92,69 +92,105 @@ const {
     }
   }
   .perguntas h2 {
-    font-size: clamp(30px, 4.2vw, 54px);
-    max-width: 14ch;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(32px, 4.2vw, 56px);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    max-width: 12ch;
+  }
+  /* Pílulas (redesenho de 21/10/2026, a partir do FAQ de
+     marketinglab.framer.ai): cada pergunta numa faixa arredondada; a aberta
+     fica preenchida em --tinta, com o disco claro. */
+  .lista {
+    display: grid;
+    gap: 10px;
+    interpolate-size: allow-keywords;
   }
   .q {
     scroll-margin-top: 120px;
-    border-top: 1px solid var(--linha);
+    border-radius: 16px;
+    background: var(--papel);
+    box-shadow: inset 0 0 0 1px var(--linha);
+    transition: background-color 0.35s, color 0.35s;
   }
-  .q:last-child {
-    border-bottom: 1px solid var(--linha);
+  .q[open] {
+    background: var(--tinta);
+    color: #fff;
+    box-shadow: none;
   }
   .q summary {
     cursor: pointer;
     list-style: none;
-    padding: 24px 0;
+    padding: 18px 18px 18px 24px;
     display: flex;
     gap: 22px;
     justify-content: space-between;
     align-items: center;
-    font-size: clamp(18px, 2.1vw, 23px);
-    font-family: var(--serif);
-    font-weight: 300;
-    letter-spacing: -0.02em;
-    transition: color 0.3s;
-  }
-  .q summary:hover {
-    color: var(--apoio);
+    font-family: var(--sans);
+    font-size: clamp(17px, 1.6vw, 19px);
+    font-weight: 500;
+    letter-spacing: -0.01em;
   }
   .q summary::-webkit-details-marker {
     display: none;
   }
+  .q summary:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+    border-radius: 16px;
+  }
   .q .cruz {
-    width: 20px;
-    height: 20px;
+    width: 34px;
+    height: 34px;
     flex: none;
     position: relative;
+    border-radius: 50%;
+    background: var(--tinta);
+    transition: background-color 0.35s, transform 0.35s;
+  }
+  .q summary:hover .cruz {
+    transform: rotate(90deg);
+  }
+  .q[open] .cruz {
+    background: #fff;
   }
   .q .cruz::before,
   .q .cruz::after {
     content: '';
     position: absolute;
-    background: var(--imperial);
-    border-radius: 2px;
-    transition: transform 0.3s;
-  }
-  .q .cruz::before {
-    left: 0;
-    right: 0;
-    top: 9px;
+    left: 11px;
+    right: 11px;
+    top: 16px;
     height: 2px;
+    border-radius: 2px;
+    background: #fff;
+    transition: transform 0.3s, background-color 0.35s;
   }
   .q .cruz::after {
-    top: 0;
-    bottom: 0;
-    left: 9px;
-    width: 2px;
+    transform: rotate(90deg);
+  }
+  .q[open] .cruz::before,
+  .q[open] .cruz::after {
+    background: var(--tinta);
   }
   .q[open] .cruz::after {
-    transform: scaleY(0);
+    transform: rotate(0deg);
+  }
+  /* Abre animando a altura onde o navegador sabe (::details-content); nos
+     outros, abre seco, que é o comportamento nativo. */
+  .q::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition: block-size 0.45s cubic-bezier(0.65, 0, 0.35, 1), content-visibility 0.45s allow-discrete;
+  }
+  .q[open]::details-content {
+    block-size: auto;
   }
   .q .resposta {
-    padding-block: 4px 22px;
-    color: var(--secundario);
-    max-width: 60ch;
+    padding: 0 24px 22px;
+    color: rgba(255, 255, 255, 0.82);
+    max-width: 62ch;
     font-size: 16.5px;
   }
 
