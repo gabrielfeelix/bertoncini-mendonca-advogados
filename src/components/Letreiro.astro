@@ -1,0 +1,78 @@
+---
+/**
+ * Letreiro: a faixa de assuntos que corre logo abaixo do hero.
+ *
+ * Vem da coleção de áreas, como o resto da home: um assunto novo no JSON
+ * aparece aqui sem ninguém lembrar deste arquivo. A lista é repetida duas
+ * vezes no DOM porque a animação desliza exatamente meia largura e
+ * recomeça: com duas cópias idênticas, o salto não aparece.
+ *
+ * A segunda cópia é `aria-hidden`: leitor de tela ouve a lista uma vez só.
+ */
+import { listarAreasConfirmadas, assuntosDaArea } from '~/lib/areas';
+
+const assuntos = (await listarAreasConfirmadas()).flatMap((a) =>
+  assuntosDaArea(a.data.assuntos).map((s) => s.nome),
+);
+---
+
+<div class="letreiro" aria-label="Assuntos que atendemos">
+  <div class="trilho">
+    {[0, 1].map((copia) => (
+      <ul aria-hidden={copia === 1 ? 'true' : undefined}>
+        {assuntos.map((s) => <li><span class="barra" aria-hidden="true">/</span>{s}</li>)}
+      </ul>
+    ))}
+  </div>
+</div>
+
+<style>
+  .letreiro {
+    overflow: hidden;
+    border-bottom: 1px solid var(--linha);
+    padding-block: 22px;
+    background: var(--branco);
+  }
+  .trilho {
+    display: flex;
+    width: max-content;
+    animation: corre 70s linear infinite;
+  }
+  .letreiro:hover .trilho {
+    animation-play-state: paused;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding-inline: 22px;
+    border-right: 1px solid var(--linha);
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tinta);
+    white-space: nowrap;
+  }
+  .barra {
+    color: var(--imperial);
+  }
+  @keyframes corre {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .trilho {
+      animation: none;
+    }
+    .letreiro {
+      overflow-x: auto;
+    }
+  }
+</style>
