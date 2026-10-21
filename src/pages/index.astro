@@ -28,44 +28,21 @@ import Base from '~/layouts/Base.astro';
 import Entrada from '~/components/Entrada.astro';
 import Hero from '~/components/Hero.astro';
 import Declaracao from '~/components/Declaracao.astro';
-import Areas from '~/components/Areas.astro';
-import Socios from '~/components/Socios.astro';
-import Faixa from '~/components/Faixa.astro';
+import Letreiro from '~/components/Letreiro.astro';
+import Servicos from '~/components/Servicos.astro';
+import SociosPilha from '~/components/SociosPilha.astro';
 import Metodo from '~/components/Metodo.astro';
 import Newsletter from '~/components/Newsletter.astro';
 import Perguntas from '~/components/Perguntas.astro';
 import AvisoCookies from '~/components/AvisoCookies.astro';
-import SaibaMais from '~/components/SaibaMais.astro';
-import CartaoTexto from '~/components/CartaoTexto.astro';
+import BlogHome from '~/components/BlogHome.astro';
 import Situacoes from '~/components/Situacoes.astro';
 import { listarAreas } from '~/lib/areas';
 import { listarArtigos } from '~/lib/artigos';
 
-/* As áreas da home vêm da coleção, como em `/areas/`. Uma área confirmada
-   leva à página dela; as que ainda não foram definidas aparecem sem link,
-   marcadas "a confirmar", como manda a decisão registrada. */
+/* As áreas vêm da coleção, como em `/areas/`: as perguntas de
+   `Situacoes` apontam para as respostas na página de cada uma. */
 const areas = await listarAreas();
-/* O ícone do canto de cada bloco, por slug. Mora aqui, e não no JSON da
-   área, porque é decisão de layout da home e não conteúdo: a página da
-   área usa as marcas das cenas, que são outras. Área sem entrada aqui
-   simplesmente não ganha ícone — é o caso das duas a confirmar. */
-const marcaDaArea: Record<string, 'sucessao' | 'rede'> = {
-  'planejamento-patrimonial-e-sucessorio': 'sucessao',
-  'direito-digital': 'rede',
-};
-
-const areasDaHome = areas.map((area) =>
-  area.data.aConfirmar
-    ? { nome: area.data.nome, pendente: 'a confirmar' }
-    : {
-        nome: area.data.nome,
-        glosa: area.data.resumo,
-        publico: area.data.publicoCurto,
-        assuntos: area.data.assuntos.slice(0, 5),
-        href: `/areas/${area.data.slug}/`,
-        marca: marcaDaArea[area.data.slug],
-      },
-);
 
 /* "O que as pessoas nos perguntam": seis perguntas por área, escolhidas
    entre as que o briefing listou (q7.4) e que já têm resposta no JSON da
@@ -94,21 +71,14 @@ const gruposDePerguntas = areas
   .map((area) => ({
     nome: area.data.nome,
     slug: area.data.slug,
-    marca: marcaDaArea[area.data.slug],
     perguntas: perguntasEscolhidas[area.data.slug]
       .map((texto) => ({ texto, indice: area.data.perguntas.findIndex((p) => p.pergunta === texto) }))
       .filter((p) => p.indice >= 0),
   }));
 
-/* Os seis textos mais recentes. Eram três, e passaram a seis quando o
-   bloco de contato saiu da home: a seção de publicações virou o fecho da
-   página, e com três cartões numa grade de três colunas ela fica uma
-   fileira só — pouco peso para o lugar que ocupa agora. Seis fecham duas
-   fileiras cheias.
-
-   Lista vazia não renderiza a seção: uma seção de blog anunciando que não
-   há texto nenhum é pior do que não ter a seção. */
-const ultimosTextos = (await listarArtigos()).slice(0, 6);
+/* Os três textos mais recentes: um em destaque e dois em cartão
+   (`BlogHome.astro`). Lista vazia não renderiza a seção. */
+const ultimosTextos = (await listarArtigos()).slice(0, 3);
 
 /* As perguntas da home são as gerais, sobre atendimento. As específicas de
    cada matéria ficam na página da área. Duas foram reescritas depois do
@@ -156,50 +126,16 @@ const perguntasDaHome = [
 >
   <Entrada />
   <Hero />
+  <Letreiro />
   <Declaracao />
+  <Servicos />
 
-  <Areas areas={areasDaHome} />
-  <SaibaMais href="/areas/" escuro={true}>Ver as áreas em detalhe</SaibaMais>
+  <Metodo />
+  <SociosPilha />
 
   {gruposDePerguntas.length > 0 && <Situacoes grupos={gruposDePerguntas} />}
 
-  <Socios />
-  <SaibaMais href="/escritorio/">Conhecer o escritório</SaibaMais>
-
-  <Faixa />
-  <Metodo />
-
-  {ultimosTextos.length > 0 && (
-    <section class="secao leitor" id="publicacoes">
-      <div class="env">
-        {/* O "ver todo o blog" vive NO cabeçalho, à direita do título, e
-            não numa faixa abaixo dos cartões: é o padrão de seção com
-            lista — o caminho para a lista completa fica junto do nome da
-            seção, onde quem bate o olho decide se entra. Embaixo, depois
-            de seis cartões, ele já estava longe do que anuncia. */}
-        <div class="cabecalho">
-          <div class="dizeres">
-            <h2 class="nomeia">Últimas publicações</h2>
-            <p class="diz">
-              O que escrevemos para quem não é da área. Um assunto por vez, sem citação
-              de artigo de lei que ninguém precisa decorar.
-            </p>
-          </div>
-          <a class="tudo" href="/blog/">
-            Ver todo o blog
-            <span class="seta" aria-hidden="true">
-              <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                <path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
-              </svg>
-            </span>
-          </a>
-        </div>
-        <div class="banca">
-          {ultimosTextos.map((artigo) => <CartaoTexto artigo={artigo} nivel={3} />)}
-        </div>
-      </div>
-    </section>
-  )}
+  {ultimosTextos.length > 0 && <BlogHome artigos={ultimosTextos} />}
 
   <Newsletter />
 
@@ -212,95 +148,3 @@ const perguntasDaHome = [
       isso. Na home o caminho já existe no cabeçalho, no hero e no rodapé. */}
   <AvisoCookies />
 </Base>
-
-<style>
-  /* Seção de textos da home (protótipo, `.secao.leitor`, linhas 649-700).
-     O grid é o mesmo de `/blog/` — três colunas, duas em tablet, uma no
-     celular. Repetido aqui, como já estava repetido entre a lista e o
-     artigo; unificar as três é trabalho da Tarefa 15, não deste commit. */
-  .leitor {
-    padding-block: clamp(40px, 6vw, 88px) clamp(20px, 3vw, 36px);
-    border-top: 1px solid var(--linha);
-  }
-  /* Título e frase à esquerda, link à direita, na mesma linha de base.
-     `flex-end` alinha o link pela BASE do bloco de texto, não pelo topo:
-     ele fica na altura da última linha da frase, e não boiando ao lado do
-     título. */
-  .leitor .cabecalho {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: clamp(20px, 3vw, 48px);
-    margin-bottom: clamp(26px, 3.4vw, 44px);
-  }
-  .leitor .dizeres {
-    max-width: 62ch;
-  }
-  .leitor .tudo {
-    flex: none;
-    min-height: 44px;
-    min-width: 44px;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 20px;
-    border: 1px solid var(--linha);
-    border-radius: 999px;
-    font-size: 17px;
-    text-decoration: none;
-    color: var(--tinta);
-    white-space: nowrap;
-    transition: border-color 0.25s, background-color 0.25s;
-  }
-  .leitor .tudo:hover {
-    border-color: var(--tinta);
-    background: var(--linha);
-  }
-  .leitor .tudo .seta {
-    display: inline-flex;
-  }
-  /* Em tela estreita o link desce para baixo do texto: lado a lado, ele
-     espremeria a frase a três ou quatro palavras por linha. */
-  @media (max-width: 760px) {
-    .leitor .cabecalho {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 22px;
-    }
-  }
-  .leitor .nomeia {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(30px, 4.4vw, 54px);
-    letter-spacing: -0.02em;
-  }
-  .leitor .diz {
-    margin-top: 16px;
-    font-size: 18px;
-    color: var(--secundario);
-    max-width: 56ch;
-  }
-  .banca {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(22px, 2.4vw, 34px);
-  }
-  @media (max-width: 1080px) {
-    .banca {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  @media (max-width: 620px) {
-    .banca {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .leitor,
-    .leitor * {
-      transition: none !important;
-      animation: none !important;
-    }
-  }
-</style>
