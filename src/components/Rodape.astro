@@ -65,366 +65,243 @@ const ano = new Date().getFullYear();
 const areas = await listarAreasConfirmadas();
 ---
 
+{/* Rodapé compacto (redesenho de 21/10/2026). Tinha 1033px de altura para
+    três colunas de links e uma assinatura: o pedido do cliente foi um
+    quarto disso. Tudo o que o Provimento 205/2021 e o briefing exigem
+    continua aqui (OAB da sociedade e dos sócios, CNPJ, aviso do golpe,
+    ressalva informativa); o que saiu foi o espaço entre as coisas. */}
 <footer class="rodape" id="rodape">
   <div class="grao" style="filter:url(#grao)"></div>
-  <div class="env rodape-env">
-
-    {/* ── FAIXA A: identidade ─────────────────────────────────────── */}
-    <div class="faixa identidade">
-      <a class="marca-pe" href="/" aria-label={`${site.nome} — início`}>
-        {/* 779x298 é o tamanho real do arquivo; `width`/`height` aqui servem
-            para reservar o espaço e evitar o pulo de layout, e o CSS é
-            quem define o tamanho exibido. Estavam 200x46, proporção 4.35
-            contra a real de 2.61: a marca ia para a tela achatada. */}
-        <img src="/media/marca/lockup-branco.png" alt="" width="779" height="298" loading="lazy" />
-      </a>
-      <div class="posicao">
-        {/* As duas frases numa expressão só: quebrar a linha no JSX entre
-            `{site.estado}.` e `{site.atendimentoRodape}` comia o espaço e
-            saía "Maringá, PR.Atendimento online". */}
-        <p class="frase">
-          {`Sociedade de advogados em ${site.cidade}, ${site.estado}. ${site.atendimentoRodape}.`}
-        </p>
+  <div class="env">
+    <div class="topo">
+      <div class="marca-bloco">
+        <a class="marca-pe" href="/" aria-label={`${site.nome} — início`}>
+          <img src="/media/marca/lockup-branco.png" alt="" width="779" height="298" loading="lazy" />
+        </a>
+        <p class="onde">{site.cidade}, {site.estado} · {site.atendimento}</p>
         <p class="hora"><span class="ponto" aria-hidden="true"></span>{site.horario}</p>
       </div>
+
+      <nav class="colunas" aria-label="Rodapé">
+        <div class="coluna">
+          <h2>Institucional</h2>
+          {rodape.institucional.map((item) => <a href={item.href}>{item.rotulo}</a>)}
+        </div>
+        <div class="coluna">
+          <h2>Áreas</h2>
+          {areas.map((area) => <a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a>)}
+        </div>
+        <div class="coluna">
+          <h2>Contato</h2>
+          <a class="zap-link" href={site.whatsapp.valor} target="_blank" rel="noopener" data-placeholder={site.whatsapp.placeholder ? '1' : undefined}>
+            <Zap tamanho={14} class="glifo" />WhatsApp
+          </a>
+          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
+          <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefoneE164.placeholder ? '1' : undefined}>{site.telefone.valor}</a>
+          <a href={site.redes.instagram.valor} target="_blank" rel="noopener" aria-label={`Instagram ${site.redes.instagramArroba}`}>Instagram</a>
+        </div>
+      </nav>
     </div>
 
-    {/* ── FAIXA B: as colunas ─────────────────────────────────────── */}
-    <nav class="faixa colunas" aria-label="Rodapé">
-      <div class="coluna">
-        <h2>Institucional</h2>
-        {rodape.institucional.map((item) => <a href={item.href}>{item.rotulo}</a>)}
-      </div>
-
-      <div class="coluna">
-        <h2>Áreas de atuação</h2>
-        {areas.map((area) => (
-          <a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a>
-        ))}
-      </div>
-
-      <div class="coluna contato">
-        <h2>Contato</h2>
-        {/* O WhatsApp em primeiro e com o glifo verde: é o canal principal
-            do escritório, e aqui ele precisa ser reconhecível como no
-            cabeçalho. */}
-        <a
-          class="zap-link"
-          href={site.whatsapp.valor}
-          target="_blank"
-          rel="noopener"
-          data-placeholder={site.whatsapp.placeholder ? '1' : undefined}
-        >
-          <Zap tamanho={15} class="glifo" />WhatsApp
-        </a>
-        <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>
-          {site.email.valor}
-        </a>
-        <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefoneE164.placeholder ? '1' : undefined}>
-          {site.telefone.valor}
-        </a>
-        <a href={site.redes.instagram.valor} target="_blank" rel="noopener">
-          Instagram {site.redes.instagramArroba}
-        </a>
-        {/* O endereço é o CORPO desta coluna, não uma quarta coluna. */}
-        <p class="onde">{site.cidade}, {site.estado}<br />{site.atendimento}</p>
-      </div>
-    </nav>
-
-    {/* ── Aviso do golpe do falso advogado (briefing q9.3) ────────── */}
-    <div class="faixa golpe-faixa">
+    <div class="golpe">
       <AvisoGolpe variante="curto" escuro={true} />
     </div>
 
-    {/* ── FAIXA C: assinatura ─────────────────────────────────────── */}
-    <div class="faixa assinatura">
-      <div class="pe-fim">
-        <div class="registro">
-          <p>© {ano} {site.nomeCurto}</p>
-          <p data-placeholder="1">
-            Sociedade de Advogados inscrita na {site.registro.oabSociedade.valor}
-            <span class="sep" aria-hidden="true"> · </span>
-            CNPJ {site.registro.cnpj.valor}
-          </p>
-          <p>
-            {site.socios.map((socio, indice) => (
-              <>
-                {socio.nome}, {socio.oab.valor}
-                {indice < site.socios.length - 1 ? <span class="sep" aria-hidden="true"> · </span> : ''}
-              </>
-            ))}
-          </p>
-          {/* Texto de trabalho: sai quando o registro e o CNPJ chegarem. As
-              inscrições dos sócios já são as reais (briefing q1.7). */}
-          <p class="aviso-placeholder">Registro da sociedade e CNPJ são placeholder. Entram os reais antes de publicar.</p>
-        </div>
-
-        <div class="miudos">
-          {/* As políticas como links soltos, não como coluna: nenhum dos
-              seis escritórios levantados usa coluna para isso. */}
-          <p class="politicas">
-            {rodape.legal.map((item, indice) => (
-              <>
-                <a href={item.href}>{item.rotulo}</a>
-                {indice < rodape.legal.length - 1 ? <span class="sep" aria-hidden="true"> · </span> : ''}
-              </>
-            ))}
-          </p>
-          {/* Texto do escritório, palavra por palavra (briefing q9.3). */}
-          <p class="ressalva">{site.avisoInformativo}</p>
-          <p class="credito"><a href="https://gabrielfelix-ux.4yu.com.br" rel="noopener">Site por Gabriel Felix</a></p>
-        </div>
+    <div class="base">
+      <div class="registro">
+        <p>
+          © {ano} {site.nomeCurto}
+          <span class="sep" aria-hidden="true"> · </span>
+          <span data-placeholder="1">Sociedade inscrita na {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}</span>
+          <span class="sep" aria-hidden="true"> · </span>
+          {site.socios.map((socio, indice) => (
+            <>
+              {socio.nome}, {socio.oab.valor}
+              {indice < site.socios.length - 1 ? <span class="sep" aria-hidden="true"> · </span> : ''}
+            </>
+          ))}
+        </p>
+        <p class="ressalva">{site.avisoInformativo}</p>
+        <p class="aviso-placeholder">Registro da sociedade e CNPJ são placeholder. Entram os reais antes de publicar.</p>
       </div>
+      <p class="miudos">
+        {rodape.legal.map((item) => (
+          <a href={item.href}>{item.rotulo}</a>
+        ))}
+        <a class="credito" href="https://gabrielfelix-ux.4yu.com.br" rel="noopener">Site por Gabriel Felix</a>
+      </p>
     </div>
   </div>
 </footer>
 
 <style>
-  /*
-    O rodapé continua sendo FAIXA, e não placa: é a base da página, e
-    placa aqui deixaria uma tira do fundo abaixo dele. Azul chapado, sem
-    degradê — decisão 2 do redesenho, três superfícies e nenhum degradê em
-    fundo de seção.
-  */
   .rodape {
     position: relative;
     overflow: hidden;
     background: var(--tinta);
     color: #fff;
-    padding-block: clamp(56px, 7vw, 104px) 28px;
+    padding-block: clamp(36px, 3.6vw, 48px) 20px;
   }
-  /* Textura de grão só sobre o azul escuro do rodapé — nunca sobre branco. */
   .rodape .grao {
     position: absolute;
     inset: 0;
     opacity: 0.26;
     mix-blend-mode: overlay;
     background: #8aa0bc;
+    pointer-events: none;
   }
-  .rodape-env {
+  .rodape .env {
     position: relative;
-    z-index: 1;
   }
 
-  /*
-    As faixas e os filetes. O vão ENTRE faixas é ~3x o vão entre linhas de
-    uma coluna: é essa diferença que faz o rodapé alto parecer organizado
-    em vez de despejado. O filete só existe a partir da segunda faixa.
-  */
-  .faixa + .faixa {
-    margin-top: clamp(40px, 5vw, 68px);
-    padding-top: clamp(40px, 5vw, 68px);
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-  }
-  /* A assinatura é o plinto: mesmo filete, respiro menor que o das faixas
-     de cima. É o que a mantém como base da página, e não como mais uma
-     seção de conteúdo. */
-  .faixa + .faixa.golpe-faixa {
-    margin-top: clamp(30px, 3.4vw, 44px);
-    padding-top: clamp(18px, 2vw, 26px);
-  }
-  .faixa + .faixa.assinatura {
-    margin-top: clamp(30px, 3.4vw, 44px);
-    padding-top: clamp(22px, 2.6vw, 32px);
-  }
-
-  /* ── FAIXA A: identidade ──────────────────────────────────────────── */
-  /*
-    Duas colunas, e a da direita é a que corrige o defeito apontado: a
-    marca ficava à esquerda com o lado direito vazio. `1fr auto` com a
-    frase à direita enche a faixa dos dois lados.
-  */
-  .identidade {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: clamp(24px, 4vw, 64px);
-    flex-wrap: wrap;
-  }
-  /* A marca virou link para a home, então é alvo de toque: precisa dos
-     44px de altura mínima que o verificador cobra. A imagem tem 37px de
-     altura; o `min-height` no link cobre a diferença sem esticar o PNG. */
-  .marca-pe {
-    display: inline-flex;
-    align-items: center;
-    flex: none;
-    min-height: 44px;
+  .topo {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) 3fr;
+    gap: clamp(28px, 4vw, 64px);
+    align-items: start;
   }
   .marca-pe img {
     display: block;
-    width: clamp(150px, 16vw, 196px);
+    width: 168px;
     height: auto;
-    opacity: 0.94;
   }
-  .posicao {
-    display: grid;
-    gap: 10px;
-    justify-items: end;
-    text-align: end;
+  .onde {
+    margin-top: 16px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
   }
-  .posicao .frase {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(17px, 1.5vw, 21px);
-    line-height: 1.4;
-    max-width: 34ch;
-    color: rgba(255, 255, 255, 0.88);
-    margin: 0;
-  }
-  .posicao .hora {
+  .hora {
+    margin-top: 6px;
     display: inline-flex;
     align-items: center;
-    gap: 9px;
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.62);
-    margin: 0;
+    gap: 8px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
   }
-  /* O ponto verde é o mesmo sinal de "atendendo" do resto do site. */
-  .posicao .ponto {
+  .ponto {
     width: 7px;
     height: 7px;
     border-radius: 50%;
     background: var(--whats);
-    flex: none;
   }
-
-  /* ── FAIXA B: as colunas ──────────────────────────────────────────── */
-  /* Três colunas largas, não quatro estreitas. */
   .colunas {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(28px, 4vw, 56px);
+    gap: 24px;
   }
   .coluna {
     display: grid;
     align-content: start;
-    gap: 2px;
+    gap: 6px;
   }
   .coluna h2 {
-    font: 500 12px/1 var(--sans);
-    letter-spacing: 0.14em;
+    margin-bottom: 4px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.46);
-    margin: 0 0 14px;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .coluna a,
+  .coluna p {
+    font-size: 14.5px;
+    line-height: 1.4;
+    color: #fff;
+    text-decoration: none;
+  }
+  .coluna p {
+    color: rgba(255, 255, 255, 0.8);
   }
   .coluna a {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    align-self: start;
-    font-size: 16.5px;
-    line-height: 1.4;
-    color: rgba(255, 255, 255, 0.86);
-    text-decoration: none;
-    padding-block: 9px;
-    min-height: 44px;
-    transition: color 0.2s;
+    justify-self: start;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 0.35s cubic-bezier(0.65, 0, 0.35, 1), color 0.25s;
   }
   .coluna a:hover {
-    color: #fff;
-    text-decoration: underline;
-    text-underline-offset: 4px;
+    background-size: 100% 1px;
   }
-  /* O glifo do WhatsApp em verde, como no cabeçalho: o canal se reconhece
-     pela cor antes da palavra. */
+  .zap-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
   .zap-link :global(.glifo) {
     color: var(--whats);
     flex: none;
   }
-  .coluna .onde {
-    margin: 14px 0 0;
-    font-size: 15.5px;
-    line-height: 1.55;
-    color: rgba(255, 255, 255, 0.58);
+
+  .golpe {
+    margin-top: 24px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .golpe :global(.golpe-curto) {
+    font-size: 14px;
+    line-height: 1.5;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  .golpe :global(.golpe-curto a) {
+    display: inline;
+    min-height: 0;
+    padding: 0;
   }
 
-  /* ── FAIXA C: assinatura ──────────────────────────────────────────── */
-  /*
-    A barra legal: plinto, não quarta faixa — corpo menor e contraste
-    menor que tudo acima.
-
-    Com a saída do nome grande, esta faixa passou a ter só a barra dentro,
-    e o filete e o respiro apareciam DUAS vezes: um de `.faixa + .faixa` e
-    outro daqui. O da faixa continua sendo o que separa; este vira só
-    `display`, e o plinto recebe menos respiro que as faixas de cima, que
-    é o que o mantém como base e não como mais uma seção.
-  */
-  .pe-fim {
+  .base {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
     display: flex;
     justify-content: space-between;
-    gap: clamp(20px, 3vw, 48px);
-    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 24px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
   }
-  .registro,
-  .miudos {
+  .registro {
     display: grid;
-    gap: 5px;
-    font-size: 13.5px;
-    line-height: 1.55;
+    gap: 4px;
+    max-width: 90ch;
+  }
+  .ressalva {
     color: rgba(255, 255, 255, 0.5);
   }
-  .registro p,
-  .miudos p {
-    margin: 0;
+  .aviso-placeholder {
+    color: #f3b4bd;
   }
   .miudos {
-    justify-items: end;
-    text-align: end;
+    flex: none;
+    display: flex;
+    gap: 16px;
   }
-  .miudos .ressalva {
-    max-width: 52ch;
-  }
-  .sep {
-    opacity: 0.45;
-  }
-  .politicas a,
-  .credito a {
-    color: rgba(255, 255, 255, 0.72);
+  .miudos a {
+    color: rgba(255, 255, 255, 0.75);
     text-decoration: none;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
   }
-  .politicas a:hover,
-  .credito a:hover {
+  .miudos a:hover {
     color: #fff;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
-  /* Aviso temporário de placeholder. Branco cheio sobre o azul do rodapé
-     (15.9:1); destaca-se do texto em volta, que está a 50%.
-     `--imperial` aqui daria 2.04:1 e reprovaria em AA. */
-  .aviso-placeholder {
-    color: #fff;
-    margin-top: 6px;
   }
 
-  @media (max-width: 900px) {
-    .colunas {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .identidade {
-      align-items: flex-start;
-    }
-    .posicao {
-      justify-items: start;
-      text-align: start;
-    }
-    .miudos {
-      justify-items: start;
-      text-align: start;
-    }
-  }
-  @media (max-width: 560px) {
-    .colunas {
+  @media (max-width: 960px) {
+    .topo {
       grid-template-columns: 1fr;
     }
+    .colunas {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 28px;
+    }
+    .base {
+      flex-direction: column;
+    }
+    .miudos {
+      flex-wrap: wrap;
+    }
   }
-
   @media (prefers-reduced-motion: reduce) {
-    .rodape * {
-      transition: none !important;
-      animation: none !important;
+    .coluna a {
+      transition: none;
     }
   }
 </style>
