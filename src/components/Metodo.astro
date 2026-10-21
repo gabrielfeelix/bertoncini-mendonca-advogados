@@ -1,95 +1,98 @@
 ---
 /**
- * Método: coluna fixa (sticky por CSS, sem pin de GSAP) à esquerda e os
- * passos numerados à direita, com uma lista do que vale em todos os casos
- * embaixo. Migrado do protótipo (CSS linhas 267-297, HTML linhas 641-676).
+ * Método (redesenho de 21/10/2026, a partir do "Our Process" de
+ * marketinglab.framer.ai).
  *
- * Marcações para a Tarefa 5: o id `#metodo`, `.sobe` em cada passo, o
- * as classes `.viva`/`.foco`
- * que o JS adiciona. Sem JS o passo em foco não existe e todos ficam em
- * `--tinta`, que é a cor de maior contraste: a degradação escurece o
- * texto, nunca o apaga.
+ * Quatro cartões que chegam um depois do outro enquanto a página rola e
+ * param alinhados numa fileira. É só CSS: cada cartão mora numa coluna da
+ * altura do palco, é `sticky` no mesmo `top`, e começa com um recuo
+ * vertical que cresce a cada passo (`--i`). O primeiro gruda logo; o
+ * último só depois de rolar três recuos. Sem GSAP, sem pin, sem medir nada.
+ *
+ * O fundo de cada cartão é uma foto da série própria (`docs/PROMPTS-IMAGENS.md`,
+ * seção 2), sem cor por cima. A vinheta escura do pé existe por função: o
+ * texto branco precisa de contraste sobre qualquer foto.
+ *
+ * Abaixo de 900px os cartões viram uma coluna comum, sem sticky: numa tela
+ * estreita não cabem quatro lado a lado, e a chegada escalonada perde o
+ * sentido.
  */
-import Marca from './Marca.astro';
-
-/** As ilustrações dos passos, na ordem. Uma por passo. */
-const MARCAS_DOS_PASSOS = ['passo-escreve', 'passo-conversa', 'passo-opcoes', 'passo-anda'] as const;
+/** A foto de cada passo, na ordem (`public/media/novas/passo-*.jpg`). */
+const FOTOS = ['escreve', 'conversa', 'opcoes', 'caso-anda'];
 
 interface Passo {
   /** Número exibido (string, para preservar o zero à esquerda). */
   n: string;
-  /** Título do passo. */
-  titulo: string;
+  /** Nome curto do passo, o título do cartão. */
+  nome: string;
   /** Descrição do passo. */
   texto: string;
 }
 
 interface Props {
-  /** Título da seção. */
   titulo?: string;
-  /** Frase de apoio abaixo do título. */
   apoio?: string;
-  /** Passos, na ordem. */
   passos?: Passo[];
 }
 
 const {
   titulo = 'Como trabalhamos',
   apoio = 'Do primeiro contato até o caso andar, o caminho é o mesmo para todo mundo.',
+  /* Um verbo por passo, no imperativo e dirigido a quem lê: é o que a
+     pessoa faz em cada etapa. As descrições têm o mesmo tamanho (~85
+     caracteres, três linhas no cartão) para os títulos alinharem. */
   passos = [
     {
       n: '01',
-      titulo: 'Você escreve o que aconteceu',
-      texto: 'Pelo formulário do site, pelo WhatsApp ou por e-mail. Algumas linhas bastam, e quem lê é um dos sócios, não um robô.',
+      nome: 'Conte',
+      texto: 'Pelo site, WhatsApp ou e-mail. Poucas linhas bastam, e quem lê é um dos sócios.',
     },
     {
       n: '02',
-      titulo: 'Marcamos uma conversa',
-      texto: 'Por vídeo, ou presencial em Maringá se você preferir. Ouvimos a história inteira, e o que você quer para o futuro, antes de opinar.',
+      nome: 'Converse',
+      texto: 'Por vídeo ou em Maringá. Ouvimos a história inteira antes de dar qualquer opinião.',
     },
     {
       n: '03',
-      titulo: 'Você recebe as opções, os prazos e o custo',
-      texto: 'Em português claro, antes de qualquer compromisso. Se não valer a pena entrar com o processo, dizemos isso também.',
+      nome: 'Decida',
+      texto: 'Opções, prazos e custo em português claro. Se não valer a pena processar, dizemos.',
     },
     {
       n: '04',
-      titulo: 'O caso anda, e você acompanha',
-      texto: 'Cada movimentação chega para você, inclusive quando a notícia é que nada mudou.',
+      nome: 'Acompanhe',
+      texto: 'Cada movimentação do caso chega até você, mesmo quando a notícia é que nada mudou.',
     },
   ],
 }: Props = Astro.props;
 ---
 
-<section class="secao metodo" id="metodo">
-  <div class="env">
-    <div class="fixa">
-      <p class="olho sobe">Do primeiro contato em diante</p>
-      <h2 class="display sobe">{titulo}</h2>
-      <p class="sobe">{apoio}</p>
-
-      {/* A coluna da esquerda era só título e frase, e sobrava uma altura
-          enorme de branco ao lado dos quatro passos. Agora ela carrega a
-          ilustração do passo em foco: elas se empilham no mesmo lugar e só
-          a ativa aparece, então a troca acontece no MESMO ponto da tela em
-          vez de a peça pular de posição.
-
-          Sem JS nenhuma ganha `.foco` — e aí a primeira fica visível por
-          `:first-child`, em vez de a coluna ficar vazia. */}
-      <div class="palco" aria-hidden="true">
-        {MARCAS_DOS_PASSOS.slice(0, passos.length).map((marca, i) => (
-          <div class:list={['quadro', `q${i}`]}>
-            <Marca tipo={marca} />
-          </div>
-        ))}
-      </div>
+<section class="metodo" id="metodo" aria-labelledby="metodo-titulo">
+  <div class="env palco">
+    {/* O título corre num trilho que termina uma altura de cartão antes do
+        palco: assim ele se solta e sobe ANTES de os cartões o alcançarem.
+        Sticky direto no palco, os dois se soltavam juntos e o título
+        descia por cima da fileira. */}
+    <div class="trilho-cab">
+      <header class="cab">
+        <h2 id="metodo-titulo">{titulo}</h2>
+        <p>{apoio}</p>
+      </header>
     </div>
-    <ol class="passos">
-      {passos.map((passo) => (
-        <li class="passo sobe">
-          <span class="n">{passo.n}</span>
-          <h3>{passo.titulo}</h3>
-          <p>{passo.texto}</p>
+    <ol class="cartoes">
+      {passos.map((passo, i) => (
+        <li style={`--i:${i}`}>
+          <article class="cartao">
+            <picture aria-hidden="true">
+              <source type="image/avif" srcset={`/media/novas/passo-${FOTOS[i]}.avif`} />
+              <source type="image/webp" srcset={`/media/novas/passo-${FOTOS[i]}.webp`} />
+              <img src={`/media/novas/passo-${FOTOS[i]}.jpg`} alt="" width="720" height="1200" loading="lazy" decoding="async" />
+            </picture>
+            <span class="n" aria-hidden="true">{passo.n}</span>
+            <div class="txt">
+              <h3>{passo.nome}</h3>
+              <p>{passo.texto}</p>
+            </div>
+          </article>
         </li>
       ))}
     </ol>
@@ -97,317 +100,166 @@ const {
 </section>
 
 <style>
-  /*
-    ── O PALCO DAS ILUSTRAÇÕES ────────────────────────────────────────
-
-    As quatro peças ocupam a MESMA célula de grid e se sobrepõem: a troca é
-    um cruzamento no mesmo ponto da tela, não uma peça saindo e outra
-    entrando de outro lugar. `grid-area: 1/1` em todas é o que faz isso sem
-    posicionamento absoluto, então o palco ainda tem a altura da maior.
-
-    Quem manda é a classe `.foco`, que o script já punha no passo ativo
-    desde a Tarefa 5 — não foi preciso observer novo. O CSS abaixo mapeia
-    "o passo N está em foco" para "mostre o quadro N" usando `:has()`.
-  */
-  .metodo .palco {
-    display: grid;
-    margin-top: clamp(24px, 3vw, 36px);
-    width: min(100%, 248px);
-  }
-  .metodo .quadro {
-    grid-area: 1 / 1;
-    opacity: 0;
-    transform: translateY(10px) scale(0.98);
-    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  /* Sem JS (e antes do primeiro foco), a primeira aparece: a coluna nunca
-     fica vazia. */
-  .metodo .quadro:first-child {
-    opacity: 1;
-    transform: none;
-  }
-  /* Com um passo em foco, quem manda é ele — inclusive para apagar a
-     primeira. */
-  .metodo:has(.passo.foco) .quadro {
-    opacity: 0;
-    transform: translateY(10px) scale(0.98);
-  }
-  .metodo:has(.passo:nth-of-type(1).foco) .q0,
-  .metodo:has(.passo:nth-of-type(2).foco) .q1,
-  .metodo:has(.passo:nth-of-type(3).foco) .q2,
-  .metodo:has(.passo:nth-of-type(4).foco) .q3 {
-    opacity: 1;
-    transform: none;
+  .metodo {
+    --topo-cab: 104px;
+    --alt-cab: 170px;
+    --topo-card: calc(var(--topo-cab) + var(--alt-cab) + 12px);
+    --alt-card: clamp(380px, 54vh, 470px);
+    --recuo: 30vh;
+    background: #071531;
+    color: #fff;
+    padding-block: clamp(80px, 9vw, 130px);
   }
 
-  /*
-    ── O MOVIMENTO DE CADA PEÇA ───────────────────────────────────────
-
-    Cada uma anima só ENQUANTO está em foco: as animações são declaradas no
-    quadro visível, então uma peça fora de cena não gasta quadro à toa.
-  */
-
-  /* 01 — a mão escrevendo: as três linhas se desenham em cascata e a
-     caneta anda junto com a primeira. */
-  .metodo :global(.linha-escrita) {
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
+  .palco {
+    position: relative;
   }
-  .metodo .quadro:not([style]) :global(.linha-escrita) {
-    stroke-dashoffset: 100;
+  .trilho-cab {
+    position: absolute;
+    inset: 0 var(--gutter) calc(var(--alt-card) + 12px);
+    pointer-events: none;
   }
-  .metodo:has(.passo:nth-of-type(1).foco) .q0 :global(.l1) {
-    animation: escreve 1.1s ease-out forwards;
-  }
-  .metodo:has(.passo:nth-of-type(1).foco) .q0 :global(.l2) {
-    animation: escreve 1.1s ease-out 0.5s forwards;
-  }
-  .metodo:has(.passo:nth-of-type(1).foco) .q0 :global(.l3) {
-    animation: escreve 1.1s ease-out 1s forwards;
-  }
-  .metodo:has(.passo:nth-of-type(1).foco) .q0 :global(.caneta) {
-    animation: anda-caneta 3.3s ease-in-out infinite;
-  }
-  @keyframes escreve {
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-  @keyframes anda-caneta {
-    0% {
-      transform: translate(-58px, 0);
-    }
-    30% {
-      transform: translate(6px, 0);
-    }
-    34% {
-      transform: translate(-58px, 24px);
-    }
-    62% {
-      transform: translate(-16px, 24px);
-    }
-    66% {
-      transform: translate(-58px, 48px);
-    }
-    92%,
-    100% {
-      transform: translate(-38px, 48px);
-    }
-  }
-
-  /* 02 — a conversa: os balões pulsam alternados, um de cada vez. */
-  .metodo:has(.passo:nth-of-type(2).foco) .q1 :global(.b1) {
-    animation: fala 3s ease-in-out infinite;
-  }
-  .metodo:has(.passo:nth-of-type(2).foco) .q1 :global(.b2) {
-    animation: fala 3s ease-in-out 1.5s infinite;
-  }
-  @keyframes fala {
-    0%,
-    40%,
-    100% {
-      transform: translateY(0);
-      opacity: 0.72;
-    }
-    18% {
-      transform: translateY(-5px);
-      opacity: 1;
-    }
-  }
-
-  /* 03 — as opções: as três cartas sobem em cascata, a do meio mais alto. */
-  .metodo:has(.passo:nth-of-type(3).foco) .q2 :global(.c1) {
-    animation: sobe-carta 2.6s ease-in-out infinite;
-  }
-  .metodo:has(.passo:nth-of-type(3).foco) .q2 :global(.c2) {
-    animation: sobe-carta 2.6s ease-in-out 0.2s infinite;
-  }
-  .metodo:has(.passo:nth-of-type(3).foco) .q2 :global(.c3) {
-    animation: sobe-carta 2.6s ease-in-out 0.4s infinite;
-  }
-  @keyframes sobe-carta {
-    50% {
-      transform: translateY(-8px);
-    }
-  }
-
-  /* 04 — o caso andando: o sinal percorre os marcos e o trilho se preenche
-     atrás dele. Para no terceiro marco: o quarto é o que fica em aberto. */
-  .metodo :global(.trilho-feito) {
-    stroke-dasharray: 132;
-    stroke-dashoffset: 132;
-  }
-  .metodo:has(.passo:nth-of-type(4).foco) .q3 :global(.trilho-feito) {
-    animation: preenche 3.4s ease-in-out infinite;
-  }
-  .metodo:has(.passo:nth-of-type(4).foco) .q3 :global(.sinal) {
-    animation: avanca 3.4s ease-in-out infinite;
-  }
-  @keyframes preenche {
-    0% {
-      stroke-dashoffset: 132;
-    }
-    70%,
-    100% {
-      stroke-dashoffset: 44;
-    }
-  }
-  @keyframes avanca {
-    0% {
-      transform: translateX(0);
-    }
-    30% {
-      transform: translateX(44px);
-    }
-    60%,
-    100% {
-      transform: translateX(88px);
-    }
-  }
-  .metodo :global(.sinal) {
-    transform-box: fill-box;
-    transform-origin: center;
-  }
-
-  /* O palco desaparece em tela estreita: lá a coluna "fixa" deixa de ser
-     coluna e vira só o cabeçalho da seção, e a ilustração ficaria como um
-     bloco solto entre o título e o primeiro passo. */
-  @media (max-width: 900px) {
-    .metodo .palco {
-      display: none;
-    }
-  }
-
-  /* O kill-switch da seção já existe mais abaixo e cobre estas animações;
-     aqui só o estado final, para nada ficar preso invisível. */
-  @media (prefers-reduced-motion: reduce) {
-    .metodo .quadro:first-child {
-      opacity: 1 !important;
-      transform: none !important;
-    }
-    .metodo :global(.linha-escrita),
-    .metodo :global(.trilho-feito) {
-      stroke-dashoffset: 0 !important;
-    }
-  }
-
-  /* método: coluna fixa à esquerda, passos à direita. Sem JS o passo em
-     foco não existe, todos ficam em --tinta. */
-  .metodo :global(.env) {
-    display: grid;
-    /* 4fr/8fr, não 5fr/7fr: a coluna da esquerda carrega só um título
-       curto e uma frase, e com 5fr sobrava um vazio grande embaixo dela
-       — o cliente leu a seção como "espalhada". */
-    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-    gap: clamp(40px, 7vw, 120px);
-    align-items: start;
-  }
-  .metodo .fixa {
+  .cab {
     position: sticky;
-    top: calc(var(--bloco) * 0.55);
+    top: var(--topo-cab);
+    z-index: 1;
+    pointer-events: auto;
+    min-height: var(--alt-cab);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 32px;
   }
-  .metodo .fixa p {
-    margin-top: 18px;
-    max-width: 34ch;
-    color: var(--secundario);
+  .cab h2 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(40px, 5vw, 72px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    max-width: 7ch;
   }
-  .metodo .fixa .olho {
-    margin: 0 0 16px;
-    font-size: 16px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--imperial);
+  .cab p {
+    max-width: 36ch;
+    padding-top: 10px;
+    text-align: right;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.62);
   }
-  .metodo .fixa h2 {
-    font-size: clamp(34px, 4.2vw, 60px);
-  }
-  .passos {
+
+  /* O palco: três recuos para todos chegarem, mais um respiro com a fileira
+     completa parada antes de a seção ir embora. */
+  .cartoes {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: clamp(10px, 1vw, 14px);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(12px, 1.4vw, 20px);
+    padding-top: calc(var(--alt-cab) + 12px);
+    height: calc(var(--alt-cab) + 12px + var(--recuo) * 3 + var(--alt-card) + 28vh);
   }
-  /* Cada passo é um bloco em papel, não uma linha separada por filete.
-     É a mesma decisão do mosaico das áreas: dar forma ao conteúdo em vez
-     de empilhar texto separado por traço. O papel é a terceira superfície
-     do site (--papel), usada aqui como material de componente. */
-  .passo {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: clamp(16px, 2.2vw, 30px);
-    align-items: start;
-    padding: clamp(22px, 2.4vw, 32px) clamp(22px, 2.6vw, 36px);
-    background: var(--papel);
-    border-radius: clamp(12px, 1.4vw, 18px);
-    color: var(--tinta);
-    transition: color 0.5s, background-color 0.4s;
+  .cartoes li {
+    padding-top: calc(var(--i) * var(--recuo));
   }
-  .passo .n {
-    /* O número ocupa as DUAS linhas do grid. Sem isto ele forçava a altura
-       da primeira linha (72px de serifada) e abria um vão entre o título e
-       o parágrafo, que a olho lia como texto espalhado. */
-    grid-row: 1 / span 2;
-    align-self: start;
-    font-family: var(--serif);
-    font-weight: 200;
-    font-size: clamp(36px, 4vw, 56px);
-    line-height: 0.85;
-    letter-spacing: -0.03em;
-    color: var(--imperial);
-    opacity: 0.9;
+  .cartao {
+    position: sticky;
+    top: var(--topo-card);
+    height: var(--alt-card);
+    border-radius: 20px;
+    overflow: hidden;
+    isolation: isolate;
+    background: #0d1f3d;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(20px, 2vw, 28px);
   }
-  .passo h3 {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(24px, 2.4vw, 34px);
+  .cartao img {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .cartao:hover img {
+    transform: scale(1.05);
+  }
+  .cartao::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, transparent 30%, transparent 45%, rgba(0, 0, 0, 0.78) 100%);
+  }
+  .n {
+    align-self: flex-end;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(64px, 7vw, 108px);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+  .txt h3 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(21px, 1.8vw, 26px);
     letter-spacing: -0.02em;
-    line-height: 1.1;
+    margin-bottom: 12px;
   }
-  .passo p {
-    margin-top: 8px;
-    max-width: 52ch;
-    color: var(--secundario);
-  }
-  .passo h3,
-  .passo p {
-    grid-column: 2;
-  }
-  /* O título centra na sua linha, para encostar no parágrafo em vez de
-     ficar suspenso acima dele. */
-  .passo h3 {
-    align-self: center;
-  }
-  /* O passo em foco se marca pelo FUNDO, não apagando o texto dos outros.
-     Apagar levava `--secundario` sobre `--papel` a 4.54:1 — passa em AA,
-     mas raspa, e o público tem 70 anos. Assim todo o texto fica sempre no
-     contraste cheio e o destaque continua existindo. */
-  :global(.js) .metodo:global(.viva) .passo.foco {
-    background: #fff;
-    box-shadow: 0 1px 0 rgba(11, 30, 63, 0.1), 0 14px 40px rgba(11, 30, 63, 0.08);
-  }
-  :global(.js) .metodo:global(.viva) .passo:global(.foco) {
-    color: var(--tinta);
-  }
-  @media (max-width: 900px) {
-    .metodo :global(.env) {
-      grid-template-columns: 1fr;
-      gap: 40px;
-    }
-    .metodo .fixa {
-      position: static;
-    }
+  /* Três linhas reservadas: se uma descrição quebrar em menos, o título
+     dela não desce em relação aos vizinhos. */
+  .txt p {
+    min-height: calc(1.45em * 3);
+    font-size: 16px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.9);
   }
 
-  /* prefers-reduced-motion desliga todo movimento desta seção. A Tarefa 5
-     traz o kill-switch global do protótipo; este bloco garante que o
-     componente já cumpra a regra sozinho, em qualquer página. */
+  @media (max-width: 900px) {
+    .trilho-cab {
+      position: static;
+    }
+    .cab {
+      position: static;
+      min-height: 0;
+      flex-direction: column;
+      margin-bottom: 32px;
+    }
+    .cab p {
+      text-align: left;
+    }
+    .cartoes {
+      grid-template-columns: 1fr;
+      height: auto;
+      padding-top: 0;
+    }
+    .cartoes li {
+      padding-top: 0;
+    }
+    .cartao {
+      position: relative;
+      top: auto;
+      height: 340px;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .metodo,
-    .metodo * {
-      transition: none !important;
-      animation: none !important;
+    .trilho-cab {
+      position: static;
+    }
+    .cartoes {
+      height: auto;
+      padding-top: 0;
+    }
+    .cartoes li {
+      padding-top: 0;
+    }
+    .cartao,
+    .cab {
+      position: relative;
+      top: auto;
     }
   }
 </style>
