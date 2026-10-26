@@ -1,24 +1,7 @@
-# O que não sobe para a Vercel.
-#
-# Existe porque `vercel --prod` envia o DIRETÓRIO DE TRABALHO, e não o que
-# está no GitHub: arquivo ignorado pelo git sobe junto. Foi assim que
-# `/previa/` — página de trabalho, não versionada — foi parar no site
-# publicado num deploy feito da máquina local.
-#
-# Não substitui o .gitignore: os dois precisam listar a prévia, porque
-# resolvem coisas diferentes (um, o que é versionado; outro, o que é
-# publicado).
-src/pages/previa.astro
-
-# Material que não faz parte do site: protótipo, marca em alta e docs.
-#
-# A barra INICIAL é obrigatória e não é estilo: sem ela o padrão casa um
-# diretório com aquele nome em QUALQUER nível. Foi assim que `marca/`
-# derrubou `public/media/marca/` junto — as logos que o site usa de
-# verdade — e a cortina de entrada foi para produção pedindo um
-# mono-branco.png que respondia 404, desenhando o ícone de imagem
-# quebrada em cima da chapa azul.
-/prototipo/
-/marca/
-/docs/
-/tools/shots/
+# Fora do upload para a Vercel (o site usa só os derivados otimizados).
+*.zip
+public/media/DSC03806.png
+public/media/IMG_4362.PNG
+prototipo/
+docs/
+.env*
