@@ -192,10 +192,13 @@ const {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, transparent 30%, transparent 45%, rgba(0, 0, 0, 0.78) 100%);
+    /* Mais escura do que antes: o número branco cai sobre papel claro em
+       algumas fotos, e o texto precisa de chão firme embaixo. */
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.42) 40%, rgba(0, 0, 0, 0.62) 62%, rgba(0, 0, 0, 0.88) 100%);
   }
   .n {
     align-self: flex-end;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
     font-family: var(--sans);
     font-weight: 600;
     font-size: clamp(64px, 7vw, 108px);
