@@ -195,8 +195,10 @@ const cartas = Array.from({ length: POR_AREA }).flatMap((_, i) =>
       align-self: center;
       margin: 18px 0 0;
     }
+    /* A frase fica um pouco mais de uma tela sozinha antes do primeiro
+       cartão: no celular eles cobrem a largura toda e escondem a frase. */
     .cartas {
-      padding-block: 80vh 20vh;
+      padding-block: 115vh 20vh;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -205,3 +207,38 @@ const cartas = Array.from({ length: POR_AREA }).flatMap((_, i) =>
     }
   }
 </style>
+
+<script>
+  /* Só no celular: os cartões ocupam a largura toda, então a frase atrás
+     deles aparecia em frestas de 18px, cortada no meio da letra. Ela
+     esmaece enquanto os cartões passam e volta quando o último sai.
+     Gatilhos nos cartões, nunca no fundo grudado. */
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    void (async () => {
+      const { gsap } = await import('gsap');
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+      gsap.registerPlugin(ScrollTrigger);
+      gsap.matchMedia().add('(max-width: 760px)', () => {
+        const frase = document.querySelector<HTMLElement>('.situacoes .frase');
+        const cartas = document.querySelectorAll<HTMLElement>('.situacoes .cartas li');
+        if (!frase || !cartas.length) return;
+        let entra = 0;
+        let sai = 0;
+        const aplica = () => gsap.set(frase, { opacity: 1 - 0.92 * entra * (1 - sai) });
+        ScrollTrigger.create({
+          trigger: cartas[0],
+          start: 'top 80%',
+          end: 'top 45%',
+          onUpdate: (st) => { entra = st.progress; aplica(); },
+        });
+        ScrollTrigger.create({
+          trigger: cartas[cartas.length - 1],
+          start: 'bottom 65%',
+          end: 'bottom 30%',
+          onUpdate: (st) => { sai = st.progress; aplica(); },
+        });
+        return () => gsap.set(frase, { clearProps: 'opacity' });
+      });
+    })();
+  }
+</script>
