@@ -28,14 +28,10 @@
   .declaracao {
     padding-block: clamp(72px, 9vw, 140px);
   }
-  .declaracao .env {
-    display: grid;
-    grid-template-columns: minmax(180px, 1fr) 3fr;
-    gap: clamp(28px, 5vw, 96px);
-    align-items: start;
-  }
+  /* Recuo à esquerda, sem grade: com a coluna de fatos fora, a grade de duas
+     colunas ficava com um item só e espremia o texto. */
   .grande {
-    grid-column: 2;
+    margin-left: clamp(0px, 18vw, 320px);
     font-family: var(--sans);
     font-weight: 500;
     font-size: clamp(26px, 3.1vw, 44px);
@@ -48,11 +44,8 @@
     font-weight: 600;
   }
   @media (max-width: 760px) {
-    .declaracao .env {
-      grid-template-columns: 1fr;
-    }
     .grande {
-      grid-column: 1;
+      margin-left: 0;
     }
   }
 
