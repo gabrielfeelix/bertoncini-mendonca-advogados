@@ -110,6 +110,18 @@ const FOTO_DA_AREA: Record<string, string> = {
 };
 const fotoDe = (slug: string) => FOTO_DA_AREA[slug] ?? '/media/novas/area-contratos';
 const assuntos = dados.assuntos.map((a) => (typeof a === 'string' ? a : a.nome));
+
+/* A abertura da página: uma frase só, direta, com um destaque entre
+   asteriscos. O texto longo de abertura do JSON continua sendo do cliente,
+   mas na página ele ninguém lia (eram 60 palavras em 40px). Área sem frase
+   aqui cai no resumo. */
+const LEAD_DA_AREA: Record<string, string> = {
+  'planejamento-patrimonial-e-sucessorio':
+    'Decidir em vida o destino do *patrimônio*, para que ele não vire inventário demorado, imposto a mais ou briga de família.',
+  'direito-digital':
+    'As regras do que você faz na *internet*: os dados que coleta, o que publica, os contratos que assina e os danos que sofre.',
+};
+const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).filter(Boolean);
 ---
 
 <Base
@@ -162,19 +174,13 @@ const assuntos = dados.assuntos.map((a) => (typeof a === 'string' ? a : a.nome))
       </div>
     </section>
 
-    {abertura.length > 0 && (
-      <section class="abertura">
-        <div class="env abertura-grade">
-          <p class="pilula">A área</p>
-          <div>
-            <p class="lead" data-acende data-placeholder={abertura[0].placeholder ? '1' : undefined}>{abertura[0].texto}</p>
-            {abertura.slice(1).map((p) => (
-              <p class="lead-apoio" data-sobe data-placeholder={p.placeholder ? '1' : undefined}>{p.texto}</p>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
+    <section class="abertura">
+      <div class="env">
+        <p class="lead" data-acende-leve>
+          {lead.map((parte) => (parte.startsWith('*') ? <em>{parte.slice(1, -1)}</em> : parte))}
+        </p>
+      </div>
+    </section>
 
     {dados.publicos.length > 0 && (
       <section class="publicos" aria-labelledby="publicos-titulo">
@@ -468,28 +474,26 @@ const assuntos = dados.assuntos.map((a) => (typeof a === 'string' ? a : a.nome))
 
   /* ── abertura ────────────────────────────────────────────────────── */
   .abertura {
-    padding-block: clamp(90px, 11vw, 160px);
-  }
-  .abertura-grade {
-    display: grid;
-    grid-template-columns: minmax(140px, 1fr) 3fr;
-    gap: clamp(24px, 5vw, 96px);
+    padding-block: clamp(72px, 9vw, 130px);
   }
   .lead {
+    max-width: 30ch;
+    margin: 0 auto;
+    text-align: center;
     font-family: var(--sans);
-    font-weight: 600;
-    font-size: clamp(24px, 2.7vw, 40px);
+    font-weight: 500;
+    font-size: clamp(24px, 2.6vw, 38px);
     line-height: 1.22;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     color: var(--tinta);
-    max-width: 32ch;
+    text-wrap: balance;
   }
-  .lead-apoio {
-    margin-top: 28px;
-    max-width: 62ch;
-    font-size: 18px;
-    line-height: 1.6;
-    color: var(--secundario);
+  .lead :global(.palavra) {
+    display: inline-block;
+  }
+  .lead em {
+    font-style: normal;
+    color: var(--destaque);
   }
 
   /* ── para quem (painel green-volt) ───────────────────────────────── */
@@ -866,8 +870,7 @@ const assuntos = dados.assuntos.map((a) => (typeof a === 'string' ? a : a.nome))
   }
 
   @media (max-width: 900px) {
-    .capa-grade,
-    .abertura-grade {
+    .capa-grade {
       grid-template-columns: 1fr;
     }
     .capa-foto {

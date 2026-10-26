@@ -7,6 +7,8 @@
  * - `data-sobe`     sobe 44px e aparece, uma vez, ao entrar;
  * - `data-desliza`  anda para o lado com a rolagem da seção (marca-d'água);
  * - `data-acende`   as palavras vão de 30% a 100% presas à rolagem;
+ * - `data-acende-leve` versão curta para uma frase só: de 35% e 4px de
+ *                   desfoque a nítida, numa janela pequena de rolagem;
  * - `data-conta`    o número conta de 0 até o valor ao entrar;
  * - `data-cresce`   o título encolhe de 1,6 para 1 com as letras subindo
  *                   por uma máscara (CSS da máscara fica na página);
@@ -96,6 +98,21 @@ export async function ligaCinema(): Promise<Gsap> {
         stagger: 0.05,
         ease: 'none',
         scrollTrigger: { trigger: el, start: 'top 82%', end: 'bottom 55%', scrub: 0.5 },
+      },
+    );
+  });
+
+  document.querySelectorAll<HTMLElement>('[data-acende-leve]').forEach((el) => {
+    gsap.fromTo(
+      divide(el, 'palavra'),
+      { opacity: 0.35, filter: 'blur(4px)', y: 6 },
+      {
+        opacity: 1,
+        filter: 'blur(0px)',
+        y: 0,
+        stagger: 0.04,
+        ease: 'none',
+        scrollTrigger: { trigger: el, start: 'top 88%', end: 'top 50%', scrub: 0.4 },
       },
     );
   });
