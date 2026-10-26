@@ -800,11 +800,23 @@ const valoresDeAtuacao = [
     .degrau {
       gap: 10px;
     }
+    /* Sem as descrições, o número vai ao lado do nome: com o cartão em
+       pé, título e seis cartões passavam de uma tela de 844px. */
     .cartao-vidro p {
       display: none;
     }
     .cartao-vidro {
-      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+    }
+    .cartao-vidro h4 {
+      margin: 0;
+      font-size: 17px;
+    }
+    .valor-frase {
+      max-width: 30ch;
     }
   }
 </style>

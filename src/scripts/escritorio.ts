@@ -55,10 +55,13 @@ function ligaCena(gsap: typeof import('gsap').gsap): void {
     t += 2.2;
   });
 
-  /* Os princípios: a escada (−160 / 0 / +160) se alinha com a rolagem. */
+  /* Os princípios: a escada (−160 / 0 / +160) se alinha com a rolagem. No
+     celular os degraus ficam um sobre o outro: a escada só desce (0 / 60 /
+     120), senão o primeiro subia por cima do título. */
+  const celular = matchMedia('(max-width: 900px)').matches;
   tl.to(escada, { autoAlpha: 1, duration: 0.4 }, t);
   degraus.forEach((d, i) => {
-    tl.fromTo(d, { y: (i - 1) * 160 }, { y: 0, duration: 1.6 }, t);
+    tl.fromTo(d, { y: celular ? i * 60 : (i - 1) * 160 }, { y: 0, duration: 1.6 }, t);
   });
   t += 2.3;
 
