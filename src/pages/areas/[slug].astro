@@ -241,7 +241,7 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
               <p class="quem-nome">{socio.nome}</p>
               <p class="quem-oab" data-placeholder={socio.oab.placeholder ? '1' : undefined}><span>Inscrição na Ordem</span> {socio.oab.valor}</p>
               <p class="quem-linha">{socio.linha}</p>
-              <a class="botao claro" href="/escritorio/#socios">
+              <a class="botao claro" href={`/escritorio/#socio-${socio.nome.split(' ')[0].toLowerCase()}`}>
                 Formação e perfil
                 <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
               </a>

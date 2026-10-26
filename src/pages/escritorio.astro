@@ -145,8 +145,12 @@ const valoresDeAtuacao = [
   </section>
 
   <!-- 4. OS SÓCIOS -->
+  {/* `#socios` leva ao começo dos perfis; cada sócio tem a própria âncora
+      (`#socio-juscelino`, `#socio-beatriz`), usada pelo "Quem atende" das
+      páginas de área. */}
+  <span id="socios" class="ancora-socios" aria-hidden="true"></span>
   {perfis.map((perfil, n) => (
-    <section class:list={['socio', { invertido: n % 2 === 1 }]} id={n === 0 ? 'socios' : undefined} aria-labelledby={`socio-${n}`}>
+    <section class:list={['socio', { invertido: n % 2 === 1 }]} id={`socio-${perfil.nome.toLowerCase()}`} aria-labelledby={`socio-${n}`}>
       <div class="env socio-grade">
         <div class="socio-texto" data-sobe>
           <p class="rotulo">{perfil.lado}</p>
@@ -379,6 +383,10 @@ const valoresDeAtuacao = [
   }
 
   /* ── 4. sócios ───────────────────────────────────────────────────── */
+  .ancora-socios,
+  .socio {
+    scroll-margin-top: 90px;
+  }
   .socio {
     padding-block: clamp(80px, 9vw, 130px);
     background: var(--branco);
