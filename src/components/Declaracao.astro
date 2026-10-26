@@ -1,65 +1,163 @@
 ---
 /**
- * A declaração (redesenho de 21/10/2026, a partir de marketinglab.framer.ai).
+ * A declaração da home (26/10/2026), no padrão da "declaração partida" do
+ * portfólio do Gabriel (~/dev/gabriel/portfolio, site/Home.jsx e home.css,
+ * primitiva 10 de site/motion.js).
  *
- * Um parágrafo grande que se acende palavra por palavra conforme a rolagem.
- * A coluna de fatos curtos que ficava à esquerda saiu a pedido; o texto
- * segue na mesma coluna recuada, que é o que dá o ar editorial. A primeira frase já entra
- * cheia: é a tese, e não pode depender de alguém rolar para ser lida.
+ * Duas frases curtas em display, uma ancorada à esquerda e outra à direita,
+ * com um degrau entre elas que deixa dois vazios em diagonal. Cada bloco tem
+ * rótulo, frase e nota. As palavras das duas frases acendem em sequência,
+ * presas à rolagem: saem de 6% de opacidade, 7px de desfoque e 12px abaixo.
+ * A janela de cada palavra é ~2,6 vezes o passo entre elas, então três ou
+ * quatro estão sempre em transição, e a leitura parece uma faixa passando
+ * pela frase. A contagem é uma só para os dois blocos (cortar no meio fazia o
+ * segundo abrir do zero e o par piscava duas vezes).
  *
- * A grade dos seis temas que morava aqui virou o acordeão de `Servicos.astro`:
- * eram seis cartões iguais lado a lado, o padrão mais genérico da página.
+ * A frase inteira está no HTML desde o início: o scroll só acende. Sem JS, ou
+ * com menos movimento pedido, tudo aparece nítido e parado.
  */
+const blocos = [
+  {
+    olho: 'O patrimônio',
+    frase: ['Organizamos', 'em', 'vida', 'o', 'que', 'é', '*seu.*'],
+    nota: 'Holding, testamento, doação e inventário pensados antes, para que a sucessão não vire disputa entre herdeiros.',
+    lado: 'esq',
+  },
+  {
+    olho: 'A presença digital',
+    frase: ['E', 'protegemos', 'o', 'que', 'você', '*constrói*', 'na', 'internet.'],
+    nota: 'Contratos, marca, dados pessoais e o que fazer quando algo dá errado, para quem vive e trabalha no digital.',
+    lado: 'dir',
+  },
+];
 ---
 
-<section class="secao declaracao" aria-labelledby="declaracao-titulo">
-  <div class="env">
-    <h2 class="grande" id="declaracao-titulo">
-      <b>Olhamos o que é seu por inteiro.</b>{' '}
-      <span data-palavras>
-        Do imóvel à marca, do testamento ao perfil na internet. São assuntos que costumam chegar
-        juntos, e vendo o conjunto conseguimos apontar o risco antes que ele vire processo.
-      </span>
-    </h2>
+<section class="declaracao" aria-label="O que o escritório faz">
+  <div class="env par" data-par>
+    {blocos.map((b) => (
+      <div class:list={['bloco', b.lado]}>
+        <p class="olho">{b.olho}</p>
+        <p class="frase">
+          {b.frase.map((w, k) => (
+            <>
+              <span class="w">{w.startsWith('*') ? <em>{w.slice(1, -1)}</em> : w}</span>
+              {k < b.frase.length - 1 ? ' ' : ''}
+            </>
+          ))}
+        </p>
+        <p class="nota" data-nota>{b.nota}</p>
+      </div>
+    ))}
   </div>
 </section>
 
+<script>
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    void (async () => {
+      const { gsap } = await import('gsap');
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+      gsap.registerPlugin(ScrollTrigger);
+      document.querySelectorAll<HTMLElement>('.declaracao [data-par]').forEach((par) => {
+        const palavras = [...par.querySelectorAll<HTMLElement>('.w')];
+        const total = Math.max(palavras.length, 1);
+        const passo = 0.78 / total;
+        const janela = 2.6 / total;
+        const tl = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: { trigger: par, start: 'top 90%', end: 'bottom 45%', scrub: 0.4 },
+        });
+        palavras.forEach((w, i) => {
+          tl.fromTo(
+            w,
+            { opacity: 0.06, filter: 'blur(7px)', y: 12 },
+            { opacity: 1, filter: 'blur(0px)', y: 0, duration: janela },
+            i * passo,
+          );
+        });
+        par.querySelectorAll<HTMLElement>('[data-nota]').forEach((nota) => {
+          gsap.from(nota, {
+            y: 24,
+            autoAlpha: 0,
+            duration: 0.9,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: nota, start: 'top 88%', once: true },
+          });
+        });
+      });
+    })();
+  }
+</script>
+
 <style>
   .declaracao {
-    padding-block: clamp(72px, 9vw, 140px);
+    padding-block: clamp(96px, 12vw, 180px);
+    background: var(--branco);
   }
-  /* Recuo à esquerda, sem grade: com a coluna de fatos fora, a grade de duas
-     colunas ficava com um item só e espremia o texto. */
-  .grande {
-    margin-left: clamp(0px, 18vw, 320px);
+  /* Os dois blocos em coluna, um ancorado em cada lado, com 104px de degrau:
+     é o respiro que separa "são dois assuntos" de "é um parágrafo quebrado". */
+  .par {
+    display: flex;
+    flex-direction: column;
+    gap: 104px;
+  }
+  .bloco {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 809px;
+  }
+  .bloco.esq {
+    align-self: flex-start;
+  }
+  .bloco.dir {
+    align-self: flex-end;
+    text-align: right;
+  }
+  .bloco.dir .nota {
+    margin-left: auto;
+  }
+  .olho {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #2a62ad;
+  }
+  .frase {
     font-family: var(--sans);
     font-weight: 500;
-    font-size: clamp(26px, 3.1vw, 44px);
-    line-height: 1.22;
-    letter-spacing: -0.02em;
+    font-size: clamp(40px, 6vw, 104px);
+    line-height: 1.02;
+    letter-spacing: -0.055em;
     color: var(--tinta);
-    max-width: 30ch;
+    text-wrap: balance;
   }
-  .grande b {
-    font-weight: 600;
+  .frase em {
+    font-style: normal;
+    color: #2a62ad;
+  }
+  /* inline-block para a opacidade por palavra não quebrar a quebra de linha */
+  .w {
+    display: inline-block;
+    will-change: opacity, filter, transform;
+  }
+  .nota {
+    max-width: 560px;
+    font-size: clamp(17px, 1.5vw, 21px);
+    line-height: 1.45;
+    color: var(--secundario);
+    text-wrap: pretty;
   }
   @media (max-width: 760px) {
-    .grande {
-      margin-left: 0;
+    .par {
+      gap: 64px;
     }
-  }
-
-  /* palavras: sem JS é texto normal. Com JS e movimento, cada palavra vai
-     de 62% a 100% de opacidade conforme a rolagem. Não baixar o piso: a .62
-     o contraste ainda passa AA, e o público do site tem 70 anos. */
-  :global(.js) [data-palavras] :global(.w) {
-    display: inline-block;
-    opacity: 0.62;
-    will-change: opacity;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    :global(.js) [data-palavras] :global(.w) {
-      opacity: 1;
+    .bloco.dir {
+      text-align: left;
+      align-self: flex-start;
+    }
+    .bloco.dir .nota {
+      margin-left: 0;
     }
   }
 </style>
