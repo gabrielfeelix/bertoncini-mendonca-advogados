@@ -1,19 +1,25 @@
 ---
 /**
- * Áreas de atuação, em acordeão (redesenho de 21/10/2026).
+ * Áreas de atuação na home: lista com prévia fixa (26/10/2026).
  *
- * Padrão tirado de marketinglab.framer.ai, seção "What we offer": cada tema
- * é uma linha fina e clara; a linha ativa abre escura, com foto, texto e
- * os assuntos em chips. No desktop abre ao passar o mouse; no toque e no
- * teclado, pelo botão do título. Uma aberta por vez, e a primeira já vem
- * aberta para a seção nunca parecer uma lista vazia.
+ * Era um acordeão que abria no hover. Cada linha que abria mudava a altura
+ * da página, e mesmo com intenção de hover e correção de rolagem a tela subia
+ * e descia sozinha enquanto o mouse passava. O padrão mudou para um que não
+ * mexe em altura nenhuma:
  *
- * Sem JS todas ficam abertas (o CSS só fecha com `.js`): o conteúdo inteiro
- * continua legível.
+ * - à esquerda, os seis temas numa lista de alturas fixas; o hover só
+ *   destaca a linha;
+ * - à direita, um painel grudado (sticky) com foto, texto, chips e as duas
+ *   saídas; ele troca de conteúdo por crossfade quando outra linha é
+ *   apontada (mouse, foco do teclado ou clique).
  *
- * As fotos são as da série própria (`public/media/novas`, prompts em
- * `docs/PROMPTS-IMAGENS.md`), sem tratamento de cor por cima: a paleta
- * marinho já sai da própria imagem.
+ * Como nada muda de tamanho, o hover pode reagir na hora, sem espera, e a
+ * página nunca se move por conta própria.
+ *
+ * Abaixo de 900px não há hover nem espaço para o painel: cada linha abre o
+ * próprio conteúdo por toque, como acordeão comum.
+ *
+ * Fotos da série própria (docs/PROMPTS-IMAGENS.md), sem cor por cima.
  */
 import Zap from './Zap.astro';
 import { whatsappDaArea } from '~/lib/areas';
@@ -81,6 +87,8 @@ const temas: Tema[] = [
     foto: '/media/novas/area-presenca',
   },
 ];
+
+const id = (i: number) => `tema-${i}`;
 ---
 
 <section class="servicos" id="areas" aria-labelledby="servicos-titulo">
@@ -92,159 +100,116 @@ const temas: Tema[] = [
     </p>
   </header>
 
-  <ol class="linhas">
-    {temas.map((tema, i) => {
-      const id = `tema-${i}`;
-      return (
-        <li class:list={['linha', { aberta: i === 0 }]}>
-          <span class="grao" style="filter:url(#grao)" aria-hidden="true"></span>
-          <div class="env grade">
-            <span class="n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-
-            <div class="foto dobra" aria-hidden="true">
-              <div class="dentro">
-                <figure>
-                  <picture>
-                    <source type="image/avif" srcset={`${tema.foto}.avif`} />
-                    <source type="image/webp" srcset={`${tema.foto}.webp`} />
-                    <img src={`${tema.foto}.jpg`} alt="" width="900" height="1125" loading="lazy" decoding="async" />
-                  </picture>
-                </figure>
-              </div>
-            </div>
-
-            <div class="conteudo">
-              <div class="topo">
-                <div>
-                  <span class="rotulo">{tema.area}</span>
-                  <h3>
-                    <button type="button" class="abre" aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={id}>
-                      {tema.nome}
-                    </button>
-                  </h3>
-                </div>
-                <a class="botao zap vai" href={whatsappDaArea(`Olá! Gostaria de conversar sobre ${tema.nome.toLowerCase()}.`)} target="_blank" rel="noopener">
+  <div class="env palco" data-servicos>
+    <ol class="lista">
+      {temas.map((tema, i) => (
+        <li class:list={['tema', { ativo: i === 0 }]} data-i={i}>
+          <button type="button" class="linha" aria-controls={id(i)} aria-expanded={i === 0 ? 'true' : 'false'}>
+            <span class="n">{String(i + 1).padStart(2, '0')}</span>
+            <span class="nomes">
+              <span class="rotulo">{tema.area}</span>
+              <span class="nome">{tema.nome}</span>
+            </span>
+            <span class="seta" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </span>
+          </button>
+          {/* Corpo do tema no celular: o painel da direita só existe no desktop. */}
+          <div class="corpo-movel">
+            <div class="dentro">
+              <p>{tema.texto}</p>
+              <ul class="chips">{tema.assuntos.map((a) => <li>{a}</li>)}</ul>
+              <div class="acoes-movel">
+                <a class="botao zap" href={whatsappDaArea(`Olá! Gostaria de conversar sobre ${tema.nome.toLowerCase()}.`)} target="_blank" rel="noopener">
                   Falar sobre {tema.nome.toLowerCase()}
                   <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
                 </a>
-              </div>
-              <div class="corpo dobra" id={id}>
-                <div class="dentro">
-                  <p>{tema.texto}</p>
-                  <ul class="chips">
-                    {tema.assuntos.map((a) => (
-                      <li>
-                        <img class="selo" src="/media/marca/mono-branco.png" alt="" width="20" height="20" loading="lazy" />
-                        {a}
-                      </li>
-                    ))}
-                  </ul>
-                  <a class="ler" href={tema.href}>
-                    Ler sobre {tema.area === 'As duas áreas' ? 'as áreas' : 'a área'}
-                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
-                  </a>
-                </div>
+                <a class="ler" href={tema.href}>Ler sobre {tema.area === 'As duas áreas' ? 'as áreas' : 'a área'}</a>
               </div>
             </div>
           </div>
         </li>
-      );
-    })}
-  </ol>
+      ))}
+    </ol>
+
+    <div class="painel" aria-live="polite">
+      <span class="grao" style="filter:url(#grao)" aria-hidden="true"></span>
+      {temas.map((tema, i) => (
+        <article class:list={['camada', { ativa: i === 0 }]} id={id(i)} data-i={i} aria-hidden={i === 0 ? undefined : 'true'}>
+          <figure class="foto">
+            <picture>
+              <source type="image/avif" srcset={`${tema.foto}.avif`} />
+              <source type="image/webp" srcset={`${tema.foto}.webp`} />
+              <img src={`${tema.foto}.jpg`} alt="" width="900" height="1125" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+            </picture>
+          </figure>
+          <div class="texto">
+            <p class="rotulo-painel">{tema.area}</p>
+            <h3>{tema.nome}</h3>
+            <p class="descricao">{tema.texto}</p>
+            <ul class="chips">
+              {tema.assuntos.map((a) => (
+                <li><img class="selo" src="/media/marca/mono-branco.png" alt="" width="18" height="18" loading="lazy" />{a}</li>
+              ))}
+            </ul>
+            <div class="acoes">
+              <a class="botao zap claro" href={whatsappDaArea(`Olá! Gostaria de conversar sobre ${tema.nome.toLowerCase()}.`)} target="_blank" rel="noopener" tabindex={i === 0 ? undefined : -1}>
+                Falar sobre {tema.nome.toLowerCase()}
+                <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
+              </a>
+              <a class="ler" href={tema.href} tabindex={i === 0 ? undefined : -1}>
+                Ler sobre {tema.area === 'As duas áreas' ? 'as áreas' : 'a área'}
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
 </section>
 
 <script>
-  /*
-    Uma linha aberta por vez.
-
-    Abrir no hover sozinho quebrava a navegação com mouse: a linha de cima
-    fechava, a de baixo subia para debaixo do cursor parado, abria, e a
-    página entrava em cascata. Três travas:
-
-    1. Intenção: só abre se o ponteiro SE MEXER dentro da linha (posição
-       diferente da última vista: os eventos que o navegador dispara quando
-       o conteúdo anda sob um cursor parado repetem a mesma posição) e
-       ficar ali DEMORA ms.
-    2. Âncora: durante a transição, a rolagem é corrigida quadro a quadro
-       para a linha escolhida ficar no mesmo lugar da tela. O que muda de
-       altura acima dela não a empurra.
-    3. Toque e teclado abrem pelo botão do título, sem espera.
-  */
-  const DEMORA = 120;
-  const DURACAO = 520;
-  /** px/ms acima do qual o ponteiro está de passagem. */
-  const VELOZ = 0.45;
-
-  document.querySelectorAll<HTMLElement>('.servicos').forEach((sec) => {
-    const linhas = [...sec.querySelectorAll<HTMLElement>('.linha')];
+  /* Troca o tema ativo. No desktop isso só muda classes: a lista tem alturas
+     fixas e o painel é sticky, então nada se move. No celular a mesma classe
+     abre o corpo da linha (acordeão por toque). */
+  document.querySelectorAll<HTMLElement>('[data-servicos]').forEach((palco) => {
+    const temas = [...palco.querySelectorAll<HTMLElement>('.tema')];
+    const camadas = [...palco.querySelectorAll<HTMLElement>('.camada')];
     const fino = matchMedia('(hover: hover) and (pointer: fine)');
-    let espera = 0;
-    let alvoDaEspera: HTMLElement | null = null;
-    let ultimoX = -1;
-    let ultimoT = 0;
-    let ultimoY = -1;
+    const largo = matchMedia('(min-width: 901px)');
 
-    const abre = (alvo: HTMLElement) => {
-      if (alvo.classList.contains('aberta')) return;
-      const antes = alvo.getBoundingClientRect().top;
-      linhas.forEach((l) => {
-        const sim = l === alvo;
-        l.classList.toggle('aberta', sim);
-        l.querySelector('.abre')?.setAttribute('aria-expanded', String(sim));
+    const ativa = (i: number) => {
+      temas.forEach((t, k) => {
+        const sim = k === i;
+        t.classList.toggle('ativo', sim);
+        t.querySelector('.linha')?.setAttribute('aria-expanded', String(sim));
       });
-      /* A correção passa pelo Lenis quando ele existe: mover a janela por
-         fora dele faz o Lenis puxar de volta, e os dois ficavam se
-         corrigindo (a página "teleportava"). Se a pessoa está rolando, não
-         corrige: a rolagem dela manda. */
-      const lenis = window.rolagem;
-      const inicio = performance.now();
-      const segura = (agora: number) => {
-        const desvio = alvo.getBoundingClientRect().top - antes;
-        if (Math.abs(desvio) > 0.5 && !lenis?.isScrolling) {
-          if (lenis) lenis.scrollTo(lenis.scroll + desvio, { immediate: true, force: true });
-          else window.scrollBy(0, desvio);
-        }
-        if (agora - inicio < DURACAO) requestAnimationFrame(segura);
-      };
-      requestAnimationFrame(segura);
+      camadas.forEach((c, k) => {
+        const sim = k === i;
+        c.classList.toggle('ativa', sim);
+        if (sim) c.removeAttribute('aria-hidden');
+        else c.setAttribute('aria-hidden', 'true');
+        c.querySelectorAll('a').forEach((a) => (sim ? a.removeAttribute('tabindex') : a.setAttribute('tabindex', '-1')));
+      });
     };
 
-    linhas.forEach((l) => {
-      l.addEventListener('pointermove', (e) => {
-        const parado = e.clientX === ultimoX && e.clientY === ultimoY;
-        const dt = Math.max(1, e.timeStamp - ultimoT);
-        const veloz = Math.hypot(e.clientX - ultimoX, e.clientY - ultimoY) / dt > VELOZ;
-        ultimoX = e.clientX;
-        ultimoY = e.clientY;
-        ultimoT = e.timeStamp;
-        if (!fino.matches || parado || l.classList.contains('aberta')) return;
-        /* Devagar, a espera conta desde a entrada e não reinicia (reiniciando,
-           a linha só abria quando o mouse parava). Rápido, reinicia: o mouse
-           está só passando a caminho de outra linha. */
-        if (espera && alvoDaEspera === l && !veloz) return;
-        clearTimeout(espera);
-        alvoDaEspera = l;
-        espera = window.setTimeout(() => {
-          espera = 0;
-          abre(l);
-        }, DEMORA);
+    temas.forEach((t, i) => {
+      const linha = t.querySelector<HTMLElement>('.linha')!;
+      t.addEventListener('pointerenter', () => {
+        if (fino.matches && largo.matches) ativa(i);
       });
-      l.addEventListener('pointerleave', () => {
-        clearTimeout(espera);
-        espera = 0;
+      linha.addEventListener('focus', () => {
+        if (largo.matches) ativa(i);
       });
-      l.querySelector('.abre')?.addEventListener('click', () => abre(l));
+      linha.addEventListener('click', () => ativa(i));
     });
   });
 </script>
 
 <style>
-  /* `overflow-anchor: none`: a âncora nativa do navegador também corrige a
-     rolagem quando algo acima muda de altura, e somada à correção do
-     script dava salto em dobro. */
   .servicos {
-    overflow-anchor: none;
-    padding-top: clamp(72px, 9vw, 136px);
+    padding-block: clamp(80px, 9vw, 136px);
     background: var(--branco);
   }
   .cabeca {
@@ -252,7 +217,7 @@ const temas: Tema[] = [
     display: grid;
     justify-items: center;
     gap: 16px;
-    margin-bottom: clamp(36px, 4.4vw, 64px);
+    margin-bottom: clamp(40px, 5vw, 72px);
   }
   .cabeca h2 {
     font-family: var(--sans);
@@ -268,34 +233,103 @@ const temas: Tema[] = [
     color: var(--secundario);
   }
 
-  .linhas {
+  .palco {
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: clamp(32px, 5vw, 88px);
+    align-items: start;
+  }
+
+  /* ── lista: alturas fixas, o hover só destaca ───────────────────── */
+  .lista {
     list-style: none;
     margin: 0;
     padding: 0;
+    border-top: 1px solid var(--linha);
+  }
+  .tema {
+    border-bottom: 1px solid var(--linha);
   }
   .linha {
-    --ease: cubic-bezier(0.45, 0, 0.15, 1);
-    border-top: 1px solid var(--tinta);
-    background: var(--branco);
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 6px;
+    cursor: pointer;
     color: var(--tinta);
-    transition: background-color 0.45s var(--ease), color 0.45s var(--ease);
   }
-  .linha:last-child {
-    border-bottom: 1px solid var(--tinta);
+  .linha:focus-visible {
+    outline: 2px solid var(--tinta);
+    outline-offset: 2px;
+    border-radius: 6px;
   }
-  /* Aberta: só azul, do médio ao escuro, com o grão do hero e do rodapé
-     por cima (o filtro `#grao` de Base.astro). O vinho saiu a pedido. */
-  .linha {
-    position: relative;
+  .n {
+    font-size: 14px;
+    color: var(--secundario);
+    transition: color 0.4s var(--ease);
+  }
+  .nomes {
+    display: grid;
+    gap: 2px;
+    transform: translateX(0);
+    transition: transform 0.6s var(--ease);
+  }
+  .rotulo {
+    font-size: 13px;
+    color: var(--secundario);
+  }
+  .nome {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: clamp(26px, 2.8vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: #9aa8b8;
+    transition: color 0.45s var(--ease);
+  }
+  .seta {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: var(--tinta);
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.4s var(--ease), transform 0.6s var(--ease), background-color 0.4s;
+  }
+  .tema.ativo .nome {
+    color: var(--tinta);
+  }
+  .tema.ativo .n {
+    color: #2a62ad;
+  }
+  .tema.ativo .nomes {
+    transform: translateX(10px);
+  }
+  .tema.ativo .seta {
+    opacity: 1;
+    transform: none;
+    background: var(--papel);
+  }
+
+  /* ── painel sticky com crossfade ────────────────────────────────── */
+  .painel {
+    position: sticky;
+    top: 110px;
     isolation: isolate;
-  }
-  .linha.aberta {
-    background: linear-gradient(120deg, #1f4c88 0%, #163a6d 40%, #0e2a52 75%, var(--tinta) 100%);
+    display: grid;
+    min-height: min(640px, calc(100vh - 140px));
+    border-radius: 26px;
+    overflow: hidden;
     color: #fff;
+    background: linear-gradient(130deg, #1f4c88 0%, #163a6d 40%, #0e2a52 75%, var(--tinta) 100%);
   }
-  /* `clip-path`: o filtro SVG pinta 10% além da caixa do elemento (região
-     padrão de <filter>), e sem o recorte o grão vazava como uma faixa
-     cinza sobre as linhas vizinhas. */
   .grao {
     position: absolute;
     inset: 0;
@@ -303,213 +337,190 @@ const temas: Tema[] = [
     clip-path: inset(0);
     background: #8aa0bc;
     mix-blend-mode: overlay;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.45s var(--ease);
-  }
-  .linha.aberta .grao {
     opacity: 0.4;
+    pointer-events: none;
   }
-  .grade {
+  .camada {
+    grid-area: 1 / 1;
     display: grid;
-    grid-template-columns: 56px minmax(0, 0.9fr) minmax(0, 1.5fr);
-    column-gap: clamp(16px, 2.4vw, 32px);
-    padding-block: clamp(22px, 2.6vw, 36px);
-  }
-  .n {
-    font-size: 16px;
-    padding-top: 4px;
-  }
-
-  /* A dobra: 0fr fechada, 1fr aberta. Anima a altura real do conteúdo
-     sem medir nada em JS. */
-  .dobra {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.5s var(--ease);
-  }
-  .dobra > .dentro {
-    overflow: hidden;
-    min-height: 0;
-  }
-  .linha.aberta .dobra,
-  :global(html:not(.js)) .dobra {
-    grid-template-rows: 1fr;
-  }
-
-  .foto figure {
-    position: relative;
-    margin: 0;
-    aspect-ratio: 4 / 5;
-    max-height: 440px;
-    border-radius: 18px;
-    overflow: hidden;
-    background: #12284d;
+    grid-template-rows: minmax(0, 1fr) auto;
     opacity: 0;
-    transform: scale(0.94);
-    transition: opacity 0.45s var(--ease), transform 0.6s var(--ease);
+    visibility: hidden;
+    transition: opacity 0.5s var(--ease), visibility 0s linear 0.5s;
   }
-  .linha.aberta .foto figure {
+  .camada.ativa {
     opacity: 1;
-    transform: none;
+    visibility: visible;
+    transition: opacity 0.6s var(--ease), visibility 0s;
   }
-  /* A foto sai com a cor dela: tingir imagem foi vetado pelo cliente
-     ("nunca coloque", ver commit 80d73a2). */
+  .foto {
+    margin: 0;
+    position: relative;
+    min-height: 240px;
+    overflow: hidden;
+  }
   .foto picture {
     display: contents;
   }
   .foto img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .foto figure:hover img {
     transform: scale(1.06);
+    transition: transform 1.4s var(--ease);
   }
-
-  .topo {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
+  .camada.ativa .foto img {
+    transform: scale(1);
   }
-  .rotulo {
-    display: block;
-    font-size: 15px;
-    margin-bottom: 8px;
-    opacity: 0.8;
+  .texto {
+    padding: clamp(22px, 2.6vw, 36px);
   }
-  h3 {
-    margin: 0;
+  .texto > * {
+    transform: translateY(14px);
+    opacity: 0;
+    transition: transform 0.7s var(--ease), opacity 0.5s var(--ease);
   }
-  .abre {
-    all: unset;
-    cursor: pointer;
+  .camada.ativa .texto > * {
+    transform: none;
+    opacity: 1;
+  }
+  .camada.ativa .texto > :nth-child(2) {
+    transition-delay: 0.04s;
+  }
+  .camada.ativa .texto > :nth-child(3) {
+    transition-delay: 0.08s;
+  }
+  .camada.ativa .texto > :nth-child(4) {
+    transition-delay: 0.12s;
+  }
+  .camada.ativa .texto > :nth-child(5) {
+    transition-delay: 0.16s;
+  }
+  .rotulo-painel {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .texto h3 {
+    margin-top: 6px;
     font-family: var(--sans);
-    font-weight: 500;
-    font-size: clamp(28px, 3.3vw, 48px);
+    font-weight: 600;
+    font-size: clamp(28px, 2.6vw, 38px);
     letter-spacing: -0.03em;
-    line-height: 1.05;
   }
-  .abre:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 6px;
-    border-radius: 4px;
-  }
-  .vai {
-    flex: none;
-  }
-  .linha.aberta .vai {
-    background: #fff;
-    color: var(--tinta);
-  }
-  .linha.aberta .vai:hover {
-    background: var(--papel);
-  }
-
-  .corpo p {
-    margin-top: clamp(28px, 6vw, 120px);
-    max-width: 52ch;
-    font-size: 18px;
+  .descricao {
+    margin-top: 10px;
+    font-size: 17px;
     line-height: 1.5;
-    color: rgba(255, 255, 255, 0.86);
+    color: rgba(255, 255, 255, 0.85);
   }
   .chips {
     list-style: none;
-    margin: 22px 0 4px;
+    margin: 18px 0 0;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-  }
-  /* Vidro, não cartão branco: a chapa clara pesava sobre o fundo escuro e
-     parecia componente pronto. Translúcido, o chip pertence à linha. */
-  .chips li {
-    position: relative;
-    min-height: 112px;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 16px 18px 18px;
-    border-radius: 16px;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chips li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
     backdrop-filter: blur(10px);
-    color: #fff;
-    font-size: clamp(16px, 1.4vw, 19px);
-    line-height: 1.25;
-    letter-spacing: -0.01em;
-    transform: translateY(14px);
-    opacity: 0;
-    transition: transform 0.5s var(--ease), opacity 0.4s var(--ease);
+    font-size: 14px;
   }
   .selo {
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
     object-fit: contain;
-    opacity: 0.55;
+    opacity: 0.6;
+  }
+  .acoes {
+    margin-top: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+  }
+  .botao.claro {
+    background: #fff;
+    color: var(--tinta);
+  }
+  .botao.claro:hover {
+    background: var(--papel);
   }
   .ler {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 22px;
-    font-size: 16px;
-    color: #fff;
+    font-size: 15px;
+    color: inherit;
     text-decoration: underline;
-    text-decoration-color: rgba(255, 255, 255, 0.35);
+    text-decoration-color: rgba(255, 255, 255, 0.4);
     text-underline-offset: 5px;
-    transition: text-decoration-color 0.3s;
-  }
-  .ler:hover {
-    text-decoration-color: #fff;
-  }
-  .linha.aberta .chips li {
-    transform: none;
-    opacity: 1;
-  }
-  .linha.aberta .chips li:nth-child(2) {
-    transition-delay: 0.06s;
-  }
-  .linha.aberta .chips li:nth-child(3) {
-    transition-delay: 0.12s;
   }
 
+  /* ── celular: acordeão por toque, sem painel ───────────────────── */
+  .corpo-movel {
+    display: none;
+  }
   @media (max-width: 900px) {
-    .grade {
-      grid-template-columns: 40px minmax(0, 1fr);
-    }
-    .foto {
-      grid-column: 2;
-      grid-row: 2;
-    }
-    .conteudo {
-      grid-column: 2;
-      grid-row: 1;
-    }
-    .foto figure {
-      margin-top: 22px;
-      aspect-ratio: 16 / 10;
-    }
-    .topo {
-      flex-direction: column;
-    }
-    .corpo p {
-      margin-top: 18px;
-    }
-    .chips {
+    .palco {
       grid-template-columns: 1fr;
     }
-    .chips li {
+    .painel {
+      display: none;
+    }
+    .corpo-movel {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.5s var(--ease);
+    }
+    .corpo-movel > .dentro {
+      overflow: hidden;
       min-height: 0;
+    }
+    .tema.ativo .corpo-movel {
+      grid-template-rows: 1fr;
+    }
+    .corpo-movel p {
+      padding: 0 6px;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--secundario);
+    }
+    .corpo-movel .chips {
+      padding: 0 6px;
+    }
+    .corpo-movel .chips li {
+      background: var(--papel);
+      box-shadow: inset 0 0 0 1px var(--linha);
+      color: var(--tinta);
+    }
+    .acoes-movel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 6px 24px;
+    }
+    .corpo-movel .ler {
+      color: var(--tinta);
+      text-decoration-color: var(--linha);
+    }
+    .tema.ativo .nomes {
+      transform: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .linha,
-    .linha * {
+    .palco *,
+    .palco *::before {
       transition: none !important;
     }
   }

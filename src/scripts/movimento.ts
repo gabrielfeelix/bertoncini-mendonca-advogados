@@ -381,10 +381,6 @@ if (calmo) {
         mesmo gesto das outras transições do site.
       */
       const lenis = new Lenis({ duration: 1.35, smoothWheel: true });
-      /* Exposto para quem precisa mexer na rolagem sem brigar com ele (o
-         acordeão de `Servicos.astro`): mover a janela por fora faz o Lenis
-         puxar de volta para a posição que ele guarda. */
-      window.rolagem = lenis;
       raiz.classList.add('lenis');
 
       const tique = (t: number) => {
