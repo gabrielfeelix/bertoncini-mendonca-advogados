@@ -120,177 +120,148 @@ const valoresDeAtuacao = [
   descricao="Quem somos: os dois sócios de Bertoncini & Mendonça, em Maringá, com inscrição na OAB do Paraná, formação, áreas de atuação e contato direto."
   paginaAtual="/escritorio/"
 >
-  {/* Redesenho de 21/10/2026, a partir da página "About" de
-      marketinglab.framer.ai: declaração que se acende na rolagem, fatos em
-      cartões, a história sobre um fundo parado, as pessoas, os valores e o
-      registro. O conteúdo é o mesmo de antes (briefing de 23/09). */}
+  {/* Versão cinematográfica (26/10/2026), a partir da página "About" de
+      quadro-template.framer.website. Plano em docs/PLANO-ESCRITORIO.md e
+      mecânica medida em docs/refs/REFERENCIAS-ESCRITORIO.md. O movimento
+      mora em scripts/escritorio.ts; sem ele (ou com menos movimento pedido)
+      a página é um documento comum, tudo visível. */}
+  <div class="escritorio">
 
-  <!-- 1. ABERTURA -->
-  <section class="abertura">
-    <div class="env">
-      <p class="rotulo-pagina">O escritório</p>
-      <h1 class="grande">
-        <b>Somos dois advogados, e é com um de nós que você fala.</b>{' '}
-        <span data-palavras>
-          Juscelino trabalha antes do processo, para que o problema não se consolide. Beatriz, quando o
-          processo existe. Entre os dois, o mesmo cuidado com o que é seu.
-        </span>
-      </h1>
+  <!-- 1–3. ABERTURA, MARCA-D'ÁGUA E MANIFESTO -->
+  <section class="topo">
+    <div class="marca-dagua" aria-hidden="true"><span data-desliza>Bertoncini &amp; Mendonça /&nbsp;Bertoncini &amp; Mendonça /</span></div>
+    <div class="env abertura">
+      <p class="pilula" data-sobe>O escritório</p>
+      <h1 class="titulo-caixa" data-sobe>Dois advogados.<br /><em>Um deles</em> fala com você.</h1>
+      <p class="apoio" data-sobe>
+        Juscelino trabalha antes do processo, para que o problema não se consolide. Beatriz, quando o
+        processo existe. Do primeiro contato ao fim do caso, é um dos dois.
+      </p>
     </div>
-  </section>
-
-  <!-- 2. FATOS -->
-  <section class="fatos" aria-labelledby="fatos-titulo">
-    <div class="env">
-      <header class="cab-centro">
-        <h2 id="fatos-titulo" class="sobe">Em poucas linhas</h2>
-        <p class="sobe">O que dá para dizer sobre o escritório sem prometer resultado, que é o que a Ordem permite e o que nós preferimos.</p>
-      </header>
-      <div class="grade-fatos">
-        <figure class="fato missao-cartao sobe">
-          <svg class="aspas" width="34" height="26" viewBox="0 0 34 26" fill="currentColor" aria-hidden="true"><path d="M0 26V15.6Q0 7.8 4.3 3.9 8.5 0 15 0v5.2q-4 0-6.2 2.1-2.1 2.1-2.1 6h7.8V26H0Zm19 0V15.6q0-7.8 4.3-11.7Q27.5 0 34 0v5.2q-4 0-6.2 2.1-2.1 2.1-2.1 6h7.8V26H19Z"/></svg>
-          <blockquote><p>{missao}</p></blockquote>
-          <figcaption>
-            <span class="avatares" aria-hidden="true">
-              <img src="/media/socios/juscelino-560.webp" alt="" width="36" height="36" loading="lazy" />
-              <img src="/media/socios/beatriz-560.webp" alt="" width="36" height="36" loading="lazy" style="object-position:50% 20%" />
-            </span>
-            A missão do escritório
-          </figcaption>
-        </figure>
-        <div class="fato sobe"><strong>4+</strong><span>anos de prática jurídica</span></div>
-        <div class="fato sobe"><strong>2</strong><span>sócios, uma área cada</span></div>
-        <div class="fato sobe"><strong>UEM</strong><span>onde os dois se formaram</span></div>
-        <div class="fato sobe"><strong>Brasil</strong><span>atendimento online em todo o país</span></div>
+    <div class="env manifesto">
+      <p class="titulo-caixa grande" data-acende>{missao}</p>
+      <div class="manifesto-apoio" data-sobe>
+        <p>
+          Estamos ao lado dos nossos clientes nas decisões que estruturam o patrimônio e o futuro deles,
+          com orientação clara, próxima e estratégica.
+        </p>
+        <p>Para que escolhas importantes sejam feitas com consciência, e não na urgência.</p>
       </div>
     </div>
   </section>
 
-  <!-- 3. A HISTÓRIA, sobre um fundo parado -->
+  <!-- 4. OS SÓCIOS -->
+  {perfis.map((perfil, n) => (
+    <section class:list={['socio', { invertido: n % 2 === 1 }]} id={n === 0 ? 'socios' : undefined} aria-labelledby={`socio-${n}`}>
+      <div class="env socio-grade">
+        <div class="socio-texto" data-sobe>
+          <p class="rotulo">{perfil.lado}</p>
+          <h2 id={`socio-${n}`} class="socio-nome"><em>{perfil.nome}</em><br />{perfil.sobrenome}</h2>
+          <p class="oab" data-placeholder={perfil.socio.oab.placeholder ? '1' : undefined}>
+            <span>Inscrição na Ordem</span> {perfil.socio.oab.valor}
+          </p>
+          <p class="bio">{perfil.bio}</p>
+          <blockquote class="porque">
+            <p>{perfil.porque}</p>
+            <cite>Por que o Direito, nas palavras de {perfil.nome}</cite>
+          </blockquote>
+          <dl class="formacao">
+            <dt>Formação</dt>
+            <dd><ul>{perfil.formacao.map((item) => <li>{item}</li>)}</ul></dd>
+            <dt>Fora do escritório</dt>
+            <dd>{perfil.fora}</dd>
+          </dl>
+          <a class="botao contorno" href={`/areas/${perfil.socio.area}/`}>
+            {nomeDaArea(perfil.socio.area)}
+            <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
+          </a>
+        </div>
+        <div class="socio-foto">
+          <figure class="pilha-fotos">
+            <picture>
+              <source type="image/avif" srcset={`${perfil.base}-560.avif 560w, ${perfil.base}-840.avif 840w`} sizes="(max-width: 900px) 92vw, 40vw" />
+              <source type="image/webp" srcset={`${perfil.base}-560.webp 560w, ${perfil.base}-840.webp 840w`} sizes="(max-width: 900px) 92vw, 40vw" />
+              <img src={`${perfil.base}-840.jpg`} alt={`Retrato de ${perfil.nome} ${perfil.sobrenome}`} width={perfil.largura} height={perfil.altura} loading="lazy" style={`object-position:${perfil.enquadra}`} />
+            </picture>
+          </figure>
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <!-- 5–6. A HISTÓRIA E OS NÚMEROS -->
   <section class="historia" aria-labelledby="historia-titulo">
-    <div class="historia-fundo" aria-hidden="true">
-<picture>
-            <source type="image/avif" srcset="/media/novas/escritorio-historia.avif" />
-            <source type="image/webp" srcset="/media/novas/escritorio-historia.webp" />
-            <img src="/media/novas/escritorio-historia.jpg" alt="" width="1664" height="936" loading="lazy" decoding="async" />
-          </picture>
-    </div>
-    <div class="env historia-corpo">
-      <header>
-        <h2 id="historia-titulo">Como chegamos aqui</h2>
-        <p>Da mesma turma de faculdade à mesma sociedade.</p>
-      </header>
-      <ol class="linhas-historia">
+    <div class="marca-dagua pequena" aria-hidden="true"><span>A história</span></div>
+    <div class="env">
+      <h2 id="historia-titulo" class="titulo-caixa centro" data-sobe>Da mesma turma <em>à mesma sociedade.</em></h2>
+      <ol class="pilares">
         {batidas.map((frase, n) => (
-          <li class="sobe">
-            <span class="num">({String(n + 1).padStart(2, '0')})</span>
-            <span class="marco">{['UEM', 'O mesmo escritório', 'A sociedade'][n]}</span>
+          <li data-sobe>
+            <span class="pilar-num">{String(n + 1).padStart(2, '0')}</span>
+            <h3>{['UEM', 'O mesmo escritório', 'A sociedade'][n]}</h3>
             <p>{frase}</p>
           </li>
         ))}
       </ol>
+      <ul class="numeros" aria-label="O escritório em números">
+        <li data-sobe><strong data-conta="4">4</strong><span>+ anos de prática jurídica</span></li>
+        <li data-sobe><strong data-conta="2">2</strong><span>sócios, uma área cada</span></li>
+        <li data-sobe><strong data-conta="2">2</strong><span>áreas de atuação</span></li>
+        <li data-sobe><strong data-conta={String(perfis.reduce((t, p) => t + p.formacao.length, 0))}>{perfis.reduce((t, p) => t + p.formacao.length, 0)}</strong><span>títulos de formação somados</span></li>
+      </ul>
     </div>
   </section>
 
-  <!-- 4. AS PESSOAS -->
-  <section class="pessoas" id="socios" aria-labelledby="pessoas-titulo">
-    <div class="env">
-      <header class="cab-centro">
-        <h2 id="pessoas-titulo" class="sobe">Quem atende você</h2>
-        <p class="sobe">Do primeiro contato ao fim do caso, um dos dois. Sem repasse.</p>
-      </header>
-      <div class="duas">
-        {perfis.map((perfil) => (
-          <article class="perfil sobe">
-            <div class="retrato">
-              <picture>
-                <source type="image/avif" srcset={`${perfil.base}-560.avif 560w, ${perfil.base}-840.avif 840w`} sizes="(max-width: 900px) 92vw, 46vw" />
-                <source type="image/webp" srcset={`${perfil.base}-560.webp 560w, ${perfil.base}-840.webp 840w`} sizes="(max-width: 900px) 92vw, 46vw" />
-                <img src={`${perfil.base}-840.jpg`} alt={`Retrato de ${perfil.nome} ${perfil.sobrenome}`} width={perfil.largura} height={perfil.altura} loading="lazy" style={`object-position:${perfil.enquadra}`} />
-              </picture>
-              <span class="lado">{perfil.lado}</span>
-            </div>
-            <div class="sobre">
-              <h3>{perfil.nome} {perfil.sobrenome}</h3>
-              <p class="oab" data-placeholder={perfil.socio.oab.placeholder ? '1' : undefined}>
-                <span>Inscrição na Ordem</span> {perfil.socio.oab.valor}
-              </p>
-              <p class="bio">{perfil.bio}</p>
-              <figure class="porque">
-                <blockquote><p>“{perfil.porque}”</p></blockquote>
-                <figcaption>Por que o Direito, nas palavras de {perfil.nome}</figcaption>
-              </figure>
-              <dl>
-                <div>
-                  <dt>Formação</dt>
-                  <dd><ul>{perfil.formacao.map((item) => <li>{item}</li>)}</ul></dd>
-                </div>
-                <div>
-                  <dt>Fora do escritório</dt>
-                  <dd>{perfil.fora}</dd>
-                </div>
-              </dl>
-              <a class="botao contorno" href={`/areas/${perfil.socio.area}/`}>
-                {nomeDaArea(perfil.socio.area)}
-                <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
-              </a>
+  <!-- 7. A CENA -->
+  <section class="cena" aria-labelledby="cena-titulo">
+    <div class="palco-cena">
+      <div class="cena-fundo" aria-hidden="true">
+        <picture>
+          <source type="image/avif" srcset="/media/hero/escritorio-1600.avif" />
+          <source type="image/webp" srcset="/media/hero/escritorio-1200.webp" />
+          <img src="/media/hero/escritorio-1600.jpg" alt="" loading="lazy" />
+        </picture>
+      </div>
+      <div class="grade-linhas" aria-hidden="true">{[0, 1, 2, 3, 4, 5].map(() => <span />)}</div>
+
+      <h2 id="cena-titulo" class="visualmente-oculto">Nossos valores</h2>
+      <div class="valores-cena">
+        {valoresFundamentais.map((valor, n) => (
+          <article class="valor-cena" data-valor={n}>
+            <p class="tags"><span>Valor fundamental</span><span>{String(n + 1).padStart(2, '0')} / 03</span></p>
+            <div class="valor-corpo">
+              <h3 class="titulo-caixa">{valor.nome}.</h3>
+              <p class="valor-frase" data-acende-claro>{valor.texto}</p>
             </div>
           </article>
         ))}
       </div>
-    </div>
-  </section>
 
-  <!-- 5. VALORES -->
-  <section class="valores" aria-labelledby="valores-titulo">
-    <div class="env">
-      <header class="cab-lado">
-        <h2 id="valores-titulo" class="sobe">Nossos valores</h2>
-        <p class="sobe">
-          Estamos ao lado dos nossos clientes nas decisões que estruturam o patrimônio e o futuro deles,
-          com orientação clara, próxima e estratégica.
-        </p>
-      </header>
-      <div class="grade-valores">
-        <figure class="foto-valores sobe">
-<picture>
-            <source type="image/avif" srcset="/media/novas/escritorio-valores.avif" />
-            <source type="image/webp" srcset="/media/novas/escritorio-valores.webp" />
-            <img src="/media/novas/escritorio-valores.jpg" alt="" width="1200" height="900" loading="lazy" decoding="async" />
-          </picture>
-        </figure>
-        {valoresFundamentais.map((valor, n) => (
-          <div class="valor sobe">
-            <span class="icone" aria-hidden="true">
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-                {n === 0 && (<><path d="M7 15.5c-1.6-1-2.5-2.7-2.5-4.6a7.5 7.5 0 0 1 15 0c0 3-1.7 4.3-3 5.3-.9.7-1.5 1.3-1.5 2.5a2.5 2.5 0 0 1-5 0" /><path d="M9.5 11a2.5 2.5 0 0 1 5 0" /></>)}
-                {n === 1 && (<><circle cx="12" cy="12" r="8.5" /><path d="M8 10h8M8 14h8" /></>)}
-                {n === 2 && (<><path d="M4 11 12 4.5l8 6.5" /><path d="M6 9.5V19.5h12V9.5" /><circle cx="12" cy="13" r="2" /><path d="M9 19.5c0-1.7 1.3-3 3-3s3 1.3 3 3" /></>)}
-              </svg>
-            </span>
-            <h3>{valor.nome}</h3>
-            <p>{valor.texto}</p>
-          </div>
-        ))}
+      <div class="escada-cena">
+        <h3 class="titulo-caixa centro">Como isso aparece <mark>no trabalho.</mark></h3>
+        <div class="escada">
+          {[0, 1, 2].map((col) => (
+            <div class="degrau" data-degrau={col}>
+              {valoresDeAtuacao.slice(col * 2, col * 2 + 2).map((valor, k) => (
+                <div class="cartao-vidro">
+                  <span class="cartao-num">{String(col * 2 + k + 1).padStart(2, '0')}</span>
+                  <h4>{valor.nome}</h4>
+                  <p>{valor.texto}</p>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <h3 class="rotulo-atuacao sobe">Como isso aparece no trabalho</h3>
-      <ol class="atuacao">
-        {valoresDeAtuacao.map((valor, n) => (
-          <li class="sobe">
-            <span class="num">{String(n + 1).padStart(2, '0')}</span>
-            <h4>{valor.nome}</h4>
-            <p>{valor.texto}</p>
-          </li>
-        ))}
-      </ol>
+      <div class="faixas-saida" aria-hidden="true">{[0, 1, 2, 3, 4, 5].map(() => <span />)}</div>
     </div>
   </section>
 
-  <!-- 6. REGISTRO -->
+  <!-- 8. REGISTRO -->
   <section class="registro-secao">
     <div class="env">
-      <h2 class="titulo-registro">Registro da sociedade</h2>
+      <h2 class="titulo-caixa centro titulo-cresce" data-cresce>Registro da <em>sociedade.</em></h2>
       <Ficha
         rotulo="Dados de registro da sociedade"
         itens={[
@@ -303,484 +274,560 @@ const valoresDeAtuacao = [
     </div>
   </section>
 
+  </div>
+
   <Contato
     titulo="Fale com um dos dois."
     horario="Segunda a sexta, das 9h às 18h. Fora do horário a mensagem fica registrada."
   />
 </Base>
 
+<script>
+  import '~/scripts/escritorio';
+</script>
+
 <style>
-  /* ── comuns ─────────────────────────────────────────────────────── */
-  .cab-centro {
-    text-align: center;
-    display: grid;
-    justify-items: center;
-    gap: 14px;
-    margin-bottom: clamp(36px, 4.4vw, 60px);
+  .escritorio {
+    --destaque: #2a62ad;
+    --gelo: #eaf0f6;
+    overflow-x: clip;
   }
-  .cab-centro h2,
-  .cab-lado h2,
-  .historia h2 {
+  .titulo-caixa {
     font-family: var(--sans);
-    font-weight: 600;
-    font-size: clamp(34px, 4.4vw, 62px);
-    line-height: 1.02;
-    letter-spacing: -0.035em;
-  }
-  .cab-centro h2,
-  .cab-lado h2 {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: clamp(34px, 4.6vw, 64px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
     color: var(--tinta);
   }
-  .cab-centro p,
-  .cab-lado p {
-    max-width: 50ch;
-    font-size: 18px;
-    color: var(--secundario);
+  .titulo-caixa em {
+    font-style: normal;
+    color: var(--destaque);
   }
-
-  /* ── 1. abertura ────────────────────────────────────────────────── */
-  .abertura {
-    padding-block: clamp(140px, 16vw, 220px) clamp(64px, 8vw, 120px);
+  .centro {
+    text-align: center;
   }
-  .abertura .env {
-    display: grid;
-    grid-template-columns: minmax(160px, 1fr) 3fr;
-    gap: clamp(24px, 5vw, 96px);
+  .pilula {
+    display: inline-block;
+    padding: 7px 16px;
+    border-radius: 999px;
+    background: var(--gelo);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tinta);
   }
-  .rotulo-pagina {
-    padding-top: 0.7em;
-    font-size: 15px;
+  .rotulo {
+    font-size: 14px;
+    font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--secundario);
   }
-  .grande {
-    font-family: var(--sans);
-    font-weight: 500;
-    font-size: clamp(28px, 3.2vw, 46px);
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    color: var(--tinta);
-    max-width: 30ch;
-  }
-  .grande b {
-    font-weight: 600;
-  }
-  :global(.js) [data-palavras] :global(.w) {
-    display: inline-block;
-    opacity: 0.62;
-  }
 
-  /* ── 2. fatos ───────────────────────────────────────────────────── */
-  .fatos {
-    padding-block: clamp(40px, 5vw, 80px) clamp(72px, 9vw, 130px);
+  /* ── 1–3 ─────────────────────────────────────────────────────────── */
+  .topo {
+    position: relative;
+    padding-top: clamp(150px, 16vw, 220px);
+    background: linear-gradient(180deg, var(--branco) 0%, var(--branco) 30%, #f1f5fa 100%);
   }
-  .grade-fatos {
-    display: grid;
-    grid-template-columns: 1.1fr 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 14px;
+  .marca-dagua {
+    position: absolute;
+    inset: 32vh 0 auto;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
   }
-  .fato {
-    margin: 0;
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 8px;
-    padding: 26px;
-    border-radius: 20px;
-    background: var(--papel);
-    box-shadow: inset 0 0 0 1px var(--linha);
-    color: var(--tinta);
-  }
-  .fato strong {
+  .marca-dagua span {
+    display: block;
+    white-space: nowrap;
     font-family: var(--sans);
-    font-weight: 600;
-    font-size: clamp(40px, 4.4vw, 64px);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: clamp(140px, 24vw, 380px);
     line-height: 1;
     letter-spacing: -0.04em;
+    color: var(--gelo);
+    will-change: transform;
   }
-  .fato span {
-    font-size: 17px;
+  .abertura,
+  .manifesto {
+    position: relative;
+    z-index: 1;
+  }
+  .abertura {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 22px;
+  }
+  .abertura h1 {
+    font-size: clamp(40px, 6.2vw, 92px);
+    max-width: 14ch;
+  }
+  .apoio {
+    max-width: 52ch;
+    font-size: 18px;
     color: var(--secundario);
   }
-  .missao-cartao {
-    grid-row: span 2;
-    justify-content: space-between;
-    background:
-      radial-gradient(120% 80% at 100% 100%, rgba(155, 28, 46, 0.55), transparent 60%),
-      linear-gradient(160deg, #173a6e, var(--tinta));
-    color: #fff;
-    box-shadow: none;
+  .manifesto {
+    padding-block: clamp(120px, 22vh, 260px) clamp(90px, 12vw, 160px);
   }
-  .missao-cartao blockquote {
-    margin: 24px 0;
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(24px, 2.3vw, 32px);
-    line-height: 1.22;
-    letter-spacing: -0.015em;
+  .grande {
+    font-size: clamp(30px, 4vw, 58px);
+    line-height: 1.04;
+    max-width: 22ch;
   }
-  .missao-cartao figcaption {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.8);
-  }
-  .avatares {
-    display: flex;
-  }
-  .avatares img {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 0 0 2px var(--tinta);
-  }
-  .avatares img + img {
-    margin-left: -10px;
+  .manifesto-apoio {
+    display: grid;
+    gap: 14px;
+    max-width: 62ch;
+    margin: 48px 0 0 auto;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--secundario);
   }
 
-  /* ── 3. história ────────────────────────────────────────────────── */
+  /* ── 4. sócios ───────────────────────────────────────────────────── */
+  .socio {
+    padding-block: clamp(80px, 9vw, 130px);
+    background: var(--branco);
+  }
+  .socio-grade {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(32px, 6vw, 110px);
+    align-items: start;
+  }
+  .invertido .socio-texto {
+    order: 2;
+  }
+  .socio-nome {
+    margin-top: 14px;
+    font-family: var(--sans);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: clamp(38px, 4.8vw, 70px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--tinta);
+  }
+  .socio-nome em {
+    font-style: normal;
+    color: var(--destaque);
+  }
+  .oab {
+    margin-top: 18px;
+    font-size: 19px;
+    color: var(--tinta);
+  }
+  .oab span {
+    margin-right: 6px;
+    font-size: 14px;
+    color: var(--secundario);
+  }
+  .bio {
+    margin-top: 22px;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--secundario);
+    max-width: 52ch;
+  }
+  .porque {
+    margin: 32px 0 0;
+    padding-left: 22px;
+    border-left: 2px solid var(--destaque);
+  }
+  .porque p {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(20px, 1.8vw, 24px);
+    line-height: 1.38;
+    color: var(--tinta);
+  }
+  .porque cite {
+    display: block;
+    margin-top: 12px;
+    font-style: normal;
+    font-size: 14px;
+    color: var(--secundario);
+  }
+  .formacao {
+    margin: 32px 0;
+    display: grid;
+    gap: 6px;
+  }
+  .formacao dt {
+    margin-top: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--secundario);
+  }
+  .formacao dd {
+    margin: 0;
+    font-size: 16px;
+    color: var(--tinta);
+  }
+  .formacao ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .formacao li::before {
+    content: '— ';
+    color: var(--destaque);
+  }
+  .socio-foto {
+    position: sticky;
+    top: 120px;
+  }
+  /* A pilha: a foto com duas folhas inclinadas atrás (Quadro, "Meet Clara"). */
+  .pilha-fotos {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 4 / 5;
+  }
+  .pilha-fotos::before,
+  .pilha-fotos::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+  }
+  .pilha-fotos::before {
+    background: #c9d5e3;
+    transform: rotate(-5deg) translate(-3%, 2%);
+  }
+  .pilha-fotos::after {
+    background: var(--tinta);
+    transform: rotate(3.5deg) translate(3%, 1%);
+  }
+  .pilha-fotos img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 30px 60px -30px rgba(11, 30, 63, 0.5);
+  }
+
+  /* ── 5–6. história e números ─────────────────────────────────────── */
   .historia {
     position: relative;
-    background: #050e22;
-    color: #fff;
+    padding-block: clamp(90px, 10vw, 150px);
+    background: var(--branco);
   }
-  .historia-fundo {
+  .marca-dagua.pequena {
+    inset: 40px 0 auto;
+    text-align: center;
+  }
+  .marca-dagua.pequena span {
+    font-size: clamp(80px, 13vw, 200px);
+  }
+  .historia .env {
+    position: relative;
+    z-index: 1;
+  }
+  .historia h2 {
+    max-width: 18ch;
+    margin: 0 auto;
+  }
+  .pilares {
+    list-style: none;
+    margin: clamp(56px, 7vw, 96px) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .pilares li {
+    padding: 8px clamp(18px, 2.4vw, 36px) 8px;
+    border-left: 1px solid var(--destaque);
+  }
+  .pilar-num {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--destaque);
+  }
+  .pilares h3 {
+    margin-top: 18px;
+    font-family: var(--sans);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: clamp(20px, 1.8vw, 26px);
+    letter-spacing: -0.015em;
+    color: var(--tinta);
+  }
+  .pilares p {
+    margin-top: 12px;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--secundario);
+  }
+  .numeros {
+    list-style: none;
+    margin: clamp(64px, 8vw, 110px) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(16px, 2vw, 32px);
+  }
+  .numeros li {
+    padding-top: 18px;
+    border-top: 1px solid var(--destaque);
+    text-align: center;
+  }
+  .numeros strong {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: clamp(44px, 4.6vw, 68px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--tinta);
+    font-variant-numeric: tabular-nums;
+  }
+  .numeros span {
+    display: block;
+    margin-top: 10px;
+    font-size: 15px;
+    color: var(--secundario);
+  }
+
+  /* ── 7. a cena ───────────────────────────────────────────────────── */
+  .cena {
+    position: relative;
+    height: 620vh;
+    background: var(--branco);
+  }
+  .palco-cena {
     position: sticky;
     top: 0;
     height: 100vh;
     overflow: hidden;
+    color: #fff;
+    background: #0a1830;
   }
-  .historia-fundo picture,
-  .foto-valores picture {
-    display: contents;
+  .cena-fundo,
+  .cena-fundo picture,
+  .grade-linhas,
+  .faixas-saida {
+    position: absolute;
+    inset: 0;
   }
-  .historia-fundo img {
+  .cena-fundo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-
+    object-position: 65% 25%;
+    transform: scale(1.08);
   }
-  .historia-fundo::after {
+  /* Vinheta preta, só de contraste: a foto não é tingida. */
+  .cena-fundo::after {
     content: '';
     position: absolute;
     inset: 0;
-    /* Vinheta preta, por contraste: a foto não é tingida. */
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.2) 45%, rgba(0, 0, 0, 0.7));
+    background: linear-gradient(90deg, rgba(2, 6, 14, 0.86) 0%, rgba(2, 6, 14, 0.55) 45%, rgba(2, 6, 14, 0.25) 100%);
   }
-  .historia-corpo {
-    position: relative;
-    margin-top: -100vh;
-    min-height: 100vh;
-    padding-block: clamp(80px, 10vw, 140px);
-  }
-  .historia header p {
-    margin-top: 12px;
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.7);
-  }
-  .linhas-historia {
-    list-style: none;
-    margin: clamp(48px, 10vh, 120px) 0 0 auto;
-    padding: 0;
-    max-width: 880px;
-  }
-  .linhas-historia li {
+  .grade-linhas,
+  .faixas-saida {
     display: grid;
-    grid-template-columns: 70px 1fr 1.4fr;
-    gap: 24px;
-    align-items: baseline;
-    padding-block: 30px;
-    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    grid-template-columns: repeat(6, 1fr);
+    pointer-events: none;
   }
-  .linhas-historia li:last-child {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  .grade-linhas span {
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
   }
-  .linhas-historia .num {
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.55);
-  }
-  .marco {
-    font-family: var(--sans);
-    font-weight: 500;
-    font-size: clamp(20px, 2vw, 26px);
-    letter-spacing: -0.02em;
-  }
-  .linhas-historia p {
-    font-size: 17px;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.82);
+  .faixas-saida span {
+    background: var(--branco);
+    transform: scaleY(0);
+    transform-origin: 50% 0;
   }
 
-  /* ── 4. pessoas ─────────────────────────────────────────────────── */
-  .pessoas {
-    padding-block: clamp(80px, 10vw, 140px);
-  }
-  .duas {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(20px, 3vw, 44px);
-    align-items: start;
-  }
-  .retrato {
-    position: relative;
-    aspect-ratio: 4 / 5;
-    border-radius: 22px;
-    overflow: hidden;
-    background: var(--papel);
-  }
-  .retrato img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .retrato:hover img {
-    transform: scale(1.04);
-  }
-  .lado {
+  .valores-cena,
+  .escada-cena {
     position: absolute;
-    left: 16px;
-    top: 16px;
-    padding: 7px 14px;
+    inset: 0;
+    display: grid;
+    align-content: center;
+    padding-inline: var(--gutter);
+  }
+  .valor-cena {
+    grid-area: 1 / 1;
+    max-width: 1500px;
+    width: 100%;
+    margin: 0 auto;
+    padding-left: clamp(0px, 4vw, 60px);
+  }
+  .tags {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 26px;
+  }
+  .tags span {
+    padding: 6px 13px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.86);
+    background: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(8px);
-    font-size: 14px;
-    color: var(--tinta);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
-  .sobre {
-    padding: 26px 4px 0;
+  .valor-corpo {
+    padding-left: 26px;
+    border-left: 6px solid var(--destaque);
   }
-  .sobre h3 {
+  .valor-corpo .titulo-caixa {
+    color: #fff;
+    font-size: clamp(48px, 7vw, 110px);
+  }
+  .valor-frase {
+    margin-top: 22px;
+    max-width: min(30ch, 60vw);
     font-family: var(--sans);
     font-weight: 600;
-    font-size: clamp(26px, 2.4vw, 34px);
-    letter-spacing: -0.025em;
-    color: var(--tinta);
-  }
-  .oab {
-    margin-top: 6px;
-    font-size: 19px;
-    color: var(--imperial);
-  }
-  .oab span {
-    font-size: 14px;
-    color: var(--secundario);
-    margin-right: 6px;
-  }
-  .bio {
-    margin-top: 16px;
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--secundario);
-  }
-  .porque {
-    margin: 26px 0 0;
-    padding: 22px 24px;
-    border-radius: 16px;
-    background: var(--papel);
-  }
-  .porque blockquote {
-    margin: 0;
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: 20px;
-    line-height: 1.4;
-    color: var(--tinta);
-  }
-  .porque figcaption {
-    margin-top: 12px;
-    font-size: 14px;
-    color: var(--secundario);
-  }
-  .sobre dl {
-    margin: 22px 0 26px;
-  }
-  .sobre dl div {
-    padding-block: 14px;
-    border-top: 1px solid var(--linha);
-  }
-  .sobre dt {
-    font-size: 14px;
-    color: var(--secundario);
-    margin-bottom: 8px;
-  }
-  .sobre dd {
-    margin: 0;
-    font-size: 16px;
-    color: var(--tinta);
-  }
-  .sobre dd ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 6px;
-  }
-  .sobre dd li {
-    display: flex;
-    gap: 10px;
-    align-items: baseline;
-  }
-  .sobre dd li::before {
-    content: '';
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--imperial);
-    flex: none;
-    transform: translateY(-2px);
+    font-size: clamp(20px, 2vw, 30px);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
   }
 
-  /* ── 5. valores ─────────────────────────────────────────────────── */
-  .valores {
-    padding-block: clamp(72px, 9vw, 130px);
-    background: var(--papel);
+  .escada-cena {
+    gap: clamp(28px, 4vh, 48px);
   }
-  .cab-lado {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 32px;
+  .escada-cena .titulo-caixa {
+    color: #fff;
+    font-size: clamp(30px, 3.6vw, 54px);
+  }
+  .escada-cena mark {
+    padding: 0 0.15em;
+    background: var(--destaque);
+    color: #fff;
+  }
+  .escada {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 340px));
+    justify-content: center;
+    gap: clamp(12px, 1.4vw, 20px);
+  }
+  .degrau {
+    display: grid;
+    gap: clamp(12px, 1.4vw, 20px);
+  }
+  .cartao-vidro {
+    padding: 22px 22px 24px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(14px);
+  }
+  .cartao-num {
+    display: inline-block;
+    padding: 4px 11px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 12px;
+  }
+  .cartao-vidro h4 {
+    margin-top: 14px;
+    font-family: var(--sans);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+  }
+  .cartao-vidro p {
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* ── 8. registro ─────────────────────────────────────────────────── */
+  .registro-secao {
+    padding-block: clamp(90px, 10vw, 150px) clamp(56px, 7vw, 96px);
+    background: var(--branco);
+  }
+  .titulo-cresce {
     margin-bottom: clamp(32px, 4vw, 56px);
   }
-  .cab-lado p {
-    text-align: right;
-    max-width: 40ch;
-  }
-  .grade-valores {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(28px, 3.4vw, 52px) clamp(24px, 4vw, 64px);
-    align-items: start;
-  }
-  .foto-valores {
-    margin: 0;
-    aspect-ratio: 16 / 10;
-    border-radius: 18px;
+  /* Letras sobem por dentro de uma máscara por palavra (escritorio.ts). */
+  .titulo-cresce :global(.palavra) {
+    display: inline-block;
     overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.06em;
   }
-  .foto-valores img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  .titulo-cresce :global(.letra) {
+    display: inline-block;
   }
-  .foto-valores:hover img {
-    transform: scale(1.04);
-  }
-  .valor {
-    padding: 8px 4px;
-  }
-  .valor .icone {
-    display: inline-grid;
-    color: var(--tinta);
-    margin-bottom: clamp(20px, 4vw, 56px);
-  }
-  .valor h3 {
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: 22px;
-    letter-spacing: -0.015em;
-    color: var(--tinta);
-  }
-  .valor p {
-    margin-top: 10px;
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--secundario);
-    max-width: 48ch;
-  }
-  .rotulo-atuacao {
-    margin-top: clamp(56px, 7vw, 100px);
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: clamp(24px, 2.4vw, 32px);
-    letter-spacing: -0.025em;
-    color: var(--tinta);
-  }
-  .atuacao {
-    list-style: none;
-    margin: 24px 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0 clamp(20px, 3vw, 44px);
-  }
-  .atuacao li {
-    padding-block: 24px;
-    border-top: 1px solid #d5dbe2;
-  }
-  .atuacao .num {
-    font-size: 14px;
-    color: var(--imperial);
-  }
-  .atuacao h4 {
-    margin-top: 10px;
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: 19px;
-    color: var(--tinta);
-  }
-  .atuacao p {
-    margin-top: 6px;
-    font-size: 16px;
-    color: var(--secundario);
+  .visualmente-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
-  /* ── 6. registro ────────────────────────────────────────────────── */
-  .registro-secao {
-    padding-block: clamp(56px, 7vw, 96px);
+  /* ── sem JS ou com menos movimento: um documento comum ─────────── */
+  :global(html:not(.movimento-escritorio)) .cena {
+    height: auto;
   }
-  .titulo-registro {
-    margin-bottom: 24px;
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: clamp(24px, 2.4vw, 32px);
-    letter-spacing: -0.025em;
-    color: var(--tinta);
+  :global(html:not(.movimento-escritorio)) .palco-cena {
+    position: relative;
+    height: auto;
+    padding-block: 100px;
+  }
+  :global(html:not(.movimento-escritorio)) .valores-cena,
+  :global(html:not(.movimento-escritorio)) .escada-cena {
+    position: relative;
+    gap: 64px;
+  }
+  :global(html:not(.movimento-escritorio)) .valor-cena {
+    grid-area: auto;
+  }
+  :global(html:not(.movimento-escritorio)) .escada-cena {
+    padding-top: 80px;
   }
 
-  /* ── telas estreitas ────────────────────────────────────────────── */
   @media (max-width: 900px) {
-    .abertura .env,
-    .duas,
-    .grade-valores,
-    .linhas-historia li {
+    .socio-grade,
+    .pilares {
       grid-template-columns: 1fr;
     }
-    .grade-fatos {
+    .invertido .socio-texto {
+      order: 0;
+    }
+    .socio-foto {
+      position: relative;
+      top: auto;
+      order: -1;
+      max-width: 420px;
+    }
+    .pilares li {
+      padding-block: 20px;
+    }
+    .numeros {
       grid-template-columns: 1fr 1fr;
+      row-gap: 28px;
     }
-    .missao-cartao {
-      grid-column: 1 / -1;
-      grid-row: auto;
-    }
-    .linhas-historia li {
-      gap: 8px;
-    }
-    .atuacao {
+    .escada {
       grid-template-columns: 1fr;
     }
-    .cab-lado {
-      flex-direction: column;
+    .degrau {
+      gap: 10px;
     }
-    .cab-lado p {
-      text-align: left;
+    .cartao-vidro p {
+      display: none;
     }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    :global(.js) [data-palavras] :global(.w) {
-      opacity: 1;
-    }
-    .retrato img,
-    .foto-valores img {
-      transition: none;
+    .cartao-vidro {
+      padding: 14px 18px;
     }
   }
 </style>
