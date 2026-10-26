@@ -25,3 +25,8 @@ dist/
 # Página de trabalho, não versionada e fora de produção (ver docs/HANDOFF-SITE.md).
 src/pages/previa.astro
 .vercel
+
+# Originais das fotos dos sócios (14 MB): ficam só na máquina. O site usa
+# os derivados em public/media/socios/ (juscelino-*, beatriz-*).
+public/media/DSC03806.png
+public/media/IMG_4362.PNG
