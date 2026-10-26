@@ -2,21 +2,18 @@
 /**
  * A declaração (redesenho de 21/10/2026, a partir de marketinglab.framer.ai).
  *
- * Um parágrafo grande que se acende palavra por palavra conforme a rolagem,
- * com uma coluna de fatos curtos à esquerda. A primeira frase já entra
+ * Um parágrafo grande que se acende palavra por palavra conforme a rolagem.
+ * A coluna de fatos curtos que ficava à esquerda saiu a pedido; o texto
+ * segue na mesma coluna recuada, que é o que dá o ar editorial. A primeira frase já entra
  * cheia: é a tese, e não pode depender de alguém rolar para ser lida.
  *
  * A grade dos seis temas que morava aqui virou o acordeão de `Servicos.astro`:
  * eram seis cartões iguais lado a lado, o padrão mais genérico da página.
  */
-const fatos = ['Maringá, PR', 'Online para todo o país', 'Dois sócios', 'Duas áreas'];
 ---
 
 <section class="secao declaracao" aria-labelledby="declaracao-titulo">
   <div class="env">
-    <ul class="fatos sobe" aria-label="O escritório em poucas palavras">
-      {fatos.map((f) => <li>{f}</li>)}
-    </ul>
     <h2 class="grande" id="declaracao-titulo">
       <b>Olhamos o que é seu por inteiro.</b>{' '}
       <span data-palavras>
@@ -37,19 +34,8 @@ const fatos = ['Maringá, PR', 'Online para todo o país', 'Dois sócios', 'Duas
     gap: clamp(28px, 5vw, 96px);
     align-items: start;
   }
-  .fatos {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 8px;
-    padding-top: 0.6em;
-    font-size: 15px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--secundario);
-  }
   .grande {
+    grid-column: 2;
     font-family: var(--sans);
     font-weight: 500;
     font-size: clamp(26px, 3.1vw, 44px);
@@ -65,11 +51,8 @@ const fatos = ['Maringá, PR', 'Online para todo o país', 'Dois sócios', 'Duas
     .declaracao .env {
       grid-template-columns: 1fr;
     }
-    .fatos {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 18px;
-      padding-top: 0;
+    .grande {
+      grid-column: 1;
     }
   }
 
