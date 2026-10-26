@@ -202,7 +202,15 @@ const id = (i: number) => `tema-${i}`;
       linha.addEventListener('focus', () => {
         if (largo.matches) ativa(i);
       });
-      linha.addEventListener('click', () => ativa(i));
+      /* No celular cada linha abre e fecha sozinha. Fechar a que estava
+         aberta acima puxava a linha tocada uns 270px para cima, para longe
+         do dedo. */
+      linha.addEventListener('click', () => {
+        if (largo.matches) return ativa(i);
+        const sim = !t.classList.contains('ativo');
+        t.classList.toggle('ativo', sim);
+        linha.setAttribute('aria-expanded', String(sim));
+      });
     });
   });
 </script>
