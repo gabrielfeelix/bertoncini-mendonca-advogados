@@ -56,9 +56,6 @@ const perfis = [
     socio: site.socios[0],
     lado: 'Antes do processo',
     bio: 'Especialista em direito empresarial e em advocacia consultiva. Trabalha na fase que antecede o processo (contratos, pareceres, estruturação de operações, LGPD e compliance) para que o problema não se consolide.',
-    porque:
-      'Sempre gostei de ler, e estudar história, filosofia e sociologia me deu um senso de justiça mais ativo. Morar sozinho para fazer a faculdade me mostrou que sou resolutivo: diante de um problema, vou atrás da saída. Na advocacia juntei as duas coisas, estudar e ajudar alguém a garantir um direito.',
-    fora: 'Ler, ver filmes e séries (MasterChef incluído), jogar vôlei, viajar e conhecer cafés e restaurantes novos.',
     formacao: [
       'Bacharel em Direito pela UEM',
       'Especialista em Direito Empresarial pela PUC/RS',
@@ -76,9 +73,6 @@ const perfis = [
     socio: site.socios[1],
     lado: 'Quando há processo',
     bio: 'Especialista em processo civil, com experiência em processos judiciais estratégicos em todas as instâncias e em due diligence de operações de fusão e aquisição. Atende quem trabalha e ganha dinheiro na internet.',
-    porque:
-      'Na adolescência comecei a me interessar por política e por assuntos sociais. Meu pai percebeu e passou a me desafiar em debates, e eu fui gostando de argumentar e de encontrar furos nas premissas dele. Dali o Direito virou possibilidade, e na faculdade tive certeza de que queria advogar.',
-    fora: 'Ler romances e histórias de investigação criminal, ir ao cinema, a cafés e restaurantes, e viajar com a família e os amigos.',
     formacao: [
       'Bacharel em Direito pela UEM',
       'Especialista em Direito Processual Civil pela PUC/RS',
@@ -161,15 +155,9 @@ const valoresDeAtuacao = [
             <span>Inscrição na Ordem</span> {perfil.socio.oab.valor}
           </p>
           <p class="bio">{perfil.bio}</p>
-          <blockquote class="porque">
-            <p>{perfil.porque}</p>
-            <cite>Por que o Direito, nas palavras de {perfil.nome}</cite>
-          </blockquote>
           <dl class="formacao">
             <dt>Formação</dt>
             <dd><ul>{perfil.formacao.map((item) => <li>{item}</li>)}</ul></dd>
-            <dt>Fora do escritório</dt>
-            <dd>{perfil.fora}</dd>
           </dl>
           <a class="botao contorno" href={`/areas/${perfil.socio.area}/`}>
             {nomeDaArea(perfil.socio.area)}
@@ -434,25 +422,6 @@ const valoresDeAtuacao = [
     line-height: 1.6;
     color: var(--secundario);
     max-width: 52ch;
-  }
-  .porque {
-    margin: 32px 0 0;
-    padding-left: 22px;
-    border-left: 2px solid var(--destaque);
-  }
-  .porque p {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(20px, 1.8vw, 24px);
-    line-height: 1.38;
-    color: var(--tinta);
-  }
-  .porque cite {
-    display: block;
-    margin-top: 12px;
-    font-style: normal;
-    font-size: 14px;
-    color: var(--secundario);
   }
   .formacao {
     margin: 32px 0;
