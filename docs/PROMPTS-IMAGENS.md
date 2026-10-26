@@ -204,3 +204,31 @@ lights outside. Inviting and calm.
 
 Pasta sugerida: `public/media/novas/` com os nomes acima. Me avise e eu
 coloco cada uma no lugar, com recorte e compressão.
+
+---
+
+## 6. Páginas de área (opcional, 26/10/2026)
+
+Hoje as capas usam `area-familia` (Planejamento) e `area-presenca` (Direito
+digital), repetidas da home. Se quiser capas próprias, gere estas duas em
+**retrato 4:5**, com o mesmo bloco de estilo:
+
+**6.1 · `capa-patrimonial.jpg`**
+```
+Portrait 4:5. A heavy antique wooden desk drawer slightly open, revealing
+neatly stacked cream folders tied with a thin wine-red ribbon and an old
+brass key resting on top. Deep navy room in shadow, a single beam of
+window light across the folders. Legacy, order, calm. No text.
+```
+
+**6.2 · `capa-digital.jpg`**
+```
+Portrait 4:5. A dark navy desk at night with a closed matte laptop, and
+above it, floating faintly in the air, thin lines of soft blue light
+forming an abstract network pattern (no text, no logos, no icons), as if
+reflected from a screen. A small brass stamp seal with a wine-red handle
+in the foreground. Mysterious, premium, quiet.
+```
+
+Mande como as outras e eu troco em `FOTO_DA_AREA`
+(`src/pages/areas/index.astro` e `src/pages/areas/[slug].astro`).
