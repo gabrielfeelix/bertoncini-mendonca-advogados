@@ -28,6 +28,7 @@ import type { GetStaticPaths } from 'astro';
 import Base from '~/layouts/Base.astro';
 import Perguntas from '~/components/Perguntas.astro';
 import Zap from '~/components/Zap.astro';
+import Icone, { type Nome as NomeIcone } from '~/components/Icone.astro';
 import Contato from '~/components/Contato.astro';
 import { listarAreas, listarAreasConfirmadas, whatsappDaArea } from '~/lib/areas';
 import { site } from '~/lib/site';
@@ -57,6 +58,33 @@ const marcaDaCapa: Record<string, 'sucessao' | 'rede'> = {
   'direito-digital': 'rede',
 };
 const marcaCapa = marcaDaCapa[dados.slug];
+
+/* Ícone de cada assunto e público, pelo texto do título. A ordem conta:
+   "Inventário com testamento" precisa casar com testamento antes de
+   inventário, e "Empresários" antes de "empresa". */
+const ICONES: [RegExp, NomeIcone][] = [
+  [/testamento/, 'pena'],
+  [/inventario/, 'documento'],
+  [/em vida/, 'presente'],
+  [/itcmd|imposto/, 'percentual'],
+  [/empresari/, 'maleta'],
+  [/familiar|socio/, 'predio'],
+  [/familia/, 'familia'],
+  [/imovel/, 'chave'],
+  [/criador/, 'camera'],
+  [/dados/, 'escudo'],
+  [/propriedade|marca/, 'selo'],
+  [/commerce|contrato/, 'sacola'],
+  [/errado|golpe/, 'alerta'],
+  [/inteligencia/, 'brilho'],
+  [/compliance/, 'lista'],
+  [/agencia/, 'megafone'],
+  [/pessoa/, 'pessoa'],
+];
+const iconeDe = (titulo: string): NomeIcone => {
+  const t = titulo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  return ICONES.find(([re]) => re.test(t))?.[1] ?? 'documento';
+};
 
 /* O corpo em três papéis, lidos de `cenas` (ver o schema):
    - antes da primeira cena: a abertura;
@@ -177,6 +205,7 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
             <ul class="cartoes-publicos" style={`--n:${dados.publicos.length}`}>
               {dados.publicos.map((p) => (
                 <li data-sobe>
+                  <span class="icone"><Icone nome={iconeDe(p.titulo)} /></span>
                   <h3>{p.titulo}</h3>
                   <p>{p.texto}</p>
                 </li>
@@ -207,29 +236,43 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       </section>
     )}
 
+    {/* "O que a área abrange" no padrão das seções de recursos da Apple
+          (06/11/2026): lista de assuntos à esquerda, painel do escolhido à
+          direita, com ícone e texto. Os painéis ocupam a mesma célula da
+          grade, então trocar de assunto não muda a altura da página. No
+          celular não há escolha: os assuntos ficam empilhados, inteiros.
+          Substitui o carrossel lateral, que travava no encaixe e punha
+          parágrafos longos lado a lado. */}
     {secoes.length > 0 && (
-      <section class="abrange" aria-labelledby="abrange-titulo" data-carrossel>
-        <div class="env abrange-cab">
+      <section class="abrange" aria-labelledby="abrange-titulo" data-recursos>
+        <div class="env">
           <h2 id="abrange-titulo" class="secao-titulo">O que a área abrange</h2>
-          {/* Setas do carrossel, no padrão da Apple. O trilho também rola
-              por toque, trackpad e teclado; as setas são atalho. */}
-          <div class="setas" data-setas hidden>
-            <button type="button" class="seta" data-anterior aria-label="Assuntos anteriores">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-            </button>
-            <button type="button" class="seta" data-proximo aria-label="Próximos assuntos">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6 3 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-            </button>
+          <div class="recursos">
+            <div class="recursos-lista" role="tablist" aria-label="Assuntos da área" aria-orientation="vertical" hidden>
+              {secoes.map((secao, n) => (
+                <button
+                  type="button"
+                  role="tab"
+                  id={`aba-${secao.id}`}
+                  aria-controls={secao.id}
+                  aria-selected={n === 0 ? 'true' : 'false'}
+                  tabindex={n === 0 ? undefined : -1}
+                >
+                  {secao.rubrica}
+                </button>
+              ))}
+            </div>
+            <div class="recursos-paineis">
+              {secoes.map((secao, n) => (
+                <article class:list={['assunto', { ativo: n === 0 }]} id={secao.id} role="tabpanel" aria-labelledby={`aba-${secao.id}`}>
+                  <span class="icone grande"><Icone nome={iconeDe(secao.rubrica)} tamanho={34} /></span>
+                  <h3>{secao.rubrica}</h3>
+                  <p data-placeholder={secao.placeholder ? '1' : undefined}>{secao.texto}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
-        <ol class="abrange-faixa" data-faixa tabindex="0" aria-label="Assuntos da área">
-          {secoes.map((secao) => (
-            <li class="assunto" id={secao.id}>
-              <h3>{secao.rubrica}</h3>
-              <p data-placeholder={secao.placeholder ? '1' : undefined}>{secao.texto}</p>
-            </li>
-          ))}
-        </ol>
       </section>
     )}
 
@@ -330,25 +373,41 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
 </Base>
 
 <script>
-  /* Carrossel de "O que a área abrange": as setas rolam um cartão por vez
-     e se apagam nas pontas. O trilho rola sozinho por toque e trackpad. */
-  document.querySelectorAll<HTMLElement>('[data-carrossel]').forEach((sec) => {
-    const faixa = sec.querySelector<HTMLElement>('[data-faixa]')!;
-    const setas = sec.querySelector<HTMLElement>('[data-setas]')!;
-    const ant = sec.querySelector<HTMLButtonElement>('[data-anterior]')!;
-    const prox = sec.querySelector<HTMLButtonElement>('[data-proximo]')!;
-    const passo = () => (faixa.querySelector('li')?.getBoundingClientRect().width ?? 300) + 16;
-    const atualiza = () => {
-      const fim = faixa.scrollWidth - faixa.clientWidth;
-      setas.hidden = fim <= 4;
-      ant.disabled = faixa.scrollLeft <= 4;
-      prox.disabled = faixa.scrollLeft >= fim - 4;
+  /* Recursos de "O que a área abrange": abas verticais no desktop. Hover
+     com mouse também escolhe (sem mudar a altura, nada se move). Setas do
+     teclado andam entre as abas. Link com #assunto abre o assunto certo. */
+  document.querySelectorAll<HTMLElement>('[data-recursos]').forEach((sec) => {
+    const lista = sec.querySelector<HTMLElement>('[role="tablist"]')!;
+    const abas = [...lista.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const paineis = abas.map((a) => document.getElementById(a.getAttribute('aria-controls')!)!);
+    const largo = matchMedia('(min-width: 901px)');
+    const fino = matchMedia('(hover: hover) and (pointer: fine)');
+    lista.hidden = false;
+    sec.classList.add('com-abas');
+    const escolhe = (i: number, foco = false) => {
+      abas.forEach((a, k) => {
+        const sim = k === i;
+        a.setAttribute('aria-selected', String(sim));
+        if (sim) a.removeAttribute('tabindex');
+        else a.setAttribute('tabindex', '-1');
+        paineis[k].classList.toggle('ativo', sim);
+      });
+      if (foco) abas[i].focus();
     };
-    ant.addEventListener('click', () => faixa.scrollBy({ left: -passo(), behavior: 'smooth' }));
-    prox.addEventListener('click', () => faixa.scrollBy({ left: passo(), behavior: 'smooth' }));
-    faixa.addEventListener('scroll', atualiza, { passive: true });
-    addEventListener('resize', atualiza);
-    atualiza();
+    abas.forEach((a, i) => {
+      a.addEventListener('click', () => escolhe(i));
+      a.addEventListener('pointerenter', () => {
+        if (fino.matches && largo.matches) escolhe(i);
+      });
+      a.addEventListener('keydown', (e) => {
+        const passo = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0;
+        if (!passo) return;
+        e.preventDefault();
+        escolhe((i + passo + abas.length) % abas.length, true);
+      });
+    });
+    const alvo = location.hash ? paineis.findIndex((p) => '#' + p.id === location.hash) : -1;
+    if (alvo >= 0) escolhe(alvo);
   });
 
   import { ligaCinema } from '~/scripts/cinema';
@@ -562,90 +621,149 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     color: #5b6b7f;
   }
 
-  /* ── o que abrange: carrossel ────────────────────────────────────── */
+  /* Ícone em disco claro, como os símbolos das páginas da Apple. */
+  .icone {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: #fff;
+    color: #2a62ad;
+    box-shadow: 0 1px 2px rgba(11, 30, 63, 0.06);
+  }
+  .icone.grande {
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+  }
+  .cartoes-publicos .icone {
+    margin-bottom: 22px;
+  }
+
+  /* ── o que abrange: recursos ─────────────────────────────────────── */
   .abrange {
     margin-top: clamp(90px, 11vw, 160px);
   }
-  .abrange-cab {
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
-    gap: 24px;
+  .recursos {
+    margin-top: clamp(28px, 3.4vw, 44px);
   }
-  .setas {
-    display: flex;
-    gap: 12px;
-  }
-  .setas[hidden] {
-    display: none;
-  }
-  .seta {
-    all: unset;
-    box-sizing: border-box;
-    width: 44px;
-    height: 44px;
+  .recursos-paineis {
     display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: #e8ecf1;
-    color: var(--tinta);
-    cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s;
-  }
-  .seta:hover:not(:disabled) {
-    background: #dde3ea;
-  }
-  .seta:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
-  .seta:focus-visible {
-    outline: 2px solid #2a62ad;
-    outline-offset: 2px;
-  }
-  /* A faixa começa alinhada ao texto e sangra até a borda direita da tela,
-     como os carrosséis da Apple. */
-  .abrange-faixa {
-    list-style: none;
-    margin: clamp(24px, 3vw, 40px) 0 0;
-    padding: 4px max(var(--gutter), calc((100vw - 1500px) / 2 + var(--gutter))) 8px;
-    display: flex;
-    gap: 16px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: max(var(--gutter), calc((100vw - 1500px) / 2 + var(--gutter)));
-    scrollbar-width: none;
-    overscroll-behavior-x: contain;
-  }
-  .abrange-faixa::-webkit-scrollbar {
-    display: none;
-  }
-  .abrange-faixa:focus-visible {
-    outline: 2px solid #2a62ad;
-    outline-offset: -2px;
+    gap: clamp(12px, 1.4vw, 20px);
   }
   .assunto {
-    flex: none;
-    width: min(400px, 82vw);
-    scroll-snap-align: start;
     scroll-margin-top: 120px;
-    padding: clamp(26px, 2.6vw, 36px);
+    padding: clamp(26px, 3vw, 44px);
     border-radius: 24px;
     background: #f2f4f7;
   }
   .assunto h3 {
+    margin-top: 22px;
     font-family: var(--sans);
     font-weight: 600;
-    font-size: clamp(21px, 1.8vw, 26px);
-    line-height: 1.15;
-    letter-spacing: -0.025em;
+    font-size: clamp(24px, 2.2vw, 32px);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
     color: var(--tinta);
   }
   .assunto p {
-    margin-top: 12px;
-    font-size: 17px;
-    line-height: 1.55;
-    color: #5b6b7f;
+    margin-top: 14px;
+    max-width: 58ch;
+    font-size: clamp(17px, 1.3vw, 19px);
+    line-height: 1.6;
+    color: #4d5d71;
+  }
+
+  /* Desktop com JS: abas à esquerda, um painel por vez à direita. */
+  @media (min-width: 901px) {
+    .com-abas .recursos {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+      gap: clamp(32px, 4vw, 72px);
+      align-items: stretch;
+    }
+    .com-abas .recursos-lista {
+      display: grid;
+      align-content: start;
+      gap: 4px;
+    }
+    .com-abas .recursos-lista button {
+      all: unset;
+      box-sizing: border-box;
+      position: relative;
+      min-height: 52px;
+      padding: 12px 18px 12px 22px;
+      border-radius: 14px;
+      font-family: var(--sans);
+      font-size: clamp(18px, 1.5vw, 21px);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: #8a97a8;
+      cursor: pointer;
+      transition: color 0.25s, background-color 0.25s;
+    }
+    .com-abas .recursos-lista button::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 14px;
+      bottom: 14px;
+      width: 2px;
+      border-radius: 2px;
+      background: #2a62ad;
+      transform: scaleY(0);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .com-abas .recursos-lista button:hover {
+      color: var(--tinta);
+    }
+    .com-abas .recursos-lista button[aria-selected='true'] {
+      color: var(--tinta);
+      background: #f2f4f7;
+    }
+    .com-abas .recursos-lista button[aria-selected='true']::before {
+      transform: scaleY(1);
+    }
+    .com-abas .recursos-lista button:focus-visible {
+      outline: 2px solid #2a62ad;
+      outline-offset: 2px;
+    }
+    .com-abas .recursos-paineis {
+      display: grid;
+      gap: 0;
+    }
+    .com-abas .assunto {
+      grid-area: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(36px, 4vw, 64px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.35s;
+    }
+    .com-abas .assunto.ativo {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+    }
+  }
+  .recursos-lista[hidden] {
+    display: none;
+  }
+  /* No celular os assuntos ficam empilhados e inteiros: sem abas. */
+  @media (max-width: 900px) {
+    .recursos-lista {
+      display: none;
+    }
+    .icone.grande {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+    }
   }
 
   /* ── serviços ───────────────────────────────────────────────────── */
