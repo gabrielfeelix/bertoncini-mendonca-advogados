@@ -20,7 +20,7 @@
  */
 import type { CollectionEntry } from 'astro:content';
 import { whatsappDaArea } from '~/lib/areas';
-import { site } from '~/lib/site';
+import OutrasAreas from './OutrasAreas.astro';
 
 interface Props {
   areas: CollectionEntry<'areas'>[];
@@ -37,9 +37,6 @@ const fotos: Record<string, string> = {
 
 const nichos = areas.filter((a) => !a.data.aConfirmar && a.data.servicos.length > 0);
 
-/* "Também atuamos em" é uma frase, não uma tabela: as áreas em tinta, o
-   que as liga em cinza. Lida em voz alta, continua fazendo sentido. */
-const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1));
 ---
 
 <section class="servicos" id="areas" aria-labelledby="servicos-titulo">
@@ -85,18 +82,7 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
       ))}
     </div>
 
-    <div class="outras sobe">
-      <p class="outras-frase">
-        Também atuamos em{' '}
-        {outras.map((nome, k) => (
-          <>
-            <b>{nome}</b>
-            {k < outras.length - 2 ? ', ' : k === outras.length - 2 ? ' e ' : '.'}
-          </>
-        ))}
-      </p>
-      <a class="ler" href="/contato/">Falar sobre outro assunto</a>
-    </div>
+    <div class="vao"><OutrasAreas /></div>
   </div>
 </section>
 
@@ -279,27 +265,8 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
     text-decoration: underline;
   }
 
-  /* ── outras áreas: uma frase grande ─────────────────────────────── */
-  .outras {
-    margin: clamp(88px, 10vw, 160px) auto 0;
-    max-width: 22em;
-    font-size: clamp(26px, 3.2vw, 46px);
-    text-align: center;
-  }
-  .outras-frase {
-    font-family: var(--sans);
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    color: #9aa8b8;
-    text-wrap: balance;
-  }
-  .outras-frase b {
-    font-weight: 500;
-    color: var(--tinta);
-  }
-  .outras .ler {
-    margin-top: 20px;
+  .vao {
+    margin-top: clamp(88px, 10vw, 160px);
   }
 
   @media (max-width: 900px) {

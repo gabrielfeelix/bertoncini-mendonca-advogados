@@ -1,0 +1,58 @@
+---
+/**
+ * "Também atuamos em": as áreas fora dos dois nichos, numa frase grande.
+ * As áreas em tinta, o que as liga em cinza; lida em voz alta, continua
+ * fazendo sentido. Lista em `site.outrasAreas` (retorno de 06/11/2026).
+ * Usado na home (dentro de Áreas de atuação) e em /areas/.
+ */
+import { site } from '~/lib/site';
+
+const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1));
+---
+
+<div class="outras sobe">
+  <p class="outras-frase">
+    Também atuamos em{' '}
+    {outras.map((nome, k) => (
+      <>
+        <b>{nome}</b>
+        {k < outras.length - 2 ? ', ' : k === outras.length - 2 ? ' e ' : '.'}
+      </>
+    ))}
+  </p>
+  <a class="ler" href="/contato/">Falar sobre outro assunto</a>
+</div>
+
+<style>
+  .outras {
+    margin-inline: auto;
+    max-width: 22em;
+    font-size: clamp(26px, 3.2vw, 46px);
+    text-align: center;
+  }
+  .outras-frase {
+    font-family: var(--sans);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    color: #9aa8b8;
+    text-wrap: balance;
+  }
+  .outras-frase b {
+    font-weight: 500;
+    color: var(--tinta);
+  }
+  .ler {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 20px;
+    font-size: 17px;
+    color: #2a62ad;
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+  .ler:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -1,21 +1,20 @@
 ---
 /**
- * Áreas de atuação (versão cinematográfica, 26/10/2026).
+ * Áreas de atuação (06/11/2026).
  *
- * Abertura no padrão de O escritório (pílula, título em caixa alta, marca-
- * d'água que anda), e as áreas em painéis de tela cheia que se empilham:
- * cada um é `sticky` no topo e o seguinte sobe por cima. Dentro, o nome
- * gigante, o resumo, para quem é, o sócio que atende, os assuntos correndo
- * em letreiro e a foto da série própria (docs/PROMPTS-IMAGENS.md).
+ * Página de categoria no padrão da Apple: título calmo, e cada área como um
+ * tile claro grande, com texto e foto lado a lado e os serviços abaixo.
+ * Substitui a versão de painéis azuis de tela cheia, que tinha título em
+ * caixa alta, numeração, letreiro de assuntos e não mostrava os serviços.
  *
- * As áreas vêm da coleção: área nova no JSON ganha painel sozinha (a foto
- * cai na padrão até alguém escolher uma em FOTO_DA_AREA).
+ * As áreas vêm da coleção: área nova no JSON ganha tile sozinha (a foto cai
+ * na padrão até alguém escolher uma em FOTO_DA_AREA). Os dois sócios
+ * atendem todas as áreas (retorno de 06/11/2026).
  */
 import Base from '~/layouts/Base.astro';
 import Contato from '~/components/Contato.astro';
-import Zap from '~/components/Zap.astro';
-import { listarAreasConfirmadas, assuntosDaArea, whatsappDaArea } from '~/lib/areas';
-import { site } from '~/lib/site';
+import OutrasAreas from '~/components/OutrasAreas.astro';
+import { listarAreasConfirmadas, whatsappDaArea } from '~/lib/areas';
 
 const areas = await listarAreasConfirmadas();
 
@@ -24,14 +23,14 @@ const FOTO_DA_AREA: Record<string, string> = {
   'direito-digital': '/media/novas/area-presenca',
 };
 
-const paineis = areas.map((area, i) => {
+const tiles = areas.map((area) => {
   const d = area.data;
   return {
-    n: String(i + 1).padStart(2, '0'),
+    slug: d.slug,
     nome: d.nome,
     resumo: d.resumo,
     publico: d.publicoCurto,
-    assuntos: assuntosDaArea(d.assuntos).map((a) => a.nome),
+    servicos: d.servicos,
     href: `/areas/${d.slug}/`,
     whatsapp: whatsappDaArea(d.mensagemWhatsapp ?? `Olá! Gostaria de conversar sobre ${d.nome.toLowerCase()}.`),
     foto: FOTO_DA_AREA[d.slug] ?? '/media/novas/area-contratos',
@@ -41,412 +40,260 @@ const paineis = areas.map((area, i) => {
 const descricao =
   `Áreas de atuação do escritório em Maringá, PR: ` +
   `${areas.map((area) => area.data.nome).join(' e ')}. ` +
-  `O que cada uma abrange e como o atendimento funciona.`;
+  `Os serviços de cada uma e as outras áreas em que o escritório atua.`;
 ---
 
 <Base titulo="Áreas de atuação | Bertoncini & Mendonça Advogados" descricao={descricao} paginaAtual="/areas/">
-  <div class="areas-pagina">
-    <section class="topo">
-      <div class="marca-dagua" aria-hidden="true"><span data-desliza>Áreas de atuação /&nbsp;Áreas de atuação /</span></div>
-      <div class="env abertura">
-        <p class="pilula" data-sobe>Áreas de atuação</p>
-        <h1 class="titulo-caixa" data-sobe>Do patrimônio à <em>presença digital.</em></h1>
-        <p class="apoio" data-sobe>
-          Duas áreas que costumam chegar juntas: quem monta uma holding também tem marca, e quem vive de
-          conteúdo precisa de contrato e, cedo ou tarde, de pensar na sucessão.
-        </p>
-        <a class="rolar" href="#paineis" data-sobe>
-          Ver as áreas
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 2v10M3 8l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        </a>
-      </div>
-    </section>
+  <section class="topo">
+    <div class="env">
+      <h1 class="sobe">Áreas de atuação</h1>
+      <p class="sobe">
+        Dois campos concentram o nosso trabalho, e costumam chegar juntos: quem organiza o patrimônio
+        também tem marca, e quem vive da internet precisa de contrato e de pensar na sucessão.
+      </p>
+    </div>
+  </section>
 
-    <div class="paineis" id="paineis">
-      {paineis.map((p) => (
-        <section class="painel" aria-labelledby={`painel-${p.n}`}>
-          <span class="grao" style="filter:url(#grao)" aria-hidden="true"></span>
-          <div class="env painel-grade">
-            <div class="painel-texto">
-              <p class="painel-num">{p.n} / {String(paineis.length).padStart(2, '0')}</p>
-              <h2 id={`painel-${p.n}`} class="painel-nome">{p.nome}</h2>
-              <p class="painel-resumo">{p.resumo}</p>
-              <dl class="painel-dados">
-                <div>
-                  <dt>Para quem</dt>
-                  <dd>{p.publico}</dd>
-                </div>
-                {/* Os dois sócios em todas as áreas (retorno de 06/11/2026):
-                    o escritório não quer a atuação dividida por sócio. */}
-                <div class="quem">
-                  <dt>Quem atende</dt>
-                  <dd>
-                    <span class="rostos">
-                      {site.socios.map((socio) => (
-                        <img src={`${socio.retrato}-560.webp`} alt="" width="40" height="40" loading="lazy" />
-                      ))}
-                    </span>
-                    <span>{site.socios.map((socio) => socio.nome.split(' ')[0]).join(' e ')}<small>Os dois sócios</small></span>
-                  </dd>
-                </div>
-              </dl>
-              <div class="painel-acoes">
-                <a class="botao claro" href={p.href}>
-                  Entrar na área
-                  <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
-                </a>
-                <a class="botao zap vidro" href={p.whatsapp} target="_blank" rel="noopener">
-                  WhatsApp
-                  <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
-                </a>
+  <section class="lista" aria-label="As áreas">
+    <div class="env">
+      {tiles.map((t) => (
+        <article class="area sobe" aria-labelledby={`area-${t.slug}`}>
+          <div class="area-topo">
+            <div class="area-texto">
+              <h2 id={`area-${t.slug}`}>{t.nome}</h2>
+              <p class="resumo">{t.resumo}</p>
+              {t.publico && (
+                <p class="publico">
+                  <b>Para quem é.</b> {t.publico}
+                </p>
+              )}
+              <div class="acoes">
+                <a class="pilula" href={t.href}>Conhecer a área</a>
+                <a class="ler" href={t.whatsapp} target="_blank" rel="noopener">Falar pelo WhatsApp</a>
               </div>
             </div>
-            <a class="painel-foto" href={p.href} tabindex="-1" aria-hidden="true">
+            <a class="area-foto" href={t.href} tabindex="-1" aria-hidden="true">
               <picture>
-                <source type="image/avif" srcset={`${p.foto}.avif`} />
-                <source type="image/webp" srcset={`${p.foto}.webp`} />
-                <img src={`${p.foto}.jpg`} alt="" width="900" height="1125" loading="lazy" />
+                <source type="image/avif" srcset={`${t.foto}.avif`} />
+                <source type="image/webp" srcset={`${t.foto}.webp`} />
+                <img src={`${t.foto}.jpg`} alt="" width="900" height="1125" loading="lazy" decoding="async" />
               </picture>
             </a>
           </div>
-          <div class="painel-letreiro" aria-label={`Assuntos de ${p.nome}`}>
-            <div class="trilho">
-              {[0, 1].map((copia) => (
-                <ul aria-hidden={copia === 1 ? 'true' : undefined}>
-                  {p.assuntos.map((a) => <li>{a}</li>)}
-                </ul>
-              ))}
-            </div>
-          </div>
-        </section>
-      ))}
-    </div>
 
-    <section class="tambem">
-      <div class="env">
-        <p class="pilula" data-sobe>Fora das duas áreas</p>
-        <p class="titulo-caixa grande" data-acende>
-          Também atuamos em direito imobiliário, tributário e cível. Se o seu caso não for para nós,
-          dizemos isso na primeira conversa.
-        </p>
-      </div>
-    </section>
-  </div>
+          {t.servicos.length > 0 && (
+            <div class="servicos">
+              <h3>Serviços</h3>
+              <ul>
+                {t.servicos.map((s) => <li>{s}</li>)}
+              </ul>
+            </div>
+          )}
+        </article>
+      ))}
+
+      <div class="vao"><OutrasAreas /></div>
+    </div>
+  </section>
 
   <Contato />
 </Base>
 
-<script>
-  import { ligaCinema } from '~/scripts/cinema';
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) void ligaCinema();
-</script>
-
 <style>
-  .areas-pagina {
-    --destaque: #2a62ad;
-    --gelo: #eaf0f6;
-    overflow-x: clip;
-  }
-  .titulo-caixa {
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    line-height: 0.98;
-    letter-spacing: -0.025em;
-    color: var(--tinta);
-  }
-  .titulo-caixa em {
-    font-style: normal;
-    color: var(--destaque);
-  }
-  .pilula {
-    display: inline-block;
-    padding: 7px 16px;
-    border-radius: 999px;
-    background: var(--gelo);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--tinta);
-  }
-
-  /* ── abertura ────────────────────────────────────────────────────── */
+  /* ── topo ─────────────────────────────────────────────────────────── */
   .topo {
-    position: relative;
-    padding-block: clamp(150px, 16vw, 220px) clamp(90px, 12vw, 160px);
-    background: linear-gradient(180deg, var(--branco) 0%, var(--branco) 40%, #f1f5fa 100%);
+    padding-block: clamp(72px, 9vw, 140px) clamp(40px, 5vw, 72px);
+    text-align: center;
   }
-  .marca-dagua {
-    position: absolute;
-    inset: 30vh 0 auto;
-    overflow: hidden;
-    pointer-events: none;
-  }
-  .marca-dagua span {
-    display: block;
-    white-space: nowrap;
+  .topo h1 {
     font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(130px, 22vw, 340px);
+    font-weight: 600;
+    font-size: clamp(44px, 6.4vw, 96px);
     line-height: 1;
     letter-spacing: -0.04em;
-    color: var(--gelo);
-  }
-  .abertura {
-    position: relative;
-    display: grid;
-    justify-items: center;
-    text-align: center;
-    gap: 22px;
-  }
-  .abertura h1 {
-    font-size: clamp(42px, 6.4vw, 96px);
-    max-width: 13ch;
-  }
-  .apoio {
-    max-width: 54ch;
-    font-size: 18px;
-    color: var(--secundario);
-  }
-  .rolar {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-    font-size: 15px;
-    font-weight: 600;
     color: var(--tinta);
-    text-decoration: none;
   }
-  .rolar svg {
-    animation: desce 1.8s ease-in-out infinite;
-  }
-  @keyframes desce {
-    50% {
-      transform: translateY(4px);
-    }
+  .topo p {
+    max-width: 34em;
+    margin: 20px auto 0;
+    font-size: clamp(18px, 1.6vw, 22px);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: #5b6b7f;
+    text-wrap: balance;
   }
 
-  /* ── painéis empilhados ──────────────────────────────────────────── */
-  .painel {
-    position: sticky;
-    top: 0;
-    min-height: 100vh;
+  /* ── tiles ────────────────────────────────────────────────────────── */
+  .lista {
+    padding-bottom: clamp(96px, 11vw, 168px);
+  }
+  .area {
+    padding: clamp(28px, 4vw, 64px);
+    border-radius: 32px;
+    background: #f2f4f7;
+  }
+  .area + .area {
+    margin-top: clamp(16px, 1.8vw, 24px);
+  }
+  .area-topo {
     display: grid;
-    grid-template-rows: 1fr auto;
-    isolation: isolate;
-    overflow: hidden;
-    color: #fff;
-    background: linear-gradient(125deg, #1f4c88 0%, #163a6d 38%, #0e2a52 72%, var(--tinta) 100%);
-    box-shadow: 0 -30px 60px -20px rgba(3, 8, 18, 0.45);
-  }
-  .painel:nth-child(even) {
-    background: linear-gradient(235deg, #1f4c88 0%, #163a6d 38%, #0e2a52 72%, var(--tinta) 100%);
-  }
-  .grao {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    clip-path: inset(0);
-    background: #8aa0bc;
-    mix-blend-mode: overlay;
-    opacity: 0.4;
-    pointer-events: none;
-  }
-  .painel-grade {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: clamp(32px, 5vw, 96px);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(28px, 5vw, 80px);
     align-items: center;
-    padding-block: clamp(110px, 14vh, 150px) clamp(32px, 5vh, 56px);
   }
-  .painel:nth-child(even) .painel-texto {
-    order: 2;
-  }
-  .painel-num {
-    font-size: 14px;
-    letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.6);
-  }
-  .painel-nome {
-    margin-top: 14px;
+  .area-texto h2 {
     font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(40px, 5.4vw, 84px);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
+    font-weight: 600;
+    font-size: clamp(36px, 4.4vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    color: var(--tinta);
+    text-wrap: balance;
   }
-  .painel-resumo {
-    margin-top: 22px;
-    max-width: 40ch;
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(21px, 2vw, 28px);
-    line-height: 1.3;
-    color: rgba(255, 255, 255, 0.9);
-  }
-  .painel-dados {
-    margin: 30px 0;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 24px;
-    max-width: 640px;
-  }
-  .painel-dados div {
-    padding-top: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  .painel-dados dt {
-    font-size: 13px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.6);
-  }
-  .painel-dados dd {
-    margin: 8px 0 0;
-    font-size: 16px;
+  .resumo {
+    margin-top: 18px;
+    max-width: 30em;
+    font-size: clamp(18px, 1.5vw, 21px);
     line-height: 1.45;
-  }
-  .quem dd {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .quem img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: 50% 20%;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
-  }
-  .rostos {
-    display: flex;
-  }
-  .rostos img + img {
-    margin-left: -10px;
-  }
-  .quem small {
-    display: block;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.65);
-  }
-  .painel-acoes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .botao.claro {
-    background: #fff;
+    letter-spacing: -0.01em;
     color: var(--tinta);
   }
-  .botao.claro:hover {
-    background: var(--papel);
+  .publico {
+    margin-top: 14px;
+    max-width: 34em;
+    font-size: 17px;
+    line-height: 1.5;
+    color: #5b6b7f;
   }
-  .painel-foto {
+  .publico b {
+    font-weight: 600;
+    color: var(--tinta);
+  }
+  .acoes {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 26px;
+  }
+  .pilula {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.25s;
+  }
+  .pilula:hover {
+    background: #2a62ad;
+  }
+  .ler {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 17px;
+    color: #2a62ad;
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+  .ler:hover {
+    text-decoration: underline;
+  }
+  .pilula:focus-visible,
+  .ler:focus-visible {
+    outline: 2px solid #2a62ad;
+    outline-offset: 3px;
+    border-radius: 999px;
+  }
+
+  .area-foto {
     display: block;
-    aspect-ratio: 4 / 5;
-    max-height: 70vh;
-    justify-self: center;
+    aspect-ratio: 4 / 3;
     border-radius: 22px;
     overflow: hidden;
-    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6);
   }
-  .painel-foto img {
+  .area-foto img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  .painel-foto:hover img {
-    transform: scale(1.05);
-  }
-  .painel-letreiro {
-    overflow: hidden;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    padding-block: 18px;
-  }
-  .painel-letreiro .trilho {
-    display: flex;
-    width: max-content;
-    animation: corre 60s linear infinite;
-  }
-  .painel:nth-child(even) .trilho {
-    animation-direction: reverse;
-  }
-  .painel-letreiro ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-  }
-  .painel-letreiro li {
-    padding-inline: 26px;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(18px, 1.8vw, 26px);
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-    color: rgba(255, 255, 255, 0.3);
-  }
-  .painel-letreiro li::after {
-    content: '/';
-    margin-left: 52px;
-    color: rgba(255, 255, 255, 0.3);
-  }
-  @keyframes corre {
-    to {
-      transform: translateX(-50%);
-    }
+  .area:hover .area-foto img {
+    transform: scale(1.03);
   }
 
-  /* ── também ──────────────────────────────────────────────────────── */
-  .tambem {
-    position: relative;
-    z-index: 1;
-    padding-block: clamp(90px, 12vw, 170px);
-    background: var(--branco);
+  /* Serviços no mesmo painel branco com § da home. */
+  .servicos {
+    margin-top: clamp(28px, 4vw, 56px);
+    padding: clamp(24px, 3vw, 40px);
+    border-radius: 22px;
+    background: #fff;
   }
-  .grande {
-    margin-top: 26px;
-    font-size: clamp(28px, 3.8vw, 56px);
-    line-height: 1.05;
-    max-width: 24ch;
+  .servicos h3 {
+    font-family: var(--sans);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--tinta);
+  }
+  .servicos ul {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px clamp(20px, 3vw, 44px);
+  }
+  .servicos li {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    column-gap: 8px;
+    align-items: baseline;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--tinta);
+  }
+  .servicos li::before {
+    content: '§';
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1;
+    color: #2a62ad;
+    opacity: 0.6;
+  }
+
+  .vao {
+    margin-top: clamp(96px, 11vw, 168px);
   }
 
   @media (max-width: 900px) {
-    .painel {
-      position: relative;
-      min-height: 0;
-    }
-    .painel-grade {
+    .area-topo {
       grid-template-columns: 1fr;
-      padding-block: 80px 36px;
     }
-    .painel:nth-child(even) .painel-texto {
-      order: 0;
-    }
-    .painel-foto {
+    .area-foto {
       order: -1;
-      width: 100%;
-      aspect-ratio: 16 / 11;
     }
-    .painel-dados {
+    .servicos ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 560px) {
+    .area {
+      padding: 20px 20px 24px;
+      border-radius: 26px;
+    }
+    .servicos ul {
       grid-template-columns: 1fr;
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .painel-letreiro .trilho,
-    .rolar svg {
-      animation: none;
-    }
-    .painel-letreiro {
-      overflow-x: auto;
+    .area-foto img,
+    .pilula {
+      transition: none;
     }
   }
 </style>
