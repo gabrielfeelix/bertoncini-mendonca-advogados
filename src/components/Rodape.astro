@@ -112,7 +112,7 @@ const areas = await listarAreasConfirmadas();
         <p>
           © {ano} {site.nomeCurto}
           <span class="sep" aria-hidden="true"> · </span>
-          <span data-placeholder="1">Sociedade inscrita na {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}</span>
+          <span data-placeholder={site.registro.oabSociedade.placeholder || site.registro.cnpj.placeholder ? '1' : undefined}>Sociedade inscrita na {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}</span>
           <span class="sep" aria-hidden="true"> · </span>
           {site.socios.map((socio, indice) => (
             <>
