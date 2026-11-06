@@ -46,7 +46,6 @@ const perfis = [
     altura: 1260,
     enquadra: '50% 22%',
     socio: site.socios[0],
-    lado: 'Sócio',
     bio: 'Especialista em direito empresarial e em advocacia consultiva. Trabalha na fase que antecede o processo (contratos, pareceres, estruturação de operações, LGPD e compliance) para que o problema não se consolide.',
     formacao: [
       'Bacharel em Direito pela UEM',
@@ -63,7 +62,6 @@ const perfis = [
     altura: 1260,
     enquadra: '50% 24%',
     socio: site.socios[1],
-    lado: 'Sócia',
     bio: 'Especialista em processo civil, com experiência em processos judiciais estratégicos em todas as instâncias e em due diligence de operações de fusão e aquisição. Atende quem trabalha e ganha dinheiro na internet.',
     formacao: [
       'Bacharel em Direito pela UEM',
@@ -127,41 +125,37 @@ const valoresDeAtuacao = [
   </section>
 
   <!-- 4. OS SÓCIOS -->
-  {/* `#socios` leva ao começo dos perfis; cada sócio tem a própria âncora
-      (`#socio-juscelino`, `#socio-beatriz`), usada pelo "Quem atende" das
-      páginas de área. */}
-  <span id="socios" class="ancora-socios" aria-hidden="true"></span>
-  {perfis.map((perfil, n) => (
-    <section class:list={['socio', { invertido: n % 2 === 1 }]} id={`socio-${perfil.nome.toLowerCase()}`} aria-labelledby={`socio-${n}`}>
-      <div class="env socio-grade">
-        <div class="socio-texto" data-sobe>
-          <p class="rotulo">{perfil.lado}</p>
-          <h2 id={`socio-${n}`} class="socio-nome"><em>{perfil.nome}</em><br />{perfil.sobrenome}</h2>
-          <p class="oab" data-placeholder={perfil.socio.oab.placeholder ? '1' : undefined}>
-            <span>Inscrição na Ordem</span> {perfil.socio.oab.valor}
-          </p>
-          <p class="bio">{perfil.bio}</p>
-          <dl class="formacao">
-            <dt>Formação</dt>
-            <dd><ul>{perfil.formacao.map((item) => <li>{item}</li>)}</ul></dd>
-          </dl>
-          <a class="botao contorno" href="/areas/">
-            Áreas de atuação
-            <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
-          </a>
-        </div>
-        <div class="socio-foto">
-          <figure class="pilha-fotos">
-            <picture>
-              <source type="image/avif" srcset={`${perfil.base}-560.avif 560w, ${perfil.base}-840.avif 840w`} sizes="(max-width: 900px) 92vw, 40vw" />
-              <source type="image/webp" srcset={`${perfil.base}-560.webp 560w, ${perfil.base}-840.webp 840w`} sizes="(max-width: 900px) 92vw, 40vw" />
-              <img src={`${perfil.base}-840.jpg`} alt={`Retrato de ${perfil.nome} ${perfil.sobrenome}`} width={perfil.largura} height={perfil.altura} loading="lazy" style={`object-position:${perfil.enquadra}`} />
-            </picture>
-          </figure>
-        </div>
+  {/* Os dois lado a lado, com o mesmo peso (06/11/2026). Antes era uma
+      seção por sócio, em zigue-zague, com foto inclinada sobre folhas
+      coloridas: truque de template, e a alternância reforçava a divisão
+      de áreas que o escritório pediu para não mostrar. Cada sócio mantém
+      a âncora `#socio-<nome>`, usada pela pilha da home. */}
+  <section class="socios" id="socios" aria-labelledby="socios-titulo">
+    <div class="env">
+      <header class="socios-cab" data-sobe>
+        <h2 id="socios-titulo">Os sócios</h2>
+        <p>Juscelino e Beatriz atuam juntos nas duas áreas do escritório.</p>
+      </header>
+      <div class="socios-grade">
+        {perfis.map((perfil) => (
+          <article class="socio" id={`socio-${perfil.nome.toLowerCase()}`} aria-labelledby={`nome-${perfil.nome.toLowerCase()}`} data-sobe>
+            <figure class="socio-foto">
+              <picture>
+                <source type="image/avif" srcset={`${perfil.base}-560.avif 560w, ${perfil.base}-840.avif 840w`} sizes="(max-width: 900px) 92vw, 44vw" />
+                <source type="image/webp" srcset={`${perfil.base}-560.webp 560w, ${perfil.base}-840.webp 840w`} sizes="(max-width: 900px) 92vw, 44vw" />
+                <img src={`${perfil.base}-840.jpg`} alt={`Retrato de ${perfil.nome} ${perfil.sobrenome}`} width={perfil.largura} height={perfil.altura} loading="lazy" style={`object-position:${perfil.enquadra}`} />
+              </picture>
+            </figure>
+            <h3 id={`nome-${perfil.nome.toLowerCase()}`} class="socio-nome">{perfil.nome} {perfil.sobrenome}</h3>
+            <p class="oab" data-placeholder={perfil.socio.oab.placeholder ? '1' : undefined}>{perfil.socio.oab.valor}</p>
+            <p class="bio">{perfil.bio}</p>
+            <h4 class="formacao-titulo">Formação</h4>
+            <ul class="formacao">{perfil.formacao.map((item) => <li>{item}</li>)}</ul>
+          </article>
+        ))}
       </div>
-    </section>
-  ))}
+    </div>
+  </section>
 
   {/* História, números, a cena dos valores e o registro saíram no retorno
       de 06/11/2026. História e números voltam quando o escritório tiver o
@@ -171,7 +165,7 @@ const valoresDeAtuacao = [
   <section class="valores" aria-labelledby="valores-titulo">
     <div class="env">
       <header class="valores-cab">
-        <h2 id="valores-titulo" class="titulo-caixa">O que orienta o nosso trabalho</h2>
+        <h2 id="valores-titulo">O que orienta o nosso trabalho</h2>
       </header>
       <ol class="valores-lista">
         {valoresFundamentais.map((valor) => (
@@ -321,117 +315,95 @@ const valoresDeAtuacao = [
     text-wrap: pretty;
   }
 
-  /* ── 4. sócios ───────────────────────────────────────────────────── */
-  .ancora-socios,
-  .socio {
+  /* ── 4. sócios: os dois lado a lado ───────────────────────────────── */
+  .socios {
     scroll-margin-top: 90px;
-  }
-  .socio {
-    padding-block: clamp(80px, 9vw, 130px);
+    padding-block: clamp(96px, 11vw, 168px);
     background: var(--branco);
   }
-  .socio-grade {
+  .socio {
+    scroll-margin-top: 110px;
+  }
+  .socios-cab {
+    text-align: center;
+    margin-bottom: clamp(48px, 6vw, 88px);
+  }
+  .socios-cab h2,
+  .valores-cab h2 {
+    font-family: var(--sans);
+    font-weight: 600;
+    text-transform: none;
+    font-size: clamp(36px, 4.6vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    color: var(--tinta);
+  }
+  .socios-cab p {
+    margin-top: 14px;
+    font-size: clamp(17px, 1.4vw, 20px);
+    color: #5b6b7f;
+  }
+  .socios-grade {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(32px, 6vw, 110px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(28px, 4vw, 64px);
     align-items: start;
   }
-  .invertido .socio-texto {
-    order: 2;
-  }
-  .socio-nome {
-    margin-top: 14px;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(38px, 4.8vw, 70px);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-    color: var(--tinta);
-  }
-  .socio-nome em {
-    font-style: normal;
-    color: var(--destaque);
-  }
-  .oab {
-    margin-top: 18px;
-    font-size: 19px;
-    color: var(--tinta);
-  }
-  .oab span {
-    margin-right: 6px;
-    font-size: 14px;
-    color: var(--secundario);
-  }
-  .bio {
-    margin-top: 22px;
-    font-size: 17px;
-    line-height: 1.6;
-    color: var(--secundario);
-    max-width: 52ch;
-  }
-  .formacao {
-    margin: 32px 0;
-    display: grid;
-    gap: 6px;
-  }
-  .formacao dt {
-    margin-top: 14px;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--secundario);
-  }
-  .formacao dd {
-    margin: 0;
-    font-size: 16px;
-    color: var(--tinta);
-  }
-  .formacao ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 6px;
-  }
-  .formacao li::before {
-    content: '— ';
-    color: var(--destaque);
-  }
   .socio-foto {
-    position: sticky;
-    top: 120px;
-  }
-  /* A pilha: a foto com duas folhas inclinadas atrás (Quadro, "Meet Clara"). */
-  .pilha-fotos {
-    position: relative;
-    margin: 0;
+    margin: 0 0 clamp(24px, 2.6vw, 32px);
     aspect-ratio: 4 / 5;
+    border-radius: 28px;
+    overflow: hidden;
+    background: #f2f4f7;
   }
-  .pilha-fotos::before,
-  .pilha-fotos::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 6px;
+  .socio-foto picture {
+    display: contents;
   }
-  .pilha-fotos::before {
-    background: #c9d5e3;
-    transform: rotate(-5deg) translate(-3%, 2%);
-  }
-  .pilha-fotos::after {
-    background: var(--tinta);
-    transform: rotate(3.5deg) translate(3%, 1%);
-  }
-  .pilha-fotos img {
-    position: relative;
-    z-index: 1;
+  .socio-foto img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 6px;
-    box-shadow: 0 30px 60px -30px rgba(11, 30, 63, 0.5);
+    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .socio:hover .socio-foto img {
+    transform: scale(1.025);
+  }
+  .socio-nome {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(28px, 2.6vw, 38px);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: var(--tinta);
+  }
+  .oab {
+    margin-top: 6px;
+    font-size: 15px;
+    color: #5b6b7f;
+  }
+  .bio {
+    margin-top: 18px;
+    max-width: 46ch;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--tinta);
+  }
+  .formacao-titulo {
+    margin-top: 26px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tinta);
+  }
+  .formacao {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #5b6b7f;
   }
 
   /* ── 5. valores ──────────────────────────────────────────────────── */
@@ -443,9 +415,6 @@ const valoresDeAtuacao = [
     display: grid;
     gap: 14px;
     max-width: 980px;
-  }
-  .valores-cab h2 {
-    font-size: clamp(34px, 4.4vw, 62px);
   }
   .valores-lista {
     list-style: none;
@@ -509,21 +478,12 @@ const valoresDeAtuacao = [
   }
 
   @media (max-width: 900px) {
-    .socio-grade,
+    .socios-grade,
     .valores-lista {
       grid-template-columns: 1fr;
     }
     .atuacao-lista {
       grid-template-columns: 1fr 1fr;
-    }
-    .invertido .socio-texto {
-      order: 0;
-    }
-    .socio-foto {
-      position: relative;
-      top: auto;
-      order: -1;
-      max-width: 420px;
     }
   }
   @media (max-width: 560px) {
