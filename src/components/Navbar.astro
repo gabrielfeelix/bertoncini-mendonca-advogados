@@ -37,14 +37,12 @@ const areas = await listarAreasConfirmadas();
   data-contraste={paginaAtual === '/' ? 'externo' : undefined}
 >
   <div class="env barra-env">
-    <a class="marca" href="/">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M12 3v18M5 8h14M8.5 8 5.6 14.4a3.2 3.2 0 0 0 5.8 0L8.5 8ZM15.5 8l-2.9 6.4a3.2 3.2 0 0 0 5.8 0L15.5 8Z"
-          stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path>
-      </svg>
-      <span class="longo">Bertoncini <span class="amp">&amp;</span> Mendonça</span>
-      <span class="curto">B <span class="amp">&amp;</span> M</span>
+    {/* Assinatura horizontal oficial, na versão creme (manual da marca:
+        fundo escuro recebe creme). Imagem, e não texto: o manual proíbe
+        recompor o lettering em outra fonte, e o nome em League Spartan é
+        parte do desenho. 170px é a largura mínima digital do manual. */}
+    <a class="marca" href="/" aria-label={`${site.nome} — início`}>
+      <img src="/media/marca/lockup-creme.png" alt="" width="564" height="195" decoding="async" fetchpriority="high" />
     </a>
 
     <nav class="links" aria-label="Principal">
@@ -207,28 +205,19 @@ const areas = await listarAreasConfirmadas();
     align-items: center;
     gap: 24px;
     min-height: 72px;
-    padding-block: 12px;
+    padding-block: 8px;
   }
 
   .marca {
     display: flex;
     align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: 17px;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-    color: inherit;
+    flex: none;
     min-height: 44px;
   }
-  .marca .amp {
-    font-style: italic;
-    opacity: 0.7;
-  }
-  .marca .curto {
-    display: none;
+  .marca img {
+    display: block;
+    width: 176px;
+    height: auto;
   }
 
   .links {
@@ -507,12 +496,6 @@ const areas = await listarAreasConfirmadas();
   }
 
   @media (max-width: 560px) {
-    .marca .longo {
-      display: none;
-    }
-    .marca .curto {
-      display: inline;
-    }
     .fala .rotulo {
       display: none;
     }
