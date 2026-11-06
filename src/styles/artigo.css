@@ -44,21 +44,12 @@
    ============================================================ */
 
 .artigo {
-  /* A coluna de leitura. A capa é mais larga e escapa dela (abaixo). */
+  /* A coluna de leitura. A capa usa a mesma largura (abaixo). */
   --artigo-largura: 72ch;
-  --artigo-capa: 96ch;
   margin-inline: auto;
   max-width: var(--artigo-largura);
   padding-inline: var(--gutter);
   padding-block: clamp(28px, 4vw, 56px) clamp(48px, 6vw, 88px);
-}
-
-@media (max-width: 1100px) {
-  /* Abaixo disto a capa deixa de escapar: com a coluna estreita, a margem
-     negativa a jogaria para fora da tela. */
-  .artigo {
-    --artigo-capa: var(--artigo-largura);
-  }
 }
 
 /* ── Cabeçalho do artigo ── */
@@ -138,34 +129,25 @@
 }
 
 /* ── A capa ── */
-/* Escapa da coluna por margem negativa, e não por largura em `vw`: assim ela
-   nunca ultrapassa o que o pai realmente tem. O negativo é metade da
-   diferença entre a capa e a coluna, dos dois lados. */
+/* Na largura do texto (06/11/2026). Antes ela escapava da coluna, 96ch
+   contra 72ch: o título e o corpo pareciam apertados ao lado de uma foto
+   bem mais larga, e o escritório achou a imagem grande demais. Na mesma
+   largura a página ganha uma borda só, e o 16:9 limita a altura. */
 .artigo-capa {
   display: block;
+  width: 100%;
   height: auto;
+  aspect-ratio: 16 / 9;
   border-radius: 14px;
-  margin: clamp(28px, 4vw, 48px) calc((var(--artigo-largura) - var(--artigo-capa)) / 2)
-    clamp(28px, 4vw, 48px);
-  /* `max-width:100%` cancelaria o escape: o 100% é a coluna, não a capa. A
-     largura é declarada, e o `min()` com a tela é o que segura o vazamento. */
-  max-width: none;
-  width: min(var(--artigo-capa), calc(100vw - 2 * var(--gutter)));
+  margin: clamp(28px, 4vw, 48px) 0;
   object-fit: cover;
 }
 
-/*
-  Crédito da capa. Alinhado à esquerda da própria capa — que é mais larga
-  que a coluna de texto — e não da coluna, senão ele flutuaria solto no
-  meio da margem. Corpo menor e cor de apoio: é obrigação de licença, e
-  precisa estar legível sem disputar com o texto do artigo.
-
-  O `margin-top` negativo recupera parte do respiro da capa: sem ele, a
-  linha ficaria a 48px dela e pareceria legenda de outra coisa.
-*/
+/* Crédito da capa: obrigação de licença, legível sem disputar com o texto.
+   O `margin-top` negativo o aproxima da capa, senão parece legenda de
+   outra coisa. */
 .artigo-credito {
-  margin: calc(-1 * clamp(20px, 3vw, 36px)) auto clamp(28px, 4vw, 48px);
-  width: min(var(--artigo-capa), calc(100vw - 2 * var(--gutter)));
+  margin: calc(-1 * clamp(20px, 3vw, 36px)) 0 clamp(28px, 4vw, 48px);
   font-size: 14px;
   line-height: 1.5;
   color: var(--secundario);
