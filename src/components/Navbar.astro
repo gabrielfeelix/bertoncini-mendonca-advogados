@@ -454,11 +454,33 @@ const areas = await listarAreasConfirmadas();
     background: rgba(255, 255, 255, 0.2);
   }
 
+  /* O painel sai do fluxo da barra. Ele mora dentro do <details>, que é um
+     item da linha flex: no fluxo, abrir o menu esticava o <details> ali
+     mesmo, empurrava a marca e o botão de mensagem para baixo e deixava os
+     links soltos sobre o hero, sem fundo. Agora ele cai logo abaixo da
+     barra (a .barra é fixed, então é ela o bloco de contenção), na largura
+     toda, com fundo próprio e rolagem se a tela for baixa. */
   .painel-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     display: flex;
     flex-direction: column;
-    padding: 8px var(--gutter) 20px;
+    max-height: calc(100dvh - 100%);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px var(--gutter) 24px;
+    background: var(--tinta);
     border-top: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.5);
+  }
+  /* Com o menu aberto a barra é sempre sólida, mesmo sobre o hero: barra
+     transparente em cima de painel chapado parecia um corte no topo. */
+  :global(.js) .barra:has(.movel[open]) {
+    background: var(--tinta);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
   .painel-menu a {
     padding: 15px 4px;
@@ -489,6 +511,11 @@ const areas = await listarAreasConfirmadas();
   @media (max-width: 1080px) {
     .links {
       display: none;
+    }
+    /* Sem os links, era a margem automática deles que empurrava os botões
+       para a direita; em tablet eles ficavam colados na marca. */
+    .fala {
+      margin-inline-start: auto;
     }
     .movel {
       display: block;
