@@ -46,14 +46,15 @@ export const site = {
   // presencialmente em Maringá.
   atendimentoRodape: 'Atendimento online para todo o país',
 
-  // Placeholders do protótipo (`(44) 0000 0000`, `contato@exemplo.adv.br`).
-  telefone: { valor: '(44) 0000 0000', placeholder: true } satisfies CampoPlaceholder,
-  telefoneE164: { valor: '+5544000000000', placeholder: true } satisfies CampoPlaceholder,
+  // Enviados pelo escritório no retorno de 06/11/2026: o WhatsApp é também
+  // o telefone (celular), e o e-mail fica no domínio do site.
+  telefone: { valor: '(44) 98815-7540', placeholder: false } satisfies CampoPlaceholder,
+  telefoneE164: { valor: '+5544988157540', placeholder: false } satisfies CampoPlaceholder,
   whatsapp: {
-    valor: 'https://wa.me/5544000000000?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20sobre%20um%20caso.',
-    placeholder: true,
+    valor: 'https://wa.me/5544988157540?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20sobre%20um%20caso.',
+    placeholder: false,
   } satisfies CampoPlaceholder,
-  email: { valor: 'contato@exemplo.adv.br', placeholder: true } satisfies CampoPlaceholder,
+  email: { valor: 'contato@bertoncinimendonca.adv.br', placeholder: false } satisfies CampoPlaceholder,
 
   horario: 'Segunda a sexta, 9h às 18h',
 
