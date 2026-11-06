@@ -26,7 +26,6 @@ const FOTO_DA_AREA: Record<string, string> = {
 
 const paineis = areas.map((area, i) => {
   const d = area.data;
-  const socio = site.socios.find((s) => s.area === d.slug);
   return {
     n: String(i + 1).padStart(2, '0'),
     nome: d.nome,
@@ -36,7 +35,6 @@ const paineis = areas.map((area, i) => {
     href: `/areas/${d.slug}/`,
     whatsapp: whatsappDaArea(d.mensagemWhatsapp ?? `Olá! Gostaria de conversar sobre ${d.nome.toLowerCase()}.`),
     foto: FOTO_DA_AREA[d.slug] ?? '/media/novas/area-contratos',
-    socio: socio ? { nome: socio.nome, oab: socio.oab.valor, retrato: socio.retrato } : undefined,
   };
 });
 
@@ -78,15 +76,19 @@ const descricao =
                   <dt>Para quem</dt>
                   <dd>{p.publico}</dd>
                 </div>
-                {p.socio && (
-                  <div class="quem">
-                    <dt>Quem atende</dt>
-                    <dd>
-                      <img src={`${p.socio.retrato}-560.webp`} alt="" width="40" height="40" loading="lazy" />
-                      <span>{p.socio.nome}<small>{p.socio.oab}</small></span>
-                    </dd>
-                  </div>
-                )}
+                {/* Os dois sócios em todas as áreas (retorno de 06/11/2026):
+                    o escritório não quer a atuação dividida por sócio. */}
+                <div class="quem">
+                  <dt>Quem atende</dt>
+                  <dd>
+                    <span class="rostos">
+                      {site.socios.map((socio) => (
+                        <img src={`${socio.retrato}-560.webp`} alt="" width="40" height="40" loading="lazy" />
+                      ))}
+                    </span>
+                    <span>{site.socios.map((socio) => socio.nome.split(' ')[0]).join(' e ')}<small>Os dois sócios</small></span>
+                  </dd>
+                </div>
               </dl>
               <div class="painel-acoes">
                 <a class="botao claro" href={p.href}>
@@ -321,6 +323,12 @@ const descricao =
     object-fit: cover;
     object-position: 50% 20%;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+  }
+  .rostos {
+    display: flex;
+  }
+  .rostos img + img {
+    margin-left: -10px;
   }
   .quem small {
     display: block;
