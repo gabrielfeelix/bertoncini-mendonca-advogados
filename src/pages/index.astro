@@ -34,15 +34,14 @@ import Newsletter from '~/components/Newsletter.astro';
 import Perguntas from '~/components/Perguntas.astro';
 import AvisoCookies from '~/components/AvisoCookies.astro';
 import BlogHome from '~/components/BlogHome.astro';
-import Situacoes from '~/components/Situacoes.astro';
 import { listarAreas } from '~/lib/areas';
 import { listarArtigos } from '~/lib/artigos';
 
-/* As áreas vêm da coleção, como em `/areas/`: as perguntas de
-   `Situacoes` apontam para as respostas na página de cada uma. */
+/* As áreas vêm da coleção, como em `/areas/`: os serviços e as perguntas
+   da home são os mesmos da página de cada área. */
 const areas = await listarAreas();
 
-/* "O que as pessoas nos perguntam": seis perguntas por área, escolhidas
+/* "Dúvidas frequentes": seis perguntas por área, escolhidas
    entre as que o briefing listou (q7.4) e que já têm resposta no JSON da
    área. Escolhidas pelo texto, e não pela posição, para que reordenar o
    JSON não troque a pergunta da home em silêncio. */
@@ -67,11 +66,12 @@ const perguntasEscolhidas: Record<string, string[]> = {
 const gruposDePerguntas = areas
   .filter((area) => !area.data.aConfirmar && perguntasEscolhidas[area.data.slug])
   .map((area) => ({
-    nome: area.data.nome,
-    slug: area.data.slug,
+    /* Rótulo curto: a aba vira pílula no celular, e o nome inteiro de PPS
+       empurrava as outras duas para fora da tela. */
+    nome: area.data.slug === 'planejamento-patrimonial-e-sucessorio' ? 'Planejamento patrimonial' : area.data.nome,
     perguntas: perguntasEscolhidas[area.data.slug]
-      .map((texto) => ({ texto, indice: area.data.perguntas.findIndex((p) => p.pergunta === texto) }))
-      .filter((p) => p.indice >= 0),
+      .map((texto) => area.data.perguntas.find((p) => p.pergunta === texto))
+      .filter((p): p is NonNullable<typeof p> => Boolean(p)),
   }));
 
 /* Os três textos mais recentes: um em destaque e dois em cartão
@@ -106,7 +106,7 @@ const perguntasDaHome = [
   {
     pergunta: 'E se o meu assunto não for de nenhuma das duas áreas?',
     resposta:
-      'Escreva mesmo assim. Também atuamos em questões de direito imobiliário, tributário e cível. Se o caso não for para nós, dizemos isso na primeira conversa.',
+      'Escreva mesmo assim. Também atuamos em contratos, direito societário e imobiliário, assessoria jurídica empresarial, compliance e governança, e direito civil. Se o caso não for para nós, dizemos isso na primeira conversa.',
   },
   {
     pergunta: 'Quanto tempo demora um processo?',
@@ -131,13 +131,18 @@ const perguntasDaHome = [
       método em quatro passos prometia um roteiro que não existe. */}
   <SociosPilha />
 
-  {gruposDePerguntas.length > 0 && <Situacoes grupos={gruposDePerguntas} />}
-
   {ultimosTextos.length > 0 && <BlogHome artigos={ultimosTextos} />}
 
   <Newsletter />
 
-  <Perguntas perguntas={perguntasDaHome} />
+  {/* Uma seção só de dúvidas, com as perguntas de cada área e as de
+      atendimento em abas. Era duas: "O que as pessoas nos perguntam"
+      (cartões subindo sobre foto fixa, `Situacoes.astro`) e esta. O
+      escritório pediu menos efeito e preferiu este formato (06/11/2026). */}
+  <Perguntas
+    titulo="Dúvidas frequentes"
+    grupos={[...gruposDePerguntas, { nome: 'Atendimento', perguntas: perguntasDaHome }]}
+  />
   {/* O bloco de contato ("Conte o que está acontecendo") saiu daqui a
       pedido do cliente: a home fecha nas publicações e nas perguntas.
       Continua nas OUTRAS seis páginas que o usam, e de propósito — lá ele
