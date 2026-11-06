@@ -48,7 +48,11 @@ import { listarAreasConfirmadas } from '~/lib/areas';
   Com `prerender = false` a mensagem é montada no servidor, no pedido, e
   existe na primeira pintura.
 */
-export const prerender = false;
+/* Exceção: a prévia em /v2 (tools/montar-v2.mjs) é montada como cópia
+   estática dentro do build da raiz e não tem servidor próprio. Só nesse
+   build (`PREVIA_ESTATICA=1`) a página é pré-gerada; o envio continua
+   funcionando pela API da raiz, só sem a mensagem pré-pintada sem JS. */
+export const prerender = import.meta.env.PREVIA_ESTATICA === '1';
 
 /* Volta de quem enviou sem JavaScript. A rota redireciona para cá com
    `?envio-contato=` e, no erro, `?motivo-contato=`. O parâmetro é nomeado por
