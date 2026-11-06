@@ -13,6 +13,7 @@ publicado.
 | `lgpd.jpg` | LGPD na empresa pequena | [Desktop after work (Unsplash)](https://commons.wikimedia.org/wiki/File:Desktop_after_work_(Unsplash).jpg) | Luca Bravo | CC0 | não |
 | `marca.jpg` | Registro de marca | [Weldon Spring letterpress (Unsplash)](https://commons.wikimedia.org/wiki/File:Weldon_Spring_letterpress_(Unsplash).jpg) | Rodney Truitt Jr. | CC0 | não |
 | `prova.jpg` | Golpe, perfil falso, conteúdo ofensivo | [Minimal laptop keyboard (Unsplash)](https://commons.wikimedia.org/wiki/File:Minimal_laptop_keyboard_(Unsplash).jpg) | Scott Webb | CC0 | não |
+| `diagnostico.jpg` | Planejamento sucessório começa pelo diagnóstico | [Top view of a compass on a map (Unsplash)](https://commons.wikimedia.org/wiki/File:Top_view_of_a_compass_on_a_map_(Unsplash).jpg) | Himesh Kumar Behera | CC0 | não |
 
 Recorte 4:3 em 1600×1200, JPEG qualidade 82 (mozjpeg), `fit: cover`,
 `position: attention` — mesmo tratamento das imagens de área.
