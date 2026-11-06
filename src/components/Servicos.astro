@@ -19,7 +19,6 @@
  * Movimento: só a revelação comum (`.sobe`). Nada aqui troca de conteúdo.
  */
 import type { CollectionEntry } from 'astro:content';
-import Zap from './Zap.astro';
 import { whatsappDaArea } from '~/lib/areas';
 import { site } from '~/lib/site';
 
@@ -55,6 +54,24 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
     <div class="nichos">
       {nichos.map((area) => (
         <article class="nicho sobe" aria-labelledby={`nicho-${area.data.slug}`}>
+          <h3 id={`nicho-${area.data.slug}`}>{area.data.nome}</h3>
+          <p class="resumo">{area.data.resumo}</p>
+          <div class="acoes">
+            <a
+              class="pilula"
+              href={whatsappDaArea(area.data.mensagemWhatsapp ?? `Olá! Gostaria de falar sobre ${area.data.nome}.`)}
+              target="_blank"
+              rel="noopener"
+            >
+              Falar sobre esta área
+            </a>
+            <a class="ler" href={`/areas/${area.data.slug}/`}>Conhecer a área</a>
+          </div>
+
+          <ul class="lista" aria-label={`Serviços de ${area.data.nome}`}>
+            {area.data.servicos.map((servico) => <li>{servico}</li>)}
+          </ul>
+
           {fotos[area.data.slug] && (
             <figure class="foto">
               <picture>
@@ -64,27 +81,6 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
               </picture>
             </figure>
           )}
-          <div class="corpo">
-            <h3 id={`nicho-${area.data.slug}`}>{area.data.nome}</h3>
-            <p class="resumo">{area.data.resumo}</p>
-
-            <ul class="lista" aria-label={`Serviços de ${area.data.nome}`}>
-              {area.data.servicos.map((servico) => <li>{servico}</li>)}
-            </ul>
-
-            <div class="acoes">
-              <a
-                class="botao zap"
-                href={whatsappDaArea(area.data.mensagemWhatsapp ?? `Olá! Gostaria de falar sobre ${area.data.nome}.`)}
-                target="_blank"
-                rel="noopener"
-              >
-                Falar sobre esta área
-                <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
-              </a>
-              <a class="ler" href={`/areas/${area.data.slug}/`}>Conhecer a área</a>
-            </div>
-          </div>
         </article>
       ))}
     </div>
@@ -130,82 +126,118 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
     color: var(--secundario);
   }
 
-  /* ── os dois nichos ─────────────────────────────────────────────── */
+  /* ── os dois nichos: tiles no padrão Apple ──────────────────────────
+     Texto centrado no topo (título, frase, as duas ações), a lista de
+     serviços arejada logo abaixo e a foto na base, sangrando até a borda
+     do tile. Hierarquia só por tamanho e cor: nenhum rótulo, número ou
+     divisória. */
   .nichos {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(16px, 2vw, 28px);
+    gap: clamp(12px, 1.4vw, 20px);
     align-items: stretch;
   }
   .nicho {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    border-radius: 26px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: clamp(44px, 4.6vw, 64px) clamp(24px, 3vw, 48px) 0;
+    border-radius: 28px;
     overflow: hidden;
-    background: var(--papel);
+    background: #f2f4f7;
   }
+  .nicho h3 {
+    max-width: 14em;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(32px, 3.2vw, 48px);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    color: var(--tinta);
+    text-wrap: balance;
+  }
+  .resumo {
+    margin-top: 14px;
+    max-width: 30em;
+    font-size: clamp(17px, 1.4vw, 20px);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: #5b6b7f;
+    text-wrap: balance;
+  }
+  .acoes {
+    margin-top: 26px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 26px;
+  }
+  .pilula {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.25s;
+  }
+  .pilula:hover {
+    background: #2a62ad;
+  }
+  .pilula:focus-visible,
+  .ler:focus-visible {
+    outline: 2px solid #2a62ad;
+    outline-offset: 3px;
+    border-radius: 999px;
+  }
+
+  /* Duas colunas alinhadas à esquerda dentro de um bloco centrado: lê
+     como lista, e o tile continua simétrico. */
+  .lista {
+    list-style: none;
+    margin: clamp(36px, 4vw, 52px) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 15em));
+    justify-content: center;
+    gap: 14px clamp(24px, 3vw, 44px);
+    text-align: left;
+  }
+  .lista li {
+    font-size: 16px;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    color: var(--tinta);
+  }
+
   .foto {
-    margin: 0;
-    aspect-ratio: 16 / 7;
-    overflow: hidden;
+    margin: clamp(40px, 4.4vw, 60px) calc(-1 * clamp(24px, 3vw, 48px)) 0;
+    margin-top: auto;
+    padding-top: clamp(40px, 4.4vw, 60px);
+    align-self: stretch;
   }
   .foto picture {
-    display: contents;
+    display: block;
+    aspect-ratio: 16 / 8;
+    overflow: hidden;
   }
   .foto img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 40%;
+    object-position: 50% 45%;
+    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  .corpo {
-    display: flex;
-    flex-direction: column;
-    padding: clamp(24px, 3vw, 44px);
-  }
-  .corpo h3 {
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: clamp(30px, 3vw, 44px);
-    line-height: 1.04;
-    letter-spacing: -0.03em;
-    color: var(--tinta);
-    text-wrap: balance;
-  }
-  .resumo {
-    margin-top: 12px;
-    max-width: 46ch;
-    font-size: 17px;
-    line-height: 1.5;
-    color: var(--secundario);
-  }
-  /* Lista em duas colunas no desktop: dez itens numa coluna só deixavam
-     o bloco de PPS com o dobro da altura do Digital. */
-  .lista {
-    list-style: none;
-    margin: clamp(28px, 3vw, 40px) 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 24px;
-  }
-  .lista li {
-    padding: 14px 0;
-    border-top: 1px solid rgba(11, 30, 63, 0.08);
-    font-size: 17px;
-    line-height: 1.35;
-    letter-spacing: -0.01em;
-    color: var(--tinta);
+  .nicho:hover .foto img {
+    transform: scale(1.03);
   }
 
-  .acoes {
-    margin-top: auto;
-    padding-top: clamp(24px, 2.6vw, 36px);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 14px 22px;
-  }
   /* Link de texto: azul da marca, sublinhado só no hover. */
   .ler {
     display: inline-flex;
@@ -243,25 +275,23 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
     margin-top: 20px;
   }
 
-  @media (max-width: 1100px) {
-    .lista {
-      grid-template-columns: 1fr;
-    }
-  }
   @media (max-width: 900px) {
     .nichos {
       grid-template-columns: 1fr;
     }
+  }
+  @media (max-width: 560px) {
     .lista {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      text-align: center;
+      gap: 10px;
     }
   }
-  @media (max-width: 600px) {
-    .lista {
-      grid-template-columns: 1fr;
-    }
-    .foto {
-      aspect-ratio: 16 / 9;
+  @media (prefers-reduced-motion: reduce) {
+    .foto img,
+    .pilula {
+      transition: none;
     }
   }
 </style>
