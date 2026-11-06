@@ -112,11 +112,11 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
           textos nunca". O que o nome próprio dizia — que o texto é escrito
           para quem não é da área — passou a ser dito pela frase de apoio
           abaixo, que é onde ele de fato se explica. */}
-      <h1 class="display">Escrito para quem <em>não é</em> da área</h1>
+      <h1 class="display">Escrito para quem não é da área</h1>
       <p class="texto">
-        O que escrevemos para quem não é da área. Um assunto por vez, sem citação
-        de artigo de lei que ninguém precisa decorar. Nenhum texto daqui
-        substitui a conversa sobre o seu caso.
+        Um assunto por vez, em linguagem simples, sem citação de artigo de lei
+        que ninguém precisa decorar. Nenhum texto daqui substitui a conversa
+        sobre o seu caso.
       </p>
       {
         !primeira && (
@@ -149,35 +149,17 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
     )
   }
 
+  {/* Uma seção só (06/11/2026): o mais recente é o cartão grande no topo
+      da mesma grade, e não uma seção à parte com rótulo e meia tela vazia
+      ao lado. */}
   {
-    primeira && destaque && (
-      <section class="evidencia" aria-labelledby="evidencia-titulo">
+    (destaque && primeira) || page.data.length > 0 ? (
+      <section class="lista" aria-label="Textos publicados">
         <div class="env">
-          <h2 class="rotulo" id="evidencia-titulo">
-            O mais recente
-          </h2>
-          <div class="unico">
-            <CartaoTexto
-              artigo={destaque}
-              nivel={3}
-              sizes="(min-width: 1080px) 640px, 92vw"
-            />
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  {
-    page.data.length > 0 && (
-      <section class="lista" aria-labelledby="lista-titulo">
-        <div class="env">
-          <h2 class="rotulo" id="lista-titulo">
-            {primeira ? 'Os outros textos' : 'Mais publicações'}
-          </h2>
           <div class="banca">
+            {primeira && destaque && <CartaoTexto artigo={destaque} nivel={2} grande />}
             {page.data.map((artigo) => (
-              <CartaoTexto artigo={artigo} nivel={3} />
+              <CartaoTexto artigo={artigo} nivel={primeira && destaque ? 3 : 2} />
             ))}
           </div>
 
@@ -216,7 +198,7 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
           )}
         </div>
       </section>
-    )
+    ) : null
   }
 
   <Newsletter id="textos" />
@@ -228,18 +210,14 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
     padding-block: clamp(40px, 7vw, 96px) clamp(30px, 4.5vw, 64px);
   }
   .etiqueta {
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--secundario);
-    margin-bottom: 18px;
+    font-size: 19px;
+    font-weight: 500;
+    color: #2a62ad;
+    margin-bottom: 12px;
   }
   .abertura h1 {
     font-size: clamp(38px, 6.4vw, 82px);
     max-width: 14ch;
-  }
-  .abertura h1 em {
-    font-style: italic;
   }
   .abertura .texto {
     margin-top: clamp(20px, 2.6vw, 30px);
@@ -315,35 +293,19 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
     background: var(--linha);
   }
 
-  .rotulo {
-    font-family: var(--sans);
-    font-weight: 400;
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--secundario);
-    margin-bottom: clamp(20px, 2.6vw, 30px);
-  }
-
-  .evidencia {
-    padding-block: clamp(16px, 2vw, 28px) clamp(34px, 4.5vw, 64px);
-  }
-  /* O destaque é o mesmo cartão, numa coluna mais larga: metade da grade em
-     tela grande, largura cheia no telefone. A capa dele fica maior por
-     consequência da coluna, sem um segundo componente para manter. */
-  .unico {
-    max-width: min(660px, 100%);
-  }
-
+  /* Cartões brancos sobre cinza-claro, como nas notícias da Apple. */
   .lista {
-    padding-block: clamp(20px, 3vw, 40px) clamp(48px, 6vw, 88px);
-    border-top: 1px solid var(--linha);
+    padding-block: clamp(40px, 5vw, 72px) clamp(64px, 8vw, 120px);
+    background: #f2f4f7;
+  }
+  .banca > :global(.grande) {
+    grid-column: 1 / -1;
   }
   /* Protótipo, linha 296. */
   .banca {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(22px, 2.4vw, 34px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(16px, 1.8vw, 24px);
   }
   @media (max-width: 1080px) {
     .banca {
