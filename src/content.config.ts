@@ -58,6 +58,13 @@ const areas = defineCollection({
       ]),
     ),
     /**
+     * Produtos e serviços da área, pelo nome com que o escritório os vende.
+     * Lista do retorno de 06/11/2026: a home e a página da área mostram os
+     * dois nichos pelo que se contrata, e não só pelo tema. Ordem = ordem
+     * de exibição. Só nomes: o que cada um faz já está em `assuntos`.
+     */
+    servicos: z.array(z.string().min(1)).default([]),
+    /**
      * Para quem é a área, numa frase. Vai para o bloco da área na home.
      * Vem do briefing (q4.1): a descrição do cliente de cada sócio.
      */

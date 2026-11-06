@@ -2,6 +2,18 @@
   "nome": "Planejamento Patrimonial e Sucessório",
   "slug": "planejamento-patrimonial-e-sucessorio",
   "resumo": "Organizar em vida o que, sem organização, vira inventário e disputa entre herdeiros.",
+  "servicos": [
+    "Planejamento patrimonial",
+    "Diagnóstico patrimonial",
+    "Holding patrimonial e familiar",
+    "Doação",
+    "Doação com reserva de usufruto",
+    "Testamento",
+    "Inventário",
+    "Escrituras públicas",
+    "Acordo de sócios",
+    "Atos societários"
+  ],
   "assuntos": [
     {
       "nome": "Holding familiar",

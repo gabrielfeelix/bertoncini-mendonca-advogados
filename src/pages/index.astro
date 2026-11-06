@@ -30,7 +30,6 @@ import Hero from '~/components/Hero.astro';
 import Declaracao from '~/components/Declaracao.astro';
 import Servicos from '~/components/Servicos.astro';
 import SociosPilha from '~/components/SociosPilha.astro';
-import Metodo from '~/components/Metodo.astro';
 import Newsletter from '~/components/Newsletter.astro';
 import Perguntas from '~/components/Perguntas.astro';
 import AvisoCookies from '~/components/AvisoCookies.astro';
@@ -126,9 +125,10 @@ const perguntasDaHome = [
   <Entrada />
   <Hero />
   <Declaracao />
-  <Servicos />
-
-  <Metodo />
+  <Servicos areas={areas} />
+  {/* "Como trabalhamos" (`Metodo.astro`) saiu a pedido do escritório
+      (06/11/2026): o atendimento muda de cliente para cliente, e um
+      método em quatro passos prometia um roteiro que não existe. */}
   <SociosPilha />
 
   {gruposDePerguntas.length > 0 && <Situacoes grupos={gruposDePerguntas} />}

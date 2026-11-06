@@ -97,6 +97,18 @@ export const site = {
     instagramArroba: '@bertoncinimendonca.adv',
   },
 
+  /* Áreas em que o escritório também atua, fora dos dois nichos do
+     conteúdo (retorno de 06/11/2026). Não têm página própria: a home as
+     lista para que ninguém conclua que o escritório só faz PPS e Digital. */
+  outrasAreas: [
+    'Contratos',
+    'Direito societário',
+    'Direito imobiliário',
+    'Assessoria jurídica empresarial',
+    'Compliance e governança',
+    'Direito civil',
+  ],
+
   /* Os dois avisos que o escritório pediu como obrigatórios (briefing q9.3).
      O primeiro é o texto deles, palavra por palavra. */
   avisoInformativo:
