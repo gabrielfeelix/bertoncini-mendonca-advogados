@@ -253,30 +253,32 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       </section>
     )}
 
+    {/* Os dois sócios numa foto só, a da hero da home, ocupando o cartão
+        inteiro. A versão com dois retratos lado a lado sobre bloco azul
+        parecia montagem; a foto em que eles já estão juntos diz "atuação
+        integrada" sem precisar de frase. */}
     <section class="quem" id="quem-atende" aria-labelledby="quem-titulo">
       <div class="env">
         <div class="quem-cartao" data-sobe>
-          <div class="quem-foto" style={`--n:${socios.length}`}>
-            {socios.map((socio) => (
-              <picture>
-                <source type="image/avif" srcset={`${socio.retrato}-840.avif`} />
-                <source type="image/webp" srcset={`${socio.retrato}-840.webp`} />
-                <img src={`${socio.retrato}-840.jpg`} alt={`Retrato de ${socio.nome}`} width="840" height="1050" loading="lazy" decoding="async" />
-              </picture>
-            ))}
-          </div>
+          <picture class="quem-foto">
+            <source media="(max-width: 700px)" type="image/avif" srcset="/media/hero/socios-vert-600.avif 600w, /media/hero/socios-vert-800.avif 800w" sizes="100vw" />
+            <source media="(max-width: 700px)" type="image/webp" srcset="/media/hero/socios-vert-600.webp 600w, /media/hero/socios-vert-800.webp 800w" sizes="100vw" />
+            <source type="image/avif" srcset="/media/hero/socios-900.avif 900w, /media/hero/socios-1200.avif 1200w, /media/hero/socios-1600.avif 1600w" sizes="(min-width: 1500px) 1360px, 92vw" />
+            <source type="image/webp" srcset="/media/hero/socios-900.webp 900w, /media/hero/socios-1200.webp 1200w, /media/hero/socios-1600.webp 1600w" sizes="(min-width: 1500px) 1360px, 92vw" />
+            <img src="/media/hero/socios-1600.jpg" alt={`${socios.map((s) => s.nome).join(' e ')}, sócios do escritório`} width="1600" height="900" loading="lazy" decoding="async" />
+          </picture>
           <div class="quem-texto">
-            <h2 id="quem-titulo" class="chave claro">Quem atende</h2>
+            <h2 id="quem-titulo" class="quem-rotulo">Quem atende</h2>
             <ul class="quem-nomes">
               {socios.map((socio) => (
                 <li>
                   <p class="quem-nome">{socio.nome}</p>
-                  <p class="quem-oab" data-placeholder={socio.oab.placeholder ? '1' : undefined}><span>Inscrição na Ordem</span> {socio.oab.valor}</p>
+                  <p class="quem-oab" data-placeholder={socio.oab.placeholder ? '1' : undefined}>{socio.oab.valor}</p>
                 </li>
               ))}
             </ul>
             <p class="quem-linha">Os dois sócios atuam juntos nos casos da área, do trabalho preventivo ao processo, quando ele é necessário.</p>
-            <a class="botao claro" href="/escritorio/">
+            <a class="botao vidro" href="/escritorio/">
               Conheça o escritório
               <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
             </a>
@@ -786,87 +788,103 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
   .quem-cartao {
     position: relative;
     isolation: isolate;
-    min-height: min(620px, 80vh);
+    min-height: min(680px, 86vh);
     display: grid;
     align-items: end;
     border-radius: 24px;
     overflow: hidden;
-    background: var(--tinta);
+    background: #05080f;
     color: #fff;
   }
   .quem-foto {
     position: absolute;
-    inset: 0 0 0 auto;
-    width: 58%;
+    inset: 0;
     z-index: -2;
-    display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-  }
-  .quem-foto picture {
-    display: block;
-    overflow: hidden;
   }
   .quem-foto img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 18%;
-    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    object-position: 70% 22%;
+    transition: transform 1.6s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .quem-cartao:hover .quem-foto img {
-    transform: scale(1.03);
+    transform: scale(1.025);
   }
-  /* Vinheta preta, só de contraste: a foto não é tingida. */
+  /* Vinheta preta, só de contraste e só onde há texto: a foto não é
+     tingida. O lado esquerdo da foto já é escuro e vazio. */
   .quem-cartao::after {
     content: '';
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(90deg, var(--tinta) 0%, var(--tinta) 42%, rgba(11, 30, 63, 0) 70%);
-  }
-  /* Desktop: texto e retratos lado a lado, sem vinheta. Com dois
-     retratos, a vinheta da versão de um sócio só escurecia o da esquerda. */
-  @media (min-width: 901px) {
-    .quem-cartao::after {
-      display: none;
-    }
-    .quem-foto {
-      width: 50%;
-    }
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.2) 38%, rgba(0, 0, 0, 0) 58%);
+    pointer-events: none;
   }
   .quem-texto {
-    max-width: min(560px, 50%);
-    padding: clamp(28px, 4vw, 60px);
+    max-width: 480px;
+    padding: clamp(28px, 4vw, 64px);
+  }
+  .quem-rotulo {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
   }
   .quem-nomes {
     list-style: none;
-    margin: 18px 0 0;
+    margin: 20px 0 0;
     padding: 0;
     display: grid;
-    gap: 18px;
+    gap: 16px;
   }
   .quem-nome {
     font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(28px, 3vw, 44px);
-    line-height: 0.98;
-    letter-spacing: -0.03em;
+    font-weight: 500;
+    font-size: clamp(28px, 2.8vw, 40px);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
   }
   .quem-oab {
-    margin-top: 8px;
-    font-size: 17px;
-  }
-  .quem-oab span {
-    margin-right: 6px;
+    margin-top: 6px;
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.65);
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.68);
   }
   .quem-linha {
-    margin: 18px 0 28px;
-    font-size: 17px;
+    margin: 24px 0 28px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 16.5px;
     line-height: 1.55;
-    color: rgba(255, 255, 255, 0.82);
+    color: rgba(255, 255, 255, 0.86);
+  }
+  @media (max-width: 700px) {
+    .quem-cartao {
+      min-height: 0;
+      aspect-ratio: auto;
+    }
+    /* Celular: foto vertical em cima, inteira; o texto entra pela base da
+       foto com a vinheta preta subindo de baixo. */
+    .quem-foto {
+      position: relative;
+      inset: auto;
+      grid-area: 1 / 1;
+      aspect-ratio: 4 / 5;
+    }
+    .quem-foto img {
+      object-position: 50% 15%;
+    }
+    .quem-texto {
+      grid-area: 2 / 1;
+      max-width: none;
+      margin-top: -38%;
+      padding: 0 22px 26px;
+    }
+    .quem-cartao::after {
+      background: linear-gradient(0deg, #05080f 0%, #05080f 42%, rgba(5, 8, 15, 0.6) 62%, rgba(0, 0, 0, 0) 80%);
+    }
   }
 
   /* ── onde atendemos ──────────────────────────────────────────────── */
@@ -1016,17 +1034,6 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     }
     .cartoes-publicos {
       grid-template-columns: 1fr;
-    }
-    .quem-foto {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 4 / 3;
-    }
-    .quem-texto {
-      max-width: none;
-    }
-    .quem-cartao::after {
-      background: linear-gradient(0deg, var(--tinta) 30%, rgba(11, 30, 63, 0) 60%);
     }
     .banner {
       grid-template-columns: 1fr;
