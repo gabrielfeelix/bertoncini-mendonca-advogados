@@ -44,10 +44,12 @@
    ============================================================ */
 
 .artigo {
-  /* A coluna de leitura. A capa usa a mesma largura (abaixo). */
-  --artigo-largura: 72ch;
+  /* A coluna de leitura: 860px de texto (06/11/2026, era ~600px). Título,
+     capa e corpo dividem a mesma borda; o corpo sobe para 20px para a linha
+     larga continuar confortável (~85 caracteres). */
+  --artigo-largura: 860px;
   margin-inline: auto;
-  max-width: var(--artigo-largura);
+  max-width: calc(var(--artigo-largura) + 2 * var(--gutter));
   padding-inline: var(--gutter);
   padding-block: clamp(28px, 4vw, 56px) clamp(48px, 6vw, 88px);
 }
@@ -157,8 +159,8 @@
 
 .artigo-corpo {
   font-family: var(--sans);
-  font-size: 19px;
-  line-height: 1.72;
+  font-size: 20px;
+  line-height: 1.7;
   color: var(--tinta);
 }
 
