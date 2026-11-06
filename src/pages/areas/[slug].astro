@@ -138,39 +138,25 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       atendemos sobre a foto de Maringá e a outra área em banner. Movimento
       em scripts/cinema.ts; sem ele, tudo é documento comum. */}
   <article class="area-pagina">
+    {/* Capa no padrão dos heróis de produto da Apple (06/11/2026): a foto
+        da área na tela inteira, vinheta preta só no alto para o texto, e o
+        título centrado em caixa normal. Saíram o gradiente azul, o grão e o
+        letreiro de assuntos. */}
     <section class="capa">
-      <span class="grao" style="filter:url(#grao)" aria-hidden="true"></span>
-      <div class="env capa-grade">
-        <div class="capa-texto">
-          <nav class="trilha" aria-label="Você está em">
-            <a href="/areas/">Áreas de atuação</a><span aria-hidden="true"> / </span><span aria-current="page">{dados.nome}</span>
-          </nav>
-          <h1 class="capa-nome" data-sobe>{dados.nome}</h1>
-          <p class="capa-resumo" data-sobe>{dados.resumo}</p>
-          <div class="capa-acoes" data-sobe>
-            <a class="botao claro" href={linkFormulario}>
-              Contar o seu caso
-              <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
-            </a>
-            <a class="botao zap vidro" href={linkWhatsapp} target="_blank" rel="noopener">
-              WhatsApp
-              <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
-            </a>
-          </div>
-        </div>
-        <figure class="capa-foto" data-sobe>
-          <picture>
-            <source type="image/avif" srcset={`${fotoDe(dados.slug)}.avif`} />
-            <source type="image/webp" srcset={`${fotoDe(dados.slug)}.webp`} />
-            <img src={`${fotoDe(dados.slug)}.jpg`} alt="" width="900" height="1125" />
-          </picture>
-        </figure>
-      </div>
-      <div class="capa-letreiro" aria-label="Assuntos da área">
-        <div class="trilho">
-          {[0, 1].map((copia) => (
-            <ul aria-hidden={copia === 1 ? 'true' : undefined}>{assuntos.map((a) => <li>{a}</li>)}</ul>
-          ))}
+      <picture class="capa-fundo" aria-hidden="true">
+        <source type="image/avif" srcset={`${fotoDe(dados.slug)}.avif`} />
+        <source type="image/webp" srcset={`${fotoDe(dados.slug)}.webp`} />
+        <img src={`${fotoDe(dados.slug)}.jpg`} alt="" width="900" height="1125" fetchpriority="high" />
+      </picture>
+      <div class="env capa-texto">
+        <nav class="trilha" aria-label="Você está em">
+          <a href="/areas/">Áreas de atuação</a><span aria-hidden="true"> / </span><span aria-current="page">{dados.nome}</span>
+        </nav>
+        <h1 class="capa-nome" data-sobe>{dados.nome}</h1>
+        <p class="capa-resumo" data-sobe>{dados.resumo}</p>
+        <div class="capa-acoes" data-sobe>
+          <a class="pilula clara" href={linkFormulario}>Contar o seu caso</a>
+          <a class="ler claro" href={linkWhatsapp} target="_blank" rel="noopener">Falar pelo WhatsApp</a>
         </div>
       </div>
     </section>
@@ -360,18 +346,6 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     --gelo: #eaf0f6;
     overflow-x: clip;
   }
-  .pilula {
-    display: inline-block;
-    align-self: start;
-    padding: 7px 16px;
-    border-radius: 999px;
-    background: var(--gelo);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--tinta);
-  }
   .chave {
     font-size: 14px;
     font-weight: 600;
@@ -405,98 +379,116 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    min-height: 100vh;
+    min-height: min(100svh, 980px);
     display: grid;
-    grid-template-rows: 1fr auto;
+    align-items: start;
     color: #fff;
-    background: linear-gradient(125deg, #1f4c88 0%, #163a6d 38%, #0e2a52 72%, var(--tinta) 100%);
+    background: #05080f;
   }
-  .capa-grade {
+  .capa-fundo,
+  .capa-fundo img {
+    position: absolute;
+    inset: 0;
     width: 100%;
+    height: 100%;
+    z-index: -2;
+  }
+  .capa-fundo img {
+    object-fit: cover;
+    object-position: 50% 60%;
+  }
+  /* Vinheta preta só no alto, onde está o texto: a foto não é tingida. */
+  .capa::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.45) 38%, rgba(0, 0, 0, 0) 66%);
+    pointer-events: none;
+  }
+  .capa-texto {
+    padding-block: clamp(128px, 17vh, 190px) 64px;
+    text-align: center;
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: clamp(32px, 5vw, 96px);
-    align-items: center;
-    padding-block: clamp(120px, 15vh, 170px) clamp(36px, 6vh, 64px);
+    justify-items: center;
   }
   .trilha {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255, 255, 255, 0.7);
   }
   .trilha a {
     color: inherit;
   }
   .capa-nome {
-    margin-top: 22px;
+    margin-top: 18px;
+    max-width: 14em;
     font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(44px, 6vw, 96px);
-    line-height: 0.94;
-    letter-spacing: -0.03em;
+    font-weight: 600;
+    font-size: clamp(44px, 6.6vw, 104px);
+    line-height: 1;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
   }
   .capa-resumo {
-    margin-top: 24px;
-    max-width: 38ch;
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(22px, 2.1vw, 30px);
-    line-height: 1.3;
-    color: rgba(255, 255, 255, 0.9);
+    margin-top: 20px;
+    max-width: 32em;
+    font-size: clamp(18px, 1.7vw, 24px);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: rgba(255, 255, 255, 0.86);
+    text-wrap: balance;
   }
   .capa-acoes {
-    margin-top: 32px;
+    margin-top: 30px;
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 26px;
   }
-  .capa-foto {
-    margin: 0;
-    justify-self: center;
-    aspect-ratio: 4 / 5;
-    max-height: 68vh;
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6);
+  .pilula {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.25s, color 0.25s;
   }
-  .capa-foto img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  .pilula:hover {
+    background: #2a62ad;
   }
-  .capa-letreiro {
-    overflow: hidden;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    padding-block: 18px;
+  .pilula.clara {
+    background: #fff;
+    color: var(--tinta);
   }
-  .capa-letreiro .trilho {
-    display: flex;
-    width: max-content;
-    animation: corre 60s linear infinite;
+  .pilula.clara:hover {
+    background: #e6ecf4;
   }
-  .capa-letreiro ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
+  .ler {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 17px;
+    color: #2a62ad;
+    text-decoration: none;
+    text-underline-offset: 4px;
   }
-  .capa-letreiro li {
-    padding-inline: 26px;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(18px, 1.8vw, 26px);
-    white-space: nowrap;
-    color: rgba(255, 255, 255, 0.3);
+  .ler.claro {
+    color: #fff;
   }
-  .capa-letreiro li::after {
-    content: '/';
-    margin-left: 52px;
+  .ler:hover {
+    text-decoration: underline;
   }
-  @keyframes corre {
-    to {
-      transform: translateX(-50%);
-    }
+  .pilula:focus-visible,
+  .ler:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+    border-radius: 999px;
   }
 
   /* ── abertura ────────────────────────────────────────────────────── */
@@ -1000,27 +992,11 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
   }
 
   @media (max-width: 900px) {
-    .capa-grade {
-      grid-template-columns: 1fr;
-    }
-    .capa-foto {
-      order: -1;
-      width: 100%;
-      aspect-ratio: 16 / 11;
-    }
     .cartoes-publicos {
       grid-template-columns: 1fr;
     }
     .banner {
       grid-template-columns: 1fr;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .capa-letreiro .trilho {
-      animation: none;
-    }
-    .capa-letreiro {
-      overflow-x: auto;
     }
   }
 </style>
