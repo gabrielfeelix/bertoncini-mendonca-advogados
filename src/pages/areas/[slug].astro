@@ -102,7 +102,6 @@ dados.corpo.forEach((texto, indice) => {
    para não dividir a atuação por sócio no site: os dois atendem as duas
    áreas, e o cliente precisa ver isso. A divisão interna fica com eles. */
 const socios = site.socios;
-const numero = (n: number) => String(n + 1).padStart(2, '0');
 
 /* Fotos da série própria (docs/PROMPTS-IMAGENS.md). A da outra área é a
    do banner do fim. Área nova cai na padrão até ganhar a sua. */
@@ -189,13 +188,11 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
         <div class="env">
           <div class="painel-publicos">
             <header>
-              <p class="chave">{'{ 01 }'}</p>
               <h2 id="publicos-titulo">Para quem é</h2>
             </header>
             <ul class="cartoes-publicos" style={`--n:${dados.publicos.length}`}>
               {dados.publicos.map((p, i) => (
                 <li data-sobe>
-                  <span class="pilula-vidro">{numero(i)}</span>
                   <h3>{p.titulo}</h3>
                   <p>{p.texto}</p>
                 </li>
@@ -210,7 +207,6 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       <section class="servicos-area" aria-labelledby="servicos-titulo">
         <div class="env servicos-grade">
           <header class="servicos-cab">
-            <p class="chave">{'{ 02 }'}</p>
             <h2 id="servicos-titulo">Serviços</h2>
             <p>O que você pode contratar nesta área. Se o seu caso não estiver na lista, escreva mesmo assim.</p>
             <a class="botao zap" href={linkWhatsapp} target="_blank" rel="noopener">
@@ -219,11 +215,8 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
             </a>
           </header>
           <ul class="servicos-lista">
-            {dados.servicos.map((servico, i) => (
-              <li data-sobe>
-                <span class="servico-num" aria-hidden="true">{numero(i)}</span>
-                <span>{servico}</span>
-              </li>
+            {dados.servicos.map((servico) => (
+              <li data-sobe>{servico}</li>
             ))}
           </ul>
         </div>
@@ -234,15 +227,13 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       <section class="abrange" data-trilho style={`--n:${secoes.length}`} aria-labelledby="abrange-titulo">
         <div class="abrange-palco">
           <div class="env abrange-cab">
-            <p class="chave">{'{ 03 }'}</p>
-            <h2 id="abrange-titulo">O que a área <em>abrange.</em></h2>
+            <h2 id="abrange-titulo">O que a área abrange</h2>
             <div class="progresso" aria-hidden="true"><span data-progresso></span></div>
           </div>
           <div class="abrange-janela">
             <ol class="abrange-faixa" data-faixa>
               {secoes.map((secao, n) => (
                 <li class="assunto" id={secao.id}>
-                  <span class="assunto-num">{numero(n)}</span>
                   <h3>{secao.rubrica}</h3>
                   <p data-placeholder={secao.placeholder ? '1' : undefined}>{secao.texto}</p>
                 </li>
@@ -321,7 +312,7 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
 
     {dados.perguntas.length > 0 && (
       <div id="perguntas" class="ancora-perguntas">
-        <Perguntas titulo={`Perguntas frequentes sobre ${dados.nome.toLowerCase()}`} perguntas={dados.perguntas} />
+        <Perguntas titulo="Perguntas frequentes" perguntas={dados.perguntas} />
       </div>
     )}
 
@@ -527,9 +518,10 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
   .lead :global(.palavra) {
     display: inline-block;
   }
+  /* Sem destaque de cor numa palavra só: é o tique mais comum de página
+     gerada. A frase carrega o peso inteira. */
   .lead em {
     font-style: normal;
-    color: var(--destaque);
   }
 
   /* ── para quem (painel green-volt) ───────────────────────────────── */
@@ -611,10 +603,6 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     line-height: 0.98;
     letter-spacing: -0.03em;
     color: var(--tinta);
-  }
-  .abrange-cab h2 em {
-    font-style: normal;
-    color: var(--destaque);
   }
   .progresso {
     width: clamp(120px, 18vw, 260px);
@@ -751,24 +739,14 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     column-gap: clamp(20px, 3vw, 40px);
   }
   .servicos-lista li {
-    display: grid;
-    grid-template-columns: 34px 1fr;
-    align-items: baseline;
     padding: 20px 0 22px;
-    border-top: 1px solid var(--linha);
+    border-top: 1px solid rgba(11, 30, 63, 0.1);
     font-family: var(--sans);
     font-weight: 500;
     font-size: clamp(18px, 1.5vw, 21px);
     line-height: 1.3;
     letter-spacing: -0.015em;
     color: var(--tinta);
-  }
-  .servico-num {
-    font-size: 13px;
-    font-weight: 400;
-    letter-spacing: 0;
-    color: var(--secundario);
-    font-variant-numeric: tabular-nums;
   }
   @media (max-width: 900px) {
     .servicos-grade {
@@ -826,11 +804,9 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     padding: clamp(28px, 4vw, 64px);
   }
   .quem-rotulo {
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.7);
+    font-size: 17px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.72);
   }
   .quem-nomes {
     list-style: none;

@@ -173,13 +173,11 @@ const valoresDeAtuacao = [
   <section class="valores" aria-labelledby="valores-titulo">
     <div class="env">
       <header class="valores-cab">
-        <p class="rotulo">Valores</p>
-        <h2 id="valores-titulo" class="titulo-caixa">O que orienta <em>o nosso trabalho.</em></h2>
+        <h2 id="valores-titulo" class="titulo-caixa">O que orienta o nosso trabalho</h2>
       </header>
       <ol class="valores-lista">
-        {valoresFundamentais.map((valor, n) => (
+        {valoresFundamentais.map((valor) => (
           <li data-sobe>
-            <span class="valor-num">{String(n + 1).padStart(2, '0')}</span>
             <h3>{valor.nome}</h3>
             <p>{valor.texto}</p>
           </li>
@@ -452,13 +450,7 @@ const valoresDeAtuacao = [
     padding-top: 22px;
     border-top: 1px solid var(--tinta);
   }
-  .valor-num {
-    font-size: 13px;
-    color: var(--secundario);
-    font-variant-numeric: tabular-nums;
-  }
   .valores-lista h3 {
-    margin-top: 14px;
     font-family: var(--sans);
     font-weight: 600;
     font-size: clamp(26px, 2.4vw, 34px);

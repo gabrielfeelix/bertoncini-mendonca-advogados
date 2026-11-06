@@ -37,20 +37,23 @@ const fotos: Record<string, string> = {
 };
 
 const nichos = areas.filter((a) => !a.data.aConfirmar && a.data.servicos.length > 0);
-const n2 = (i: number) => String(i + 1).padStart(2, '0');
+
+/* "Também atuamos em" é uma frase, não uma tabela: as áreas em tinta, o
+   que as liga em cinza. Lida em voz alta, continua fazendo sentido. */
+const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1));
 ---
 
 <section class="servicos" id="areas" aria-labelledby="servicos-titulo">
   <header class="cabeca env">
     <h2 id="servicos-titulo" class="sobe">Áreas de atuação</h2>
     <p class="sobe">
-      Concentramos o trabalho em dois campos. Abaixo, o que você pode contratar em cada um.
+      Dois campos concentram o nosso trabalho. Estes são os serviços de cada um.
     </p>
   </header>
 
   <div class="env">
     <div class="nichos">
-      {nichos.map((area, i) => (
+      {nichos.map((area) => (
         <article class="nicho sobe" aria-labelledby={`nicho-${area.data.slug}`}>
           {fotos[area.data.slug] && (
             <figure class="foto">
@@ -62,18 +65,11 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
             </figure>
           )}
           <div class="corpo">
-            <p class="rotulo">Área {n2(i)}</p>
             <h3 id={`nicho-${area.data.slug}`}>{area.data.nome}</h3>
             <p class="resumo">{area.data.resumo}</p>
 
-            <p class="rotulo rotulo-lista">Serviços</p>
-            <ul class="lista">
-              {area.data.servicos.map((servico, k) => (
-                <li>
-                  <span class="n" aria-hidden="true">{n2(k)}</span>
-                  <span>{servico}</span>
-                </li>
-              ))}
+            <ul class="lista" aria-label={`Serviços de ${area.data.nome}`}>
+              {area.data.servicos.map((servico) => <li>{servico}</li>)}
             </ul>
 
             <div class="acoes">
@@ -86,28 +82,24 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
                 Falar sobre esta área
                 <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
               </a>
-              <a class="ler" href={`/areas/${area.data.slug}/`}>
-                Conhecer a área
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              </a>
+              <a class="ler" href={`/areas/${area.data.slug}/`}>Conhecer a área</a>
             </div>
           </div>
         </article>
       ))}
     </div>
 
-    <div class="outras sobe" aria-labelledby="outras-titulo">
-      <div class="outras-cabeca">
-        <h3 id="outras-titulo">Também atuamos em</h3>
-        <p>Além dos dois campos principais, atendemos empresas e pessoas nestas áreas.</p>
-        <a class="ler" href="/contato/">
-          Conversar sobre outro assunto
-          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        </a>
-      </div>
-      <ul class="outras-lista">
-        {site.outrasAreas.map((nome) => <li>{nome}</li>)}
-      </ul>
+    <div class="outras sobe">
+      <p class="outras-frase">
+        Também atuamos em{' '}
+        {outras.map((nome, k) => (
+          <>
+            <b>{nome}</b>
+            {k < outras.length - 2 ? ', ' : k === outras.length - 2 ? ' e ' : '.'}
+          </>
+        ))}
+      </p>
+      <a class="ler" href="/contato/">Falar sobre outro assunto</a>
     </div>
   </div>
 </section>
@@ -171,17 +163,11 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
     flex-direction: column;
     padding: clamp(24px, 3vw, 44px);
   }
-  .rotulo {
-    font-size: 13px;
-    letter-spacing: 0.02em;
-    color: var(--secundario);
-  }
   .corpo h3 {
-    margin-top: 8px;
     font-family: var(--sans);
     font-weight: 600;
-    font-size: clamp(26px, 2.5vw, 36px);
-    line-height: 1.08;
+    font-size: clamp(30px, 3vw, 44px);
+    line-height: 1.04;
     letter-spacing: -0.03em;
     color: var(--tinta);
     text-wrap: balance;
@@ -193,37 +179,23 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
     line-height: 1.5;
     color: var(--secundario);
   }
-  .rotulo-lista {
-    margin-top: clamp(24px, 2.6vw, 36px);
-    margin-bottom: 4px;
-  }
-
   /* Lista em duas colunas no desktop: dez itens numa coluna só deixavam
      o bloco de PPS com o dobro da altura do Digital. */
   .lista {
     list-style: none;
-    margin: 0;
+    margin: clamp(28px, 3vw, 40px) 0 0;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 24px;
   }
   .lista li {
-    display: grid;
-    grid-template-columns: 26px 1fr;
-    align-items: baseline;
-    padding: 13px 0;
-    border-top: 1px solid var(--linha);
-    font-size: 16px;
+    padding: 14px 0;
+    border-top: 1px solid rgba(11, 30, 63, 0.08);
+    font-size: 17px;
     line-height: 1.35;
-    font-weight: 500;
+    letter-spacing: -0.01em;
     color: var(--tinta);
-  }
-  .lista .n {
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--secundario);
-    font-variant-numeric: tabular-nums;
   }
 
   .acoes {
@@ -234,71 +206,41 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
     align-items: center;
     gap: 14px 22px;
   }
+  /* Link de texto: azul da marca, sublinhado só no hover. */
   .ler {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
     min-height: 44px;
-    font-size: 15px;
-    color: var(--tinta);
-    text-decoration: underline;
-    text-decoration-color: var(--linha);
-    text-underline-offset: 5px;
-    transition: text-decoration-color 0.3s;
+    font-size: 17px;
+    color: #2a62ad;
+    text-decoration: none;
+    text-underline-offset: 4px;
   }
   .ler:hover {
-    text-decoration-color: currentColor;
-  }
-  .ler svg {
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .ler:hover svg {
-    transform: translateX(3px);
+    text-decoration: underline;
   }
 
-  /* ── outras áreas ───────────────────────────────────────────────── */
+  /* ── outras áreas: uma frase grande ─────────────────────────────── */
   .outras {
-    margin-top: clamp(56px, 6vw, 96px);
-    display: grid;
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
-    gap: clamp(28px, 5vw, 88px);
-    align-items: start;
+    margin: clamp(88px, 10vw, 160px) auto 0;
+    max-width: 22em;
+    font-size: clamp(26px, 3.2vw, 46px);
+    text-align: center;
   }
-  .outras-cabeca h3 {
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: clamp(24px, 2.2vw, 32px);
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    color: var(--tinta);
-  }
-  .outras-cabeca p {
-    margin-top: 10px;
-    max-width: 36ch;
-    font-size: 16px;
-    line-height: 1.5;
-    color: var(--secundario);
-  }
-  .outras-cabeca .ler {
-    margin-top: 10px;
-  }
-  .outras-lista {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 24px;
-  }
-  .outras-lista li {
-    padding: 18px 0 22px;
-    border-top: 1px solid var(--linha);
+  .outras-frase {
     font-family: var(--sans);
     font-weight: 500;
-    font-size: clamp(18px, 1.5vw, 21px);
-    line-height: 1.25;
-    letter-spacing: -0.015em;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    color: #9aa8b8;
+    text-wrap: balance;
+  }
+  .outras-frase b {
+    font-weight: 500;
     color: var(--tinta);
+  }
+  .outras .ler {
+    margin-top: 20px;
   }
 
   @media (max-width: 1100px) {
@@ -313,17 +255,10 @@ const n2 = (i: number) => String(i + 1).padStart(2, '0');
     .lista {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .outras {
-      grid-template-columns: 1fr;
-    }
   }
   @media (max-width: 600px) {
     .lista {
       grid-template-columns: 1fr;
-    }
-    .outras-lista {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 16px;
     }
     .foto {
       aspect-ratio: 16 / 9;
