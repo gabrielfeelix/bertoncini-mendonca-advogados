@@ -180,17 +180,28 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2" /><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
               <input type="search" placeholder="Buscar" autocomplete="off" data-busca-campo />
             </label>
-            <div class="segmentos" role="group" aria-label="Assunto">
-              <button type="button" aria-pressed="true" data-assunto-botao="">Todos</button>
-              {assuntos.map((a) => <button type="button" aria-pressed="false" data-assunto-botao={a}>{a}</button>)}
+            {/* Menus próprios, e não o <select> nativo: o nativo abre com a
+                cara do sistema operacional e não com a do site. */}
+            <div class="escolha assunto" data-escolha="assunto">
+              <button type="button" class="escolha-botao" aria-haspopup="listbox" aria-expanded="false" aria-label="Assunto">
+                <span data-rotulo>Todos os assuntos</span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </button>
+              <ul class="escolha-lista" role="listbox" aria-label="Assunto" tabindex="-1" hidden>
+                <li role="option" data-valor="" aria-selected="true"><svg class="marca-ok" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m3 7.5 2.5 2.5L11 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>Todos os assuntos</li>
+                {assuntos.map((a) => <li role="option" data-valor={a} aria-selected="false"><svg class="marca-ok" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m3 7.5 2.5 2.5L11 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>{a}</li>)}
+              </ul>
             </div>
-            <label class="ordem">
-              <span class="visualmente-oculto">Ordem</span>
-              <select data-ordem>
-                <option value="novos">Mais recentes</option>
-                <option value="antigos">Mais antigos</option>
-              </select>
-            </label>
+            <div class="escolha ordem" data-escolha="ordem">
+              <button type="button" class="escolha-botao" aria-haspopup="listbox" aria-expanded="false" aria-label="Ordem">
+                <span data-rotulo>Mais recentes</span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </button>
+              <ul class="escolha-lista" role="listbox" aria-label="Ordem" tabindex="-1" hidden>
+                <li role="option" data-valor="novos" aria-selected="true"><svg class="marca-ok" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m3 7.5 2.5 2.5L11 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>Mais recentes</li>
+                <li role="option" data-valor="antigos" aria-selected="false"><svg class="marca-ok" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m3 7.5 2.5 2.5L11 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>Mais antigos</li>
+              </ul>
+            </div>
           </div>
 
           <div class="banca" data-banca>
@@ -258,8 +269,61 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
       raiz.hidden = false;
       const cartoes = [...banca.querySelectorAll<HTMLAnchorElement>('a[data-quando]')];
       const campo = raiz.querySelector<HTMLInputElement>('[data-busca-campo]')!;
-      const ordem = raiz.querySelector<HTMLSelectElement>('[data-ordem]')!;
-      const botoes = [...raiz.querySelectorAll<HTMLButtonElement>('[data-assunto-botao]')];
+      /* Menu próprio: botão + lista. Setas andam, Enter/Espaço escolhem,
+         Esc e clique fora fecham. Devolve quem define o valor de fora. */
+      const ligaEscolha = (el: HTMLElement, aoMudar: (v: string) => void) => {
+        const botao = el.querySelector<HTMLButtonElement>('.escolha-botao')!;
+        const lista = el.querySelector<HTMLUListElement>('[role="listbox"]')!;
+        const rotulo = el.querySelector<HTMLElement>('[data-rotulo]')!;
+        const opcoes = [...lista.querySelectorAll<HTMLLIElement>('[role="option"]')];
+        let foco = 0;
+        const marca = (i: number) => {
+          opcoes.forEach((o, k) => o.classList.toggle('foco', k === i));
+          foco = i;
+        };
+        const abre = () => {
+          lista.hidden = false;
+          botao.setAttribute('aria-expanded', 'true');
+          marca(Math.max(0, opcoes.findIndex((o) => o.getAttribute('aria-selected') === 'true')));
+          lista.focus();
+        };
+        const fecha = (devolve = true) => {
+          lista.hidden = true;
+          botao.setAttribute('aria-expanded', 'false');
+          if (devolve) botao.focus();
+        };
+        const define = (valor: string, avisa = true) => {
+          opcoes.forEach((o) => {
+            const sim = o.dataset.valor === valor;
+            o.setAttribute('aria-selected', String(sim));
+            if (sim) rotulo.textContent = o.textContent;
+          });
+          if (avisa) aoMudar(valor);
+        };
+        botao.addEventListener('click', () => (lista.hidden ? abre() : fecha()));
+        opcoes.forEach((o, i) => {
+          o.addEventListener('click', () => {
+            define(o.dataset.valor ?? '');
+            fecha();
+          });
+          o.addEventListener('pointerenter', () => marca(i));
+        });
+        lista.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowDown') marca(Math.min(opcoes.length - 1, foco + 1));
+          else if (e.key === 'ArrowUp') marca(Math.max(0, foco - 1));
+          else if (e.key === 'Enter' || e.key === ' ') {
+            define(opcoes[foco].dataset.valor ?? '');
+            fecha();
+          } else if (e.key === 'Escape' || e.key === 'Tab') fecha(e.key === 'Escape');
+          else return;
+          e.preventDefault();
+        });
+        document.addEventListener('click', (e) => {
+          if (!lista.hidden && !el.contains(e.target as Node)) fecha(false);
+        });
+        return define;
+      };
+      let ordemValor = 'novos';
       const nada = document.querySelector<HTMLElement>('[data-nada]')!;
       const mais = document.querySelector<HTMLButtonElement>('[data-mais]')!;
       const semAcento = (t: string) => t.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
@@ -268,11 +332,11 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
 
       const aplica = () => {
         const termos = semAcento(campo.value.trim()).split(/\s+/).filter(Boolean);
-        const filtrando = Boolean(assunto || termos.length || ordem.value !== 'novos');
+        const filtrando = Boolean(assunto || termos.length || ordemValor !== 'novos');
         banca.classList.toggle('filtrando', filtrando);
         const ordenados = [...cartoes].sort((a, b) => {
           const d = Number(b.dataset.quando) - Number(a.dataset.quando);
-          return ordem.value === 'antigos' ? -d : d;
+          return ordemValor === 'antigos' ? -d : d;
         });
         let visiveis = 0;
         ordenados.forEach((c) => {
@@ -293,24 +357,25 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
         limite = LOTE;
         aplica();
       });
-      ordem.addEventListener('change', aplica);
-      botoes.forEach((b) =>
-        b.addEventListener('click', () => {
-          assunto = b.dataset.assuntoBotao ?? '';
-          botoes.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-          limite = LOTE;
-          aplica();
-        }),
-      );
+      const defineAssunto = ligaEscolha(raiz.querySelector('[data-escolha="assunto"]')!, (v) => {
+        assunto = v;
+        limite = LOTE;
+        aplica();
+      });
+      const defineOrdem = ligaEscolha(raiz.querySelector('[data-escolha="ordem"]')!, (v) => {
+        ordemValor = v;
+        aplica();
+      });
       mais.addEventListener('click', () => {
         limite += LOTE;
         aplica();
       });
       document.querySelector('[data-limpar]')?.addEventListener('click', () => {
         campo.value = '';
-        ordem.value = 'novos';
+        ordemValor = 'novos';
         assunto = '';
-        botoes.forEach((x, i) => x.setAttribute('aria-pressed', String(i === 0)));
+        defineAssunto('', false);
+        defineOrdem('novos', false);
         limite = LOTE;
         aplica();
       });
@@ -482,61 +547,111 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
     font-size: 16px;
     color: var(--tinta);
   }
-  /* Controle segmentado: trilho cinza, escolhido em pílula branca. */
-  .segmentos {
-    display: flex;
-    gap: 2px;
-    padding: 3px;
-    border-radius: 999px;
-    background: rgba(11, 30, 63, 0.07);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .segmentos button {
-    all: unset;
-    box-sizing: border-box;
-    min-height: 38px;
-    padding: 0 16px;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    white-space: nowrap;
-    font-size: 15px;
-    color: #5b6b7f;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
-  }
-  .segmentos button:hover {
-    color: var(--tinta);
-  }
-  .segmentos button[aria-pressed='true'] {
-    background: #fff;
-    color: var(--tinta);
-    font-weight: 500;
-    box-shadow: 0 1px 3px rgba(11, 30, 63, 0.12);
-  }
-  .segmentos button:focus-visible,
-  .mais:focus-visible {
-    outline: 2px solid #2a62ad;
-    outline-offset: 2px;
-  }
   .ordem {
     margin-inline-start: auto;
   }
-  .ordem select {
+  /* ── menus próprios ───────────────────────────────────────────── */
+  .escolha {
+    position: relative;
+  }
+  .escolha-botao {
+    all: unset;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     min-height: 44px;
-    padding: 0 36px 0 16px;
-    border: 0;
+    max-width: 100%;
+    padding: 0 16px 0 18px;
     border-radius: 999px;
-    background: #fff
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%235b6b7f' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")
-      no-repeat right 14px center;
+    background: #fff;
     box-shadow: 0 0 0 1px rgba(11, 30, 63, 0.08);
-    appearance: none;
-    font: inherit;
     font-size: 15px;
     color: var(--tinta);
     cursor: pointer;
+    transition: box-shadow 0.2s;
+  }
+  .escolha-botao span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .escolha-botao svg {
+    flex: none;
+    color: #5b6b7f;
+    transition: transform 0.25s;
+  }
+  .escolha-botao:hover {
+    box-shadow: 0 0 0 1px rgba(11, 30, 63, 0.18);
+  }
+  .escolha-botao[aria-expanded='true'] svg {
+    transform: rotate(180deg);
+  }
+  .escolha-botao:focus-visible {
+    outline: 2px solid #2a62ad;
+    outline-offset: 2px;
+  }
+  .escolha-lista {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 100%;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow:
+      0 0 0 1px rgba(11, 30, 63, 0.06),
+      0 18px 40px -12px rgba(11, 30, 63, 0.25);
+    outline: none;
+    animation: abre-menu 0.18s ease-out;
+  }
+  .ordem .escolha-lista {
+    left: auto;
+    right: 0;
+  }
+  .escolha-lista[hidden] {
+    display: none;
+  }
+  @keyframes abre-menu {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+  .escolha-lista li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 14px 0 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+    font-size: 15px;
+    color: var(--tinta);
+    cursor: pointer;
+  }
+  .escolha-lista li.foco {
+    background: #f2f4f7;
+  }
+  .marca-ok {
+    flex: none;
+    color: #2a62ad;
+    visibility: hidden;
+  }
+  .escolha-lista li[aria-selected='true'] {
+    font-weight: 500;
+  }
+  .escolha-lista li[aria-selected='true'] .marca-ok {
+    visibility: visible;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .escolha-lista {
+      animation: none;
+    }
   }
   .nada {
     padding: clamp(48px, 6vw, 88px) 0;
@@ -587,6 +702,20 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
     }
     .ordem {
       margin-inline-start: 0;
+    }
+    .escolha {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .escolha-botao {
+      width: 100%;
+    }
+    .escolha-lista li {
+      white-space: normal;
+      padding-block: 8px;
+    }
+    .assunto .escolha-lista {
+      min-width: calc(100vw - 2 * var(--gutter));
     }
   }
   /* Protótipo, linha 296. */

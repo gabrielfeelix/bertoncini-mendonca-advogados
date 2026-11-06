@@ -94,9 +94,12 @@ const Titulo = `h${nivel}` as 'h2' | 'h3';
     <p class="classe">{d.categoria}</p>
     <Titulo class="nome">{d.titulo}</Titulo>
     {grande && <p class="resumo">{d.resumo}</p>}
-    <p class="pe">
+    {/* Botão visível (06/11/2026): sem ele o cartão não dizia que era
+        clicável. É um span, e não um <a>: o cartão inteiro já é o link. */}
+    <div class="pe">
       <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
-    </p>
+      <span class="botao-ler" aria-hidden="true">Ler o texto</span>
+    </div>
   </div>
 </a>
 
@@ -169,8 +172,30 @@ const Titulo = `h${nivel}` as 'h2' | 'h3';
   .pe {
     margin-top: auto;
     padding-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
     font-size: 14px;
     color: #7a8798;
+  }
+  .botao-ler {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--tinta);
+    transition: background-color 0.25s, color 0.25s;
+  }
+  .texto:hover .botao-ler,
+  .texto:focus-visible .botao-ler {
+    background: var(--tinta);
+    color: #fff;
   }
 
   /* ── cartão grande, na horizontal ──────────────────────────────── */
@@ -193,7 +218,20 @@ const Titulo = `h${nivel}` as 'h2' | 'h3';
   }
   .grande .pe {
     margin-top: 0;
-    padding-top: 22px;
+    padding-top: 26px;
+    justify-content: flex-start;
+    gap: 18px;
+  }
+  .grande .botao-ler {
+    order: -1;
+    min-height: 44px;
+    padding: 0 22px;
+    font-size: 16px;
+    background: var(--tinta);
+    color: #fff;
+  }
+  .grande:hover .botao-ler {
+    background: #2a62ad;
   }
   @media (max-width: 860px) {
     .grande {
