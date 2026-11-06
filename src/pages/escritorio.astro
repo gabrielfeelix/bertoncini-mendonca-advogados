@@ -33,18 +33,10 @@
  */
 import Base from '../layouts/Base.astro';
 import Contato from '../components/Contato.astro';
-import Ficha from '../components/Ficha.astro';
 import { site } from '../lib/site';
-import { listarAreasConfirmadas } from '../lib/areas';
 
-const areas = await listarAreasConfirmadas();
-const nomeDaArea = (slug: string) => areas.find((a) => a.data.slug === slug)?.data.nome ?? '';
 
-/* A formação vem do briefing (q1.7a e q1.7b). "Mais de quatro anos" é o
-   tempo de prática que eles contam lado a lado (q1.3) — o único número de
-   experiência que o briefing sustenta. */
-const pratica = 'Mais de quatro anos de prática jurídica';
-
+/* A formação vem do briefing (q1.7a e q1.7b). */
 const perfis = [
   {
     nome: 'Juscelino',
@@ -54,7 +46,7 @@ const perfis = [
     altura: 1260,
     enquadra: '50% 22%',
     socio: site.socios[0],
-    lado: 'Antes do processo',
+    lado: 'Sócio',
     bio: 'Especialista em direito empresarial e em advocacia consultiva. Trabalha na fase que antecede o processo (contratos, pareceres, estruturação de operações, LGPD e compliance) para que o problema não se consolide.',
     formacao: [
       'Bacharel em Direito pela UEM',
@@ -71,7 +63,7 @@ const perfis = [
     altura: 1260,
     enquadra: '50% 24%',
     socio: site.socios[1],
-    lado: 'Quando há processo',
+    lado: 'Sócia',
     bio: 'Especialista em processo civil, com experiência em processos judiciais estratégicos em todas as instâncias e em due diligence de operações de fusão e aquisição. Atende quem trabalha e ganha dinheiro na internet.',
     formacao: [
       'Bacharel em Direito pela UEM',
@@ -79,14 +71,6 @@ const perfis = [
       'Pós-graduanda em Direito Digital pela i9',
     ],
   },
-];
-
-/* A história em três frases, do briefing (q1.3), sem nomes de lugar de
-   trabalho e sem estágio. */
-const batidas = [
-  'Entraram no curso de Direito da UEM no mesmo ano, ela de manhã e ele à noite, e quase não se falavam.',
-  'Trabalharam mais de quatro anos no mesmo escritório, de estagiários a advogados, cada um firmando a própria área.',
-  'A sociedade junta as duas: ele trabalha antes do processo, ela quando o processo existe.',
 ];
 
 /* Missão e valores: texto dos sócios (briefing q3.1 e q3.2), com ajuste
@@ -163,8 +147,8 @@ const valoresDeAtuacao = [
             <dt>Formação</dt>
             <dd><ul>{perfil.formacao.map((item) => <li>{item}</li>)}</ul></dd>
           </dl>
-          <a class="botao contorno" href={`/areas/${perfil.socio.area}/`}>
-            {nomeDaArea(perfil.socio.area)}
+          <a class="botao contorno" href="/areas/">
+            Áreas de atuação
             <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
           </a>
         </div>
@@ -181,88 +165,36 @@ const valoresDeAtuacao = [
     </section>
   ))}
 
-  <!-- 5–6. A HISTÓRIA E OS NÚMEROS -->
-  <section class="historia" aria-labelledby="historia-titulo">
-    <div class="marca-dagua pequena" aria-hidden="true"><span>A história</span></div>
+  {/* História, números, a cena dos valores e o registro saíram no retorno
+      de 06/11/2026. História e números voltam quando o escritório tiver o
+      que contar; o registro fica no rodapé, com os dados institucionais. A
+      cena (620vh de cortina, valores trocando e escada) virou a seção
+      abaixo: tudo visível de uma vez, só com a revelação comum. */}
+  <section class="valores" aria-labelledby="valores-titulo">
     <div class="env">
-      <h2 id="historia-titulo" class="titulo-caixa centro" data-sobe>Da mesma turma <em>à mesma sociedade.</em></h2>
-      <ol class="pilares">
-        {batidas.map((frase, n) => (
+      <header class="valores-cab">
+        <p class="rotulo">Valores</p>
+        <h2 id="valores-titulo" class="titulo-caixa">O que orienta <em>o nosso trabalho.</em></h2>
+      </header>
+      <ol class="valores-lista">
+        {valoresFundamentais.map((valor, n) => (
           <li data-sobe>
-            <span class="pilar-num">{String(n + 1).padStart(2, '0')}</span>
-            <h3>{['UEM', 'O mesmo escritório', 'A sociedade'][n]}</h3>
-            <p>{frase}</p>
+            <span class="valor-num">{String(n + 1).padStart(2, '0')}</span>
+            <h3>{valor.nome}</h3>
+            <p>{valor.texto}</p>
           </li>
         ))}
       </ol>
-      <ul class="numeros" aria-label="O escritório em números">
-        <li data-sobe><strong data-conta="4">4</strong><span>+ anos de prática jurídica</span></li>
-        <li data-sobe><strong data-conta="2">2</strong><span>sócios, uma área cada</span></li>
-        <li data-sobe><strong data-conta="2">2</strong><span>áreas de atuação</span></li>
-        <li data-sobe><strong data-conta={String(perfis.reduce((t, p) => t + p.formacao.length, 0))}>{perfis.reduce((t, p) => t + p.formacao.length, 0)}</strong><span>títulos de formação somados</span></li>
-      </ul>
-    </div>
-  </section>
 
-  <!-- 7. A CENA -->
-  <section class="cena" aria-labelledby="cena-titulo">
-    <div class="palco-cena">
-      <div class="cena-fundo" aria-hidden="true">
-        <picture>
-          <source type="image/avif" srcset="/media/hero/escritorio-1600.avif" />
-          <source type="image/webp" srcset="/media/hero/escritorio-1200.webp" />
-          <img src="/media/hero/escritorio-1600.jpg" alt="" loading="lazy" />
-        </picture>
-      </div>
-      <div class="grade-linhas" aria-hidden="true">{[0, 1, 2, 3, 4, 5].map(() => <span />)}</div>
-
-      <h2 id="cena-titulo" class="visualmente-oculto">Nossos valores</h2>
-      <div class="valores-cena">
-        {valoresFundamentais.map((valor, n) => (
-          <article class="valor-cena" data-valor={n}>
-            <p class="tags"><span>Valor fundamental</span><span>{String(n + 1).padStart(2, '0')} / 03</span></p>
-            <div class="valor-corpo">
-              <h3 class="titulo-caixa">{valor.nome}.</h3>
-              <p class="valor-frase" data-acende-claro>{valor.texto}</p>
-            </div>
-          </article>
+      <h3 class="atuacao-titulo">Como isso aparece no trabalho</h3>
+      <ul class="atuacao-lista">
+        {valoresDeAtuacao.map((valor) => (
+          <li data-sobe>
+            <h4>{valor.nome}</h4>
+            <p>{valor.texto}</p>
+          </li>
         ))}
-      </div>
-
-      <div class="escada-cena">
-        <h3 class="titulo-caixa centro">Como isso aparece <mark>no trabalho.</mark></h3>
-        <div class="escada">
-          {[0, 1, 2].map((col) => (
-            <div class="degrau" data-degrau={col}>
-              {valoresDeAtuacao.slice(col * 2, col * 2 + 2).map((valor, k) => (
-                <div class="cartao-vidro">
-                  <span class="cartao-num">{String(col * 2 + k + 1).padStart(2, '0')}</span>
-                  <h4>{valor.nome}</h4>
-                  <p>{valor.texto}</p>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div class="faixas-saida" aria-hidden="true">{[0, 1, 2, 3, 4, 5].map(() => <span />)}</div>
-    </div>
-  </section>
-
-  <!-- 8. REGISTRO -->
-  <section class="registro-secao">
-    <div class="env">
-      <h2 class="titulo-caixa centro titulo-cresce" data-cresce>Registro da <em>sociedade.</em></h2>
-      <Ficha
-        rotulo="Dados de registro da sociedade"
-        itens={[
-          { rotulo: 'Registro na OAB/PR', valor: site.registro.oabSociedade.valor, placeholder: site.registro.oabSociedade.placeholder, destaque: true },
-          { rotulo: 'Sociedade', valor: site.nomeSociedade },
-          { rotulo: 'CNPJ', valor: site.registro.cnpj.valor, placeholder: site.registro.cnpj.placeholder },
-          { rotulo: 'Base', valor: `${site.cidade}, ${site.estado}` },
-        ]}
-      />
+      </ul>
     </div>
   </section>
 
@@ -495,288 +427,93 @@ const valoresDeAtuacao = [
     box-shadow: 0 30px 60px -30px rgba(11, 30, 63, 0.5);
   }
 
-  /* ── 5–6. história e números ─────────────────────────────────────── */
-  .historia {
-    position: relative;
-    padding-block: clamp(90px, 10vw, 150px);
-    background: var(--branco);
+  /* ── 5. valores ──────────────────────────────────────────────────── */
+  .valores {
+    padding-block: clamp(90px, 11vw, 160px);
+    background: var(--papel);
   }
-  .marca-dagua.pequena {
-    inset: 40px 0 auto;
-    text-align: center;
+  .valores-cab {
+    display: grid;
+    gap: 14px;
+    max-width: 980px;
   }
-  .marca-dagua.pequena span {
-    font-size: clamp(80px, 13vw, 200px);
+  .valores-cab h2 {
+    font-size: clamp(34px, 4.4vw, 62px);
   }
-  .historia .env {
-    position: relative;
-    z-index: 1;
-  }
-  .historia h2 {
-    max-width: 18ch;
-    margin: 0 auto;
-  }
-  .pilares {
+  .valores-lista {
     list-style: none;
-    margin: clamp(56px, 7vw, 96px) 0 0;
+    margin: clamp(40px, 5vw, 72px) 0 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(28px, 3vw, 48px);
   }
-  .pilares li {
-    padding: 8px clamp(18px, 2.4vw, 36px) 8px;
-    border-left: 1px solid var(--destaque);
+  .valores-lista li {
+    padding-top: 22px;
+    border-top: 1px solid var(--tinta);
   }
-  .pilar-num {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--destaque);
+  .valor-num {
+    font-size: 13px;
+    color: var(--secundario);
+    font-variant-numeric: tabular-nums;
   }
-  .pilares h3 {
-    margin-top: 18px;
+  .valores-lista h3 {
+    margin-top: 14px;
     font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(20px, 1.8vw, 26px);
-    letter-spacing: -0.015em;
+    font-weight: 600;
+    font-size: clamp(26px, 2.4vw, 34px);
+    letter-spacing: -0.03em;
     color: var(--tinta);
   }
-  .pilares p {
+  .valores-lista p {
     margin-top: 12px;
-    font-size: 16px;
+    max-width: 36ch;
+    font-size: 17px;
     line-height: 1.55;
     color: var(--secundario);
   }
-  .numeros {
-    list-style: none;
-    margin: clamp(64px, 8vw, 110px) 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: clamp(16px, 2vw, 32px);
-  }
-  .numeros li {
-    padding-top: 18px;
-    border-top: 1px solid var(--destaque);
-    text-align: center;
-  }
-  .numeros strong {
-    display: block;
-    font-family: var(--sans);
-    font-weight: 800;
-    font-size: clamp(44px, 4.6vw, 68px);
-    line-height: 1;
-    letter-spacing: -0.04em;
-    color: var(--tinta);
-    font-variant-numeric: tabular-nums;
-  }
-  .numeros span {
-    display: block;
-    margin-top: 10px;
-    font-size: 15px;
-    color: var(--secundario);
-  }
-
-  /* ── 7. a cena ───────────────────────────────────────────────────── */
-  .cena {
-    position: relative;
-    height: 620vh;
-    background: var(--branco);
-  }
-  .palco-cena {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow: hidden;
-    color: #fff;
-    background: #0a1830;
-  }
-  .cena-fundo,
-  .cena-fundo picture,
-  .grade-linhas,
-  .faixas-saida {
-    position: absolute;
-    inset: 0;
-  }
-  .cena-fundo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 65% 25%;
-    transform: scale(1.08);
-  }
-  /* Vinheta preta, só de contraste: a foto não é tingida. */
-  .cena-fundo::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, rgba(2, 6, 14, 0.86) 0%, rgba(2, 6, 14, 0.55) 45%, rgba(2, 6, 14, 0.25) 100%);
-  }
-  .grade-linhas,
-  .faixas-saida {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    pointer-events: none;
-  }
-  .grade-linhas span {
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .faixas-saida span {
-    background: var(--branco);
-    transform: scaleY(0);
-    transform-origin: 50% 0;
-  }
-
-  .valores-cena,
-  .escada-cena {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    align-content: center;
-    padding-inline: var(--gutter);
-  }
-  .valor-cena {
-    grid-area: 1 / 1;
-    max-width: 1500px;
-    width: 100%;
-    margin: 0 auto;
-    padding-left: clamp(0px, 4vw, 60px);
-  }
-  .tags {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 26px;
-  }
-  .tags span {
-    padding: 6px 13px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(8px);
-    font-size: 13px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .valor-corpo {
-    padding-left: 26px;
-    border-left: 6px solid var(--destaque);
-  }
-  .valor-corpo .titulo-caixa {
-    color: #fff;
-    font-size: clamp(48px, 7vw, 110px);
-  }
-  .valor-frase {
-    margin-top: 22px;
-    max-width: min(30ch, 60vw);
+  .atuacao-titulo {
+    margin-top: clamp(64px, 8vw, 120px);
     font-family: var(--sans);
     font-weight: 600;
-    font-size: clamp(20px, 2vw, 30px);
-    line-height: 1.25;
-    letter-spacing: -0.01em;
+    font-size: clamp(22px, 2vw, 28px);
+    letter-spacing: -0.025em;
+    color: var(--tinta);
   }
-
-  .escada-cena {
-    gap: clamp(28px, 4vh, 48px);
-  }
-  .escada-cena .titulo-caixa {
-    color: #fff;
-    font-size: clamp(30px, 3.6vw, 54px);
-  }
-  .escada-cena mark {
-    padding: 0 0.15em;
-    background: var(--destaque);
-    color: #fff;
-  }
-  .escada {
+  .atuacao-lista {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 340px));
-    justify-content: center;
-    gap: clamp(12px, 1.4vw, 20px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(28px, 3vw, 48px);
   }
-  .degrau {
-    display: grid;
-    gap: clamp(12px, 1.4vw, 20px);
+  .atuacao-lista li {
+    padding: 20px 0 26px;
+    border-top: 1px solid var(--linha);
   }
-  .cartao-vidro {
-    padding: 22px 22px 24px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(14px);
-  }
-  .cartao-num {
-    display: inline-block;
-    padding: 4px 11px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.14);
-    font-size: 12px;
-  }
-  .cartao-vidro h4 {
-    margin-top: 14px;
+  .atuacao-lista h4 {
     font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 19px;
+    font-weight: 600;
+    font-size: 18px;
     letter-spacing: -0.01em;
+    color: var(--tinta);
   }
-  .cartao-vidro p {
-    margin-top: 8px;
-    font-size: 15px;
+  .atuacao-lista p {
+    margin-top: 6px;
+    max-width: 34ch;
+    font-size: 16px;
     line-height: 1.5;
-    color: rgba(255, 255, 255, 0.8);
-  }
-
-  /* ── 8. registro ─────────────────────────────────────────────────── */
-  .registro-secao {
-    padding-block: clamp(90px, 10vw, 150px) clamp(56px, 7vw, 96px);
-    background: var(--branco);
-  }
-  .titulo-cresce {
-    margin-bottom: clamp(32px, 4vw, 56px);
-  }
-  /* Letras sobem por dentro de uma máscara por palavra (escritorio.ts). */
-  .titulo-cresce :global(.palavra) {
-    display: inline-block;
-    overflow: hidden;
-    vertical-align: top;
-    padding-bottom: 0.06em;
-  }
-  .titulo-cresce :global(.letra) {
-    display: inline-block;
-  }
-  .visualmente-oculto {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  /* ── sem JS ou com menos movimento: um documento comum ─────────── */
-  :global(html:not(.movimento-escritorio)) .cena {
-    height: auto;
-  }
-  :global(html:not(.movimento-escritorio)) .palco-cena {
-    position: relative;
-    height: auto;
-    padding-block: 100px;
-  }
-  :global(html:not(.movimento-escritorio)) .valores-cena,
-  :global(html:not(.movimento-escritorio)) .escada-cena {
-    position: relative;
-    gap: 64px;
-  }
-  :global(html:not(.movimento-escritorio)) .valor-cena {
-    grid-area: auto;
-  }
-  :global(html:not(.movimento-escritorio)) .escada-cena {
-    padding-top: 80px;
+    color: var(--secundario);
   }
 
   @media (max-width: 900px) {
     .socio-grade,
-    .pilares {
+    .valores-lista {
       grid-template-columns: 1fr;
+    }
+    .atuacao-lista {
+      grid-template-columns: 1fr 1fr;
     }
     .invertido .socio-texto {
       order: 0;
@@ -787,36 +524,10 @@ const valoresDeAtuacao = [
       order: -1;
       max-width: 420px;
     }
-    .pilares li {
-      padding-block: 20px;
-    }
-    .numeros {
-      grid-template-columns: 1fr 1fr;
-      row-gap: 28px;
-    }
-    .escada {
+  }
+  @media (max-width: 560px) {
+    .atuacao-lista {
       grid-template-columns: 1fr;
-    }
-    .degrau {
-      gap: 10px;
-    }
-    /* Sem as descrições, o número vai ao lado do nome: com o cartão em
-       pé, título e seis cartões passavam de uma tela de 844px. */
-    .cartao-vidro p {
-      display: none;
-    }
-    .cartao-vidro {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-    }
-    .cartao-vidro h4 {
-      margin: 0;
-      font-size: 17px;
-    }
-    .valor-frase {
-      max-width: 30ch;
     }
   }
 </style>
