@@ -94,3 +94,7 @@ video{display:block}
 .botao.contorno:hover{background:var(--papel);box-shadow:inset 0 0 0 1px var(--tinta)}
 .botao.contorno.vidro{color:#fff;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.34)}
 .acoes{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+
+/* Texto só para leitor de tela: rótulos de campo que a interface já
+   mostra por ícone ou contexto. */
+.visualmente-oculto{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}

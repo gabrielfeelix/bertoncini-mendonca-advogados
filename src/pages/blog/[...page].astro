@@ -39,6 +39,7 @@ import CartaoTexto from '~/components/CartaoTexto.astro';
 import Newsletter from '~/components/Newsletter.astro';
 import Contato from '~/components/Contato.astro';
 import { listarArtigos, POR_PAGINA, NOME_DO_BLOG } from '~/lib/artigos';
+void POR_PAGINA;
 
 export const getStaticPaths = (async ({ paginate }) => {
   const artigos = await listarArtigos();
@@ -79,8 +80,12 @@ export const getStaticPaths = (async ({ paginate }) => {
   /* O mais recente sai da grade e vira destaque da primeira página. */
   const [destaque, ...resto] = artigos;
 
+  /* Uma página só (06/11/2026): filtro por assunto, ordem e busca rodam no
+     navegador e precisam da lista inteira. O "Mostrar mais" da lista faz o
+     papel da paginação. `POR_PAGINA` segue valendo para os redirecionamentos
+     antigos de /textos/. */
   return paginate(resto, {
-    pageSize: POR_PAGINA,
+    pageSize: 10000,
     props: { destaque },
   });
 }) satisfies GetStaticPaths;
@@ -88,6 +93,17 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page, destaque } = Astro.props;
 
 const primeira = page.currentPage === 1;
+
+/* Assuntos do filtro: as categorias que existem nos textos publicados, na
+   ordem em que aparecem (o mais recente primeiro). */
+const todos = [...(destaque ? [destaque] : []), ...page.data];
+const assuntos = [...new Set(todos.map((a) => a.data.categoria))];
+const semAcento = (t: string) => t.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+const dadosDe = (a: (typeof todos)[number]) => ({
+  'data-assunto': a.data.categoria,
+  'data-quando': String(a.data.publicadoEm.getTime()),
+  'data-busca': semAcento(`${a.data.titulo} ${a.data.resumo} ${a.data.categoria}`),
+});
 const temArtigos = Boolean(destaque) || page.data.length > 0;
 
 const titulo = primeira
@@ -156,11 +172,40 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
     (destaque && primeira) || page.data.length > 0 ? (
       <section class="lista" aria-label="Textos publicados">
         <div class="env">
-          <div class="banca">
-            {primeira && destaque && <CartaoTexto artigo={destaque} nivel={2} grande />}
+          {/* Busca, assunto e ordem. Sem JavaScript a barra não aparece
+              (`hidden`) e a lista inteira fica visível. */}
+          <div class="filtros" data-filtros hidden>
+            <label class="busca">
+              <span class="visualmente-oculto">Buscar nos textos</span>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2" /><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+              <input type="search" placeholder="Buscar" autocomplete="off" data-busca-campo />
+            </label>
+            <div class="segmentos" role="group" aria-label="Assunto">
+              <button type="button" aria-pressed="true" data-assunto-botao="">Todos</button>
+              {assuntos.map((a) => <button type="button" aria-pressed="false" data-assunto-botao={a}>{a}</button>)}
+            </div>
+            <label class="ordem">
+              <span class="visualmente-oculto">Ordem</span>
+              <select data-ordem>
+                <option value="novos">Mais recentes</option>
+                <option value="antigos">Mais antigos</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="banca" data-banca>
+            {primeira && destaque && <CartaoTexto artigo={destaque} nivel={2} grande dados={dadosDe(destaque)} />}
             {page.data.map((artigo) => (
-              <CartaoTexto artigo={artigo} nivel={primeira && destaque ? 3 : 2} />
+              <CartaoTexto artigo={artigo} nivel={primeira && destaque ? 3 : 2} dados={dadosDe(artigo)} />
             ))}
+          </div>
+
+          <div class="nada" data-nada hidden>
+            <p>Nenhum texto encontrado.</p>
+            <button type="button" class="ler" data-limpar>Limpar filtros</button>
+          </div>
+          <div class="mais-env">
+            <button type="button" class="mais" data-mais hidden>Mostrar mais textos</button>
           </div>
 
           {page.lastPage > 1 && (
@@ -200,6 +245,78 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
       </section>
     ) : null
   }
+
+  <script>
+    /* Filtro do blog: assunto, busca e ordem, no navegador. Mostra até
+       LOTE cartões de cada vez, e "Mostrar mais" libera o próximo lote.
+       Com qualquer filtro ativo, o cartão grande vira cartão comum: o mais
+       recente só faz sentido em destaque na lista completa. */
+    const LOTE = 10;
+    const raiz = document.querySelector<HTMLElement>('[data-filtros]');
+    const banca = document.querySelector<HTMLElement>('[data-banca]');
+    if (raiz && banca) {
+      raiz.hidden = false;
+      const cartoes = [...banca.querySelectorAll<HTMLAnchorElement>('a[data-quando]')];
+      const campo = raiz.querySelector<HTMLInputElement>('[data-busca-campo]')!;
+      const ordem = raiz.querySelector<HTMLSelectElement>('[data-ordem]')!;
+      const botoes = [...raiz.querySelectorAll<HTMLButtonElement>('[data-assunto-botao]')];
+      const nada = document.querySelector<HTMLElement>('[data-nada]')!;
+      const mais = document.querySelector<HTMLButtonElement>('[data-mais]')!;
+      const semAcento = (t: string) => t.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+      let assunto = '';
+      let limite = LOTE;
+
+      const aplica = () => {
+        const termos = semAcento(campo.value.trim()).split(/\s+/).filter(Boolean);
+        const filtrando = Boolean(assunto || termos.length || ordem.value !== 'novos');
+        banca.classList.toggle('filtrando', filtrando);
+        const ordenados = [...cartoes].sort((a, b) => {
+          const d = Number(b.dataset.quando) - Number(a.dataset.quando);
+          return ordem.value === 'antigos' ? -d : d;
+        });
+        let visiveis = 0;
+        ordenados.forEach((c) => {
+          banca.appendChild(c);
+          const bate =
+            (!assunto || c.dataset.assunto === assunto) &&
+            termos.every((t) => (c.dataset.busca ?? '').includes(t));
+          const mostra = bate && visiveis < limite;
+          if (bate) visiveis++;
+          c.hidden = !mostra;
+          if (mostra) c.classList.add('aberta', 'visivel');
+        });
+        nada.hidden = visiveis > 0;
+        mais.hidden = visiveis <= limite;
+      };
+
+      campo.addEventListener('input', () => {
+        limite = LOTE;
+        aplica();
+      });
+      ordem.addEventListener('change', aplica);
+      botoes.forEach((b) =>
+        b.addEventListener('click', () => {
+          assunto = b.dataset.assuntoBotao ?? '';
+          botoes.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          limite = LOTE;
+          aplica();
+        }),
+      );
+      mais.addEventListener('click', () => {
+        limite += LOTE;
+        aplica();
+      });
+      document.querySelector('[data-limpar]')?.addEventListener('click', () => {
+        campo.value = '';
+        ordem.value = 'novos';
+        assunto = '';
+        botoes.forEach((x, i) => x.setAttribute('aria-pressed', String(i === 0)));
+        limite = LOTE;
+        aplica();
+      });
+      aplica();
+    }
+  </script>
 
   <Newsletter id="textos" />
   <Contato />
@@ -300,6 +417,177 @@ const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/$
   }
   .banca > :global(.grande) {
     grid-column: 1 / -1;
+  }
+  .banca > :global([hidden]) {
+    display: none;
+  }
+  /* Filtrando, o cartão grande vira comum. */
+  .banca.filtrando > :global(.grande) {
+    grid-column: auto;
+    display: flex;
+  }
+  .banca.filtrando > :global(.grande .capa) {
+    aspect-ratio: 16 / 10;
+    min-height: 0;
+  }
+  .banca.filtrando > :global(.grande .corpo) {
+    justify-content: flex-start;
+    padding: clamp(20px, 2vw, 28px);
+  }
+  .banca.filtrando > :global(.grande .nome) {
+    font-size: clamp(19px, 1.5vw, 22px);
+  }
+  .banca.filtrando > :global(.grande .resumo) {
+    display: none;
+  }
+  .banca.filtrando > :global(.grande .pe) {
+    margin-top: auto;
+    padding-top: 18px;
+  }
+
+  /* ── barra de filtros ─────────────────────────────────────────────── */
+  .filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: clamp(20px, 2.4vw, 32px);
+  }
+  .filtros[hidden] {
+    display: none;
+  }
+  .busca {
+    flex: 1 1 220px;
+    max-width: 320px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(11, 30, 63, 0.08);
+    color: #7a8798;
+  }
+  .busca:focus-within {
+    box-shadow: 0 0 0 2px #2a62ad;
+  }
+  .busca input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    font: inherit;
+    font-size: 16px;
+    color: var(--tinta);
+  }
+  /* Controle segmentado: trilho cinza, escolhido em pílula branca. */
+  .segmentos {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: rgba(11, 30, 63, 0.07);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .segmentos button {
+    all: unset;
+    box-sizing: border-box;
+    min-height: 38px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: 15px;
+    color: #5b6b7f;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  }
+  .segmentos button:hover {
+    color: var(--tinta);
+  }
+  .segmentos button[aria-pressed='true'] {
+    background: #fff;
+    color: var(--tinta);
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(11, 30, 63, 0.12);
+  }
+  .segmentos button:focus-visible,
+  .mais:focus-visible {
+    outline: 2px solid #2a62ad;
+    outline-offset: 2px;
+  }
+  .ordem {
+    margin-inline-start: auto;
+  }
+  .ordem select {
+    min-height: 44px;
+    padding: 0 36px 0 16px;
+    border: 0;
+    border-radius: 999px;
+    background: #fff
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%235b6b7f' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")
+      no-repeat right 14px center;
+    box-shadow: 0 0 0 1px rgba(11, 30, 63, 0.08);
+    appearance: none;
+    font: inherit;
+    font-size: 15px;
+    color: var(--tinta);
+    cursor: pointer;
+  }
+  .nada {
+    padding: clamp(48px, 6vw, 88px) 0;
+    text-align: center;
+    font-size: 19px;
+    color: #5b6b7f;
+  }
+  .nada[hidden],
+  .mais[hidden] {
+    display: none;
+  }
+  .nada .ler {
+    all: unset;
+    margin-top: 8px;
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    font-size: 17px;
+    color: #2a62ad;
+    cursor: pointer;
+  }
+  .mais-env {
+    display: flex;
+    justify-content: center;
+  }
+  .mais {
+    all: unset;
+    margin-top: clamp(28px, 3vw, 44px);
+    min-height: 44px;
+    padding: 0 24px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(11, 30, 63, 0.1);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--tinta);
+    cursor: pointer;
+  }
+  .mais:hover {
+    box-shadow: 0 0 0 1px rgba(11, 30, 63, 0.2);
+  }
+  @media (max-width: 700px) {
+    .busca {
+      max-width: none;
+      flex-basis: 100%;
+    }
+    .ordem {
+      margin-inline-start: 0;
+    }
   }
   /* Protótipo, linha 296. */
   .banca {

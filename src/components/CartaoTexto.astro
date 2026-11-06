@@ -52,6 +52,8 @@ interface Props {
    * direita. É o mais recente no topo da lista do blog.
    */
   grande?: boolean;
+  /** Atributos `data-*` para filtro e ordem na lista do blog. */
+  dados?: Record<`data-${string}`, string>;
 }
 
 const {
@@ -59,6 +61,7 @@ const {
   nivel = 3,
   sizes = '(min-width: 1080px) 420px, (min-width: 620px) 45vw, 92vw',
   grande = false,
+  dados = {},
 } = Astro.props;
 
 const d = artigo.data;
@@ -68,7 +71,7 @@ const Titulo = `h${nivel}` as 'h2' | 'h3';
 {/* Cartão no padrão das notícias da Apple (06/11/2026): foto limpa, sem
     pílula nem vinheta por cima; embaixo, a categoria em azul, o título em
     sans e a data. A peça inteira é o link. */}
-<a class:list={['texto', 'sobe', { grande }]} href={`/blog/${artigo.id}/`}>
+<a class:list={['texto', 'sobe', { grande }]} href={`/blog/${artigo.id}/`} {...dados}>
   <div class="capa">
     {
       d.capa && d.capaLargura && d.capaAltura ? (
