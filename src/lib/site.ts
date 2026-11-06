@@ -59,10 +59,10 @@ export const site = {
   horario: 'Segunda a sexta, 9h às 18h',
 
   // Registro da sociedade: exigência do Provimento 205/2021 da OAB.
-  // Placeholders do protótipo, marcados para a Tarefa 15 substituir.
+  // Enviados pelo escritório no retorno de 06/11/2026.
   registro: {
-    oabSociedade: { valor: 'OAB/PR nº 0.000', placeholder: true } satisfies CampoPlaceholder,
-    cnpj: { valor: '00.000.000/0001-00', placeholder: true } satisfies CampoPlaceholder,
+    oabSociedade: { valor: 'OAB/PR nº 24.788', placeholder: false } satisfies CampoPlaceholder,
+    cnpj: { valor: '69.076.965/0001-64', placeholder: false } satisfies CampoPlaceholder,
   },
 
   /* `area` e `linha` alimentam o bloco "Quem atende" da página de cada
