@@ -98,8 +98,10 @@ dados.corpo.forEach((texto, indice) => {
   }
 });
 
-/* Quem atende: o sócio cuja área é esta. A divisão está em `site.socios`. */
-const socio = site.socios.find((s) => s.area === dados.slug);
+/* Quem atende: os dois sócios, sempre. O escritório pediu (06/11/2026)
+   para não dividir a atuação por sócio no site: os dois atendem as duas
+   áreas, e o cliente precisa ver isso. A divisão interna fica com eles. */
+const socios = site.socios;
 const numero = (n: number) => String(n + 1).padStart(2, '0');
 
 /* Fotos da série própria (docs/PROMPTS-IMAGENS.md). A da outra área é a
@@ -204,11 +206,35 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       </section>
     )}
 
+    {dados.servicos.length > 0 && (
+      <section class="servicos-area" aria-labelledby="servicos-titulo">
+        <div class="env servicos-grade">
+          <header class="servicos-cab">
+            <p class="chave">{'{ 02 }'}</p>
+            <h2 id="servicos-titulo">Serviços</h2>
+            <p>O que você pode contratar nesta área. Se o seu caso não estiver na lista, escreva mesmo assim.</p>
+            <a class="botao zap" href={linkWhatsapp} target="_blank" rel="noopener">
+              Falar pelo WhatsApp
+              <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
+            </a>
+          </header>
+          <ul class="servicos-lista">
+            {dados.servicos.map((servico, i) => (
+              <li data-sobe>
+                <span class="servico-num" aria-hidden="true">{numero(i)}</span>
+                <span>{servico}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+
     {secoes.length > 0 && (
       <section class="abrange" data-trilho style={`--n:${secoes.length}`} aria-labelledby="abrange-titulo">
         <div class="abrange-palco">
           <div class="env abrange-cab">
-            <p class="chave">{'{ 02 }'}</p>
+            <p class="chave">{'{ 03 }'}</p>
             <h2 id="abrange-titulo">O que a área <em>abrange.</em></h2>
             <div class="progresso" aria-hidden="true"><span data-progresso></span></div>
           </div>
@@ -227,29 +253,37 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       </section>
     )}
 
-    {socio && (
-      <section class="quem" id="quem-atende" aria-labelledby="quem-titulo">
-        <div class="env">
-          <div class="quem-cartao" data-sobe>
-            <picture class="quem-foto">
-              <source type="image/avif" srcset={`${socio.retrato}-840.avif`} />
-              <source type="image/webp" srcset={`${socio.retrato}-840.webp`} />
-              <img src={`${socio.retrato}-840.jpg`} alt={`Retrato de ${socio.nome}`} width="840" height="1050" loading="lazy" decoding="async" />
-            </picture>
-            <div class="quem-texto">
-              <h2 id="quem-titulo" class="chave claro">Quem atende</h2>
-              <p class="quem-nome">{socio.nome}</p>
-              <p class="quem-oab" data-placeholder={socio.oab.placeholder ? '1' : undefined}><span>Inscrição na Ordem</span> {socio.oab.valor}</p>
-              <p class="quem-linha">{socio.linha}</p>
-              <a class="botao claro" href={`/escritorio/#socio-${socio.nome.split(' ')[0].toLowerCase()}`}>
-                Formação e perfil
-                <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
-              </a>
-            </div>
+    <section class="quem" id="quem-atende" aria-labelledby="quem-titulo">
+      <div class="env">
+        <div class="quem-cartao" data-sobe>
+          <div class="quem-foto" style={`--n:${socios.length}`}>
+            {socios.map((socio) => (
+              <picture>
+                <source type="image/avif" srcset={`${socio.retrato}-840.avif`} />
+                <source type="image/webp" srcset={`${socio.retrato}-840.webp`} />
+                <img src={`${socio.retrato}-840.jpg`} alt={`Retrato de ${socio.nome}`} width="840" height="1050" loading="lazy" decoding="async" />
+              </picture>
+            ))}
+          </div>
+          <div class="quem-texto">
+            <h2 id="quem-titulo" class="chave claro">Quem atende</h2>
+            <ul class="quem-nomes">
+              {socios.map((socio) => (
+                <li>
+                  <p class="quem-nome">{socio.nome}</p>
+                  <p class="quem-oab" data-placeholder={socio.oab.placeholder ? '1' : undefined}><span>Inscrição na Ordem</span> {socio.oab.valor}</p>
+                </li>
+              ))}
+            </ul>
+            <p class="quem-linha">Os dois sócios atuam juntos nos casos da área, do trabalho preventivo ao processo, quando ele é necessário.</p>
+            <a class="botao claro" href="/escritorio/">
+              Conheça o escritório
+              <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
+            </a>
           </div>
         </div>
-      </section>
-    )}
+      </div>
+    </section>
 
     <section class="onde" id="onde-atendemos" aria-labelledby="onde-titulo">
       <picture class="onde-fundo" aria-hidden="true">
@@ -665,6 +699,86 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     }
   }
 
+  /* ── serviços ───────────────────────────────────────────────────── */
+  /* Lista inteira à vista, sem trilho nem clique (retorno de 06/11): quem
+     chega quer ver de uma vez se o serviço que procura está aqui. */
+  .servicos-area {
+    padding-block: clamp(72px, 9vw, 140px) clamp(40px, 5vw, 72px);
+  }
+  .servicos-grade {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr);
+    gap: clamp(32px, 6vw, 110px);
+    align-items: start;
+  }
+  .servicos-cab {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+  }
+  @media (min-width: 901px) {
+    .servicos-cab {
+      position: sticky;
+      top: 120px;
+    }
+  }
+  .servicos-cab h2 {
+    font-family: var(--sans);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: clamp(34px, 4.6vw, 66px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    color: var(--tinta);
+  }
+  .servicos-cab p:not(.chave) {
+    max-width: 36ch;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--secundario);
+  }
+  .servicos-cab .botao {
+    margin-top: 8px;
+  }
+  .servicos-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(20px, 3vw, 40px);
+  }
+  .servicos-lista li {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    align-items: baseline;
+    padding: 20px 0 22px;
+    border-top: 1px solid var(--linha);
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: clamp(18px, 1.5vw, 21px);
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    color: var(--tinta);
+  }
+  .servico-num {
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--secundario);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 900px) {
+    .servicos-grade {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .servicos-lista {
+      grid-template-columns: 1fr;
+    }
+  }
+
   /* ── quem atende ─────────────────────────────────────────────────── */
   .quem {
     padding-block: clamp(90px, 11vw, 160px) clamp(56px, 7vw, 100px);
@@ -683,18 +797,24 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
   .quem-foto {
     position: absolute;
     inset: 0 0 0 auto;
-    width: 55%;
+    width: 58%;
     z-index: -2;
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  }
+  .quem-foto picture {
+    display: block;
+    overflow: hidden;
   }
   .quem-foto img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 22%;
+    object-position: 50% 18%;
     transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .quem-cartao:hover .quem-foto img {
-    transform: scale(1.04);
+    transform: scale(1.03);
   }
   /* Vinheta preta, só de contraste: a foto não é tingida. */
   .quem-cartao::after {
@@ -704,22 +824,38 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     z-index: -1;
     background: linear-gradient(90deg, var(--tinta) 0%, var(--tinta) 42%, rgba(11, 30, 63, 0) 70%);
   }
+  /* Desktop: texto e retratos lado a lado, sem vinheta. Com dois
+     retratos, a vinheta da versão de um sócio só escurecia o da esquerda. */
+  @media (min-width: 901px) {
+    .quem-cartao::after {
+      display: none;
+    }
+    .quem-foto {
+      width: 50%;
+    }
+  }
   .quem-texto {
-    max-width: 560px;
+    max-width: min(560px, 50%);
     padding: clamp(28px, 4vw, 60px);
   }
+  .quem-nomes {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 18px;
+  }
   .quem-nome {
-    margin-top: 14px;
     font-family: var(--sans);
     font-weight: 800;
     text-transform: uppercase;
-    font-size: clamp(36px, 4.4vw, 64px);
-    line-height: 0.95;
+    font-size: clamp(28px, 3vw, 44px);
+    line-height: 0.98;
     letter-spacing: -0.03em;
   }
   .quem-oab {
-    margin-top: 14px;
-    font-size: 19px;
+    margin-top: 8px;
+    font-size: 17px;
   }
   .quem-oab span {
     margin-right: 6px;
@@ -885,6 +1021,9 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       position: relative;
       width: 100%;
       aspect-ratio: 4 / 3;
+    }
+    .quem-texto {
+      max-width: none;
     }
     .quem-cartao::after {
       background: linear-gradient(0deg, var(--tinta) 30%, rgba(11, 30, 63, 0) 60%);
