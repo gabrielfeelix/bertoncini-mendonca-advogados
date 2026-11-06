@@ -117,14 +117,12 @@ const valoresDeAtuacao = [
       </p>
     </div>
     <div class="env manifesto">
-      <p class="titulo-caixa grande" data-acende>{missao}</p>
-      <div class="manifesto-apoio" data-sobe>
-        <p>
-          Estamos ao lado dos nossos clientes nas decisões que estruturam o patrimônio e o futuro deles,
-          com orientação clara, próxima e estratégica.
-        </p>
-        <p>Para que escolhas importantes sejam feitas com consciência, e não na urgência.</p>
-      </div>
+      <p class="manifesto-frase" data-acende>{missao}</p>
+      <p class="manifesto-apoio" data-sobe>
+        Estamos ao lado dos nossos clientes nas decisões que estruturam o patrimônio e o futuro deles,
+        com orientação clara, próxima e estratégica. Para que escolhas importantes sejam feitas com
+        consciência, e não na urgência.
+      </p>
     </div>
   </section>
 
@@ -297,19 +295,30 @@ const valoresDeAtuacao = [
   .manifesto {
     padding-block: clamp(120px, 22vh, 260px) clamp(90px, 12vw, 160px);
   }
-  .grande {
-    font-size: clamp(30px, 4vw, 58px);
-    line-height: 1.04;
-    max-width: 22ch;
+  /* Missão como frase, não como cartaz: caixa normal, peso médio,
+     centrada. Em caixa alta 800 ela virava oito linhas gritadas. As
+     palavras acendem com a rolagem (`data-acende`). */
+  .manifesto {
+    text-align: center;
+  }
+  .manifesto-frase {
+    max-width: 21em;
+    margin-inline: auto;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: clamp(28px, 3.6vw, 52px);
+    line-height: 1.14;
+    letter-spacing: -0.03em;
+    color: var(--tinta);
+    text-wrap: balance;
   }
   .manifesto-apoio {
-    display: grid;
-    gap: 14px;
-    max-width: 62ch;
-    margin: 48px 0 0 auto;
-    font-size: 17px;
-    line-height: 1.6;
-    color: var(--secundario);
+    max-width: 40em;
+    margin: clamp(32px, 4vw, 48px) auto 0;
+    font-size: clamp(17px, 1.4vw, 20px);
+    line-height: 1.5;
+    color: #5b6b7f;
+    text-wrap: pretty;
   }
 
   /* ── 4. sócios ───────────────────────────────────────────────────── */
