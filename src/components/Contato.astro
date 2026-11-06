@@ -110,13 +110,13 @@ const {
 <style>
   .contato :global(.env) {
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     gap: clamp(30px, 5vw, 88px);
     align-items: start;
   }
   @media (max-width: 900px) {
     .contato :global(.env) {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 38px;
     }
   }
@@ -149,7 +149,7 @@ const {
   }
   .dado {
     display: grid;
-    grid-template-columns: 132px 1fr;
+    grid-template-columns: 132px minmax(0, 1fr);
     gap: 16px;
     padding: 18px 0;
     border-bottom: 1px solid var(--linha);
@@ -159,8 +159,12 @@ const {
     color: var(--secundario);
     font-size: 15px;
   }
+  /* `anywhere`: o e-mail do escritório é uma palavra só de 33 letras e,
+     sem quebra, alargava a página no celular. */
   .dado dd {
     margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   .dado a {
     text-decoration: none;
