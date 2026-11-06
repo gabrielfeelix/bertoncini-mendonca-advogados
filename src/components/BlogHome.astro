@@ -19,7 +19,10 @@ interface Props {
 }
 
 const { artigos } = Astro.props;
-const [destaque, ...resto] = artigos;
+/* Cartões iguais (06/11/2026): o mais recente em destaque grande não
+   agradou na home. Só um artigo publicado ganha o cartão grande, para não
+   ficar um cartão pequeno sozinho na linha. */
+const sozinho = artigos.length === 1;
 ---
 
 <section class="blog" id="publicacoes" aria-labelledby="blog-titulo">
@@ -40,11 +43,13 @@ const [destaque, ...resto] = artigos;
       </div>
     </header>
 
-    <CartaoTexto artigo={destaque} grande />
-
-    {resto.length > 0 && (
-      <div class="par">
-        {resto.slice(0, 2).map((artigo) => <CartaoTexto artigo={artigo} sizes="(min-width: 900px) 600px, 92vw" />)}
+    {sozinho ? (
+      <CartaoTexto artigo={artigos[0]} grande />
+    ) : (
+      <div class="grade">
+        {artigos.slice(0, 3).map((artigo) => (
+          <CartaoTexto artigo={artigo} sizes="(min-width: 1080px) 420px, (min-width: 700px) 45vw, 92vw" />
+        ))}
       </div>
     )}
   </div>
@@ -83,15 +88,14 @@ const [destaque, ...resto] = artigos;
     color: var(--secundario);
   }
 
-  .par {
-    margin-top: clamp(16px, 1.8vw, 24px);
+  .grade {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(16px, 1.8vw, 24px);
   }
 
   @media (max-width: 900px) {
-    .par {
+    .grade {
       grid-template-columns: 1fr;
     }
     .cab {
