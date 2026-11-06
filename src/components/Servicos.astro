@@ -131,23 +131,29 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
      serviços arejada logo abaixo e a foto na base, sangrando até a borda
      do tile. Hierarquia só por tamanho e cor: nenhum rótulo, número ou
      divisória. */
+  /* Subgrid: título, frase, ações, lista e foto ficam na mesma linha nos
+     dois tiles, mesmo com um título em duas linhas e o outro em uma. */
   .nichos {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(5, auto);
     gap: clamp(12px, 1.4vw, 20px);
-    align-items: stretch;
   }
   .nicho {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    grid-row: span 5;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+    justify-items: center;
     text-align: center;
-    padding: clamp(44px, 4.6vw, 64px) clamp(24px, 3vw, 48px) 0;
+    --recuo: clamp(16px, 1.8vw, 28px);
+    padding: clamp(44px, 4.6vw, 64px) var(--recuo) 0;
     border-radius: 28px;
     overflow: hidden;
     background: #f2f4f7;
   }
   .nicho h3 {
+    align-self: end;
     max-width: 14em;
     font-family: var(--sans);
     font-weight: 600;
@@ -158,6 +164,7 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
     text-wrap: balance;
   }
   .resumo {
+    align-self: start;
     margin-top: 14px;
     max-width: 30em;
     font-size: clamp(17px, 1.4vw, 20px);
@@ -167,6 +174,7 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
     text-wrap: balance;
   }
   .acoes {
+    align-self: start;
     margin-top: 26px;
     display: flex;
     flex-wrap: wrap;
@@ -197,30 +205,49 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
     border-radius: 999px;
   }
 
-  /* Duas colunas alinhadas à esquerda dentro de um bloco centrado: lê
-     como lista, e o tile continua simétrico. */
+  /* Os serviços num painel branco dentro do tile, em duas colunas
+     alinhadas à esquerda. Marcador: o "§" do parágrafo de lei, em serifa,
+     azul e discreto. Signo do ofício, sem o clichê da balança. */
   .lista {
+    align-self: start;
     list-style: none;
-    margin: clamp(36px, 4vw, 52px) 0 0;
-    padding: 0;
+    width: 100%;
+    max-width: 640px;
+    margin: clamp(36px, 4vw, 48px) 0 0;
+    padding: clamp(22px, 2.4vw, 30px) clamp(20px, 2.2vw, 30px);
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 15em));
-    justify-content: center;
-    gap: 14px clamp(24px, 3vw, 44px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 16px clamp(20px, 2.6vw, 36px);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(11, 30, 63, 0.04);
     text-align: left;
   }
   .lista li {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    column-gap: 8px;
+    align-items: baseline;
     font-size: 16px;
-    line-height: 1.35;
+    line-height: 1.4;
     letter-spacing: -0.005em;
     color: var(--tinta);
   }
+  .lista li::before {
+    content: '§';
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1;
+    color: #2a62ad;
+    opacity: 0.6;
+  }
 
   .foto {
-    margin: clamp(40px, 4.4vw, 60px) calc(-1 * clamp(24px, 3vw, 48px)) 0;
-    margin-top: auto;
-    padding-top: clamp(40px, 4.4vw, 60px);
-    align-self: stretch;
+    align-self: end;
+    justify-self: stretch;
+    margin: 0 calc(-1 * var(--recuo));
+    padding-top: clamp(32px, 3.6vw, 48px);
   }
   .foto picture {
     display: block;
@@ -278,14 +305,17 @@ const outras = site.outrasAreas.map((a) => a.charAt(0).toLowerCase() + a.slice(1
   @media (max-width: 900px) {
     .nichos {
       grid-template-columns: 1fr;
+      grid-template-rows: none;
+    }
+    .nicho {
+      grid-row: auto;
+      grid-template-rows: none;
     }
   }
   @media (max-width: 560px) {
     .lista {
       grid-template-columns: minmax(0, 1fr);
-      justify-items: center;
-      text-align: center;
-      gap: 10px;
+      gap: 12px;
     }
   }
   @media (prefers-reduced-motion: reduce) {
