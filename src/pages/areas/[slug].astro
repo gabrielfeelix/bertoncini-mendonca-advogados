@@ -173,11 +173,9 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       <section class="publicos" aria-labelledby="publicos-titulo">
         <div class="env">
           <div class="painel-publicos">
-            <header>
-              <h2 id="publicos-titulo">Para quem é</h2>
-            </header>
+            <h2 id="publicos-titulo" class="secao-titulo">Para quem é</h2>
             <ul class="cartoes-publicos" style={`--n:${dados.publicos.length}`}>
-              {dados.publicos.map((p, i) => (
+              {dados.publicos.map((p) => (
                 <li data-sobe>
                   <h3>{p.titulo}</h3>
                   <p>{p.texto}</p>
@@ -193,7 +191,7 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       <section class="servicos-area" aria-labelledby="servicos-titulo">
         <div class="env servicos-grade">
           <header class="servicos-cab">
-            <h2 id="servicos-titulo">Serviços</h2>
+            <h2 id="servicos-titulo" class="secao-titulo">Serviços</h2>
             <p>O que você pode contratar nesta área. Se o seu caso não estiver na lista, escreva mesmo assim.</p>
             <a class="botao zap" href={linkWhatsapp} target="_blank" rel="noopener">
               Falar pelo WhatsApp
@@ -210,23 +208,28 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     )}
 
     {secoes.length > 0 && (
-      <section class="abrange" data-trilho style={`--n:${secoes.length}`} aria-labelledby="abrange-titulo">
-        <div class="abrange-palco">
-          <div class="env abrange-cab">
-            <h2 id="abrange-titulo">O que a área abrange</h2>
-            <div class="progresso" aria-hidden="true"><span data-progresso></span></div>
-          </div>
-          <div class="abrange-janela">
-            <ol class="abrange-faixa" data-faixa>
-              {secoes.map((secao, n) => (
-                <li class="assunto" id={secao.id}>
-                  <h3>{secao.rubrica}</h3>
-                  <p data-placeholder={secao.placeholder ? '1' : undefined}>{secao.texto}</p>
-                </li>
-              ))}
-            </ol>
+      <section class="abrange" aria-labelledby="abrange-titulo" data-carrossel>
+        <div class="env abrange-cab">
+          <h2 id="abrange-titulo" class="secao-titulo">O que a área abrange</h2>
+          {/* Setas do carrossel, no padrão da Apple. O trilho também rola
+              por toque, trackpad e teclado; as setas são atalho. */}
+          <div class="setas" data-setas hidden>
+            <button type="button" class="seta" data-anterior aria-label="Assuntos anteriores">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+            <button type="button" class="seta" data-proximo aria-label="Próximos assuntos">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6 3 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
           </div>
         </div>
+        <ol class="abrange-faixa" data-faixa tabindex="0" aria-label="Assuntos da área">
+          {secoes.map((secao) => (
+            <li class="assunto" id={secao.id}>
+              <h3>{secao.rubrica}</h3>
+              <p data-placeholder={secao.placeholder ? '1' : undefined}>{secao.texto}</p>
+            </li>
+          ))}
+        </ol>
       </section>
     )}
 
@@ -333,6 +336,27 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
 </Base>
 
 <script>
+  /* Carrossel de "O que a área abrange": as setas rolam um cartão por vez
+     e se apagam nas pontas. O trilho rola sozinho por toque e trackpad. */
+  document.querySelectorAll<HTMLElement>('[data-carrossel]').forEach((sec) => {
+    const faixa = sec.querySelector<HTMLElement>('[data-faixa]')!;
+    const setas = sec.querySelector<HTMLElement>('[data-setas]')!;
+    const ant = sec.querySelector<HTMLButtonElement>('[data-anterior]')!;
+    const prox = sec.querySelector<HTMLButtonElement>('[data-proximo]')!;
+    const passo = () => (faixa.querySelector('li')?.getBoundingClientRect().width ?? 300) + 16;
+    const atualiza = () => {
+      const fim = faixa.scrollWidth - faixa.clientWidth;
+      setas.hidden = fim <= 4;
+      ant.disabled = faixa.scrollLeft <= 4;
+      prox.disabled = faixa.scrollLeft >= fim - 4;
+    };
+    ant.addEventListener('click', () => faixa.scrollBy({ left: -passo(), behavior: 'smooth' }));
+    prox.addEventListener('click', () => faixa.scrollBy({ left: passo(), behavior: 'smooth' }));
+    faixa.addEventListener('scroll', atualiza, { passive: true });
+    addEventListener('resize', atualiza);
+    atualiza();
+  });
+
   import { ligaCinema } from '~/scripts/cinema';
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.documentElement.classList.add('movimento-area');
@@ -516,169 +540,128 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     font-style: normal;
   }
 
-  /* ── para quem (painel green-volt) ───────────────────────────────── */
-  .painel-publicos {
-    position: relative;
-    padding: clamp(32px, 4vw, 64px);
-    border-radius: 22px;
-    background: linear-gradient(135deg, #163a6d, var(--tinta));
-    color: #fff;
-  }
-  .painel-publicos .chave {
-    color: rgba(255, 255, 255, 0.6);
-  }
-  .painel-publicos h2 {
-    margin-top: 10px;
+  /* Título de seção da página: caixa normal, o mesmo peso da home. */
+  .secao-titulo {
     font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(32px, 4vw, 58px);
-    letter-spacing: -0.025em;
+    font-weight: 600;
+    font-size: clamp(34px, 4.2vw, 60px);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    color: var(--tinta);
   }
+
+  /* ── para quem: três cartões claros ──────────────────────────────── */
   .cartoes-publicos {
     list-style: none;
-    margin: clamp(28px, 4vw, 48px) 0 0;
+    margin: clamp(28px, 3.4vw, 44px) 0 0;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    gap: 14px;
+    gap: clamp(12px, 1.4vw, 20px);
   }
   .cartoes-publicos li {
-    padding: 22px 22px 26px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-    transition: background-color 0.3s;
-  }
-  .cartoes-publicos li:hover {
-    background: rgba(255, 255, 255, 0.13);
-  }
-  .pilula-vidro {
-    display: inline-block;
-    padding: 4px 11px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.14);
-    font-size: 12px;
+    padding: clamp(24px, 2.6vw, 36px);
+    border-radius: 24px;
+    background: #f2f4f7;
   }
   .cartoes-publicos h3 {
-    margin-top: 18px;
     font-family: var(--sans);
     font-weight: 600;
-    font-size: 20px;
-    letter-spacing: -0.01em;
+    font-size: clamp(21px, 1.8vw, 26px);
+    letter-spacing: -0.025em;
+    color: var(--tinta);
   }
   .cartoes-publicos p {
     margin-top: 10px;
-    font-size: 15px;
+    font-size: 17px;
     line-height: 1.5;
-    color: rgba(255, 255, 255, 0.78);
+    color: #5b6b7f;
   }
 
-  /* ── o que abrange: trilho horizontal ────────────────────────────── */
+  /* ── o que abrange: carrossel ────────────────────────────────────── */
   .abrange {
     margin-top: clamp(90px, 11vw, 160px);
   }
   .abrange-cab {
-    display: grid;
-    grid-template-columns: 1fr auto;
+    display: flex;
+    justify-content: space-between;
     align-items: end;
-    gap: 12px 32px;
+    gap: 24px;
   }
-  .abrange-cab .chave {
-    grid-column: 1 / -1;
+  .setas {
+    display: flex;
+    gap: 12px;
   }
-  .abrange-cab h2 {
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(34px, 4.6vw, 66px);
-    line-height: 0.98;
-    letter-spacing: -0.03em;
+  .setas[hidden] {
+    display: none;
+  }
+  .seta {
+    all: unset;
+    box-sizing: border-box;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #e8ecf1;
     color: var(--tinta);
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
   }
-  .progresso {
-    width: clamp(120px, 18vw, 260px);
-    height: 3px;
-    margin-bottom: 14px;
-    border-radius: 3px;
-    background: var(--linha);
-    overflow: hidden;
+  .seta:hover:not(:disabled) {
+    background: #dde3ea;
   }
-  .progresso span {
-    display: block;
-    height: 100%;
-    background: var(--destaque);
-    transform-origin: 0 50%;
+  .seta:disabled {
+    opacity: 0.35;
+    cursor: default;
   }
-  .abrange-janela {
-    margin-top: clamp(28px, 4vh, 48px);
-    padding-inline: var(--gutter);
+  .seta:focus-visible {
+    outline: 2px solid #2a62ad;
+    outline-offset: 2px;
   }
+  /* A faixa começa alinhada ao texto e sangra até a borda direita da tela,
+     como os carrosséis da Apple. */
   .abrange-faixa {
     list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 18px;
+    margin: clamp(24px, 3vw, 40px) 0 0;
+    padding: 4px max(var(--gutter), calc((100vw - 1500px) / 2 + var(--gutter))) 8px;
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: max(var(--gutter), calc((100vw - 1500px) / 2 + var(--gutter)));
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .abrange-faixa::-webkit-scrollbar {
+    display: none;
+  }
+  .abrange-faixa:focus-visible {
+    outline: 2px solid #2a62ad;
+    outline-offset: -2px;
   }
   .assunto {
+    flex: none;
+    width: min(400px, 82vw);
+    scroll-snap-align: start;
     scroll-margin-top: 120px;
-    padding: clamp(24px, 2.6vw, 36px);
-    border-radius: 20px;
-    background: var(--papel);
-    box-shadow: inset 0 0 0 1px var(--linha);
-  }
-  .assunto-num {
-    font-family: var(--sans);
-    font-weight: 800;
-    font-size: clamp(56px, 6vw, 92px);
-    line-height: 1;
-    letter-spacing: -0.05em;
-    color: transparent;
-    -webkit-text-stroke: 1.5px var(--destaque);
+    padding: clamp(26px, 2.6vw, 36px);
+    border-radius: 24px;
+    background: #f2f4f7;
   }
   .assunto h3 {
-    margin-top: 18px;
     font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(22px, 2vw, 28px);
-    letter-spacing: -0.015em;
+    font-weight: 600;
+    font-size: clamp(21px, 1.8vw, 26px);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
     color: var(--tinta);
   }
   .assunto p {
-    margin-top: 14px;
+    margin-top: 12px;
     font-size: 17px;
-    line-height: 1.6;
-    color: var(--secundario);
-  }
-  /* Com movimento, em tela larga: o palco gruda e a faixa anda de lado. */
-  @media (min-width: 901px) {
-    :global(html.movimento-area) .abrange {
-      height: calc(var(--n) * 55vh + 100vh);
-    }
-    /* `minmax(0, 1fr)`: sem ele a faixa larga estica o palco inteiro, a
-       janela fica do tamanho da faixa e a distância a percorrer dá zero. */
-    :global(html.movimento-area) .abrange-palco {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      align-content: center;
-      overflow: hidden;
-    }
-    :global(html.movimento-area) .abrange-janela {
-      min-width: 0;
-    }
-    :global(html.movimento-area) .abrange-faixa {
-      display: flex;
-      width: max-content;
-      align-items: stretch;
-    }
-    :global(html.movimento-area) .assunto {
-      width: min(520px, 38vw);
-    }
+    line-height: 1.55;
+    color: #5b6b7f;
   }
 
   /* ── serviços ───────────────────────────────────────────────────── */
@@ -704,15 +687,6 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
       top: 120px;
     }
   }
-  .servicos-cab h2 {
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(34px, 4.6vw, 66px);
-    line-height: 0.98;
-    letter-spacing: -0.03em;
-    color: var(--tinta);
-  }
   .servicos-cab p:not(.chave) {
     max-width: 36ch;
     font-size: 17px;
@@ -730,15 +704,27 @@ const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).fil
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: clamp(20px, 3vw, 40px);
   }
+  /* Mesmo marcador § da home e de /areas/. */
   .servicos-lista li {
-    padding: 20px 0 22px;
-    border-top: 1px solid rgba(11, 30, 63, 0.1);
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    column-gap: 10px;
+    align-items: baseline;
+    padding: 14px 0;
     font-family: var(--sans);
     font-weight: 500;
     font-size: clamp(18px, 1.5vw, 21px);
     line-height: 1.3;
     letter-spacing: -0.015em;
     color: var(--tinta);
+  }
+  .servicos-lista li::before {
+    content: '§';
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1;
+    color: #2a62ad;
+    opacity: 0.6;
   }
   @media (max-width: 900px) {
     .servicos-grade {
