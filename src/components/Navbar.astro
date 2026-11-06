@@ -290,7 +290,10 @@ const areas = await listarAreasConfirmadas();
     z-index: 5;
     /* A ponte: a faixa transparente que mantém o hover vivo entre o link e
        o painel. Sem ela o menu fecha quando o cursor atravessa o vão. */
-    padding-top: 12px;
+    /* 26px de ponte: o painel flutua abaixo da barra, e não colado na
+       borda dela. Os 8px laterais e de baixo são o respiro dos itens
+       dentro do painel. */
+    padding: 34px 8px 8px;
     width: max-content;
     max-width: min(420px, calc(100vw - 2 * var(--gutter)));
     opacity: 0;
@@ -343,7 +346,7 @@ const areas = await listarAreasConfirmadas();
   .menu::before {
     content: '';
     position: absolute;
-    inset: 12px 0 0;
+    inset: 26px 0 0;
     background: var(--fundo-menu);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 18px;
