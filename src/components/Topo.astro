@@ -1,93 +1,128 @@
 ---
 /**
- * Cabeçalho da v3: topbar azul com contato + barra branca com logo e menu.
- * É o cabeçalho padrão de tema WordPress corporativo. Fica fixo no topo
- * (sticky), sem encolher, sem mudar de cor, sem animação.
+ * Cabeçalho da v3: faixa de contato + barra com logo e menu, presos no
+ * topo (position: fixed).
  *
- * No celular o menu vira uma lista que abre por um botão. Sem JavaScript
- * o botão some e a lista aparece aberta, então ninguém fica sem menu.
+ * Nas páginas que abrem com foto (`sobreposto`), o cabeçalho nasce
+ * transparente, por cima da imagem, como no site do Martinelli. Ao rolar,
+ * ganha o azul-noite da marca (#0B1E3F) e a faixa de contato recolhe.
+ * Sem JavaScript ele já nasce azul, para nunca ficar texto branco sobre
+ * conteúdo claro.
+ *
+ * No celular o menu abre por um botão; sem JavaScript a lista aparece
+ * aberta, então ninguém fica sem menu.
  */
 import { site, navegacao } from '../lib/site';
 import { listarAreasConfirmadas } from '../lib/areas';
 
 interface Props {
   paginaAtual?: string;
+  /** true quando a página abre com foto escura e o cabeçalho vai por cima. */
+  sobreposto?: boolean;
 }
-const { paginaAtual } = Astro.props;
+const { paginaAtual, sobreposto = false } = Astro.props;
 const areas = await listarAreasConfirmadas();
 const ativo = (href: string) =>
   paginaAtual === href || (href !== '/' && paginaAtual?.startsWith(href)) ? 'page' : undefined;
 ---
 
-<div class="topbar">
-  <div class="container">
-    <span>{site.cidade}/{site.estado} · {site.atendimentoRodape}</span>
-    <span class="topbar-contato">
-      <a href={site.whatsapp.valor} rel="noopener" target="_blank">WhatsApp {site.telefone.valor}</a>
-      <a href={`mailto:${site.email.valor}`}>{site.email.valor}</a>
-      <a href={site.redes.instagram.valor} rel="noopener" target="_blank">Instagram</a>
-    </span>
+<div class="topo" data-sobreposto={sobreposto ? '' : undefined}>
+  <div class="topbar-env">
+    <div class="topbar">
+      <div class="container">
+        <span>{site.cidade}/{site.estado} · {site.atendimentoRodape}</span>
+        <span class="topbar-contato">
+          <a href={site.whatsapp.valor} rel="noopener" target="_blank">WhatsApp {site.telefone.valor}</a>
+          <a href={`mailto:${site.email.valor}`}>{site.email.valor}</a>
+          <a href={site.redes.instagram.valor} rel="noopener" target="_blank">Instagram</a>
+        </span>
+      </div>
+    </div>
   </div>
+
+  <header class="cabecalho">
+    <div class="container">
+      <a class="logo" href="/" aria-label={`${site.nome}, página inicial`}>
+        <img src="/media/marca/lockup-branco.png" alt={site.nome} width="779" height="298" />
+      </a>
+
+      <button class="abre-menu" type="button" aria-expanded="false" aria-controls="menu-principal" hidden>
+        <span class="hamburguer" aria-hidden="true"></span>
+        Menu
+      </button>
+
+      <nav id="menu-principal" class="menu" aria-label="Menu principal">
+        <ul>
+          {navegacao.map((item) => (
+            <li class={'submenu' in item ? 'tem-sub' : undefined}>
+              <a href={item.href} aria-current={ativo(item.href)}>{item.rotulo}</a>
+              {'submenu' in item && (
+                <ul class="sub">
+                  {areas.map((area) => (
+                    <li><a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a></li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+        <a class="botao menu-botao" href="/contato/">Fale conosco</a>
+      </nav>
+    </div>
+  </header>
 </div>
 
-<header class="cabecalho">
-  <div class="container">
-    <a class="logo" href="/" aria-label={`${site.nome}, página inicial`}>
-      <img src="/media/marca/lockup-azul.png" alt={site.nome} width="779" height="298" />
-    </a>
-
-    <button class="abre-menu" type="button" aria-expanded="false" aria-controls="menu-principal" hidden>
-      <span class="hamburguer" aria-hidden="true"></span>
-      Menu
-    </button>
-
-    <nav id="menu-principal" class="menu" aria-label="Menu principal">
-      <ul>
-        {navegacao.map((item) => (
-          <li class={'submenu' in item ? 'tem-sub' : undefined}>
-            <a href={item.href} aria-current={ativo(item.href)}>{item.rotulo}</a>
-            {'submenu' in item && (
-              <ul class="sub">
-                {areas.map((area) => (
-                  <li><a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a></li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
-      </ul>
-      <a class="botao menu-botao" href="/contato/">Fale conosco</a>
-    </nav>
-  </div>
-</header>
-
 <script>
+  const topo = document.querySelector<HTMLElement>('.topo');
   const botao = document.querySelector<HTMLButtonElement>('.abre-menu');
   const menu = document.getElementById('menu-principal');
-  if (botao && menu) {
+
+  if (topo) {
+    // Cor própria depois de rolar um pouco.
+    const conferir = () => topo.classList.toggle('rolou', window.scrollY > 40);
+    conferir();
+    window.addEventListener('scroll', conferir, { passive: true });
+  }
+
+  if (topo && botao && menu) {
     botao.hidden = false;
-    document.documentElement.classList.add('com-js');
     botao.addEventListener('click', () => {
       const aberto = botao.getAttribute('aria-expanded') === 'true';
       botao.setAttribute('aria-expanded', String(!aberto));
       menu.classList.toggle('aberto', !aberto);
+      topo.classList.toggle('menu-aberto', !aberto);
     });
   }
 </script>
 
 <style>
-  .topbar { background: var(--azul); color: rgba(255,255,255,.82); font-size: 13px; }
-  .topbar .container { display: flex; justify-content: space-between; gap: 16px; padding-top: 8px; padding-bottom: 8px; }
+  .topo {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    background: var(--azul);
+    box-shadow: 0 2px 14px rgba(11, 30, 63, .25);
+    transition: background-color .3s ease, box-shadow .3s ease;
+  }
+  /* Transparente só com JS (a classe com-js nasce no <head>) e só no topo. */
+  :global(.com-js) .topo[data-sobreposto]:not(.rolou):not(.menu-aberto) {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* ---------- Faixa de contato: recolhe ao rolar ---------- */
+  .topbar-env { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .3s ease; }
+  .topo.rolou .topbar-env { grid-template-rows: 0fr; }
+  .topbar { overflow: hidden; min-height: 0; color: rgba(248, 247, 242, .8); font-size: 13px; }
+  .topbar .container {
+    display: flex; justify-content: space-between; gap: 16px;
+    height: var(--altura-topbar); align-items: center;
+    border-bottom: 1px solid rgba(248, 247, 242, .14);
+  }
   .topbar a { color: #fff; text-decoration: none; }
   .topbar a:hover { text-decoration: underline; color: #fff; }
   .topbar-contato { display: flex; gap: 22px; }
 
-  .cabecalho {
-    position: sticky; top: 0; z-index: 50;
-    background: #fff;
-    box-shadow: 0 2px 12px rgba(11, 30, 63, .08);
-  }
-  .cabecalho .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 84px; }
+  /* ---------- Barra principal ---------- */
+  .cabecalho .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: var(--altura-barra); }
   .logo img { height: 54px; width: auto; }
 
   .menu { display: flex; align-items: center; gap: 28px; }
@@ -95,32 +130,34 @@ const ativo = (href: string) =>
   .menu > ul > li { position: relative; }
   .menu > ul > li > a {
     display: block; padding: 30px 12px;
-    color: var(--azul); font-weight: 500; font-size: 15px; text-decoration: none;
-    border-bottom: 3px solid transparent;
+    color: #fff; font-weight: 500; font-size: 15px; text-decoration: none;
+    border-bottom: 2px solid transparent;
   }
-  .menu > ul > li > a:hover { color: var(--azul-medio); }
-  .menu > ul > li > a[aria-current='page'] { border-bottom-color: var(--azul-medio); }
+  .menu > ul > li > a:hover { color: #d9d9d9; }
+  .menu > ul > li > a[aria-current='page'] { border-bottom-color: #f8f7f2; }
   .tem-sub > a::after { content: ' ▾'; font-size: 11px; }
 
   .sub {
     display: none;
     position: absolute; top: 100%; left: 0; min-width: 300px;
     list-style: none; margin: 0; padding: 8px 0;
-    background: #fff; box-shadow: var(--sombra); border-top: 3px solid var(--azul-medio);
+    background: #fff; box-shadow: var(--sombra); border-top: 3px solid var(--azul-claro);
   }
   .tem-sub:hover .sub, .tem-sub:focus-within .sub { display: block; }
   .sub a { display: block; padding: 10px 20px; color: var(--texto); text-decoration: none; font-size: 15px; }
   .sub a:hover { background: var(--fundo-cinza); color: var(--azul-medio); }
 
-  .menu-botao { padding: 10px 20px; }
+  /* Botão do menu em creme, o claro da marca. */
+  .menu-botao { padding: 10px 20px; background: #f8f7f2; border-color: #f8f7f2; color: var(--azul); }
+  .menu-botao:hover { background: #fff; border-color: #fff; color: var(--azul); }
 
   .abre-menu {
     display: none; align-items: center; gap: 10px;
-    background: none; border: 1px solid var(--linha); border-radius: 4px;
-    padding: 9px 14px; font: 500 15px var(--fonte); color: var(--azul); cursor: pointer;
+    background: none; border: 1px solid rgba(248, 247, 242, .4); border-radius: 4px;
+    padding: 9px 14px; font: 500 15px var(--fonte); color: #fff; cursor: pointer;
   }
   .hamburguer, .hamburguer::before, .hamburguer::after {
-    display: block; width: 18px; height: 2px; background: var(--azul); position: relative;
+    display: block; width: 18px; height: 2px; background: #fff; position: relative;
   }
   .hamburguer::before, .hamburguer::after { content: ''; position: absolute; left: 0; }
   .hamburguer::before { top: -6px; }
@@ -128,22 +165,26 @@ const ativo = (href: string) =>
 
   @media (max-width: 1080px) {
     .topbar .container > span:first-child { display: none; }
-    .topbar-contato { gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+    .topbar .container { justify-content: flex-end; }
+    .topbar-contato { gap: 14px; }
+    .cabecalho .container { flex-wrap: wrap; height: auto; min-height: var(--altura-barra); }
+    .logo img { height: 44px; }
+    .abre-menu:not([hidden]) { display: inline-flex; }
+    .menu {
+      flex-basis: 100%; flex-direction: column; align-items: stretch; gap: 0; padding-bottom: 16px;
+      max-height: calc(100vh - var(--altura-topo)); overflow-y: auto;
+    }
+    :global(.com-js) .menu:not(.aberto) { display: none; }
+    .menu > ul { flex-direction: column; gap: 0; }
+    .menu > ul > li > a { padding: 13px 4px; border-bottom: 1px solid rgba(248, 247, 242, .14); }
+    .menu > ul > li > a[aria-current='page'] { border-bottom-color: rgba(248, 247, 242, .14); color: #d9d9d9; }
+    .tem-sub > a::after { content: ''; }
+    .sub { display: block; position: static; box-shadow: none; border: 0; padding: 0 0 0 16px; min-width: 0; background: transparent; }
+    .sub a { padding: 10px 4px; color: rgba(248, 247, 242, .85); border-bottom: 1px solid rgba(248, 247, 242, .14); }
+    .sub a:hover { background: transparent; color: #fff; }
+    .menu-botao { margin-top: 16px; text-align: center; }
   }
   @media (max-width: 560px) {
     .topbar-contato a[href^='mailto:'] { display: none; }
-    .topbar .container { justify-content: flex-end; }
-    .cabecalho .container { flex-wrap: wrap; min-height: 72px; }
-    .logo img { height: 44px; }
-    .abre-menu:not([hidden]) { display: inline-flex; }
-    .menu { flex-basis: 100%; flex-direction: column; align-items: stretch; gap: 0; padding-bottom: 16px; }
-    :global(.com-js) .menu:not(.aberto) { display: none; }
-    .menu > ul { flex-direction: column; gap: 0; }
-    .menu > ul > li > a { padding: 13px 4px; border-bottom: 1px solid var(--linha); }
-    .menu > ul > li > a[aria-current='page'] { border-bottom-color: var(--linha); color: var(--azul-medio); }
-    .tem-sub > a::after { content: ''; }
-    .sub { display: block; position: static; box-shadow: none; border: 0; padding: 0 0 0 16px; min-width: 0; }
-    .sub a { padding: 10px 4px; border-bottom: 1px solid var(--linha); }
-    .menu-botao { margin-top: 16px; text-align: center; }
   }
 </style>

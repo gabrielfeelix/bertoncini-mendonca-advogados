@@ -30,11 +30,19 @@
   --azul-claro: #517493;    /* rótulos e detalhes */
   --texto: #333;
   --texto-suave: #5f6670;
-  --fundo-cinza: #f4f6f8;
-  --linha: #e3e6ea;
+  --fundo-cinza: #f8f7f2;   /* creme do manual de marca: seções e caixas claras */
+  --linha: #e4e1d8;         /* divisória em tom quente, para combinar com o creme */
   --sombra: 0 4px 18px rgba(11, 30, 63, 0.08);
   --fonte: 'Roboto', -apple-system, 'Segoe UI', Arial, sans-serif;
   --coluna: 1170px;
+  /* Alturas do cabeçalho fixo (Topo.astro). O conteúdo da página reserva
+     esse espaço; as capas com foto o usam por dentro, atrás do cabeçalho. */
+  --altura-topbar: 38px;
+  --altura-barra: 84px;
+  --altura-topo: calc(var(--altura-topbar) + var(--altura-barra));
+}
+@media (max-width: 1080px) {
+  :root { --altura-barra: 72px; }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -96,10 +104,16 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
   position: relative;
   background: var(--azul) center / cover no-repeat;
   color: #fff;
-  padding: 72px 0 64px;
+  padding: calc(var(--altura-topo) + 64px) 0 64px;
   text-align: center;
 }
-.banner-pagina::before { content: ''; position: absolute; inset: 0; background: rgba(11, 30, 63, 0.72); }
+.banner-pagina::before {
+  content: ''; position: absolute; inset: 0;
+  /* Mesmo escurecimento da capa da home: véu uniforme + canto petróleo. */
+  background:
+    linear-gradient(32deg, rgba(0, 67, 105, .92) 0%, rgba(0, 67, 105, .6) 22%, rgba(81, 116, 147, 0) 60%),
+    linear-gradient(rgba(11, 30, 63, .55), rgba(11, 30, 63, .55));
+}
 .banner-pagina .container { position: relative; }
 .banner-pagina h1 { color: #fff; font-size: 40px; font-weight: 300; margin: 0 0 8px; }
 .banner-pagina h1 strong { font-weight: 700; }
@@ -195,7 +209,7 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
   .secao { padding: 52px 0; }
   .grade-2, .grade-3 { grid-template-columns: 1fr; }
   .titulo-secao h2 { font-size: 28px; }
-  .banner-pagina { padding: 52px 0 46px; }
+  .banner-pagina { padding: calc(var(--altura-topo) + 44px) 0 46px; }
   .banner-pagina h1 { font-size: 30px; }
   .chamada h2 { font-size: 25px; }
   .form .linha-2 { grid-template-columns: 1fr; }

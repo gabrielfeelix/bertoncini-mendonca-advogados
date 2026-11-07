@@ -223,7 +223,7 @@ const slides = [
     display: flex;
     align-items: center;
     min-height: 600px;
-    padding: 96px 0 132px;
+    padding: calc(var(--altura-topo) + 72px) 0 132px;
     opacity: 0;
     visibility: hidden;
     transition: opacity .9s ease, visibility 0s linear .9s;
@@ -241,26 +241,26 @@ const slides = [
   }
 
   /*
-    O degradê, em três camadas, só com a paleta da marca:
-    1. Diagonal do azul-noite (#0B1E3F) para o petróleo (#004369) e o
-       azul acinzentado (#517493): escurece o lado do texto e deixa a foto
-       respirar à direita.
-    2. Brilho radial em #517493 no canto inferior direito, que dá
-       profundidade sem virar "efeito".
-    3. Base escurecida, para os controles terem contraste.
+    Escurecimento no estilo do site do Martinelli, com as cores da marca:
+    1. Topo levemente mais escuro, para o cabeçalho transparente ler bem.
+    2. "Canto" de azul petróleo (#004369) nascendo no inferior esquerdo e
+       sumindo na diagonal até o meio da tela, passando por #517493.
+    3. Véu uniforme e leve do azul-noite (#0B1E3F) na foto inteira: a
+       imagem continua visível, só perde o brilho para o texto ler.
   */
   .slide::before {
     content: '';
     position: absolute; inset: 0; z-index: -1;
     background:
-      linear-gradient(180deg, rgba(11, 30, 63, 0) 62%, rgba(11, 30, 63, .75) 100%),
-      radial-gradient(120% 90% at 100% 100%, rgba(81, 116, 147, .38) 0%, rgba(81, 116, 147, 0) 55%),
-      linear-gradient(105deg,
-        rgba(11, 30, 63, .96) 0%,
-        rgba(11, 30, 63, .9) 32%,
-        rgba(0, 67, 105, .62) 62%,
-        rgba(81, 116, 147, .28) 100%);
+      linear-gradient(180deg, rgba(11, 30, 63, .5) 0%, rgba(11, 30, 63, 0) 24%),
+      linear-gradient(32deg,
+        rgba(0, 67, 105, .96) 0%,
+        rgba(0, 67, 105, .72) 20%,
+        rgba(81, 116, 147, .28) 42%,
+        rgba(81, 116, 147, 0) 62%),
+      linear-gradient(rgba(11, 30, 63, .44), rgba(11, 30, 63, .44));
   }
+  .hero h1, .hero .h1, .texto, .rotulo-hero { text-shadow: 0 2px 18px rgba(11, 30, 63, .35); }
 
   /* Monograma do manual, como marca-d'água à direita. */
   .monograma {
@@ -331,7 +331,7 @@ const slides = [
   }
 
   @media (max-width: 680px) {
-    .slide { min-height: 560px; padding: 64px 0 120px; }
+    .slide { min-height: 600px; padding: calc(var(--altura-topo) + 48px) 0 120px; }
     .hero h1, .hero .h1 { font-size: 31px; }
     .texto { font-size: 16px; }
     .monograma { height: 90%; right: -30%; }

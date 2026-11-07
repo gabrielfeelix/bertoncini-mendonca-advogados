@@ -16,7 +16,23 @@ const ano = new Date().getFullYear();
     <div>
       <img class="rodape-logo" src="/media/marca/lockup-branco.png" alt={site.nome} width="779" height="298" />
       <p>{site.atendimentoRodape} e presencial em {site.cidade}/{site.estado}.</p>
-      <a class="rede" href={site.redes.instagram.valor} rel="noopener" target="_blank">{site.redes.instagramArroba}</a>
+      <ul class="redes" aria-label="Redes e canais">
+        <li>
+          <a href={site.redes.instagram.valor} rel="noopener" target="_blank" aria-label={`Instagram ${site.redes.instagramArroba}`}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1" class="cheio" /></svg>
+          </a>
+        </li>
+        <li>
+          <a href={site.whatsapp.valor} rel="noopener" target="_blank" aria-label={`WhatsApp ${site.telefone.valor}`}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.2-4A8 8 0 1 1 8.4 19z" /><path d="M9 8.6c0 3 2.5 6 5.6 6.4l1.2-1.4-1.9-.9-.8.9c-1-.4-2.1-1.4-2.6-2.6l.9-.8-.8-1.9L9.4 8" /></svg>
+          </a>
+        </li>
+        <li>
+          <a href={`mailto:${site.email.valor}`} aria-label={`E-mail ${site.email.valor}`}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2" /><path d="M4 7l8 6 8-6" /></svg>
+          </a>
+        </li>
+      </ul>
     </div>
 
     <div>
@@ -71,7 +87,16 @@ const ano = new Date().getFullYear();
   .rodape ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
   .rodape a { color: rgba(255,255,255,.88); text-decoration: none; }
   .rodape a:hover { color: #fff; text-decoration: underline; }
-  .rede { font-weight: 500; }
+  /* Ícones redondos brancos com o azul da marca dentro. Para incluir
+     LinkedIn ou YouTube quando existirem, basta outro <li> igual. */
+  .redes { display: flex !important; gap: 12px !important; margin-top: 18px !important; }
+  .redes a {
+    display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%;
+    background: #fff; color: var(--azul); transition: background-color .15s, color .15s;
+  }
+  .redes a:hover { background: var(--azul-claro); color: #fff; text-decoration: none; }
+  .redes svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .redes .cheio { fill: currentColor; stroke: none; }
 
   .barra { background: #071530; font-size: 13px; padding: 18px 0; }
   .barra .container { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
