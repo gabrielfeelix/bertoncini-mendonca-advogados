@@ -1,0 +1,231 @@
+---
+/**
+ * Acessibilidade: dois botões empilhados na lateral direita, como no site
+ * do Martinelli.
+ *
+ * 1. Painel próprio (bonequinho): aumentar/diminuir texto, alto contraste,
+ *    sublinhar links, restaurar. A escolha fica no navegador (localStorage)
+ *    e é aplicada no <head> antes da primeira pintura (ver Base.astro).
+ * 2. VLibras (mãos): tradutor oficial do governo para Libras. O script só
+ *    é baixado no primeiro clique, para não pesar o site de quem não usa;
+ *    o botão padrão do VLibras fica escondido e o tradutor abre direto
+ *    pela função `VLibrasWidget.open` que o carregador expõe.
+ */
+import type { Idioma } from '../lib/i18n';
+
+interface Props {
+  lang?: Idioma;
+}
+const { lang = 'pt' } = Astro.props;
+const T = {
+  pt: {
+    abrir: 'Abrir opções de acessibilidade',
+    libras: 'Traduzir para Libras (VLibras)',
+    titulo: 'Acessibilidade',
+    fechar: 'Fechar',
+    maior: 'Aumentar texto',
+    menor: 'Diminuir texto',
+    contraste: 'Alto contraste',
+    sublinhar: 'Sublinhar links',
+    restaurar: 'Restaurar padrão',
+    carregando: 'Carregando o VLibras…',
+  },
+  en: {
+    abrir: 'Open accessibility options',
+    libras: 'Translate into Brazilian Sign Language (VLibras)',
+    titulo: 'Accessibility',
+    fechar: 'Close',
+    maior: 'Larger text',
+    menor: 'Smaller text',
+    contraste: 'High contrast',
+    sublinhar: 'Underline links',
+    restaurar: 'Reset',
+    carregando: 'Loading VLibras…',
+  },
+}[lang];
+---
+
+<div class="a11y" data-a11y>
+  <div class="a11y-botoes">
+    <button type="button" class="a11y-btn" data-a11y-abrir aria-expanded="false" aria-controls="a11y-painel" aria-label={T.abrir} title={T.titulo}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.2" r="2" class="cheio" /><path d="M4.5 8.2c2.6.8 5 1.2 7.5 1.2s4.9-.4 7.5-1.2M12 9.4v4.4m0 0-3 7m3-7 3 7" /></svg>
+    </button>
+    <button type="button" class="a11y-btn" data-a11y-libras aria-label={T.libras} title="VLibras">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11.5V6.2a1.3 1.3 0 0 1 2.6 0V11m0-1.6V4.8a1.3 1.3 0 0 1 2.6 0V11m0-4.6a1.3 1.3 0 0 1 2.6 0V12m0-3.2a1.3 1.3 0 0 1 2.6 0v5.4c0 3.6-2.4 6.3-5.8 6.3-2.6 0-3.8-1.2-5.2-3.4l-2.1-3.4a1.3 1.3 0 0 1 2.1-1.5L7 13.6" /></svg>
+    </button>
+  </div>
+
+  <div class="a11y-painel" id="a11y-painel" role="dialog" aria-label={T.titulo} hidden>
+    <div class="a11y-cabeca">
+      <strong>{T.titulo}</strong>
+      <button type="button" class="a11y-fechar" data-a11y-fechar aria-label={T.fechar}>×</button>
+    </div>
+    <div class="a11y-grade">
+      <button type="button" data-a11y-acao="maior"><span class="a11y-sim">A+</span>{T.maior}</button>
+      <button type="button" data-a11y-acao="menor"><span class="a11y-sim">A−</span>{T.menor}</button>
+      <button type="button" data-a11y-acao="contraste" aria-pressed="false"><span class="a11y-sim"><svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M10 2a8 8 0 0 1 0 16z" fill="currentColor" /></svg></span>{T.contraste}</button>
+      <button type="button" data-a11y-acao="sublinhar" aria-pressed="false"><span class="a11y-sim a11y-sub">U</span>{T.sublinhar}</button>
+    </div>
+    <button type="button" class="a11y-restaurar" data-a11y-acao="restaurar">{T.restaurar}</button>
+  </div>
+  <p class="a11y-status" role="status" aria-live="polite" data-carregando={T.carregando}></p>
+</div>
+
+<script>
+  type Prefs = { texto: number; contraste: boolean; sublinhar: boolean };
+  const CHAVE = 'bm-a11y';
+  const raiz = document.documentElement;
+
+  const ler = (): Prefs => {
+    try {
+      return { texto: 0, contraste: false, sublinhar: false, ...JSON.parse(localStorage.getItem(CHAVE) ?? '{}') };
+    } catch {
+      return { texto: 0, contraste: false, sublinhar: false };
+    }
+  };
+  const aplicar = (p: Prefs) => {
+    if (p.texto) raiz.dataset.a11yTexto = String(p.texto); else delete raiz.dataset.a11yTexto;
+    raiz.toggleAttribute('data-a11y-contraste', p.contraste);
+    raiz.toggleAttribute('data-a11y-sublinhar', p.sublinhar);
+    document.querySelector('[data-a11y-acao="contraste"]')?.setAttribute('aria-pressed', String(p.contraste));
+    document.querySelector('[data-a11y-acao="sublinhar"]')?.setAttribute('aria-pressed', String(p.sublinhar));
+    try { localStorage.setItem(CHAVE, JSON.stringify(p)); } catch { /* navegação privada */ }
+  };
+
+  const painel = document.getElementById('a11y-painel');
+  const abrir = document.querySelector<HTMLButtonElement>('[data-a11y-abrir]');
+  let prefs = ler();
+  aplicar(prefs);
+
+  const mostrar = (sim: boolean) => {
+    if (!painel || !abrir) return;
+    painel.hidden = !sim;
+    abrir.setAttribute('aria-expanded', String(sim));
+    if (sim) painel.querySelector<HTMLButtonElement>('[data-a11y-acao]')?.focus();
+  };
+  abrir?.addEventListener('click', () => mostrar(painel?.hidden ?? false));
+  document.querySelector('[data-a11y-fechar]')?.addEventListener('click', () => { mostrar(false); abrir?.focus(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && painel && !painel.hidden) { mostrar(false); abrir?.focus(); }
+  });
+  document.addEventListener('click', (e) => {
+    const alvo = e.target as Node;
+    if (painel && !painel.hidden && !painel.contains(alvo) && !abrir?.contains(alvo)) mostrar(false);
+  });
+
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-a11y-acao]')) {
+    b.addEventListener('click', () => {
+      const acao = b.dataset.a11yAcao;
+      if (acao === 'maior') prefs.texto = Math.min(2, prefs.texto + 1);
+      if (acao === 'menor') prefs.texto = Math.max(0, prefs.texto - 1);
+      if (acao === 'contraste') prefs.contraste = !prefs.contraste;
+      if (acao === 'sublinhar') prefs.sublinhar = !prefs.sublinhar;
+      if (acao === 'restaurar') prefs = { texto: 0, contraste: false, sublinhar: false };
+      aplicar(prefs);
+    });
+  }
+
+  /* VLibras: baixa o carregador oficial só no primeiro clique. */
+  const libras = document.querySelector<HTMLButtonElement>('[data-a11y-libras]');
+  const status = document.querySelector<HTMLElement>('.a11y-status');
+  type W = { VLibrasWidget?: { open?: () => void } };
+  const abrirLibras = () => (window as unknown as W).VLibrasWidget?.open?.();
+  libras?.addEventListener('click', () => {
+    if ((window as unknown as W).VLibrasWidget?.open) { abrirLibras(); return; }
+    if (status) status.textContent = status.dataset.carregando ?? '';
+    const s = document.createElement('script');
+    s.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
+    s.async = true;
+    s.onload = () => {
+      let tentativas = 0;
+      const espera = window.setInterval(() => {
+        tentativas += 1;
+        if ((window as unknown as W).VLibrasWidget?.open || tentativas > 40) {
+          window.clearInterval(espera);
+          abrirLibras();
+          if (status) status.textContent = '';
+        }
+      }, 75);
+    };
+    document.body.appendChild(s);
+  });
+</script>
+
+<style is:global>
+  /* Botão padrão do VLibras escondido: o nosso, empilhado, faz o papel. */
+  #vlibras-access-wrapper { display: none !important; }
+
+  /* Tamanho do texto: zoom só no conteúdo e no rodapé (o cabeçalho fixo
+     tem altura calculada e não deve crescer). */
+  html[data-a11y-texto='1'] :is(#conteudo, .rodape) { zoom: 1.12; }
+  html[data-a11y-texto='2'] :is(#conteudo, .rodape) { zoom: 1.25; }
+
+  html[data-a11y-sublinhar] a { text-decoration: underline !important; }
+
+  /* Alto contraste: fundo preto, texto branco, links amarelos. */
+  html[data-a11y-contraste] body,
+  html[data-a11y-contraste] :is(#conteudo, .rodape, .topo) *:not(svg):not(svg *):not(img) {
+    background-color: #000 !important;
+    background-image: none !important;
+    color: #fff !important;
+    border-color: #fff !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  html[data-a11y-contraste] :is(#conteudo, .rodape, .topo) a,
+  html[data-a11y-contraste] :is(#conteudo, .rodape, .topo) a * { color: #ffeb3b !important; }
+  html[data-a11y-contraste] :is(#conteudo, .rodape, .topo) :is(.botao, button, input, select, textarea) { border: 2px solid #fff !important; }
+  html[data-a11y-contraste] :is(.slide, .banner-pagina, .banner-alto, .ajuda-cartao, .foto)::before,
+  html[data-a11y-contraste] :is(.foto)::after { display: none !important; }
+  html[data-a11y-contraste] img { filter: grayscale(1) contrast(1.15); }
+</style>
+
+<style>
+  .a11y { position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 60; }
+  .a11y-botoes {
+    display: grid; overflow: hidden;
+    border-radius: 12px 0 0 12px;
+    box-shadow: 0 8px 24px rgba(11, 30, 63, .25);
+  }
+  .a11y-btn {
+    display: grid; place-items: center; width: 46px; height: 46px;
+    background: var(--azul); color: #fff; border: 0; cursor: pointer;
+    transition: background-color .15s ease;
+  }
+  .a11y-btn + .a11y-btn { border-top: 1px solid rgba(248, 247, 242, .25); }
+  .a11y-btn:hover, .a11y-btn[aria-expanded='true'] { background: var(--azul-medio); }
+  .a11y-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .a11y-btn .cheio { fill: currentColor; stroke: none; }
+
+  .a11y-painel {
+    position: absolute; right: 56px; top: 50%; transform: translateY(-50%);
+    width: 300px; padding: 18px; border-radius: 14px;
+    background: #fff; color: var(--texto);
+    box-shadow: 0 20px 50px rgba(11, 30, 63, .25);
+  }
+  .a11y-painel[hidden] { display: none; }
+  .a11y-cabeca { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; color: var(--azul); }
+  .a11y-fechar { background: none; border: 0; font-size: 24px; line-height: 1; color: var(--texto-suave); cursor: pointer; padding: 2px 6px; }
+  .a11y-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .a11y-grade button {
+    display: grid; justify-items: center; gap: 6px; padding: 12px 8px;
+    border: 1px solid var(--linha); border-radius: 10px; background: var(--fundo-cinza);
+    font: 500 13px/1.25 var(--fonte); color: var(--azul); cursor: pointer;
+  }
+  .a11y-grade button:hover { border-color: var(--azul-claro); }
+  .a11y-grade button[aria-pressed='true'] { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .a11y-sim { font-size: 20px; font-weight: 700; line-height: 1; }
+  .a11y-sub { text-decoration: underline; }
+  .a11y-restaurar {
+    width: 100%; margin-top: 10px; padding: 9px; border-radius: 8px;
+    border: 0; background: none; color: var(--azul-medio); font: 500 14px var(--fonte); cursor: pointer;
+  }
+  .a11y-restaurar:hover { text-decoration: underline; }
+  .a11y-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  @media (max-width: 680px) {
+    .a11y { top: auto; bottom: 90px; transform: none; }
+    .a11y-btn { width: 42px; height: 42px; }
+    .a11y-painel { top: auto; bottom: 0; transform: none; right: 50px; width: min(300px, calc(100vw - 70px)); }
+  }
+</style>

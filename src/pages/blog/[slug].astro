@@ -93,7 +93,7 @@ const leiaTambem = relacionados.slice(0, 2);
           width={d.capaLargura}
           height={d.capaAltura}
           widths={[640, 1040, 1600]}
-          sizes="(min-width: 1100px) 1040px, 100vw"
+          sizes="(min-width: 1000px) 960px, 100vw"
           loading="eager"
         />
         {d.capaCredito && <figcaption>{d.capaCredito}</figcaption>}
@@ -151,7 +151,7 @@ const leiaTambem = relacionados.slice(0, 2);
 
 <style>
   .artigo { padding: 56px 20px 24px; }
-  .cabeca, .corpo { max-width: 780px; margin: 0 auto; }
+  .cabeca, .corpo { max-width: 840px; margin: 0 auto; }
   .trilha { font-size: 15px; color: var(--azul-claro); margin-bottom: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
   .trilha a { color: var(--azul-medio); text-decoration: none; font-weight: 500; }
   .trilha a:hover { text-decoration: underline; }
@@ -174,7 +174,7 @@ const leiaTambem = relacionados.slice(0, 2);
   .compartilhar a:hover, .copiar:hover { background: var(--azul-medio); color: #fff; }
   .copiado { position: absolute; right: 0; top: calc(100% + 6px); font-size: 13px; color: var(--azul-medio); white-space: nowrap; }
 
-  .capa-env { max-width: 1040px; margin: 40px auto 8px; }
+  .capa-env { max-width: 960px; margin: 40px auto 8px; }
   .capa-env :global(.capa) { width: 100%; height: auto; border-radius: 16px; display: block; }
   .capa-env figcaption { font-size: 13px; color: var(--texto-suave); margin-top: 8px; }
 

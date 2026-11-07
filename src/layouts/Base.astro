@@ -9,6 +9,7 @@ import '../styles/v3.css';
 import Topo from '../components/Topo.astro';
 import Rodape from '../components/Rodape.astro';
 import AvisoCookies from '../components/AvisoCookies.astro';
+import Acessibilidade from '../components/Acessibilidade.astro';
 import { site } from '../lib/site';
 import { t, type Idioma } from '../lib/i18n';
 
@@ -76,6 +77,16 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <!-- Marca que há JavaScript antes da primeira pintura: o cabeçalho só
          fica transparente sobre a foto quando o script de rolagem existe. -->
     <script is:inline>document.documentElement.classList.add('com-js');</script>
+    <!-- Preferências de acessibilidade salvas (Acessibilidade.astro), aplicadas
+         antes da primeira pintura para a página não "piscar". -->
+    <script is:inline>
+      try {
+        var a = JSON.parse(localStorage.getItem('bm-a11y') || '{}'), h = document.documentElement;
+        if (a.texto) h.dataset.a11yTexto = String(a.texto);
+        if (a.contraste) h.setAttribute('data-a11y-contraste', '');
+        if (a.sublinhar) h.setAttribute('data-a11y-sublinhar', '');
+      } catch (e) {}
+    </script>
     <link rel="preload" href="/fonts/roboto-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/roboto-700.woff2" as="font" type="font/woff2" crossorigin />
   </head>
@@ -86,6 +97,7 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
       <slot />
     </main>
     <Rodape lang={lang} />
+    <Acessibilidade lang={lang} />
     {tx.cookies ? <AvisoCookies {...tx.cookies} /> : <AvisoCookies />}
   </body>
   <style>
