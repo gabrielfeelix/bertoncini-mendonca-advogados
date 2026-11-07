@@ -15,6 +15,7 @@ import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
 import Chamada from '~/components/Chamada.astro';
 import IconeArea from '~/components/IconeArea.astro';
+import OutrasAreas from '~/components/OutrasAreas.astro';
 import { areasDoIdioma, assuntosDaArea, FOTO_DA_AREA } from '~/lib/areas';
 import { t, rota, type Idioma } from '~/lib/i18n';
 
@@ -85,9 +86,7 @@ const contato = rota(lang, '/contato/');
         <h2>{ar.tambem}</h2>
         <p>{ar.tambemApoio}</p>
       </div>
-      <ul class="tambem-lista">
-        {tx.outrasAreas.map((a) => <li>{a}</li>)}
-      </ul>
+      <OutrasAreas lang={lang} variante="grade" prefixo="oa-lista" />
     </div>
   </section>
 

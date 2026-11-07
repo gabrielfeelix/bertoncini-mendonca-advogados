@@ -9,6 +9,7 @@
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
 import Chamada from '~/components/Chamada.astro';
+import OutrasAreas from '~/components/OutrasAreas.astro';
 import { site } from '~/lib/site';
 import { areasDoIdioma, assuntosDaArea, FOTO_DA_AREA, type AreaNoIdioma } from '~/lib/areas';
 import { t, rota, type Idioma } from '~/lib/i18n';
@@ -122,7 +123,7 @@ const escritorio = rota(lang, '/escritorio/');
 
         <div class="widget">
           <h2>{ar.tambem}</h2>
-          <ul class="simples">{tx.outrasAreas.map((a) => <li>{a}</li>)}</ul>
+          <OutrasAreas lang={lang} variante="lista" prefixo="oa-lat" />
         </div>
 
         <div class="widget widget-azul">
@@ -134,7 +135,7 @@ const escritorio = rota(lang, '/escritorio/');
     </div>
   </section>
 
-  <Chamada lang={lang} />
+  <Chamada lang={lang} href={`${rota(lang, '/contato/')}?assunto=${area.slugPt}`} />
 </Base>
 
 <style>

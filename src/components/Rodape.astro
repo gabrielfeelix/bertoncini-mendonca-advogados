@@ -63,10 +63,17 @@ const ano = new Date().getFullYear();
       </p>
       <p class="politicas">
         {tx.rodape.politicas.map((item) => <a href={rota(lang, item.chave)}>{item.rotulo}</a>)}
+        <button type="button" class="link-cookies" data-abrir-cookies>{tx.rodape.preferencias}</button>
       </p>
     </div>
     <div class="container">
       <p class="aviso">{tx.aviso}</p>
+      {/* Golpe do falso advogado: aviso pedido no briefing (q9.3), discreto,
+          com os canais oficiais. Na página de contato ele aparece completo. */}
+      <p class="aviso golpe">
+        {tx.rodape.golpe} <a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a>{' '}
+        {tx.rodape.golpeE} <a href={`mailto:${site.email.valor}`}>{site.email.valor}</a>. {tx.rodape.golpeFim}
+      </p>
     </div>
   </div>
 </footer>
@@ -115,4 +122,11 @@ const ano = new Date().getFullYear();
     .politicas a { display: inline-block; padding: 10px 0; }
     .barra .container { gap: 4px 24px; }
   }
+  .link-cookies {
+    background: none; border: 0; padding: 0; cursor: pointer;
+    font: inherit; color: rgba(255,255,255,.88); text-decoration: none;
+  }
+  .link-cookies:hover { color: #fff; text-decoration: underline; }
+  .golpe { margin-top: 6px !important; }
+  .golpe a { color: rgba(255,255,255,.8); text-decoration: underline; }
 </style>

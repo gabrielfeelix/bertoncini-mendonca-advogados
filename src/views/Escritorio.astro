@@ -90,6 +90,19 @@ const perfis = site.socios.map((socio, i) => ({
           </div>
         ))}
       </div>
+
+      {/* Os seis valores de atuação (briefing q3.2) e a linha de recusa
+          (q3.5), em tom sóbrio, como os sócios pediram. */}
+      <h3 class="atuacao-titulo">{e.atuacaoTitulo}</h3>
+      <dl class="atuacao">
+        {e.valoresAtuacao.map((v) => (
+          <div>
+            <dt>{v.nome}</dt>
+            <dd>{v.texto}</dd>
+          </div>
+        ))}
+      </dl>
+      <p class="recusa"><strong>{e.recusaRotulo}</strong> {e.recusa}</p>
     </div>
   </section>
 
@@ -147,4 +160,13 @@ const perfis = site.socios.map((socio, i) => ({
     .perfil img { max-width: 320px; }
     .titulo-bloco { font-size: 26px; }
   }
+  .atuacao-titulo { text-align: center; font-size: 22px; margin: 56px 0 24px; }
+  .atuacao { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 40px; margin: 0; }
+  .atuacao div { padding: 18px 0; border-top: 1px solid var(--linha); }
+  .atuacao dt { font-weight: 700; color: var(--azul); margin-bottom: 4px; }
+  .atuacao dd { margin: 0; color: var(--texto-suave); font-size: 15px; }
+  .recusa { text-align: center; max-width: 720px; margin: 36px auto 0; color: var(--texto); }
+  .recusa strong { color: var(--azul); }
+  @media (max-width: 900px) { .atuacao { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .atuacao { grid-template-columns: 1fr; } }
 </style>

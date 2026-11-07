@@ -6,10 +6,11 @@
  */
 import Contato from '~/views/Contato.astro';
 
-/* Na prévia montada dentro de /v3 do site publicado (tools/montar-versao.mjs)
-   não há função de servidor desta versão: lá a página é pré-gerada, e o
-   envio continua indo para /api/contato da raiz. */
-export const prerender = import.meta.env.PREVIA_ESTATICA === '1';
+/* Renderizada a cada pedido. Na prévia montada em /v3 do site publicado
+   (PREVIA_ESTATICA=1), astro.config.mjs a marca como estática: lá não há
+   função de servidor desta versão. Não trocar este `false` por uma
+   expressão: o Astro não a avalia e cai no padrão (estático). */
+export const prerender = false;
 ---
 
 <Contato lang="pt" />

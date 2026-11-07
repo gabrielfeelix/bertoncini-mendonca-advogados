@@ -44,6 +44,8 @@ interface Props {
   ressalva?: string;
   /** Os três botões de escolha, na ordem. */
   opcoes?: Opcao[];
+  /** Rótulo do botão que reabre o aviso depois da escolha (LGPD: revogar tem de ser tão fácil quanto aceitar). */
+  preferencias?: string;
 }
 
 const {
@@ -58,6 +60,7 @@ const {
     { consente: 'necessarios', rotulo: 'Apenas necessários' },
     { consente: 'nenhum', rotulo: 'Rejeitar' },
   ],
+  preferencias = 'Preferências de cookies',
 }: Props = Astro.props;
 ---
 
@@ -74,6 +77,14 @@ const {
   </div>
 </div>
 
+<!-- Reabre o aviso depois que a pessoa já escolheu. Pela LGPD, retirar o
+     consentimento tem de ser tão fácil quanto dar: sem isto, quem aceitou
+     não tinha por onde voltar atrás. Canto inferior esquerdo, porque a
+     direita é da acessibilidade. -->
+<button type="button" class="cookie-flutuante" data-abrir-cookies aria-label={preferencias} title={preferencias} hidden>
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20.5 12.3A8.5 8.5 0 1 1 11.7 3.5a3 3 0 0 0 3.4 3.4 3 3 0 0 0 3 3 3 3 0 0 0 2.4 2.4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="8.5" cy="10" r="1.2" fill="currentColor"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/><circle cx="15.8" cy="13" r="1" fill="currentColor"/><circle cx="8.8" cy="15" r=".9" fill="currentColor"/></svg>
+</button>
+
 <script>
   import { lerEscolha, registrar, type Escolha } from '~/lib/consentimento';
 
@@ -81,7 +92,22 @@ const {
      nenhuma para consentir, então ele simplesmente não aparece. */
   const caixa = document.getElementById('aviso');
 
+  const flutuante = document.querySelector<HTMLButtonElement>('.cookie-flutuante');
+  const mostrarFlutuante = (sim: boolean) => { if (flutuante) flutuante.hidden = !sim; };
+
   if (caixa) {
+    /* Qualquer [data-abrir-cookies] (o botão flutuante, o link do rodapé)
+       reabre o aviso para a pessoa mudar a escolha. */
+    document.addEventListener('click', (e) => {
+      const alvo = (e.target as Element | null)?.closest('[data-abrir-cookies]');
+      if (!alvo) return;
+      e.preventDefault();
+      caixa.hidden = false;
+      mostrarFlutuante(false);
+      caixa.querySelector<HTMLButtonElement>('[data-consente]')?.focus();
+    });
+
+    if (lerEscolha()) mostrarFlutuante(true);
     if (!lerEscolha()) {
       caixa.hidden = false;
       /* A altura do aviso vai para o CSS: no celular os botões de
@@ -99,6 +125,7 @@ const {
            `consentimento` no `document`, o mesmo contrato do protótipo. */
         registrar(valor);
         caixa.hidden = true;
+        mostrarFlutuante(true);
       });
     });
   }
@@ -175,4 +202,15 @@ const {
       max-width: none;
     }
   }
+
+  .cookie-flutuante {
+    position: fixed; left: 16px; bottom: 16px; z-index: 55;
+    display: grid; place-items: center; width: 44px; height: 44px;
+    border-radius: 50%; border: 1px solid rgba(248, 247, 242, .35); cursor: pointer;
+    background: var(--azul, #0b1e3f); color: #fff;
+    box-shadow: 0 8px 22px rgba(11, 30, 63, .28);
+    transition: background-color .15s ease;
+  }
+  .cookie-flutuante[hidden] { display: none; }
+  .cookie-flutuante:hover { background: var(--azul-medio, #004369); }
 </style>

@@ -14,6 +14,7 @@
 import Base from '~/layouts/Base.astro';
 import HeroSlides from '~/components/HeroSlides.astro';
 import IconeArea from '~/components/IconeArea.astro';
+import OutrasAreas from '~/components/OutrasAreas.astro';
 import CartaoArtigo from '~/components/CartaoArtigo.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
@@ -79,7 +80,7 @@ const grupos = [
       </div>
       <div class="outras">
         <h3>{h.tambem}</h3>
-        <ul>{tx.outrasAreas.map((a) => <li>{a}</li>)}</ul>
+        <OutrasAreas lang={lang} variante="etiquetas" prefixo="oa-home" />
       </div>
     </div>
   </section>

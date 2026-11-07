@@ -53,6 +53,20 @@ export default defineConfig({
     transfere a autoridade da URL antiga para a nova.
   */
   integrations: [
+    /* Prévia montada dentro de /v3 do site publicado (tools/montar-versao.mjs):
+       com PREVIA_ESTATICA=1, as páginas de contato saem pré-geradas, porque
+       a função de servidor desta versão não vai junto. O envio continua indo
+       para /api/contato da raiz. Fora disso, nada muda. */
+    {
+      name: 'previa-estatica',
+      hooks: {
+        'astro:route:setup': ({ route }) => {
+          if (process.env.PREVIA_ESTATICA === '1' && /src\/pages\/(contato|en\/contact)\.astro$/.test(route.component)) {
+            route.prerender = true;
+          }
+        },
+      },
+    },
     // Conteúdo do blog (Tarefas 10-12) será escrito em MDX, como na Isabella.
     mdx(),
     /* O painel do CMS (Tarefa 12) é área de trabalho interna, não conteúdo:

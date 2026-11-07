@@ -41,6 +41,28 @@ interface Props {
 const { titulo, descricao, paginaAtual, noindex = false, sobreposto = true, lang = 'pt', alternativa } = Astro.props;
 const tx = t(lang);
 const urlAlternativa = alternativa ? new URL(alternativa, site.url).toString() : undefined;
+
+/* Dados estruturados (schema.org) só na home: dizem ao Google que é um
+   escritório de advocacia em Maringá/PR que atende todo o Brasil, o que
+   ajuda nas buscas locais ("advogado em Maringá"). */
+const dadosEstruturados =
+  paginaAtual === '/'
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'LegalService',
+        name: site.nome,
+        url: new URL(lang === 'en' ? '/en/' : '/', site.url).toString(),
+        logo: new URL('/media/marca/lockup-azul.png', site.url).toString(),
+        image: new URL('/media/hero/socios-1600.jpg', site.url).toString(),
+        description: tx.descricao,
+        telephone: site.telefoneE164.valor,
+        email: site.email.valor,
+        address: { '@type': 'PostalAddress', addressLocality: site.cidade, addressRegion: site.estado, addressCountry: 'BR' },
+        areaServed: { '@type': 'Country', name: 'Brasil' },
+        knowsLanguage: ['pt-BR', 'en'],
+        sameAs: [site.redes.instagram.valor],
+      }
+    : undefined;
 const urlCanonica = new URL(Astro.url.pathname, site.url);
 ---
 
@@ -69,6 +91,7 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <meta property="og:image" content={new URL(site.imagemPadrao.valor, site.url).toString()} />
     <meta property="og:locale" content={tx.locale} />
     <meta name="twitter:card" content="summary_large_image" />
+    {dadosEstruturados && <script type="application/ld+json" set:html={JSON.stringify(dadosEstruturados)} />}
 
     <!-- Favicon BM (o mesmo da v2): .ico para navegadores antigos, PNG 32px e ícone do iPhone. -->
     <link rel="icon" href="/favicon.ico" sizes="48x48" />

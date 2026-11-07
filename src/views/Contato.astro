@@ -19,6 +19,7 @@ import Seletor from '~/components/Seletor.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
 import { areasDoIdioma } from '~/lib/areas';
+import { outrasAreas } from '~/lib/outras-areas';
 import { t, rota, type Idioma } from '~/lib/i18n';
 
 interface Props {
@@ -35,11 +36,16 @@ const mensagemErro = c.erros[motivo ?? ''] ?? c.erros.envio;
 const valores = { nome: '', email: '', telefone: '', assunto: '', perfil: '', conheceu: '', mensagem: '' };
 
 const areas = await areasDoIdioma(lang);
-const ASSUNTOS = [...areas.map((a) => a.data.nome), c.outroAssunto, c.naoSei];
+/* As áreas pequenas ("Também atuamos em") também são assunto: o painel delas
+   manda ?assunto=<chave> para cá. */
+const outras = outrasAreas(lang);
+const ASSUNTOS = [...areas.map((a) => a.data.nome), ...outras.map((o) => o.nome), c.outroAssunto, c.naoSei];
 
 /* A página da área manda ?assunto=<slug em português>: quem vem de lá chega com o assunto escolhido. */
 const areaDoLink = areas.find((a) => a.slugPt === Astro.url.searchParams.get('assunto'));
 if (areaDoLink) valores.assunto = areaDoLink.data.nome;
+const outraDoLink = outras.find((o) => o.chave === Astro.url.searchParams.get('assunto'));
+if (outraDoLink) valores.assunto = outraDoLink.nome;
 
 /* Sem JavaScript, quem erra volta com o que digitou (a API devolve em v-<campo>). */
 if (envio === 'erro') {
@@ -181,6 +187,14 @@ const erroEm = (campo: string) =>
             <dd>{tx.atendimento} {tx.presencialEm} {site.cidade}/{site.estado}</dd>
           </dl>
         </div>
+        <div class="widget golpe">
+          <h2>{lang === 'en' ? 'Fake-lawyer scam' : 'Golpe do falso advogado'}</h2>
+          <p>
+            {lang === 'en'
+              ? 'Scammers use the names of law firms and lawyers to ask for payment of fees, costs or the "release" of court funds. We only contact you through the channels above, and we never ask for payment from any other number, profile or link sent by third parties. If you receive such a message in our name, do not pay and check with us first.'
+              : 'Há golpistas usando o nome de escritórios e de advogados para pedir pagamento de custas, taxas ou "liberação" de valores de processo. Nós só falamos com você pelos canais acima, e não pedimos pagamento por outro número, perfil ou link enviado por terceiros. Se receber uma mensagem assim em nosso nome, não pague e confirme conosco antes.'}
+          </p>
+        </div>
       </aside>
     </div>
   </section>
@@ -243,4 +257,5 @@ const erroEm = (campo: string) =>
   .dados dt:first-child { margin-top: 0; }
   .dados dd { margin: 2px 0 0; }
   .resultado { margin-bottom: 18px; }
+  .golpe p { font-size: 14px; line-height: 1.6; margin: 0; color: var(--texto-suave); }
 </style>
