@@ -10,7 +10,7 @@
  * marca-d'água saiu em 07/11/2026: competia com a foto.)
  *
  * Acessibilidade (WCAG 2.2.2): conteúdo que se move sozinho por mais de
- * 5s precisa de pausa. Há botão de pausar, e o carrossel para quando o
+ * 5s precisa de pausa. O carrossel para quando o
  * mouse ou o foco do teclado está nele. Com `prefers-reduced-motion` não
  * troca sozinho e não faz fade. Sem JavaScript, fica só o primeiro slide.
  */
@@ -57,7 +57,7 @@ const slides = [
 ];
 ---
 
-<section class="hero" aria-roledescription={lang === 'en' ? 'carousel' : 'carrossel'} aria-label={tx.hero.aria} data-intervalo={intervalo} data-pausar={tx.hero.pausar} data-retomar={tx.hero.retomar}>
+<section class="hero" aria-roledescription={lang === 'en' ? 'carousel' : 'carrossel'} aria-label={tx.hero.aria} data-intervalo={intervalo}>
   <div class="trilho">
     {slides.map((s, i) => (
       <div
@@ -92,25 +92,23 @@ const slides = [
   </div>
 
 
+  {/* Setas nas laterais e, embaixo, linhas curtas que enchem no tempo de
+      cada slide (07/11/2026). O botão de pausa saiu: o carrossel para com o
+      mouse ou o foco nele, com a aba em segundo plano e, com
+      prefers-reduced-motion, não roda sozinho. */}
+  <button class="seta seta-ant" type="button" data-anterior aria-label={tx.hero.anterior} hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+  </button>
+  <button class="seta seta-prox" type="button" data-proximo aria-label={tx.hero.proximo} hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+  </button>
   <div class="controles" hidden>
-    <div class="container">
-      <button class="seta" type="button" data-anterior aria-label={tx.hero.anterior}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
-      </button>
-      <div class="pontos">
-        {slides.map((_, i) => (
-          <button type="button" class="ponto" data-ir={i} aria-label={tx.hero.irPara(i + 1)} aria-current={i === 0 ? 'true' : undefined}>
-            <span class="barra"></span>
-          </button>
-        ))}
-      </div>
-      <button class="seta" type="button" data-proximo aria-label={tx.hero.proximo}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
-      </button>
-      <button class="pausa" type="button" data-pausa aria-label={tx.hero.pausar} aria-pressed="false">
-        <svg class="i-pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg>
-        <svg class="i-tocar" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z" /></svg>
-      </button>
+    <div class="pontos">
+      {slides.map((_, i) => (
+        <button type="button" class="ponto" data-ir={i} aria-label={tx.hero.irPara(i + 1)} aria-current={i === 0 ? 'true' : undefined}>
+          <span class="barra"></span>
+        </button>
+      ))}
     </div>
   </div>
 </section>
@@ -120,17 +118,19 @@ const slides = [
     const slides = [...hero.querySelectorAll<HTMLElement>('.slide')];
     const pontos = [...hero.querySelectorAll<HTMLButtonElement>('[data-ir]')];
     const controles = hero.querySelector<HTMLElement>('.controles');
-    const pausa = hero.querySelector<HTMLButtonElement>('[data-pausa]');
-    if (slides.length < 2 || !controles || !pausa) continue;
+    const setas = [...hero.querySelectorAll<HTMLButtonElement>('.seta')];
+    if (slides.length < 2 || !controles) continue;
 
     const intervalo = Number(hero.dataset.intervalo) || 7000;
     const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     hero.style.setProperty('--tempo', `${intervalo}ms`);
     controles.hidden = false;
+    setas.forEach((s) => (s.hidden = false));
 
     let atual = 0;
     let relogio: number | undefined;
-    let pausadoPeloUsuario = reduzido;
+    /* Com prefers-reduced-motion não troca sozinho. */
+    const parado = reduzido;
     let pausadoPorInteracao = false;
 
     const mostrar = (n: number) => {
@@ -146,7 +146,7 @@ const slides = [
 
     const agendar = () => {
       window.clearTimeout(relogio);
-      const rodando = !pausadoPeloUsuario && !pausadoPorInteracao;
+      const rodando = !parado && !pausadoPorInteracao;
       hero.toggleAttribute('data-rodando', false);
       if (!rodando) return;
       // Reinicia a barra de progresso do ponto ativo.
@@ -159,17 +159,6 @@ const slides = [
     hero.querySelector('[data-proximo]')?.addEventListener('click', () => mostrar(atual + 1));
     pontos.forEach((p, i) => p.addEventListener('click', () => mostrar(i)));
 
-    const atualizarPausa = () => {
-      pausa.setAttribute('aria-pressed', String(pausadoPeloUsuario));
-      pausa.setAttribute('aria-label', (pausadoPeloUsuario ? hero.dataset.retomar : hero.dataset.pausar) ?? '');
-      hero.toggleAttribute('data-pausado', pausadoPeloUsuario);
-    };
-    pausa.addEventListener('click', () => {
-      pausadoPeloUsuario = !pausadoPeloUsuario;
-      atualizarPausa();
-      agendar();
-    });
-    atualizarPausa();
 
     // Para enquanto a pessoa está com o mouse ou o foco no carrossel.
     const segurar = (sim: boolean) => {
@@ -183,8 +172,9 @@ const slides = [
       if (!hero.contains(e.relatedTarget as Node)) segurar(false);
     });
 
-    // Setas do teclado quando o foco está nos controles.
-    controles.addEventListener('keydown', (e) => {
+    // Setas do teclado quando o foco está nas setas ou nas linhas.
+    hero.addEventListener('keydown', (e) => {
+      if (!(e.target as HTMLElement).closest('.controles, .seta')) return;
       if (e.key === 'ArrowLeft') mostrar(atual - 1);
       if (e.key === 'ArrowRight') mostrar(atual + 1);
     });
@@ -255,13 +245,12 @@ const slides = [
     content: '';
     position: absolute; inset: 0; z-index: -1;
     background:
-      linear-gradient(180deg, rgba(11, 30, 63, .5) 0%, rgba(11, 30, 63, 0) 24%),
       linear-gradient(32deg,
-        rgba(0, 67, 105, .96) 0%,
-        rgba(0, 67, 105, .72) 20%,
-        rgba(81, 116, 147, .28) 42%,
+        rgba(0, 67, 105, .1) 0%,
+        rgba(0, 67, 105, .065) 20%,
+        rgba(81, 116, 147, .02) 42%,
         rgba(81, 116, 147, 0) 62%),
-      linear-gradient(rgba(11, 30, 63, .44), rgba(11, 30, 63, .44));
+      linear-gradient(rgba(11, 30, 63, .47), rgba(11, 30, 63, .47));
   }
   .hero h1, .hero .h1, .texto, .rotulo-hero { text-shadow: 0 2px 18px rgba(11, 30, 63, .35); }
 
@@ -286,35 +275,50 @@ const slides = [
   .botao-creme:hover { background: #fff; border-color: #fff; color: #0b1e3f; }
 
   /* ---------- Controles ---------- */
-  .controles { position: absolute; left: 0; right: 0; bottom: 36px; z-index: 2; }
-  .controles .container { display: flex; align-items: center; gap: 14px; }
-  .controles button {
-    display: inline-grid; place-items: center;
-    background: transparent; border: 1px solid rgba(248, 247, 242, .35); color: #fff;
-    cursor: pointer; transition: background-color .15s, border-color .15s;
+  /* Setas nas laterais, no meio da altura. A da direita fica afastada da
+     borda o bastante para não encostar nos botões fixos de acessibilidade. */
+  .seta {
+    position: absolute; top: 50%; z-index: 3; transform: translateY(-50%);
+    display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(11, 30, 63, .22); border: 1px solid rgba(248, 247, 242, .35); color: #fff;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    cursor: pointer; transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
   }
-  .controles button:hover { background: rgba(248, 247, 242, .12); border-color: rgba(248, 247, 242, .7); }
-  .controles svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .seta, .pausa { width: 42px; height: 42px; border-radius: 50%; }
-  .pausa { margin-left: auto; }
-  .i-tocar { display: none; fill: currentColor !important; }
-  .hero[data-pausado] .i-pausa { display: none; }
-  .hero[data-pausado] .i-tocar { display: block; }
+  .seta[hidden] { display: none; }
+  .seta:hover { background: rgba(248, 247, 242, .14); border-color: rgba(248, 247, 242, .75); }
+  .seta-ant { left: 56px; }
+  .seta-prox { right: 56px; }
+  .seta-ant:hover { transform: translateY(-50%) translateX(-2px); }
+  .seta-prox:hover { transform: translateY(-50%) translateX(2px); }
+  .seta svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-  .pontos { display: flex; gap: 10px; }
-  .controles .ponto { width: 56px; height: 24px; border: 0; padding: 0; background: none; }
-  .controles .ponto:hover { background: none; }
+  /* Linhas do tempo de cada slide, curtas e centradas embaixo. */
+  .controles { position: absolute; left: 0; right: 0; bottom: 34px; z-index: 2; display: flex; justify-content: center; }
+  .controles[hidden] { display: none; }
+  .pontos { display: flex; gap: 8px; }
+  .ponto { width: 30px; height: 20px; border: 0; padding: 0; background: none; cursor: pointer; }
   .ponto .barra {
-    position: relative; display: block; width: 100%; height: 3px; overflow: hidden;
-    background: rgba(248, 247, 242, .3); border-radius: 2px;
+    position: relative; display: block; width: 100%; height: 2px; overflow: hidden;
+    background: rgba(248, 247, 242, .32); border-radius: 2px;
   }
+  .ponto:hover .barra { background: rgba(248, 247, 242, .55); }
   .ponto[aria-current] .barra::after {
     content: ''; position: absolute; inset: 0; background: #f8f7f2;
     transform-origin: left; transform: scaleX(1);
   }
-  /* A barra do slide ativo enche no tempo do slide, enquanto ele roda. */
+  /* A linha do slide ativo enche no tempo do slide, enquanto ele roda. */
   .hero[data-rodando] .ponto[aria-current] .barra::after { animation: enche var(--tempo, 7000ms) linear forwards; }
   @keyframes enche { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  /* Tela média: as laterais encostariam no texto; as setas descem e ficam
+     uma de cada lado das linhas. */
+  @media (max-width: 1320px) {
+    .seta { top: auto; bottom: 20px; transform: none; width: 40px; height: 40px; }
+    .seta-ant { left: calc(50% - 98px - 52px); }
+    .seta-prox { right: calc(50% - 98px - 52px); }
+    .seta-ant:hover, .seta-prox:hover { transform: none; }
+    .controles { bottom: 30px; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .slide, .slide[data-ativo] { transition: none; }
@@ -325,13 +329,9 @@ const slides = [
     .slide { min-height: 600px; padding: calc(var(--altura-topo) + 48px) 0 120px; }
     .hero h1, .hero .h1 { font-size: 31px; }
     .texto { font-size: 16px; }
-    .pontos { gap: 6px; }
-    /* 40px de altura para o toque; a barra continua com 3px. */
-    .controles .ponto { width: 34px; height: 40px; }
-    .seta, .pausa { width: 40px; height: 40px; }
-    /* No celular a pausa fica junto das setas: no canto direito ela caía
-       atrás dos botões de acessibilidade (fixos na lateral) quando a capa
-       é mais baixa, como na versão em inglês. */
-    .pausa { margin-left: 0; }
+    /* No celular: só as linhas (e o arrastar); 40px de altura para o toque. */
+    .seta { display: none !important; }
+    .ponto { width: 28px; height: 40px; }
+    .controles { bottom: 22px; }
   }
 </style>

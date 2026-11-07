@@ -18,6 +18,11 @@ const areas = await areasDoIdioma(lang);
 const ano = new Date().getFullYear();
 /* A página pode pôr conteúdo no topo do rodapé (a newsletter da home). */
 const temTopo = Astro.slots.has('default');
+/* "Golpe do falso advogado: só falamos…" vira título + texto. */
+const [golpeTitulo, golpeTexto = ''] = tx.rodape.golpe.includes(': ')
+  ? tx.rodape.golpe.split(/: (.*)/s)
+  : [tx.rodape.golpe, ''];
+const golpeFrase = golpeTexto.charAt(0).toUpperCase() + golpeTexto.slice(1);
 ---
 
 <footer class="rodape">
@@ -65,27 +70,79 @@ const temTopo = Astro.slots.has('default');
     </div>
   </div>
 
+  {/* Faixa final, em dois níveis (07/11/2026): a linha principal (sociedade
+      e registro | políticas | assinatura) e, abaixo de um filete, os dois
+      avisos lado a lado, cada um com título curto. */}
   <div class="barra">
-    <div class="container">
-      <p>
-        © {ano} {site.nomeSociedade} · {tx.rodape.inscrita} {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}
-      </p>
+    <div class="container barra-linha">
+      <div class="legal">
+        <p class="legal-nome">© {ano} {site.nomeSociedade}</p>
+        <p class="legal-dados">{tx.rodape.inscrita} {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}</p>
+      </div>
       <p class="politicas">
         {tx.rodape.politicas.map((item) => <a href={rota(lang, item.chave)}>{item.rotulo}</a>)}
         <button type="button" class="link-cookies" data-abrir-cookies>{tx.rodape.preferencias}</button>
       </p>
+      {/* Assinatura de quem fez o site: "Gabriel Felix" em Dancing Script
+          (OFL, hospedada aqui só com as letras usadas) e um aviãozinho de
+          papel vermelho com o caminho tracejado dando a volta no nome. O
+          caminho se desenha quando aparece na tela; no hover o avião voa. */}
+      <a class="credito" href="https://gabrielfelix-ux.4yu.com.br/" target="_blank" rel="noopener" data-credito>
+          <span class="credito-feito">{lang === 'en' ? 'made by' : 'feito por'}</span>
+          <span class="credito-nome">
+            Gabriel Felix
+            <svg class="credito-voo" viewBox="0 0 196 66" aria-hidden="true" focusable="false">
+              <defs>
+                <mask id="credito-mascara" maskUnits="userSpaceOnUse" x="0" y="0" width="196" height="66">
+                  <path class="voo-revela" d="M10 52 C 50 63, 112 63, 140 50 C 164 39, 167 22, 152 22 C 138 22, 141 41, 160 34 C 171 30, 175 21, 179 13" pathLength="1" />
+                </mask>
+              </defs>
+              <path class="voo-caminho" mask="url(#credito-mascara)" d="M10 52 C 50 63, 112 63, 140 50 C 164 39, 167 22, 152 22 C 138 22, 141 41, 160 34 C 171 30, 175 21, 179 13" />
+              <g class="voo-aviao" transform="translate(178 13) rotate(-52)">
+                <path d="M-6 -6 L 9 0 L -6 6 L -3 0 Z" />
+                <path class="voo-dobra" d="M-3 0 L 9 0" />
+              </g>
+            </svg>
+          </span>
+          <span class="oculto">{lang === 'en' ? ' (opens his portfolio in a new tab)' : ' (abre o portfólio em nova aba)'}</span>
+        </a>
     </div>
-    <div class="container">
-      <p class="aviso">{tx.aviso}</p>
+    <div class="container barra-avisos">
+      <p class="aviso"><strong>{lang === 'en' ? 'Notice' : 'Aviso'}</strong>{tx.aviso}</p>
       {/* Golpe do falso advogado: aviso pedido no briefing (q9.3), discreto,
           com os canais oficiais. Na página de contato ele aparece completo. */}
       <p class="aviso golpe">
-        {tx.rodape.golpe} <a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a>{' '}
+        <strong>{golpeTitulo}</strong>
+        {golpeFrase} <a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a>{' '}
         {tx.rodape.golpeE} <a href={`mailto:${site.email.valor}`}>{site.email.valor}</a>. {tx.rodape.golpeFim}
       </p>
     </div>
   </div>
 </footer>
+
+<script>
+  /* Desenha o traço da assinatura uma vez, quando ela entra na tela. */
+  for (const credito of document.querySelectorAll<HTMLElement>('[data-credito]')) {
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) continue;
+    credito.classList.add('espera');
+    const olho = new IntersectionObserver((es) => {
+      if (es.some((e) => e.isIntersecting)) {
+        credito.classList.add('visto');
+        olho.disconnect();
+      }
+    }, { threshold: 0.6 });
+    olho.observe(credito);
+  }
+</script>
+
+<style is:global>
+  @font-face {
+    font-family: 'Assinatura';
+    src: url('/fonts/assinatura.woff2') format('woff2');
+    font-weight: 600;
+    font-display: swap;
+  }
+</style>
 
 <style>
   .rodape {
@@ -127,11 +184,68 @@ const temTopo = Astro.slots.has('default');
   .com-icone :global(.icone) { position: relative; top: 2px; }
   .com-icone span { overflow-wrap: anywhere; }
 
-  .barra { background: #071530; font-size: 13px; padding: 18px 0; }
-  .barra .container { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
+  .barra { background: #071530; font-size: 13px; }
   .barra p { margin: 0; }
-  .politicas { display: flex; gap: 20px; }
-  .aviso { margin-top: 10px !important; color: rgba(255,255,255,.6); }
+  /* Linha principal: registro | políticas | assinatura. */
+  .barra-linha {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center; gap: 16px 40px; padding-top: 22px; padding-bottom: 22px;
+  }
+  .legal-nome { color: rgba(255, 255, 255, .9); font-weight: 500; }
+  .legal-dados { color: rgba(255, 255, 255, .55); margin-top: 3px !important; }
+  .politicas { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+  /* Avisos: duas colunas, título curto em negrito, texto apagado. */
+  .barra-avisos {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px 48px;
+    padding-top: 16px; padding-bottom: 22px;
+    border-top: 1px solid rgba(248, 247, 242, .08);
+  }
+  .aviso { color: rgba(255, 255, 255, .5); font-size: 12.5px; line-height: 1.6; }
+  .aviso strong { display: block; color: rgba(255, 255, 255, .75); font-weight: 500; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 4px; }
+  .aviso a { color: rgba(255, 255, 255, .75); }
+
+  /* ---------- Assinatura ---------- */
+  .credito {
+    display: inline-flex; align-items: baseline; gap: 10px; padding: 14px 28px 14px 0; margin: -14px 0;
+    color: rgba(248, 247, 242, .6); text-decoration: none;
+    transition: color .25s ease;
+  }
+  .credito-feito { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .credito-nome {
+    position: relative; font-family: 'Assinatura', 'Segoe Script', cursive; font-weight: 600;
+    font-size: 24px; line-height: 1; color: #f8f7f2;
+  }
+  .credito-voo { position: absolute; left: -14px; top: -20px; width: 196px; height: 66px; overflow: visible; pointer-events: none; }
+  .voo-caminho { fill: none; stroke: #e0574f; stroke-width: 1.3; stroke-linecap: round; stroke-dasharray: 3 4; opacity: .9; }
+  .voo-revela { fill: none; stroke: #fff; stroke-width: 4; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .voo-aviao path { fill: #e0574f; }
+  .voo-aviao .voo-dobra { fill: none; stroke: #9e2f29; stroke-width: 1; }
+  .credito:hover, .credito:focus-visible { color: #f8f7f2; }
+  /* Entrada: o caminho se desenha e o avião aparece no fim dele. */
+  .credito.espera .voo-revela { stroke-dashoffset: 1; }
+  .credito.espera .voo-aviao { opacity: 0; }
+  .credito.visto .voo-revela { stroke-dashoffset: 0; transition: stroke-dashoffset 1.3s cubic-bezier(.65, 0, .35, 1) .2s; }
+  .credito.visto .voo-aviao { opacity: 1; transition: opacity .3s ease 1.35s; }
+  /* Hover: o caminho se refaz e o avião dá um impulso para frente. */
+  .credito:hover .voo-revela { animation: voo-revela 1s cubic-bezier(.65, 0, .35, 1); }
+  .credito:hover .voo-aviao { animation: voo-aviao 1s cubic-bezier(.65, 0, .35, 1); }
+  @keyframes voo-revela { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes voo-aviao {
+    0%, 70% { opacity: 0; transform: translate(178px, 13px) rotate(-52deg) translate(-6px, 0); }
+    100% { opacity: 1; transform: translate(178px, 13px) rotate(-52deg); }
+  }
+  .oculto {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .credito:hover .voo-revela, .credito:hover .voo-aviao { animation: none; }
+  }
+  @media (max-width: 991px) {
+    .barra-linha { grid-template-columns: 1fr; }
+    .barra-avisos { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) { .credito { justify-self: center; margin-top: 4px; } }
 
   @media (max-width: 900px) { .colunas { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) {
@@ -144,13 +258,12 @@ const temTopo = Astro.slots.has('default');
     /* Itens só de texto (horário, cidade) com o mesmo respiro dos links. */
     .rodape ul:not(.redes) > li:not(:has(a)) { padding: 7px 0; }
     .politicas a { display: inline-block; padding: 10px 0; }
-    .barra .container { gap: 4px 24px; }
+    .barra-linha { gap: 14px; }
   }
   .link-cookies {
     background: none; border: 0; padding: 0; cursor: pointer;
     font: inherit; color: rgba(255,255,255,.88); text-decoration: none;
   }
   .link-cookies:hover { color: #fff; text-decoration: underline; }
-  .golpe { margin-top: 6px !important; }
   .golpe a { color: rgba(255,255,255,.8); text-decoration: underline; }
 </style>

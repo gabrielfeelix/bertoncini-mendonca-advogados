@@ -131,9 +131,8 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 }
 .banner-cheio::before {
   background:
-    linear-gradient(180deg, rgba(11, 30, 63, .5) 0%, rgba(11, 30, 63, 0) 24%),
-    linear-gradient(32deg, rgba(0, 67, 105, .96) 0%, rgba(0, 67, 105, .72) 20%, rgba(81, 116, 147, .28) 42%, rgba(81, 116, 147, 0) 62%),
-    linear-gradient(rgba(11, 30, 63, .44), rgba(11, 30, 63, .44));
+    linear-gradient(32deg, rgba(0, 67, 105, .1) 0%, rgba(0, 67, 105, .065) 20%, rgba(81, 116, 147, .02) 42%, rgba(81, 116, 147, 0) 62%),
+    linear-gradient(rgba(11, 30, 63, .47), rgba(11, 30, 63, .47));
 }
 .banner-cheio h1 { font-size: 52px; text-shadow: 0 2px 18px rgba(11, 30, 63, .35); }
 .banner-cheio .banner-apoio { text-shadow: 0 2px 18px rgba(11, 30, 63, .35); }

@@ -96,8 +96,6 @@ const pt = {
     anterior: 'Slide anterior',
     proximo: 'Próximo slide',
     irPara: (n: number) => `Ir para o slide ${n}`,
-    pausar: 'Pausar a troca automática',
-    retomar: 'Retomar a troca automática',
   },
   socio: { o: 'Sócio', a: 'Sócia', retrato: 'Retrato de' },
   home: {
@@ -339,8 +337,6 @@ const en: Textos = {
     anterior: 'Previous slide',
     proximo: 'Next slide',
     irPara: (n) => `Go to slide ${n}`,
-    pausar: 'Pause automatic rotation',
-    retomar: 'Resume automatic rotation',
   },
   socio: { o: 'Partner', a: 'Partner', retrato: 'Portrait of' },
   home: {
