@@ -103,5 +103,16 @@ const ano = new Date().getFullYear();
   .aviso { margin-top: 10px !important; color: rgba(255,255,255,.6); }
 
   @media (max-width: 900px) { .colunas { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 560px) { .colunas { grid-template-columns: 1fr; gap: 32px; } }
+  @media (max-width: 560px) {
+    .colunas { grid-template-columns: 1fr; gap: 32px; }
+    /* Alvo de toque perto de 40px nos links das listas e das políticas,
+       sem mudar o ritmo visual (o respiro vira área clicável). */
+    .rodape ul:not(.redes) { gap: 0; }
+    .rodape ul:not(.redes) a { display: inline-block; padding: 7px 0; }
+    .rodape ul:not(.redes) a.com-icone { display: inline-flex; }
+    /* Itens só de texto (horário, cidade) com o mesmo respiro dos links. */
+    .rodape ul:not(.redes) > li:not(:has(a)) { padding: 7px 0; }
+    .politicas a { display: inline-block; padding: 10px 0; }
+    .barra .container { gap: 4px 24px; }
+  }
 </style>

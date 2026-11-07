@@ -173,7 +173,8 @@ const escritorio = rota(lang, '/escritorio/');
   @media (max-width: 680px) {
     .servicos ul { grid-template-columns: 1fr; }
     .tabela-assuntos th, .tabela-assuntos td { display: block; width: auto; }
-    .tabela-assuntos th { padding-bottom: 2px; }
+    /* Empilhado, o filete entre o assunto e a explicação separava o par. */
+    .tabela-assuntos th { padding-bottom: 2px; border-bottom: 0; }
     .tabela-assuntos td { padding-top: 0; }
   }
 </style>

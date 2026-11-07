@@ -63,8 +63,8 @@ const {
 
 <div class="aviso" id="aviso" role="region" aria-label={rotulo} hidden>
   <p data-placeholder="1">
-    {texto}
-    <a href={linkHref} data-placeholder={linkPlaceholder ? '1' : undefined}>{linkRotulo}</a>
+    {texto}{' '}
+    <a href={linkHref} data-placeholder={linkPlaceholder ? '1' : undefined}>{linkRotulo}</a>{' '}
     {ressalva && <span style="color:var(--imperial)">{ressalva}</span>}
   </p>
   <div class="opcoes">
@@ -82,7 +82,14 @@ const {
   const caixa = document.getElementById('aviso');
 
   if (caixa) {
-    if (!lerEscolha()) caixa.hidden = false;
+    if (!lerEscolha()) {
+      caixa.hidden = false;
+      /* A altura do aviso vai para o CSS: no celular os botões de
+         acessibilidade (Acessibilidade.astro) sobem para cima dele. */
+      const medir = () => document.documentElement.style.setProperty('--altura-aviso', `${caixa.offsetHeight + 12}px`);
+      medir();
+      new ResizeObserver(medir).observe(caixa);
+    }
 
     caixa.querySelectorAll<HTMLButtonElement>('[data-consente]').forEach((botao) => {
       botao.addEventListener('click', () => {

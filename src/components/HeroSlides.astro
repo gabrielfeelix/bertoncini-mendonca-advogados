@@ -340,7 +340,12 @@ const slides = [
     .texto { font-size: 16px; }
     .monograma { height: 90%; right: -30%; }
     .pontos { gap: 6px; }
-    .controles .ponto { width: 34px; }
-    .seta, .pausa { width: 38px; height: 38px; }
+    /* 40px de altura para o toque; a barra continua com 3px. */
+    .controles .ponto { width: 34px; height: 40px; }
+    .seta, .pausa { width: 40px; height: 40px; }
+    /* No celular a pausa fica junto das setas: no canto direito ela caía
+       atrás dos botões de acessibilidade (fixos na lateral) quando a capa
+       é mais baixa, como na versão em inglês. */
+    .pausa { margin-left: 0; }
   }
 </style>

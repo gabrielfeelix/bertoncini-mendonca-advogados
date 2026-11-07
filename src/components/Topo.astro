@@ -133,7 +133,8 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
     height: var(--altura-topbar); align-items: center;
     border-bottom: 1px solid rgba(248, 247, 242, .14);
   }
-  .topbar a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; }
+  /* Link com a altura da faixa: no celular o alvo de toque é a faixa toda. */
+  .topbar a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; min-height: var(--altura-topbar); }
   .topbar a:hover { text-decoration: underline; color: #fff; }
   .topbar-contato { display: flex; gap: 22px; align-items: center; }
   /* Seletor de idioma: texto discreto, o atual em negrito. */
@@ -226,11 +227,17 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
     .topbar .container { justify-content: flex-end; }
     .topbar-contato { gap: 14px; }
     .cabecalho .container { flex-wrap: wrap; height: auto; min-height: var(--altura-barra); }
+    /* A logo ocupa a altura da barra: ao abrir o menu (que quebra para a
+       linha de baixo), a primeira linha não encolhe e a logo não pula. */
+    .logo { display: flex; align-items: center; height: var(--altura-barra); }
     .logo img { height: 46px; }
     .abre-menu:not([hidden]) { display: inline-flex; }
     .menu {
       flex-basis: 100%; flex-direction: column; align-items: stretch; gap: 0; padding-bottom: 16px;
-      max-height: calc(100vh - var(--altura-topo)); overflow-y: auto;
+      /* dvh: no celular, 100vh conta a tela sem a barra do navegador e o
+         fim do menu ficaria inalcançável. */
+      max-height: calc(100vh - var(--altura-topo)); max-height: calc(100dvh - var(--altura-topo));
+      overflow-y: auto; overscroll-behavior: contain;
     }
     :global(.com-js) .menu:not(.aberto) { display: none; }
     .menu > ul { flex-direction: column; gap: 0; }

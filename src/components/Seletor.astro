@@ -109,12 +109,18 @@
     }
 
     /* Fixa na tela (position: fixed) para não ser cortada por cartão com
-       overflow: hidden; abre para cima quando falta espaço embaixo. */
+       overflow: hidden; abre para cima quando falta espaço embaixo. O
+       espaço de cima termina no cabeçalho fixo (.topo), e a lista encolhe
+       para caber no lado escolhido: no celular ela não some atrás do menu
+       nem passa do pé da tela. */
     function posiciona() {
       const r = gatilho.getBoundingClientRect();
       const altura = Math.min(lista.scrollHeight, ALTURA_MAX);
-      const abaixo = window.innerHeight - r.bottom;
-      const paraCima = abaixo < altura + 12 && r.top > abaixo;
+      const teto = document.querySelector('.topo')?.getBoundingClientRect().bottom ?? 0;
+      const abaixo = window.innerHeight - r.bottom - 12;
+      const acima = r.top - Math.max(teto, 0) - 12;
+      const paraCima = abaixo < altura && acima > abaixo;
+      lista.style.maxHeight = `${Math.max(120, Math.min(ALTURA_MAX, paraCima ? acima : abaixo))}px`;
       lista.classList.toggle('para-cima', paraCima);
       lista.style.left = `${Math.max(8, r.left)}px`;
       lista.style.width = `${Math.min(r.width, window.innerWidth - 16)}px`;

@@ -185,7 +185,8 @@ const T = {
   .a11y-botoes {
     display: grid; overflow: hidden;
     border-radius: 12px 0 0 12px;
-    box-shadow: 0 8px 24px rgba(11, 30, 63, .25);
+    /* Filete claro: sobre o rodapé, azul no azul, os botões sumiam. */
+    box-shadow: 0 0 0 1px rgba(248, 247, 242, .22), 0 8px 24px rgba(11, 30, 63, .25);
   }
   .a11y-btn {
     display: grid; place-items: center; width: 46px; height: 46px;
@@ -205,7 +206,12 @@ const T = {
   }
   .a11y-painel[hidden] { display: none; }
   .a11y-cabeca { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; color: var(--azul); }
-  .a11y-fechar { background: none; border: 0; font-size: 24px; line-height: 1; color: var(--texto-suave); cursor: pointer; padding: 2px 6px; }
+  /* 40px de alvo de toque; a margem negativa mantém o × alinhado ao canto. */
+  .a11y-fechar {
+    display: grid; place-items: center; width: 40px; height: 40px; margin: -8px -10px -8px 0;
+    background: none; border: 0; border-radius: 8px; font-size: 26px; line-height: 1; color: var(--texto-suave); cursor: pointer; padding: 0;
+  }
+  .a11y-fechar:hover { background: var(--fundo-cinza); }
   .a11y-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .a11y-grade button {
     display: grid; justify-items: center; gap: 6px; padding: 12px 8px;
@@ -227,5 +233,12 @@ const T = {
     .a11y { top: auto; bottom: 90px; transform: none; }
     .a11y-btn { width: 42px; height: 42px; }
     .a11y-painel { top: auto; bottom: 0; transform: none; right: 50px; width: min(300px, calc(100vw - 70px)); }
+    /* Com o aviso de cookies aberto (ocupa a largura toda no celular), os
+       botões sobem para cima dele em vez de ficar meio escondidos atrás.
+       A altura do aviso vem de AvisoCookies.astro. */
+    :global(html:has(#aviso:not([hidden]))) .a11y { bottom: calc(var(--altura-aviso, 260px) + 12px); }
+    /* Lista do seletor aberta (Seletor.astro): os botões saem da frente
+       das opções enquanto a pessoa escolhe. */
+    :global(html:has(.seletor.aberto)) .a11y { visibility: hidden; }
   }
 </style>

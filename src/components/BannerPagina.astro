@@ -18,6 +18,9 @@ interface Props {
   posicao?: string;
   /** Linha de apoio sob o título, só na capa alta. */
   apoio?: string;
+  /** Enquadramento da foto da capa alta no celular, onde ela ocupa a
+      largura toda e o corte central pode tirar rostos de quadro. */
+  posicaoCelular?: string;
 }
 const {
   titulo,
@@ -28,6 +31,7 @@ const {
   alto = false,
   posicao = 'center',
   apoio,
+  posicaoCelular,
 } = Astro.props;
 const tx = t(lang);
 ---
@@ -39,7 +43,7 @@ const tx = t(lang);
   {/* Na capa alta a foto é uma imagem à direita que começa ABAIXO do
       cabeçalho, para rosto nenhum ficar atrás do menu, e se funde no azul
       pela esquerda (mask-image). */}
-  {alto && <img class="banner-foto" src={foto} alt="" style={`object-position:${posicao}`} />}
+  {alto && <img class="banner-foto" src={foto} alt="" style={`--posicao:${posicao};--posicao-celular:${posicaoCelular ?? posicao}`} />}
   <div class="container">
     {html ? <h1 set:html={html} /> : <h1>{titulo}</h1>}
     {alto && apoio && <p class="banner-apoio">{apoio}</p>}

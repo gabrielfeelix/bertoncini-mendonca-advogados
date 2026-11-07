@@ -360,6 +360,9 @@ const grupos = [
   }
   @media (max-width: 900px) {
     .news-env { grid-template-columns: 1fr; gap: 24px; }
+    /* No tablet os dois cartões dividem a linha e cada um fica estreito:
+       duas colunas de serviços quebravam "Planejamento / patrimonial". */
+    .servicos { grid-template-columns: 1fr; }
   }
   @media (max-width: 680px) {
     .titulo-bloco { font-size: 28px; }

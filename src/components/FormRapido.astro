@@ -192,7 +192,10 @@ const escolhido = ASSUNTOS.find((a) => a.toLowerCase() === assuntoPadrao.toLower
   .fale-resultado { margin: 0; }
 
   @media (max-width: 900px) {
-    .fale-cartao { grid-template-columns: 1fr; }
+    /* minmax(0, 1fr), e não 1fr: o assunto já escolhido ("Planejamento
+       Patrimonial e Sucessório", numa linha só) alargava a coluna e os
+       campos saíam pela direita do cartão no celular. */
+    .fale-cartao { grid-template-columns: minmax(0, 1fr); }
     .fale-lado { padding: 36px 24px; }
     .fale-form { padding: 32px 24px; }
   }
