@@ -47,7 +47,8 @@ if (envio === 'erro') {
 const houveCorte = envio === 'erro' && Astro.url.searchParams.get('corte-contato') === '1';
 const campoComErro =
   motivo === 'email' ? 'email' : motivo === 'faltando' ? (valores.nome ? 'mensagem' : 'nome') : null;
-const erroEm = (campo: string) => (campoComErro === campo ? { 'aria-invalid': 'true', 'aria-describedby': 'resultado-contato' } : {});
+const erroEm = (campo: string) =>
+  campoComErro === campo ? ({ 'aria-invalid': 'true', 'aria-describedby': 'resultado-contato' } as const) : {};
 ---
 
 <Base
