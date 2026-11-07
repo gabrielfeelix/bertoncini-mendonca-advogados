@@ -136,6 +136,20 @@ const golpeFrase = golpeTexto.charAt(0).toUpperCase() + golpeTexto.slice(1);
 </script>
 
 <style is:global>
+  /* Com o "Também atuamos em" dentro (/areas/): o rodapé ganha a diagonal
+     no topo e avança sobre a faixa de cima, que aparece na cunha. Global
+     porque o :has() com filho de outro componente não sobrevive ao escopo. */
+  footer.rodape:has(> .antes-do-rodape) {
+    --corte: 64px;
+    margin-top: calc(-1 * var(--corte));
+    clip-path: polygon(0 var(--corte), 100% 0, 100% 100%, 0 100%);
+  }
+  /* Filete entre o "Também atuamos em" e a chamada. */
+  footer.rodape > .antes-do-rodape + .chamada { padding-top: 0; }
+  footer.rodape > .antes-do-rodape + .chamada > .container { border-top: 1px solid rgba(248, 247, 242, .12); padding-top: 56px; }
+  @media (max-width: 991px) { footer.rodape:has(> .antes-do-rodape) { --corte: 40px; } }
+  @media (max-width: 680px) { footer.rodape:has(> .antes-do-rodape) { --corte: 28px; } }
+
   @font-face {
     font-family: 'Assinatura';
     src: url('/fonts/assinatura.woff2') format('woff2');
@@ -155,7 +169,7 @@ const golpeFrase = golpeTexto.charAt(0).toUpperCase() + golpeTexto.slice(1);
   }
   .rodape-arte {
     position: absolute; right: -6%; top: 50%; transform: translateY(-50%);
-    height: 125%; aspect-ratio: 254 / 276; opacity: .05; pointer-events: none;
+    height: min(125%, 900px); aspect-ratio: 254 / 276; opacity: .05; pointer-events: none;
     background: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
   }
   .rodape > :not(.rodape-arte) { position: relative; z-index: 1; }

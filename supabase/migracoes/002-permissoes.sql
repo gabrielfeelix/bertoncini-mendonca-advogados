@@ -18,7 +18,7 @@
 --  recorre. `search_path` fixo para a função não ser sequestrada por uma
 --  tabela homônima em outro schema.
 --
---  Esta migração não foi aplicada a banco nenhum.
+--  Aplicar com `npm run cms:migra` (ver docs/HANDOFF-V3-2026-11-07.md).
 -- ─────────────────────────────────────────────────────────────────────────
 
 create table if not exists public.editores (

@@ -1,173 +1,220 @@
 /**
- * Salvar um artigo — rascunho ou publicado.
+ * Salvar um texto: rascunho ou publicado.
+ *
+ * Recebe o formulário de /painel/artigo/ (multipart, por causa da capa).
+ * Sem JavaScript, responde com 303; com ele, o script do editor pede JSON e
+ * mostra o erro na própria tela, sem perder o que foi escrito.
  *
  * ── A fronteira de segurança fica aqui ──────────────────────────────────
  *
- * O corpo chega em HTML (quando o Tiptap está ligado) ou em markdown
- * (quando não está), e é **aqui** que vira markdown para o banco, por
- * `htmlParaMarkdown`. A conversão derruba tag que o editor não produz e
- * transforma link `javascript:`/`data:` em texto puro.
+ * O corpo chega em HTML (Tiptap ligado) ou em markdown (sem JavaScript, ou
+ * com o botão "Markdown" do editor), e é **aqui** que vira markdown para o
+ * banco, por `htmlParaMarkdown`. A conversão derruba tag que o editor não
+ * produz e transforma link `javascript:`/`data:` em texto puro. No caminho
+ * de markdown, os destinos de link e imagem também são conferidos.
  *
  * Isso não pode acontecer no navegador: defesa que roda no cliente é defesa
- * que o cliente pode pular — basta um POST feito à mão. O campo `formato`
- * diz o que esperar, mas o conversor é rodado de qualquer jeito no caminho
- * de HTML, e o de markdown ainda passa pela verificação de link.
+ * que o cliente pode pular — basta um POST feito à mão. E o loader ainda
+ * neutraliza HTML cru no build (`neutralizaHtmlCru`), que é a segunda camada.
  *
  * ── Quem pode salvar ────────────────────────────────────────────────────
  *
- * A RLS. Esta rota usa o token do editor, nunca a chave de serviço, então
- * uma requisição sem sessão válida é recusada pelo banco mesmo que chegue
- * até aqui.
+ * A RLS. Esta rota usa o token do editor, nunca a chave de serviço.
  */
 import type { APIRoute } from 'astro';
-import { clienteComSessao, tokenDaSessao, configSupabase } from '~/lib/painel-auth';
-import { site } from '~/lib/site';
-
-/** Mesmos valores da constraint da migração 004 e de FORMATOS em lib/artigos. */
-const FORMATOS_VALIDOS = ['artigo', 'noticia', 'video'];
+import { configSupabase, editorAtual } from '~/lib/painel-auth';
 import {
+  ErroPainel,
+  arquivoDoCampo,
+  avisoDoGancho,
+  categoriaCanonica,
+  categoriasDoPainel,
+  disparaRebuild,
+  enviaImagem,
+  responde,
+} from '~/lib/painel-artigo';
+import {
+  destinoAceito,
   htmlParaMarkdown,
+  imagemAceita,
   minutosDeLeitura,
   slugDoTitulo,
-  destinoAceito,
 } from '~/lib/markdown-editor';
+import { FORMATOS } from '~/lib/artigos';
+import { site } from '~/lib/site';
 
 export const prerender = false;
 
-function voltaPara(caminho: string): Response {
-  return new Response(null, { status: 303, headers: { location: caminho } });
-}
-
-/** Erro volta para a própria edição, preservando qual artigo era. */
-function erro(slugOriginal: string, codigo: string): Response {
-  const base = slugOriginal
-    ? `/painel/artigo/?slug=${encodeURIComponent(slugOriginal)}&erro=${codigo}`
-    : `/painel/artigo/?erro=${codigo}`;
-  return voltaPara(base);
-}
-
 /**
- * Remove destino perigoso de link markdown digitado à mão.
+ * Confere os destinos de link e imagem de markdown digitado à mão.
  *
- * O caminho de HTML já resolve isso na conversão; este é o caminho de quem
- * está sem JavaScript e escreveu markdown direto.
+ * Um nível de parêntese aninhado é aceito dentro do destino. Sem isso,
+ * `[x](javascript:alert(1))` casava só até o primeiro `)` e sobrava um `)`
+ * solto no texto publicado.
  */
-function limpaLinksDeMarkdown(markdown: string): string {
-  /* Um nível de parêntese aninhado é aceito dentro do destino. Sem isso,
-     `[x](javascript:alert(1))` casava só até o primeiro `)` e sobrava um
-     `)` solto no texto publicado: `[x](#))`. O link já ficava inofensivo,
-     mas com lixo visível no meio da frase. */
-  return markdown.replace(/\]\(((?:[^()]|\([^()]*\))*)\)/g, (inteiro, destino: string) =>
-    destinoAceito(destino) ? inteiro : '](#)',
-  );
+function limpaDestinosDeMarkdown(markdown: string): string {
+  return markdown.replace(/(!?)\[([^\]]*)\]\(((?:[^()]|\([^()]*\))*)\)/g, (inteiro, bang: string, rotulo: string, destino: string) => {
+    if (bang) return imagemAceita(destino) ? inteiro : '';
+    return destinoAceito(destino) ? inteiro : `[${rotulo}](#)`;
+  });
 }
+
+/** "2026-11-07" → meio-dia UTC: o dia gravado é o digitado, em qualquer fuso. */
+function dataDoCampo(valor: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return null;
+  const data = new Date(`${valor}T12:00:00Z`);
+  return Number.isNaN(data.valueOf()) ? null : data.toISOString();
+}
+
+const inteiro = (valor: string) => {
+  const n = Number.parseInt(valor, 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-  if (!configSupabase()) return voltaPara('/painel/?erro=sem-banco');
+  if (!configSupabase()) return responde(request, '/painel/entrar/?erro=sem-banco', 'sem-banco');
 
-  const token = tokenDaSessao(cookies);
-  const cliente = token ? clienteComSessao(token) : null;
-  if (!cliente) return voltaPara('/painel/?erro=sessao');
+  const editor = await editorAtual(cookies);
+  if (!editor) return responde(request, '/painel/entrar/?erro=sessao', 'sessao');
 
   let dados: FormData;
   try {
     dados = await request.formData();
   } catch {
-    return voltaPara('/painel/?erro=salvar');
+    return responde(request, '/painel/?erro=salvar', 'salvar');
   }
 
   const texto = (campo: string, limite: number) =>
     String(dados.get(campo) ?? '').trim().slice(0, limite);
 
   const slugOriginal = texto('slug_original', 80);
+  const erro = (codigo: string) =>
+    responde(
+      request,
+      slugOriginal
+        ? `/painel/artigo/?slug=${encodeURIComponent(slugOriginal)}&erro=${codigo}`
+        : `/painel/artigo/?erro=${codigo}`,
+      codigo,
+    );
+
   const titulo = texto('titulo', 120);
   const resumo = texto('resumo', 300);
-  const corpoBruto = String(dados.get('corpo') ?? '');
-  const formato = texto('formato', 10);
   const publicar = texto('acao', 20) === 'publicar';
 
-  if (!titulo) return erro(slugOriginal, 'titulo');
-  if (!resumo) return erro(slugOriginal, 'resumo');
+  if (!titulo) return erro('titulo');
+  if (!resumo) return erro('resumo');
 
-  /* HTML do editor vira markdown; markdown digitado à mão só tem os links
+  /* HTML do editor vira markdown; markdown digitado só tem os destinos
      conferidos. Nos dois casos, o que chega ao banco é markdown. */
+  const corpoBruto = String(dados.get('corpo') ?? '');
   const corpo =
-    formato === 'html'
+    texto('corpo_tipo', 10) === 'html'
       ? htmlParaMarkdown(corpoBruto)
-      : limpaLinksDeMarkdown(corpoBruto.trim());
+      : limpaDestinosDeMarkdown(corpoBruto.replace(/\r\n/g, '\n').trim());
+  if (!corpo) return erro('corpo');
 
-  if (!corpo) return erro(slugOriginal, 'corpo');
+  /* O endereço de um texto já existente não muda: mudá-lo quebraria o link
+     já compartilhado e deixaria um 404 para trás. */
+  const slug = slugOriginal || slugDoTitulo(texto('slug', 80) || titulo);
+  if (!slug) return erro('slug');
 
-  /* O slug de um artigo já existente não muda: mudá-lo quebraria o link que
-     já foi compartilhado, e deixaria um 404 para trás. */
-  const slug = slugOriginal || slugDoTitulo(titulo);
-  if (!slug) return erro(slugOriginal, 'slug');
+  const { cliente } = editor;
 
-  const capa = texto('capa', 500) || null;
-  const capaAlt = texto('capa_alt', 200) || null;
-  const capaLargura = Number(texto('capa_largura', 6)) || null;
-  const capaAltura = Number(texto('capa_altura', 6)) || null;
-
-  /* Mesma regra da constraint do banco, verificada antes para virar recado
-     em português em vez de erro do Postgres. */
-  if (capa && (!capaAlt || !capaLargura || !capaAltura)) {
-    return erro(slugOriginal, 'capa');
+  let anterior: { estado: string } | null = null;
+  if (slugOriginal) {
+    const { data, error } = await cliente
+      .from('artigos')
+      .select('estado')
+      .eq('slug', slugOriginal)
+      .maybeSingle();
+    if (error) {
+      console.error('[painel] falha ao ler o texto', error.message);
+      return erro('salvar');
+    }
+    if (!data) return erro('nao-achei');
+    anterior = data;
   }
 
+  // ── capa ─────────────────────────────────────────────────────────────
+  let capa: string | null = texto('capa', 500) || null;
+  let capaLargura = inteiro(texto('capa_largura', 6));
+  let capaAltura = inteiro(texto('capa_altura', 6));
+  const capaAlt = texto('capa_alt', 200) || null;
+  const arquivoCapa = arquivoDoCampo(dados, 'capa_arquivo');
+
+  if (dados.get('remover_capa') === '1') {
+    capa = null;
+  } else if (arquivoCapa) {
+    try {
+      const enviada = await enviaImagem(cliente, arquivoCapa, `capas/${slug}-${Date.now()}`, {
+        largura: capaLargura ?? undefined,
+        altura: capaAltura ?? undefined,
+      });
+      capa = enviada.url;
+      capaLargura = enviada.largura;
+      capaAltura = enviada.altura;
+    } catch (e) {
+      return erro(e instanceof ErroPainel ? e.codigo : 'imagem-envio');
+    }
+  }
+
+  /* Mesmas regras das constraints do banco, conferidas antes para virar
+     recado em português em vez de erro do Postgres. */
+  /* HTTPS, caminho do site, ou o Storage do próprio Supabase configurado
+     (que é `http://` quando o banco roda local, com `supabase start`). */
+  const doStorage = `${configSupabase()!.url.replace(/\/+$/, '')}/storage/v1/object/public/`;
+  const capaAceita = (url: string) =>
+    /^https:\/\/[^/]/i.test(url) || /^\/[^/]/.test(url) || url.startsWith(doStorage);
+  if (capa && !capaAceita(capa)) return erro('capa-url');
+  if (capa && (!capaAlt || !capaLargura || !capaAltura)) return erro('capa');
+
+  // ── demais campos ────────────────────────────────────────────────────
+  const categorias = await categoriasDoPainel();
+  const marcados = dados.getAll('autores').map(String);
+  const formato = texto('formato', 10);
+  const tempoDigitado = inteiro(texto('tempo_leitura', 3));
+  const publicadoEm = dataDoCampo(texto('publicado_em', 10));
+
   const linha = {
-    slug,
     titulo,
     resumo,
     corpo,
-    categoria: texto('categoria', 60) || 'Informativo',
-    /* Autores marcados no painel, na ordem do site; só nomes de sócio. */
-    autor: site.socios
-      .map((s) => s.nome)
-      .filter((nome) => dados.getAll('autores').map(String).includes(nome))
-      .join(', '),
-    formato: FORMATOS_VALIDOS.includes(texto('formato_publicacao', 10)) ? texto('formato_publicacao', 10) : 'artigo',
+    categoria: categoriaCanonica(texto('categoria', 80), categorias) ?? 'Informativo',
+    /* Autores marcados, na ordem do site; só nomes de sócio. É o texto que
+       `autoresDoArtigo` (lib/artigos) lê. */
+    autor: site.socios.map((s) => s.nome).filter((nome) => marcados.includes(nome)).join(', '),
+    formato: Object.hasOwn(FORMATOS, formato) ? formato : 'artigo',
     estado: publicar ? 'publicado' : 'rascunho',
     capa,
     capa_alt: capa ? capaAlt : null,
     capa_largura: capa ? capaLargura : null,
     capa_altura: capa ? capaAltura : null,
+    capa_credito: capa ? texto('capa_credito', 200) || null : null,
     seo_titulo: texto('seo_titulo', 60) || null,
     seo_descricao: texto('seo_descricao', 160) || null,
-    tempo_leitura: minutosDeLeitura(corpo),
+    /* "Calcular sozinho" marcado (o padrão, também sem JavaScript) ou número
+       fora da faixa: sai do corpo. Desmarcado: vale o que foi digitado. */
+    tempo_leitura:
+      dados.get('tempo_auto') || !tempoDigitado || tempoDigitado > 120
+        ? minutosDeLeitura(corpo)
+        : tempoDigitado,
+    ...(publicadoEm ? { publicado_em: publicadoEm } : {}),
   };
 
-  const { error } = await cliente.from('artigos').upsert(linha, { onConflict: 'slug' });
+  const { error } = anterior
+    ? await cliente.from('artigos').update(linha).eq('slug', slugOriginal)
+    : await cliente.from('artigos').insert({ ...linha, slug, criado_por: editor.id });
 
   if (error) {
-    console.error('[painel] falha ao salvar', error.message);
-    return erro(slugOriginal, 'salvar');
+    console.error('[painel] falha ao salvar', error.code, error.message);
+    return erro(error.code === '23505' ? 'slug-existe' : 'salvar');
   }
 
-  /* Publicar dispara o rebuild, se o gancho existir. O site é estático: sem
-     rebuild, o texto fica no banco e não aparece para ninguém. A falha do
-     gancho não desfaz o que foi salvo — vira log, e o texto continua lá. */
-  if (publicar) await disparaRebuild();
+  /* O site é estático: publicar, e também tirar do ar um texto publicado,
+     só aparece depois do build. Rascunho de rascunho não precisa. */
+  const eraPublicado = anterior?.estado === 'publicado';
+  const gancho = publicar || eraPublicado ? await disparaRebuild() : 'ok';
+  const feito = publicar ? 'publicado' : eraPublicado ? 'despublicado' : 'rascunho';
 
-  return voltaPara(`/painel/?feito=${publicar ? 'publicado' : 'rascunho'}`);
+  return responde(request, `/painel/?feito=${feito}${avisoDoGancho(gancho)}`);
 };
-
-/**
- * Deploy Hook da Vercel.
- *
- * Opcional de propósito: enquanto o site não está publicado, não existe
- * gancho nenhum, e o painel precisa funcionar assim mesmo. Quando existir,
- * basta a variável no ambiente.
- */
-async function disparaRebuild(): Promise<void> {
-  const gancho = (typeof process !== 'undefined' ? process.env?.VERCEL_DEPLOY_HOOK : undefined) ||
-    (import.meta.env as Record<string, string | undefined>).VERCEL_DEPLOY_HOOK;
-  if (!gancho) {
-    console.warn('[painel] VERCEL_DEPLOY_HOOK ausente: o texto foi salvo, mas o site não será reconstruído sozinho.');
-    return;
-  }
-  try {
-    await fetch(gancho, { method: 'POST' });
-  } catch (e) {
-    console.error('[painel] falha ao disparar o rebuild', e);
-  }
-}

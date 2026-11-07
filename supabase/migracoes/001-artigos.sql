@@ -12,12 +12,11 @@
 --  **markdown**, convertido em HTML no build pelo renderizador do próprio
 --  Astro. Nenhum HTML de autor chega ao navegador sem passar por ele.
 --
---  Esta migração não foi aplicada a banco nenhum. Ela é um arquivo, para ser
---  aplicada depois, com consentimento, no projeto do escritório.
+--  Aplicar com `npm run cms:migra` (ver docs/HANDOFF-V3-2026-11-07.md).
 -- ─────────────────────────────────────────────────────────────────────────
 
 create table if not exists public.artigos (
-  -- o `id` do Astro é o slug: é ele que forma a URL /textos/<slug>/
+  -- o `id` do Astro é o slug: é ele que forma a URL /conteudos/<slug>/
   slug            text primary key
                   check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
 

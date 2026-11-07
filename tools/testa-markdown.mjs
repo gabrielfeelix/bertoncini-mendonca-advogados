@@ -36,6 +36,19 @@ eq('script some', htmlParaMarkdown('<p>a</p><script>alert(1)</script>'), 'a\n\na
 eq('img some', htmlParaMarkdown('<p>a<img src=x onerror=alert(1)></p>'), 'a');
 eq('onclick some', htmlParaMarkdown('<p onclick="alert(1)">texto</p>'), 'texto');
 
+// ── imagem no corpo (veio com o editor do CMS da Isabella) ──
+eq('imagem https', htmlParaMarkdown('<p>a</p><img src="https://x.supabase.co/a.webp" alt="Mesa vazia"><p>b</p>'), 'a\n\n![Mesa vazia](https://x.supabase.co/a.webp)\n\nb');
+eq('imagem do site', htmlParaMarkdown('<img src="/media/capas/a.jpg" alt="">'), '![](/media/capas/a.jpg)');
+eq('imagem http some', htmlParaMarkdown('<img src="http://x.com/a.jpg" alt="x">'), '');
+eq('imagem javascript some', htmlParaMarkdown('<img src="javascript:alert(1)" alt="x">'), '');
+eq('imagem de outro host sem esquema some', htmlParaMarkdown('<img src="//x.com/a.jpg" alt="x">'), '');
+eq('alt com colchete', htmlParaMarkdown('<img src="https://x.co/a.jpg" alt="a ]b">'), '![a \\]b](https://x.co/a.jpg)');
+eq('md imagem', markdownParaHtml('![Mesa](https://x.co/a.jpg)'), '<img src="https://x.co/a.jpg" alt="Mesa">');
+eq('md imagem ruim fica texto', markdownParaHtml('![x](javascript:alert(1))'), '<p>![x](javascript:alert(1))</p>');
+eq('link com aspas no href', markdownParaHtml('[x](https://a.co/"onmouseover="alert(1))'), '<p><a href="https://a.co/&quot;onmouseover=&quot;alert(1">x</a>)</p>');
+eq('link com espaço vira %20', htmlParaMarkdown('<p><a href="https://a.co/b c">x</a></p>'), '[x](https://a.co/b%20c)');
+eq('link com tab no esquema vira texto', htmlParaMarkdown('<p><a href="java\tscript:alert(1)">x</a></p>'), 'x');
+
 // ── markdown -> HTML (abrir para editar) ──
 eq('md p', markdownParaHtml('Olá.'), '<p>Olá.</p>');
 eq('md h2', markdownParaHtml('## T'), '<h2>T</h2>');
@@ -54,6 +67,7 @@ const casos = [
   '> uma citação',
   'Link [bom](https://exemplo.com) no meio.',
   'Antes.\n\n---\n\nDepois.',
+  'Texto.\n\n![Uma foto](https://x.supabase.co/storage/v1/object/public/artigos/corpo/a.webp)\n\nMais texto.',
 ];
 for (const md of casos) {
   const volta = htmlParaMarkdown(markdownParaHtml(md));
@@ -61,7 +75,7 @@ for (const md of casos) {
 }
 
 // ── o que o banco recebe nunca produz HTML executável no build ──
-for (const perigoso of ['<p><a href="javascript:alert(1)">x</a></p>', '<p><script>alert(1)</script></p>', '<p><img src=x onerror=alert(1)></p>']) {
+for (const perigoso of ['<p><a href="javascript:alert(1)">x</a></p>', '<p><script>alert(1)</script></p>', '<p><img src=x onerror=alert(1)></p>', '<img src="javascript:alert(1)" alt="x">', '<p><a href="data:text/html;base64,PHNjcmlwdD4=">x</a></p>']) {
   const noBanco = htmlParaMarkdown(perigoso);
   const publicado = neutralizaHtmlCru(noBanco);
   if (/javascript:|onerror|<script/i.test(publicado)) { falhas++; console.log('FALHA fronteira: ' + JSON.stringify(perigoso) + ' -> ' + JSON.stringify(publicado)); }

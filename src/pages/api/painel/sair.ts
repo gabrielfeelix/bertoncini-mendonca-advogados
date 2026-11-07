@@ -1,5 +1,5 @@
 /**
- * Sair do painel: apaga os cookies de sessão e volta para a tela de entrada.
+ * Sair do painel: apaga os cookies de sessão e volta para a entrada.
  *
  * Só POST. Sair por GET faria qualquer `<img src="/api/painel/sair">` em
  * qualquer página deslogar o editor.
@@ -11,5 +11,5 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ cookies }) => {
   apagaSessao(cookies);
-  return new Response(null, { status: 303, headers: { location: '/painel/?feito=saiu' } });
+  return new Response(null, { status: 303, headers: { location: '/painel/entrar/?feito=saiu' } });
 };

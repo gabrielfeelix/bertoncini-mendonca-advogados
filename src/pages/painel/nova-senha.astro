@@ -1,0 +1,147 @@
+---
+/**
+ * Criar a senha nova. É para cá que o link do e-mail leva.
+ *
+ * O Supabase põe a sessão de recuperação na âncora da URL
+ * (`#access_token=...&refresh_token=...&type=recovery`), que não chega ao
+ * servidor. O script lê a âncora, apaga-a da barra de endereços (ela dá
+ * acesso à conta) e envia os tokens com a senha nova para
+ * /api/painel/nova-senha. Esta é a única tela do painel que depende de
+ * JavaScript: sem ele, não há como ler a âncora.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import CampoSenha from '~/components/painel/CampoSenha.astro';
+import AvisoSemBanco from '~/components/painel/AvisoSemBanco.astro';
+import { configSupabase } from '~/lib/painel-auth';
+
+const temBanco = Boolean(configSupabase());
+---
+
+<Painel titulo="Criar nova senha" estreita>
+  {!temBanco ? (
+    <AvisoSemBanco />
+  ) : (
+    <section class="pnl-cartao">
+      <p class="pnl-rotulo-sec">Painel</p>
+
+      <div id="esperando">
+        <h1 class="pnl-titulo">Criar nova senha</h1>
+        <p id="sem-js">Esta tela precisa de JavaScript ligado para ler o link do e-mail.</p>
+      </div>
+
+      <div id="expirado" hidden>
+        <h1 class="pnl-titulo">Link vencido</h1>
+        <p>Este link já foi usado ou passou de uma hora. Peça outro; leva um minuto.</p>
+        <p class="entrada__link"><a href="/painel/esqueci/">Pedir um link novo</a></p>
+      </div>
+
+      <div id="trocar" hidden>
+        <h1 class="pnl-titulo">Criar nova senha</h1>
+        <p class="pnl-sub">Pelo menos 8 caracteres. Misturar letras, números e símbolos ajuda.</p>
+
+        <form class="entrada__form" id="form" method="post" action="/api/painel/nova-senha">
+          <input type="hidden" name="access_token" id="t-acesso" />
+          <input type="hidden" name="refresh_token" id="t-atualiza" />
+          <div>
+            <CampoSenha id="senha" nome="senha" rotulo="Nova senha" autocomplete="new-password" minimo={8} />
+            <div class="pnl-forca" aria-hidden="true">
+              <span class="pnl-forca__barra" data-forca="1"></span>
+              <span class="pnl-forca__barra" data-forca="2"></span>
+              <span class="pnl-forca__barra" data-forca="3"></span>
+            </div>
+            <p class="pnl-dica" id="forca-texto" aria-live="polite">Pelo menos 8 caracteres.</p>
+          </div>
+          <CampoSenha id="senha2" nome="senha2" rotulo="Repita a senha" autocomplete="new-password" minimo={8} />
+          <p class="pnl-recado pnl-recado--erro" id="erro" role="alert" hidden></p>
+          <button class="pnl-btn pnl-btn--principal" type="submit" id="salvar">Salvar a senha</button>
+        </form>
+      </div>
+    </section>
+  )}
+</Painel>
+
+<script>
+  const $ = (id: string) => document.getElementById(id) as HTMLElement | null;
+  const form = $('form') as HTMLFormElement | null;
+
+  if (form) {
+    $('sem-js')!.textContent = 'Conferindo o link…';
+
+    const ancora = new URLSearchParams(location.hash.slice(1));
+    const acesso = ancora.get('access_token');
+    const atualiza = ancora.get('refresh_token');
+    // Tira os tokens da barra de endereços e do histórico.
+    history.replaceState(null, '', location.pathname);
+
+    if (!acesso || !atualiza || ancora.get('error')) {
+      $('esperando')!.hidden = true;
+      $('expirado')!.hidden = false;
+    } else {
+      ($('t-acesso') as HTMLInputElement).value = acesso;
+      ($('t-atualiza') as HTMLInputElement).value = atualiza;
+      $('esperando')!.hidden = true;
+      $('trocar')!.hidden = false;
+      $('senha')!.focus();
+    }
+
+    const senha = $('senha') as HTMLInputElement;
+    const senha2 = $('senha2') as HTMLInputElement;
+    const erro = $('erro')!;
+    const salvar = $('salvar') as HTMLButtonElement;
+
+    /** Força grosseira: tamanho, e se mistura tipos de caractere. */
+    const forca = (v: string) => {
+      if (v.length < 8) return 0;
+      const tipos = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter((r) => r.test(v)).length;
+      if (v.length >= 14 && tipos >= 3) return 3;
+      if (v.length >= 12 || tipos >= 3) return 2;
+      return 1;
+    };
+
+    senha.addEventListener('input', () => {
+      const n = forca(senha.value);
+      const classe = ['', 'pnl-forca__barra--fraca', 'pnl-forca__barra--media', 'pnl-forca__barra--forte'][n];
+      document.querySelectorAll<HTMLElement>('[data-forca]').forEach((b) => {
+        b.className = 'pnl-forca__barra';
+        if (n >= Number(b.dataset.forca)) b.classList.add(classe);
+      });
+      $('forca-texto')!.textContent =
+        senha.value.length === 0 ? 'Pelo menos 8 caracteres.'
+        : n === 0 ? 'Curta demais: precisa de 8 ou mais.'
+        : n === 1 ? 'Serve, mas dá para melhorar.'
+        : n === 2 ? 'Boa senha.'
+        : 'Senha forte.';
+    });
+
+    const mostraErro = (texto: string) => {
+      erro.textContent = texto;
+      erro.hidden = false;
+      salvar.disabled = false;
+      salvar.textContent = 'Salvar a senha';
+    };
+
+    form.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      erro.hidden = true;
+      if (senha.value.length < 8) return mostraErro('A senha precisa de pelo menos 8 caracteres.');
+      if (senha.value !== senha2.value) { senha2.focus(); return mostraErro('As duas senhas não são iguais.'); }
+
+      salvar.disabled = true;
+      salvar.textContent = 'Salvando…';
+      try {
+        const resposta = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        const dados = (await resposta.json()) as { ok: boolean; mensagem?: string; destino: string };
+        if (dados.ok) { location.href = dados.destino; return; }
+        mostraErro(dados.mensagem ?? 'Não deu certo. Tente de novo.');
+      } catch {
+        mostraErro('Sem conexão. Tente de novo em instantes.');
+      }
+    });
+  }
+</script>

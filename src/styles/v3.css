@@ -111,9 +111,10 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 }
 .banner-pagina::before {
   content: ''; position: absolute; inset: 0;
-  /* Mesmo escurecimento da capa da home: véu uniforme + canto petróleo. */
+  /* Véu uniforme para o título ler + um toque de petróleo no canto, leve
+     como na capa da home (07/11/2026: nada de "blur" forte nas capas). */
   background:
-    linear-gradient(32deg, rgba(0, 67, 105, .92) 0%, rgba(0, 67, 105, .6) 22%, rgba(81, 116, 147, 0) 60%),
+    linear-gradient(32deg, rgba(0, 67, 105, .1) 0%, rgba(0, 67, 105, .065) 22%, rgba(81, 116, 147, 0) 60%),
     linear-gradient(rgba(11, 30, 63, .55), rgba(11, 30, 63, .55));
 }
 .banner-pagina .container { position: relative; }
@@ -165,9 +166,9 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 }
 .banner-alto::before {
   z-index: 1;
+  /* Sem o escurecimento do topo e com o petróleo da diagonal bem leve. */
   background:
-    linear-gradient(180deg, rgba(11, 30, 63, .45) 0%, rgba(11, 30, 63, 0) 22%),
-    linear-gradient(32deg, rgba(0, 67, 105, .9) 0%, rgba(0, 67, 105, .55) 22%, rgba(81, 116, 147, 0) 55%),
+    linear-gradient(32deg, rgba(0, 67, 105, .22) 0%, rgba(0, 67, 105, .12) 22%, rgba(81, 116, 147, 0) 55%),
     linear-gradient(rgba(11, 30, 63, .12), rgba(11, 30, 63, .12));
 }
 .banner-alto .container { z-index: 2; }

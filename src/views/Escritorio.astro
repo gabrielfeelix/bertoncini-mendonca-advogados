@@ -74,26 +74,33 @@ const perfis = site.socios.map((socio, i) => ({
     </div>
   </section>
 
-  <section class="secao secao-cinza">
+  {/* Missão e valores (07/11/2026): a missão como declaração, em letra
+      grande e fina, e os três valores em colunas abertas, sem caixa. */}
+  <section class="secao secao-cinza missao-secao">
     <div class="container">
-      <div class="titulo-secao">
-        <h2 set:html={e.missaoTitulo} />
-        <p class="missao">{e.missao}</p>
+      <div class="missao-bloco">
+        <p class="rotulo" set:html={e.missaoTitulo.replace(/<[^>]+>/g, '')} />
+        <p class="missao-frase">{e.missao}</p>
       </div>
-      <div class="grade grade-3">
+      <div class="valores">
         {e.valores.map((v) => (
-          <div class="cartao">
-            <div class="cartao-corpo">
-              <h3>{v.nome}</h3>
-              <p>{v.texto}</p>
-            </div>
+          <div class="valor">
+            <h3>{v.nome}</h3>
+            <p>{v.texto}</p>
           </div>
         ))}
       </div>
+    </div>
+  </section>
 
-      {/* Os seis valores de atuação (briefing q3.2) e a linha de recusa
-          (q3.5), em tom sóbrio, como os sócios pediram. */}
-      <h3 class="atuacao-titulo">{e.atuacaoTitulo}</h3>
+  {/* Como atuamos: os seis valores de atuação (briefing q3.2), título à
+      esquerda e a lista em duas colunas com filete. */}
+  <section class="secao">
+    <div class="container atuacao-grade">
+      <div class="atuacao-cabeca">
+        <h2 class="atuacao-titulo">{e.atuacaoTitulo}</h2>
+        <p>{e.atuacaoApoio}</p>
+      </div>
       <dl class="atuacao">
         {e.valoresAtuacao.map((v) => (
           <div>
@@ -102,11 +109,10 @@ const perfis = site.socios.map((socio, i) => ({
           </div>
         ))}
       </dl>
-      <p class="recusa"><strong>{e.recusaRotulo}</strong> {e.recusa}</p>
     </div>
   </section>
 
-  <section class="secao">
+  <section class="secao secao-cinza">
     <div class="container">
       <div class="titulo-secao">
         <h2 set:html={e.sociosTitulo} />
@@ -129,6 +135,16 @@ const perfis = site.socios.map((socio, i) => ({
     </div>
   </section>
 
+  {/* "O que não aceitamos" (briefing q3.5): a posição do escritório fecha a
+      página, dentro do rodapé azul-noite (slot do Base), com a diagonal no
+      topo e um filete antes da chamada, como o "Também atuamos em" em /areas/. */}
+  <section slot="rodape" class="recusa-faixa antes-do-rodape" aria-labelledby="recusa-titulo">
+    <div class="container">
+      <p class="recusa-rotulo" id="recusa-titulo">{e.recusaRotulo.replace(/\.$/, '')}</p>
+      <p class="recusa-frase">{e.recusa}</p>
+    </div>
+  </section>
+
   <Chamada slot="rodape" lang={lang} />
 </Base>
 
@@ -145,7 +161,6 @@ const perfis = site.socios.map((socio, i) => ({
   }
   .pm-mono { position: absolute; right: -8%; top: 50%; height: 150%; width: auto; transform: translateY(-50%); opacity: .08; }
   .pm-logo { position: relative; width: 58%; height: auto; }
-  .missao { font-size: 19px; color: var(--texto) !important; max-width: 760px !important; }
 
   .perfis { display: grid; gap: 48px; max-width: 980px; margin: 0 auto; }
   .perfil { display: grid; grid-template-columns: 300px 1fr; gap: 40px; align-items: start; scroll-margin-top: calc(var(--altura-barra) + 24px); }
@@ -160,13 +175,47 @@ const perfis = site.socios.map((socio, i) => ({
     .perfil img { max-width: 320px; }
     .titulo-bloco { font-size: 26px; }
   }
-  .atuacao-titulo { text-align: center; font-size: 22px; margin: 56px 0 24px; }
-  .atuacao { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 40px; margin: 0; }
-  .atuacao div { padding: 18px 0; border-top: 1px solid var(--linha); }
-  .atuacao dt { font-weight: 700; color: var(--azul); margin-bottom: 4px; }
-  .atuacao dd { margin: 0; color: var(--texto-suave); font-size: 15px; }
-  .recusa { text-align: center; max-width: 720px; margin: 36px auto 0; color: var(--texto); }
-  .recusa strong { color: var(--azul); }
-  @media (max-width: 900px) { .atuacao { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 560px) { .atuacao { grid-template-columns: 1fr; } }
+  /* ---------- Missão e valores ---------- */
+  .missao-secao { padding: 104px 0; }
+  .missao-bloco { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 40px; align-items: baseline; margin-bottom: 72px; }
+  .missao-bloco .rotulo { margin: 0; }
+  .missao-frase { margin: 0; font-size: 40px; font-weight: 300; line-height: 1.25; letter-spacing: -.015em; color: var(--azul); }
+  /* Alinhados à coluna da frase da missão (3fr | 9fr com 40px de vão). */
+  .valores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-left: calc((100% - 40px) * 3 / 12 + 40px); }
+  .valor { padding-top: 22px; border-top: 1px solid rgba(11, 30, 63, .18); }
+  .valor h3 { font-size: 24px; font-weight: 700; margin: 0 0 10px; color: var(--azul); }
+  .valor p { margin: 0; font-size: 16px; line-height: 1.65; color: var(--texto-suave); }
+
+  /* ---------- Como atuamos ---------- */
+  .atuacao-grade { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 56px; align-items: start; }
+  .atuacao-titulo { font-size: 40px; font-weight: 300; line-height: 1.1; letter-spacing: -.015em; margin: 0 0 16px; }
+  .atuacao-cabeca p { margin: 0; font-size: 17px; line-height: 1.65; color: var(--texto-suave); max-width: 32ch; }
+  .atuacao { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; margin: 0; }
+  .atuacao div { padding: 20px 0; border-top: 1px solid var(--linha); }
+  .atuacao dt { font-size: 17px; font-weight: 700; color: var(--azul); margin-bottom: 6px; }
+  .atuacao dd { margin: 0; font-size: 16px; line-height: 1.6; color: var(--texto-suave); }
+
+  /* ---------- O que não aceitamos (dentro do rodapé) ---------- */
+  .recusa-faixa { position: relative; z-index: 1; padding: 150px 0 88px; color: #f8f7f2; }
+  .recusa-rotulo { margin: 0 0 18px; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #9fb6cc; }
+  .recusa-frase { margin: 0; max-width: 24ch; font-size: 46px; font-weight: 300; line-height: 1.15; letter-spacing: -.02em; color: #fff; }
+
+  @media (max-width: 991px) {
+    .missao-bloco, .atuacao-grade { grid-template-columns: 1fr; gap: 16px; }
+    .missao-frase { font-size: 32px; }
+    .valores { margin-left: 0; }
+    .atuacao-grade { gap: 32px; }
+    .recusa-faixa { padding: 112px 0 64px; }
+    .recusa-frase { font-size: 36px; }
+  }
+  @media (max-width: 680px) {
+    .missao-secao { padding: 64px 0; }
+    .missao-bloco { margin-bottom: 44px; }
+    .missao-frase { font-size: 26px; }
+    .valores, .atuacao { grid-template-columns: 1fr; gap: 0; }
+    .valor { padding: 18px 0 22px; }
+    .atuacao-titulo { font-size: 32px; }
+    .recusa-faixa { padding: 84px 0 52px; }
+    .recusa-frase { font-size: 28px; }
+  }
 </style>

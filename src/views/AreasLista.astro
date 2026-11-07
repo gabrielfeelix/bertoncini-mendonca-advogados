@@ -2,19 +2,19 @@
 /**
  * Lista das áreas de atuação (v3), nos dois idiomas.
  *
- * Cada área é um bloco largo: foto de um lado, conteúdo do outro,
- * alternando o lado (zigue-zague). "Para quem" e "Serviços" usam o mesmo
- * rótulo pequeno sobre texto comum: nada de caixa com filete lateral, que
- * o cliente leu como cara de texto gerado por IA. Serviços em duas colunas com marca de
- * verificação; "Também atuamos em" fecha a página numa faixa cinza clara
- * (azul encostaria na faixa de chamada, que também é azul).
- * Sem numeração: os sócios pediram para não numerar o que não é
- * sequência (retorno de 06/11/2026).
+ * Redesenho de 07/11/2026, na linguagem da home e da Central de Conteúdos:
+ * capa cheia (foto sob o cabeçalho, título à esquerda) e cada área numa
+ * faixa própria, editorial: foto com canto pequeno, nome grande em peso
+ * misto, "Para quem" em destaque e os serviços em duas colunas com filete
+ * (sem marca de verificação). A segunda faixa é cinza e a foto alterna de
+ * lado; o monograma do logo aparece bem apagado, vazando de cada faixa.
+ *
+ * Sem numeração, sem caixa com filete lateral, sem pílulas (memória
+ * "visual sem cara de IA"). "Também atuamos em" e a chamada fecham a página.
  */
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
 import Chamada from '~/components/Chamada.astro';
-import IconeArea from '~/components/IconeArea.astro';
 import TambemAtuamos from '~/components/TambemAtuamos.astro';
 import { areasDoIdioma, assuntosDaArea, FOTO_DA_AREA } from '~/lib/areas';
 import { t, rota, type Idioma } from '~/lib/i18n';
@@ -27,6 +27,15 @@ const tx = t(lang);
 const ar = tx.areas;
 const areas = await areasDoIdioma(lang);
 const contato = rota(lang, '/contato/');
+
+/** No celular mostra só estes primeiros; o resto abre em "Ver todos". */
+const VISIVEIS_NO_CELULAR = 6;
+
+/** "Planejamento Patrimonial e Sucessório" → última palavra em negrito. */
+const tituloMisto = (nome: string) => {
+  const i = nome.lastIndexOf(' ');
+  return i < 0 ? `<strong>${nome}</strong>` : `${nome.slice(0, i)} <strong>${nome.slice(i + 1)}</strong>`;
+};
 ---
 
 <Base
@@ -36,120 +45,153 @@ const contato = rota(lang, '/contato/');
   lang={lang}
   alternativa={lang === 'pt' ? '/en/practice-areas/' : '/areas/'}
 >
-  <BannerPagina html={ar.banner} migalhas={[{ rotulo: ar.migalha }]} lang={lang} />
+  <BannerPagina
+    cheio
+    html={ar.banner}
+    apoio={ar.bannerApoio}
+    foto="/media/novas/escritorio-historia.jpg"
+    migalhas={[{ rotulo: ar.migalha }]}
+    lang={lang}
+  />
 
-  <section class="secao blocos">
-    <div class="container">
-      {areas.map((area, i) => {
-        const servicos = area.data.servicos.length > 0 ? area.data.servicos : assuntosDaArea(area.data.assuntos).map((a) => a.nome);
-        return (
-          <article class:list={['bloco', { invertido: i % 2 === 1 }]} id={area.slugPt}>
-            <a class="foto" href={area.href} tabindex="-1" aria-hidden="true">
-              <img src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="900" loading={i === 0 ? 'eager' : 'lazy'} />
-              <span class="selo"><IconeArea slug={area.slugPt} class="selo-icone" /></span>
-            </a>
+  {areas.map((area, i) => {
+    const servicos = area.data.servicos.length > 0 ? area.data.servicos : assuntosDaArea(area.data.assuntos).map((a) => a.nome);
+    const sobra = servicos.length - VISIVEIS_NO_CELULAR;
+    return (
+      <section class:list={['faixa', { cinza: i % 2 === 1, invertida: i % 2 === 1 }]} id={area.slugPt} aria-labelledby={`${area.slugPt}-titulo`}>
+        <span class="faixa-arte" aria-hidden="true"></span>
+        <div class="container bloco">
+          <a class="foto" href={area.href} tabindex="-1" aria-hidden="true">
+            <img src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="900" loading={i === 0 ? 'eager' : 'lazy'} />
+          </a>
 
-            <div class="conteudo">
-              <h2><a href={area.href}>{area.data.nome}</a></h2>
-              <p class="resumo">{area.data.resumo}</p>
-              {area.data.publicoCurto && (
-                <>
-                  <h3 class="rotulo">{ar.paraQuem}</h3>
-                  <p class="publico">{area.data.publicoCurto}</p>
-                </>
-              )}
-
-              <h3 class="rotulo">{ar.servicos}</h3>
-              <ul class="servicos">
-                {servicos.map((s) => (
-                  <li>
-                    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" /><path d="M6 10.3l2.6 2.5L14 7.4" /></svg>
-                    {s}
-                  </li>
-                ))}
-              </ul>
-
-              <div class="acoes">
-                <a class="botao" href={area.href}>{ar.conhecaArea}</a>
-                <a class="link-seta" href={`${contato}?assunto=${area.slugPt}`}>{ar.faleConosco} <span aria-hidden="true">→</span></a>
+          <div class="conteudo">
+            <h2 id={`${area.slugPt}-titulo`}><a href={area.href} set:html={tituloMisto(area.data.nome)} /></h2>
+            <p class="resumo">{area.data.resumo}</p>
+            {area.data.publicoCurto && (
+              <div class="publico">
+                <p class="rotulo">{ar.paraQuem}</p>
+                <p class="publico-texto">{area.data.publicoCurto}</p>
               </div>
-            </div>
-          </article>
-        );
-      })}
-    </div>
-  </section>
+            )}
 
-  <TambemAtuamos lang={lang} apoio={ar.tambemApoio} prefixo="oa-lista" />
+            <p class="rotulo">{ar.servicos}</p>
+            <ul class="servicos" data-servicos>
+              {servicos.map((s, n) => (
+                <li class:list={{ extra: n >= VISIVEIS_NO_CELULAR }}>{s}</li>
+              ))}
+            </ul>
+            {sobra > 0 && (
+              <button type="button" class="ver-todos" data-ver-todos hidden>
+                {lang === 'en' ? `See all ${servicos.length} services` : `Ver todos os ${servicos.length} serviços`}
+              </button>
+            )}
+
+            <div class="acoes">
+              <a class="botao" href={area.href}>{ar.conhecaArea}</a>
+              <a class="link-seta" href={`${contato}?assunto=${area.slugPt}`}>{ar.faleConosco} <span aria-hidden="true">→</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  })}
+
+  {/* Dentro do rodapé (slot do Base), antes da chamada: as três partes
+      dividem o mesmo fundo, e a luz e o monograma não são cortados. */}
+  <TambemAtuamos slot="rodape" lang={lang} apoio={ar.tambemApoio} prefixo="oa-lista" antesDoRodape />
 
   <Chamada slot="rodape" lang={lang} />
 </Base>
 
-<style>
-  .blocos { padding-bottom: 40px; }
-  .bloco {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    gap: 64px;
-    align-items: center;
-    padding: 24px 0 72px;
-    scroll-margin-top: calc(var(--altura-barra) + 24px);
+<script>
+  /* No celular a lista longa de serviços mostra os primeiros e um botão
+     abre o resto. Sem JavaScript, a lista aparece inteira. */
+  for (const botao of document.querySelectorAll<HTMLButtonElement>('[data-ver-todos]')) {
+    const lista = botao.previousElementSibling as HTMLElement | null;
+    if (!lista) continue;
+    lista.classList.add('recolhida');
+    botao.hidden = false;
+    botao.addEventListener('click', () => {
+      lista.classList.remove('recolhida');
+      botao.hidden = true;
+    });
   }
-  .bloco + .bloco { padding-top: 72px; border-top: 1px solid var(--linha); }
-  .invertido .foto { order: 2; }
+</script>
 
-  /* ---------- Foto com selo da área ---------- */
-  .foto { position: relative; display: block; border-radius: 14px; box-shadow: 0 24px 50px rgba(11, 30, 63, .16); }
-  .foto img { width: 100%; aspect-ratio: 5 / 4; object-fit: cover; border-radius: 14px; }
-  .foto::after {
-    content: ''; position: absolute; inset: 0; border-radius: 14px;
-    background: linear-gradient(32deg, rgba(0, 67, 105, .45) 0%, rgba(0, 67, 105, 0) 45%);
+<style>
+  /* ---------- Faixas ---------- */
+  .faixa { position: relative; overflow: hidden; padding: 104px 0; scroll-margin-top: var(--altura-barra); }
+  .faixa.cinza { background: var(--fundo-cinza); }
+  /* Monograma do logo, recolorido por máscara, vazando pelo lado do texto. */
+  .faixa-arte {
+    position: absolute; top: 50%; right: -120px; transform: translateY(-50%);
+    width: 520px; aspect-ratio: 254 / 276;
+    background: var(--azul-medio); opacity: .045; pointer-events: none;
+    -webkit-mask: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
+    mask: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
   }
-  .selo {
-    position: absolute; left: 24px; bottom: -26px; z-index: 1;
-    display: grid; place-items: center;
-    width: 76px; height: 76px; border-radius: 50%;
-    background: #fff; color: var(--azul-medio);
-    box-shadow: 0 10px 24px rgba(11, 30, 63, .18);
+  .invertida .faixa-arte { right: auto; left: -120px; }
+
+  .bloco {
+    position: relative;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 80px; align-items: center;
   }
-  .invertido .selo { left: auto; right: 24px; }
-  .selo :global(.selo-icone) { width: 40px; height: 40px; margin: 0; }
+  .invertida .foto { order: 2; }
+
+  /* ---------- Foto ---------- */
+  .foto { display: block; overflow: hidden; border-radius: 8px; }
+  .foto img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; transition: transform .8s cubic-bezier(.2, .8, .2, 1); }
+  .bloco:hover .foto img { transform: scale(1.03); }
 
   /* ---------- Conteúdo ---------- */
-  .conteudo h2 { font-size: 36px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 14px; }
+  .conteudo h2 { font-size: 46px; font-weight: 300; line-height: 1.08; letter-spacing: -.02em; margin: 0 0 20px; }
   .conteudo h2 a { color: var(--azul); text-decoration: none; }
+  .conteudo h2 a :global(strong) { font-weight: 700; }
   .conteudo h2 a:hover { color: var(--azul-medio); }
-  .resumo { font-size: 19px; line-height: 1.6; color: var(--texto); margin-bottom: 18px; }
-  .publico { font-size: 16px; color: var(--texto-suave); margin-bottom: 24px; }
-  .conteudo .rotulo { font-size: 13px; margin-bottom: 12px; }
+  .resumo { font-size: 20px; line-height: 1.55; color: var(--texto); margin: 0 0 28px; max-width: 44ch; }
 
-  .servicos {
-    list-style: none; padding: 0; margin: 0 0 32px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px;
+  /* "Para quem": rótulo pequeno e a frase em destaque, com filete em cima e
+     embaixo (nada de caixa com filete lateral). */
+  .publico { padding: 18px 0; margin-bottom: 30px; border-top: 1px solid var(--linha); border-bottom: 1px solid var(--linha); }
+  .publico .rotulo { margin: 0 0 6px; }
+  .publico-texto { margin: 0; font-size: 17px; line-height: 1.55; color: var(--azul); font-weight: 500; }
+  .conteudo .rotulo { font-size: 12px; letter-spacing: .14em; }
+
+  /* Serviços: duas colunas com filete fino, sem ícone. */
+  .servicos { list-style: none; padding: 0; margin: 6px 0 32px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+  .servicos li { padding: 11px 0; border-bottom: 1px solid var(--linha); font-size: 15.5px; line-height: 1.4; color: var(--texto); }
+  .ver-todos {
+    margin: -18px 0 30px; padding: 6px 0; background: none; border: 0; cursor: pointer;
+    font: 500 15px var(--fonte); color: var(--azul-medio); text-decoration: underline; text-underline-offset: 4px;
   }
-  .servicos li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.45; }
-  .servicos svg { flex: none; width: 18px; height: 18px; margin-top: 1px; }
-  .servicos circle { fill: rgba(0, 67, 105, .1); }
-  .servicos path { fill: none; stroke: var(--azul-medio); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .ver-todos[hidden] { display: none; }
 
-  .acoes { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .acoes { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
   .link-seta { font-weight: 500; text-decoration: none; color: var(--azul-medio); }
   .link-seta span { display: inline-block; transition: transform .15s ease; }
   .link-seta:hover span { transform: translateX(4px); }
 
   @media (prefers-reduced-motion: reduce) {
-    .link-seta span { transition: none; }
+    .link-seta span, .foto img { transition: none; }
+    .bloco:hover .foto img { transform: none; }
   }
   @media (max-width: 991px) {
-    .bloco { grid-template-columns: 1fr; gap: 48px; }
-    .invertido .foto { order: 0; }
-    .invertido .selo { right: auto; left: 24px; }
+    .faixa { padding: 72px 0; }
+    .bloco { grid-template-columns: 1fr; gap: 40px; }
+    .invertida .foto { order: 0; }
+    .foto img { aspect-ratio: 16 / 10; }
+    .faixa-arte { width: 380px; right: -140px; left: auto !important; top: auto; bottom: -120px; transform: none; }
   }
   @media (max-width: 680px) {
-    .bloco { padding-bottom: 56px; }
-    .bloco + .bloco { padding-top: 56px; }
-    .conteudo h2 { font-size: 28px; }
+    .faixa { padding: 56px 0; }
+    .conteudo h2 { font-size: 32px; }
     .resumo { font-size: 17px; }
     .servicos { grid-template-columns: 1fr; }
+    .servicos li { padding: 10px 0; font-size: 15px; }
+    /* Lista recolhida: só os primeiros, até tocar em "Ver todos". */
+    .servicos:global(.recolhida) li.extra { display: none; }
   }
+  @media (min-width: 681px) { .ver-todos { display: none !important; } }
 </style>

@@ -181,6 +181,7 @@ const pt = {
       { nome: 'Responsabilidade', texto: 'Cada patrimônio tem uma história, e cada decisão tem consequências.' },
       { nome: 'Estratégia', texto: 'A melhor solução é a que faz sentido para o contexto de quem a recebe.' },
     ],
+    atuacaoApoio: 'Os princípios que guiam cada atendimento, do primeiro contato ao fim do caso.',
     recusaRotulo: 'O que não aceitamos.',
     recusa: 'Não atuamos em casos que favoreçam a propagação do machismo, do racismo ou da homofobia.',
     sociosTitulo: 'Nossos <strong>Sócios</strong>',
@@ -208,6 +209,7 @@ const pt = {
     descricao:
       'As áreas de atuação de Bertoncini & Mendonça Advogados: Planejamento Patrimonial e Sucessório e Direito Digital.',
     banner: 'Áreas de <strong>Atuação</strong>',
+    bannerApoio: 'Duas áreas principais, atendidas em conjunto pelos dois sócios, e outras em que o escritório também atua.',
     migalha: 'Áreas de atuação',
     servicos: 'Serviços',
     paraQuem: 'Para quem',
@@ -423,6 +425,7 @@ const en: Textos = {
       { nome: 'Responsibility', texto: 'Every estate has a story, and every decision has consequences.' },
       { nome: 'Strategy', texto: 'The best solution is the one that makes sense for the person receiving it.' },
     ],
+    atuacaoApoio: 'The principles behind every engagement, from the first contact to the end of the case.',
     recusaRotulo: 'What we do not accept.',
     recusa: 'We do not take on cases that promote sexism, racism or homophobia.',
     sociosTitulo: 'Our <strong>Partners</strong>',
@@ -450,6 +453,7 @@ const en: Textos = {
     descricao:
       'The practice areas of Bertoncini & Mendonça Advogados: Estate and Succession Planning and Digital Law.',
     banner: 'Practice <strong>Areas</strong>',
+    bannerApoio: 'Two main areas, handled jointly by both partners, and others in which the firm also practices.',
     migalha: 'Practice areas',
     servicos: 'Services',
     paraQuem: 'Who it is for',

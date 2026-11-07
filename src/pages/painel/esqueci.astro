@@ -1,0 +1,50 @@
+---
+/**
+ * Pedir uma senha nova. A pessoa digita o e-mail e o Supabase manda o link,
+ * que leva a /painel/nova-senha/.
+ *
+ * A tela responde a mesma coisa para e-mail cadastrado ou não: dizer "esse
+ * e-mail não existe" entregaria a estranhos quem tem conta aqui.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import AvisoSemBanco from '~/components/painel/AvisoSemBanco.astro';
+import { configSupabase } from '~/lib/painel-auth';
+import { ERROS } from '~/lib/painel-artigo';
+
+const temBanco = Boolean(configSupabase());
+const erro = Astro.url.searchParams.get('erro');
+const enviado = Astro.url.searchParams.get('enviado') === '1';
+---
+
+<Painel titulo="Esqueci minha senha" estreita>
+  {!temBanco ? (
+    <AvisoSemBanco />
+  ) : enviado ? (
+    <section class="pnl-cartao" role="status">
+      <p class="pnl-rotulo-sec">Painel</p>
+      <h1 class="pnl-titulo">Verifique seu e-mail</h1>
+      <p>Se existe conta com esse endereço, o link para criar uma senha nova já está a caminho.</p>
+      <p class="pnl-dica">O link vale por uma hora. Se não chegar em alguns minutos, veja na caixa de spam.</p>
+      <p class="entrada__link"><a href="/painel/entrar/">Voltar para a entrada</a></p>
+    </section>
+  ) : (
+    <section class="pnl-cartao">
+      <p class="pnl-rotulo-sec">Painel</p>
+      <h1 class="pnl-titulo">Esqueci minha senha</h1>
+      <p class="pnl-sub">Digite seu e-mail. Se houver conta com ele, mandamos um link para você criar uma senha nova.</p>
+
+      {erro && <p class="pnl-recado pnl-recado--erro" role="alert">{ERROS[erro] ?? 'Não consegui enviar agora. Tente de novo.'}</p>}
+
+      <form class="entrada__form" method="post" action="/api/painel/esqueci">
+        <div>
+          <label class="pnl-rotulo" for="email">E-mail</label>
+          <input class="pnl-campo" id="email" type="email" name="email" required autocomplete="username" />
+        </div>
+        <button class="pnl-btn pnl-btn--principal" type="submit">Enviar o link</button>
+        <p class="entrada__link"><a href="/painel/entrar/">Voltar para a entrada</a></p>
+      </form>
+    </section>
+  )}
+</Painel>

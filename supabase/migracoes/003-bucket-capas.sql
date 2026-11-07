@@ -10,12 +10,20 @@
 --  autorizado em `image.domains` no astro.config.mjs, senão o <Image> não
 --  otimiza a capa remota. O host é `<projeto>.supabase.co`.
 --
---  Esta migração não foi aplicada a banco nenhum.
+--  Aplicar com `npm run cms:migra` (ver docs/HANDOFF-V3-2026-11-07.md).
 -- ─────────────────────────────────────────────────────────────────────────
 
-insert into storage.buckets (id, name, public)
-values ('artigos', 'artigos', true)
-on conflict (id) do nothing;
+-- Capas em `capas/` e imagens do corpo em `corpo/`, as duas pelo painel.
+-- Limite de 10 MB e só formatos de imagem: o painel já reduz a imagem
+-- antes de enviar, e o bucket recusa o resto mesmo que alguém o chame
+-- direto com a chave anônima e um token de editor.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('artigos', 'artigos', true, 10485760,
+        array['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
+on conflict (id) do update
+  set public             = excluded.public,
+      file_size_limit    = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
 
 drop policy if exists capas_todos_leem on storage.objects;
 create policy capas_todos_leem on storage.objects

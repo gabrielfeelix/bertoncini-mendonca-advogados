@@ -27,13 +27,20 @@ interface Props {
   apoio: string;
   /** Separa os ids dos painéis quando há mais de uma instância na página. */
   prefixo?: string;
+  /**
+   * true quando a seção entra DENTRO do rodapé (slot "rodape", ex.: /areas/):
+   * sem fundo nem recorte próprios, ela usa o fundo do rodapé, que ganha a
+   * diagonal no topo (Rodape.astro). Assim a luz e o monograma não são
+   * cortados na emenda com a chamada e as colunas.
+   */
+  antesDoRodape?: boolean;
 }
-const { lang = 'pt', apoio, prefixo = 'oa-tambem' } = Astro.props;
+const { lang = 'pt', apoio, prefixo = 'oa-tambem', antesDoRodape = false } = Astro.props;
 const titulo = lang === 'en' ? 'We also <strong>practice</strong>' : 'Também <strong>atuamos em</strong>';
 const dica = lang === 'en' ? 'Select an area to see what it covers.' : 'Escolha uma área para ver do que se trata.';
 ---
 
-<section class="tambem-atuamos" aria-labelledby={`${prefixo}-titulo`}>
+<section class:list={['tambem-atuamos', { 'antes-do-rodape': antesDoRodape }]} aria-labelledby={`${prefixo}-titulo`}>
   <span class="tambem-arte" aria-hidden="true"></span>
   <span class="tambem-circulo" aria-hidden="true"></span>
   <div class="container tambem-grade">
@@ -72,6 +79,9 @@ const dica = lang === 'en' ? 'Select an area to see what it covers.' : 'Escolha 
     mask: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
     pointer-events: none;
   }
+  /* Emenda reta no rodapé: só a diagonal de cima, e menos respiro embaixo
+     (o rodapé continua o mesmo azul). */
+  .tambem-atuamos.antes-do-rodape { clip-path: none; background: transparent; overflow: visible; padding-bottom: 96px; }
   /* Luz petróleo bem desfocada, sem borda: vem do canto inferior direito e
      aparece através dos cards de vidro. */
   .tambem-circulo {

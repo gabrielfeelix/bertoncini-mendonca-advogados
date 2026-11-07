@@ -1,0 +1,90 @@
+---
+/**
+ * `/painel/artigo/` — escrever um texto novo, ou editar um existente
+ * (`?slug=...`).
+ *
+ * No CMS de origem esta página era a versão "tela cheia" da gaveta da
+ * lista. Aqui ela é o lugar da edição: o formulário vem preenchido do
+ * servidor e funciona sem JavaScript. O editor rico, a prévia da capa e o
+ * envio sem recarregar entram por `~/lib/painel-editor`.
+ *
+ * Não decide quem pode salvar — quem decide é a RLS do banco. Só manda para
+ * a entrada quem não tem sessão, para não mostrar um formulário que não vai
+ * salvar.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import FormArtigo, { type ArtigoDoPainel } from '~/components/painel/FormArtigo.astro';
+import { editorAtual } from '~/lib/painel-auth';
+import { ERROS, categoriasDoPainel } from '~/lib/painel-artigo';
+import { markdownParaHtml } from '~/lib/markdown-editor';
+import { hrefArtigo } from '~/lib/artigos';
+
+const editor = await editorAtual(Astro.cookies);
+if (!editor) return Astro.redirect('/painel/entrar/', 303);
+
+const slug = Astro.url.searchParams.get('slug');
+const erro = Astro.url.searchParams.get('erro');
+
+let artigo: ArtigoDoPainel | null = null;
+let erroLeitura: string | null = null;
+
+if (slug) {
+  const { data, error } = await editor.cliente.from('artigos').select('*').eq('slug', slug).maybeSingle();
+  if (error) erroLeitura = error.message;
+  else if (!data) erroLeitura = ERROS['nao-achei'];
+  else artigo = data as ArtigoDoPainel;
+}
+
+const categorias = await categoriasDoPainel();
+/* O editor rico abre com o markdown já convertido em HTML; sem JavaScript,
+   o <textarea> mostra o markdown original. */
+const htmlInicial = artigo ? markdownParaHtml(artigo.corpo) : '';
+const tituloDaTela = artigo ? 'Editar texto' : 'Novo texto';
+---
+
+<Painel titulo={artigo?.titulo ?? tituloDaTela} editor={editor.nome}>
+  <a class="pnl-volta" href="/painel/">← Todos os textos</a>
+
+  <div class="pnl-barra-artigo">
+    <h1 class="pnl-barra-artigo__titulo">{tituloDaTela}</h1>
+    <span class="pnl-salvo" id="salvo" aria-live="polite"></span>
+    {artigo?.estado === 'publicado' && (
+      <a class="pnl-btn" href={hrefArtigo(artigo.slug)} target="_blank" rel="noopener">Ver no site</a>
+    )}
+    <button class="pnl-btn pnl-btn--principal" type="submit" form="form-artigo" name="acao" value="publicar">
+      {artigo?.estado === 'publicado' ? 'Salvar no site' : 'Publicar'}
+    </button>
+  </div>
+
+  {erro && <p class="pnl-recado pnl-recado--erro" role="alert">{ERROS[erro] ?? ERROS.salvar}</p>}
+  {erroLeitura ? (
+    <p class="pnl-recado pnl-recado--erro" role="alert">Não consegui abrir o texto: {erroLeitura}</p>
+  ) : (
+    <>
+      <FormArtigo artigo={artigo} categorias={categorias} />
+
+      {artigo && (
+        <details class="pnl-apagar">
+          <summary>Apagar este texto</summary>
+          <p>O texto sai do painel e do site. Não tem volta.</p>
+          <form method="post" action="/api/painel/apagar" id="form-apagar">
+            <input type="hidden" name="slug" value={artigo.slug} />
+            <button class="pnl-btn pnl-btn--perigo" type="submit" data-titulo={artigo.titulo}>Apagar definitivamente</button>
+          </form>
+        </details>
+      )}
+    </>
+  )}
+</Painel>
+
+{/* O HTML inicial viaja por um <script type="application/json">, e não por
+    define:vars: o conteúdo do texto nunca é interpolado dentro de código
+    JavaScript, onde uma aspa ou um `</script>` no texto quebraria a página.
+    JSON.stringify escapa `<` como \u003c para o mesmo fim. */}
+<script id="painel-conteudo" type="application/json" is:inline set:html={JSON.stringify(htmlInicial).replace(/</g, '\\u003c')}></script>
+<script>
+  import { montaEditor } from '~/lib/painel-editor';
+  montaEditor();
+</script>

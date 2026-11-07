@@ -1,0 +1,26 @@
+---
+/**
+ * O que as telas de entrada mostram enquanto o Supabase não está ligado
+ * (sem PUBLIC_SUPABASE_URL e PUBLIC_SUPABASE_ANON_KEY no ambiente). Não há
+ * onde autenticar, então em vez de um formulário que falharia, o recado.
+ */
+---
+
+<section class="pnl-cartao">
+  <p class="pnl-rotulo-sec">Painel</p>
+  <h1 class="pnl-titulo">O banco ainda não está ligado</h1>
+  <p>
+    Faltam as variáveis <code>PUBLIC_SUPABASE_URL</code> e <code>PUBLIC_SUPABASE_ANON_KEY</code>
+    neste ambiente. Enquanto elas não existirem, não há onde entrar nem o que listar, e o site
+    continua lendo os textos de <code>src/content/artigos/</code>.
+  </p>
+  <p class="pnl-dica">
+    O passo a passo para ligar está em <code>docs/HANDOFF-V3-2026-11-07.md</code>, seção
+    "CMS (vindo da Isabella)".
+  </p>
+</section>
+
+<style>
+  code { font-size: 14px; background: var(--fundo-cinza); padding: 1px 5px; border-radius: 3px; }
+  p:last-child { margin-bottom: 0; }
+</style>

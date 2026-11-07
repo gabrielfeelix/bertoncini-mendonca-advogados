@@ -1,0 +1,50 @@
+---
+/**
+ * Entrada do painel.
+ *
+ * Fora do sitemap, proibida no robots.txt e com `noindex`. Quem entra são as
+ * contas cadastradas em `editores` (ver tools/cria-editor.mjs). O formulário
+ * é HTML comum e funciona sem JavaScript; a sessão vira cookie HttpOnly em
+ * /api/painel/entrar.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import CampoSenha from '~/components/painel/CampoSenha.astro';
+import AvisoSemBanco from '~/components/painel/AvisoSemBanco.astro';
+import { configSupabase, editorAtual } from '~/lib/painel-auth';
+import { ERROS, FEITOS } from '~/lib/painel-artigo';
+
+const temBanco = Boolean(configSupabase());
+
+// Quem já entrou não precisa ver esta tela de novo.
+if (temBanco && (await editorAtual(Astro.cookies))) return Astro.redirect('/painel/', 303);
+
+const erro = Astro.url.searchParams.get('erro');
+const feito = Astro.url.searchParams.get('feito');
+---
+
+<Painel titulo="Entrar" estreita>
+  {!temBanco ? (
+    <AvisoSemBanco />
+  ) : (
+    <section class="pnl-cartao">
+      <p class="pnl-rotulo-sec">Painel</p>
+      <h1 class="pnl-titulo">Entrar</h1>
+      <p class="pnl-sub">Para escrever e publicar na Central de Conteúdos.</p>
+
+      {erro && <p class="pnl-recado pnl-recado--erro" role="alert">{ERROS[erro] ?? 'Não foi possível entrar.'}</p>}
+      {feito && FEITOS[feito] && <p class="pnl-recado pnl-recado--ok" role="status">{FEITOS[feito]}</p>}
+
+      <form class="entrada__form" method="post" action="/api/painel/entrar">
+        <div>
+          <label class="pnl-rotulo" for="email">E-mail</label>
+          <input class="pnl-campo" id="email" type="email" name="email" required autocomplete="username" />
+        </div>
+        <CampoSenha id="senha" nome="senha" rotulo="Senha" />
+        <button class="pnl-btn pnl-btn--principal" type="submit">Entrar</button>
+        <p class="entrada__link"><a href="/painel/esqueci/">Esqueci minha senha</a></p>
+      </form>
+    </section>
+  )}
+</Painel>

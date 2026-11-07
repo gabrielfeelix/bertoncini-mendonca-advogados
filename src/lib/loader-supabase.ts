@@ -60,6 +60,8 @@ type LinhaArtigo = {
   capa_largura: number | null;
   capa_altura: number | null;
   capa_alt: string | null;
+  /** Coluna da migração 005; ausente em banco que ainda não a aplicou. */
+  capa_credito?: string | null;
   categoria: string;
   autor: string | null;
   /** Coluna da migração 004; ausente em banco que ainda não a aplicou. */
@@ -199,6 +201,7 @@ export function artigosDoSupabase(): Loader {
           ...(linha.capa_largura !== null ? { capaLargura: linha.capa_largura } : {}),
           ...(linha.capa_altura !== null ? { capaAltura: linha.capa_altura } : {}),
           ...(linha.capa_alt ? { capaAlt: linha.capa_alt } : {}),
+          ...(linha.capa && linha.capa_credito ? { capaCredito: linha.capa_credito } : {}),
           ...(linha.autor ? { autor: linha.autor } : {}),
           ...(linha.formato ? { formato: linha.formato } : {}),
           ...(linha.atualizado_em ? { atualizadoEm: linha.atualizado_em } : {}),
