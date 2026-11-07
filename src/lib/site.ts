@@ -117,7 +117,7 @@ export const navegacao = [
   { rotulo: 'Início', href: '/' },
   { rotulo: 'O escritório', href: '/escritorio/' },
   { rotulo: 'Áreas de atuação', href: '/areas/', submenu: 'areas' },
-  { rotulo: 'Blog', href: '/blog/' },
+  { rotulo: 'Central de Conteúdos', href: '/conteudos/' },
   { rotulo: 'Contato', href: '/contato/' },
 ] as const;
 
@@ -164,7 +164,7 @@ export const formacao: Record<string, readonly string[]> = {
 export const rodape = {
   institucional: [
     { rotulo: 'O escritório', href: '/escritorio/' },
-    { rotulo: 'Blog', href: '/blog/' },
+    { rotulo: 'Central de Conteúdos', href: '/conteudos/' },
     { rotulo: 'Contato', href: '/contato/' },
   ],
   /* Barra de baixo, junto do copyright — não é coluna. */

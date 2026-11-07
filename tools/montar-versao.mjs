@@ -44,6 +44,8 @@ const reescreveHtml = (html) =>
         .join(',')}"`,
     )
     .replace(/url\((['"]?)(\/[^)'"]*)\1\)/g, (_, q, url) => `url(${q}${prefixa(url)}${q})`)
+    /* Páginas de redirecionamento (/blog/ → /conteudos/): meta-refresh. */
+    .replace(/(content="\d+;\s*url=)(\/[^"]*)"/gi, (_, a, url) => `${a}${prefixa(url)}"`)
     .replace(/<head>/, '<head><meta name="robots" content="noindex, nofollow">');
 
 const reescreveCss = (css) =>

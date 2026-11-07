@@ -1,0 +1,99 @@
+---
+/**
+ * Bloco "Autores" no fim do artigo: retrato de cada sócio que assina, nome,
+ * cargo, OAB e link para o perfil em O escritório.
+ *
+ * Quem assina vem do painel (campo `autor`, ver autoresDoArtigo). Sem
+ * ninguém marcado o texto é do escritório e o bloco não aparece.
+ */
+import { site } from '../lib/site';
+import { t } from '../lib/i18n';
+import { autoresDoArtigo, chaveDoSocio } from '../lib/artigos';
+
+interface Props {
+  autor: string;
+}
+const tx = t('pt');
+const autores = autoresDoArtigo(Astro.props.autor).map((socio) => ({
+  socio,
+  /* Mesmo critério de O escritório: o cargo segue a ordem dos sócios. */
+  cargo: tx.socio[site.socios.indexOf(socio) === 1 ? 'a' : 'o'],
+  perfil: `/escritorio/#${chaveDoSocio(socio.nome)}`,
+}));
+---
+
+{autores.length > 0 && (
+  <section class="autores" aria-labelledby="autores-titulo">
+    <h2 id="autores-titulo">{autores.length === 1 ? 'Autor' : 'Autores'}</h2>
+    <ul class="autores-lista">
+      {autores.map((a) => (
+        <li class="autor">
+          <img
+            src={`${a.socio.retrato}-560.jpg`}
+            alt=""
+            width="560"
+            height="840"
+            loading="lazy"
+          />
+          <div class="autor-texto">
+            <p class="autor-nome">{a.socio.nome}</p>
+            <p class="autor-cargo">{a.cargo} · {a.socio.oab.valor}</p>
+            <a class="autor-perfil" href={a.perfil}>
+              Ver perfil<span class="oculto"> de {a.socio.nome}</span> <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .autores { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--linha); }
+  .autores h2 {
+    font-size: 15px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--azul-claro); margin: 0 0 22px;
+  }
+  .autores-lista {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 340px)); gap: 24px;
+  }
+  /* Retrato inteiro no cartão, com o azul da marca subindo de baixo para o
+     texto ter contraste (o mesmo tratamento das capas: sem tingir a foto). */
+  .autor {
+    position: relative; overflow: hidden; border-radius: 6px;
+    aspect-ratio: 4 / 5; background: var(--azul);
+    box-shadow: var(--sombra);
+  }
+  .autor img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center 15%;
+    transition: transform .4s ease;
+  }
+  .autor:hover img { transform: scale(1.03); }
+  .autor::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(11, 30, 63, 0) 45%, rgba(11, 30, 63, .78) 70%, #0b1e3f 100%);
+  }
+  .autor-texto { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 0 24px 24px; color: #fff; }
+  .autor-nome { font-size: 22px; font-weight: 700; line-height: 1.25; margin: 0 0 4px; }
+  .autor-cargo { font-size: 14px; color: rgba(248, 247, 242, .82); margin: 0 0 16px; }
+  .autor-perfil {
+    display: block; text-align: center; text-decoration: none;
+    font-weight: 500; font-size: 15px;
+    padding: 12px 16px; border-radius: 4px;
+    background: #f8f7f2; color: var(--azul);
+    transition: background-color .15s ease;
+  }
+  .autor-perfil:hover { background: #fff; color: var(--azul-medio); }
+  /* O link cobre o cartão inteiro: clicar na foto também leva ao perfil. */
+  .autor-perfil::before { content: ''; position: absolute; inset: -100vh 0 0; }
+  .oculto {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .autor img { transition: none; }
+    .autor:hover img { transform: none; }
+  }
+</style>

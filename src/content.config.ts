@@ -168,7 +168,7 @@ const areasEn = defineCollection({
 });
 
 /**
- * Artigos do blog (`/blog/`).
+ * Publicações da Central de Conteúdos (`/conteudos/`).
  *
  * O schema serve às duas fontes de propósito, e o plano pede isso: o mesmo
  * objeto valida uma linha do Supabase, traduzida pelo loader, e um arquivo
@@ -229,7 +229,13 @@ const artigos = defineCollection({
     capaCredito: z.string().min(1).optional(),
     /** Categoria editorial do texto. */
     categoria: z.string().min(1).default('Informativo'),
-    /** Quem assina. Vazio quando o texto é do escritório, sem assinatura individual. */
+    /** Formato da publicação (filtro da Central de Conteúdos). Ver FORMATOS em lib/artigos. */
+    formato: z.enum(['artigo', 'noticia', 'video']).default('artigo'),
+    /**
+     * Quem assina: nomes dos sócios, separados por vírgula (o painel grava
+     * assim). Vazio quando o texto é do escritório, sem assinatura
+     * individual. A página do artigo mostra o bloco "Autores" a partir daqui.
+     */
     autor: z.string().default(''),
     publicadoEm: z.coerce.date(),
     /** Mantido pelo banco a cada alteração; ausente enquanto nunca foi alterado. */

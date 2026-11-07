@@ -14,6 +14,13 @@ interface Props {
   lang?: Idioma;
   /** Capa alta, como a da home, com o título à esquerda (ex.: O escritório). */
   alto?: boolean;
+  /**
+   * Capa alta com a foto inteira, começando no topo da página por baixo do
+   * cabeçalho, e o escurecimento da capa da home (ex.: Central de
+   * Conteúdos). Diferente de `alto`, a foto não é recortada abaixo do menu:
+   * cabeçalho e capa leem como uma peça só.
+   */
+  cheio?: boolean;
   /** Enquadramento da foto (CSS background-position). */
   posicao?: string;
   /** Linha de apoio sob o título, só na capa alta. */
@@ -29,6 +36,7 @@ const {
   migalhas = [],
   lang = 'pt',
   alto = false,
+  cheio = false,
   posicao = 'center',
   apoio,
   posicaoCelular,
@@ -37,7 +45,7 @@ const tx = t(lang);
 ---
 
 <section
-  class:list={['banner-pagina', { 'banner-alto': alto }]}
+  class:list={['banner-pagina', { 'banner-alto': alto, 'banner-cheio': cheio }]}
   style={alto ? undefined : `background-image:url('${foto}');background-position:${posicao}`}
 >
   {/* Na capa alta a foto é uma imagem à direita que começa ABAIXO do
@@ -46,7 +54,9 @@ const tx = t(lang);
   {alto && <img class="banner-foto" src={foto} alt="" style={`--posicao:${posicao};--posicao-celular:${posicaoCelular ?? posicao}`} />}
   <div class="container">
     {html ? <h1 set:html={html} /> : <h1>{titulo}</h1>}
-    {alto && apoio && <p class="banner-apoio">{apoio}</p>}
+    {(alto || cheio) && apoio && <p class="banner-apoio">{apoio}</p>}
+    {/* Conteúdo extra da capa alta (ex.: a busca da Central de Conteúdos). */}
+    <slot />
     {migalhas.length > 0 && (
       <nav aria-label={tx.migalhas.aria}>
         <p class="migalhas">

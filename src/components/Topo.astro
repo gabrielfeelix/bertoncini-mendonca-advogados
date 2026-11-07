@@ -87,7 +87,8 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
             </li>
           ))}
         </ul>
-        <a class="botao menu-botao" href={rota(lang, '/contato/')}>{tx.topo.faleConosco}</a>
+        {/* Contato não fica no menu (07/11/2026): o botão é a entrada para ele. */}
+        <a class="botao menu-botao" href={rota(lang, '/contato/')} aria-current={ativo('/contato/')}>{tx.topo.faleConosco}</a>
       </nav>
     </div>
   </header>

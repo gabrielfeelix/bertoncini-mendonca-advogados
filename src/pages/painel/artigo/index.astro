@@ -28,6 +28,8 @@ export const prerender = false;
 import Painel from '~/layouts/Painel.astro';
 import { editorAtual, configSupabase, clienteComSessao, tokenDaSessao } from '~/lib/painel-auth';
 import { markdownParaHtml } from '~/lib/markdown-editor';
+import { site } from '~/lib/site';
+import { FORMATOS, autoresDoArtigo } from '~/lib/artigos';
 
 const cfg = configSupabase();
 const editor = cfg ? await editorAtual(Astro.cookies) : null;
@@ -46,6 +48,7 @@ interface Artigo {
   corpo: string;
   categoria: string;
   autor: string;
+  formato: string | null;
   estado: string;
   capa: string | null;
   capa_alt: string | null;
@@ -64,7 +67,7 @@ if (slug) {
   if (cliente) {
     const { data, error } = await cliente
       .from('artigos')
-      .select('slug, titulo, resumo, corpo, categoria, autor, estado, capa, capa_alt, capa_largura, capa_altura, seo_titulo, seo_descricao')
+      .select('slug, titulo, resumo, corpo, categoria, autor, formato, estado, capa, capa_alt, capa_largura, capa_altura, seo_titulo, seo_descricao')
       .eq('slug', slug)
       .maybeSingle();
     if (error) erroLeitura = error.message;
@@ -73,6 +76,7 @@ if (slug) {
 }
 
 const novo = !artigo;
+const assinantes = autoresDoArtigo(artigo?.autor ?? '').map((s) => s.nome);
 /* O editor abre com o markdown já convertido em HTML; sem JavaScript, o
    <textarea> mostra o markdown original. */
 const htmlInicial = artigo ? markdownParaHtml(artigo.corpo) : '';
@@ -140,11 +144,22 @@ const CATEGORIAS = [
           </select>
         </div>
         <div class="campo">
-          <label for="autor">Assinatura</label>
-          <input type="text" id="autor" name="autor" maxlength="80" value={artigo?.autor ?? ''} />
-          <p class="dica">Deixe vazio para o texto sair sem assinatura individual.</p>
+          <label for="formato_publicacao">Formato</label>
+          <select id="formato_publicacao" name="formato_publicacao">
+            {Object.entries(FORMATOS).map(([valor, f]) => (
+              <option value={valor} selected={(artigo?.formato ?? 'artigo') === valor}>{f.singular}</option>
+            ))}
+          </select>
         </div>
       </div>
+
+      <fieldset class="campo autores">
+        <legend>Autores</legend>
+        {site.socios.map((s) => (
+          <label class="marca"><input type="checkbox" name="autores" value={s.nome} checked={assinantes.includes(s.nome)} /> {s.nome}</label>
+        ))}
+        <p class="dica">Quem assina aparece no fim do texto, com foto e link para o perfil. Sem ninguém marcado, o texto sai como do escritório.</p>
+      </fieldset>
 
       <details class="extra">
         <summary>Capa e busca (opcional)</summary>
@@ -241,6 +256,11 @@ const CATEGORIAS = [
     padding: clamp(18px, 3.5vw, 30px);
     max-width: 760px;
   }
+
+  .autores { border: 0; padding: 0; margin: 0 0 20px; }
+  .autores legend { font-size: 16px; color: var(--secundario); margin-bottom: 6px; padding: 0; }
+  .marca { display: inline-flex; align-items: center; gap: 8px; margin: 0 24px 4px 0; color: inherit; font-size: 16.5px; }
+  .marca input { width: 18px; height: 18px; }
 
   .dupla {
     display: grid;

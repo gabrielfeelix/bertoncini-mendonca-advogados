@@ -49,14 +49,13 @@ const pt = {
     { rotulo: 'Início', chave: '/' },
     { rotulo: 'O escritório', chave: '/escritorio/' },
     { rotulo: 'Áreas de atuação', chave: '/areas/', submenu: true },
-    { rotulo: 'Blog', chave: '/blog/' },
-    { rotulo: 'Contato', chave: '/contato/' },
+    { rotulo: 'Central de Conteúdos', chave: '/conteudos/' },
   ],
   topo: {
     inicioAria: 'página inicial',
     menu: 'Menu',
     menuAria: 'Menu principal',
-    faleConosco: 'Fale conosco',
+    faleConosco: 'Contato',
     idiomaAria: 'Idioma do site',
   },
   rodape: {
@@ -65,7 +64,7 @@ const pt = {
     inicio: 'Início',
     links: [
       { rotulo: 'O escritório', chave: '/escritorio/' },
-      { rotulo: 'Blog', chave: '/blog/' },
+      { rotulo: 'Central de Conteúdos', chave: '/conteudos/' },
       { rotulo: 'Contato', chave: '/contato/' },
     ],
     areas: 'Áreas de atuação',
@@ -294,13 +293,12 @@ const en: Textos = {
     { rotulo: 'Home', chave: '/' },
     { rotulo: 'The firm', chave: '/escritorio/' },
     { rotulo: 'Practice areas', chave: '/areas/', submenu: true },
-    { rotulo: 'Contact', chave: '/contato/' },
   ],
   topo: {
     inicioAria: 'home page',
     menu: 'Menu',
     menuAria: 'Main menu',
-    faleConosco: 'Contact us',
+    faleConosco: 'Contact',
     idiomaAria: 'Website language',
   },
   rodape: {

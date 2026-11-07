@@ -115,6 +115,27 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
     linear-gradient(rgba(11, 30, 63, .55), rgba(11, 30, 63, .55));
 }
 .banner-pagina .container { position: relative; }
+/* Capa cheia (Central de Conteúdos): a foto inteira desde o topo, por
+   baixo do cabeçalho transparente, com o escurecimento da capa da home
+   (HeroSlides): topo mais escuro para o menu, canto petróleo e véu leve. */
+.banner-cheio {
+  /* Acima da barra de filtros grudante (z 40) que vem logo depois: os
+     resultados da busca da capa abrem por cima dela. Abaixo do cabeçalho (50). */
+  z-index: 41;
+  display: flex; align-items: center;
+  min-height: 620px;
+  padding: calc(var(--altura-topo) + 56px) 0 80px;
+  text-align: left;
+}
+.banner-cheio::before {
+  background:
+    linear-gradient(180deg, rgba(11, 30, 63, .5) 0%, rgba(11, 30, 63, 0) 24%),
+    linear-gradient(32deg, rgba(0, 67, 105, .96) 0%, rgba(0, 67, 105, .72) 20%, rgba(81, 116, 147, .28) 42%, rgba(81, 116, 147, 0) 62%),
+    linear-gradient(rgba(11, 30, 63, .44), rgba(11, 30, 63, .44));
+}
+.banner-cheio h1 { font-size: 52px; text-shadow: 0 2px 18px rgba(11, 30, 63, .35); }
+.banner-cheio .banner-apoio { text-shadow: 0 2px 18px rgba(11, 30, 63, .35); }
+
 /* Capa alta (O escritório): altura e alinhamento da capa da home. */
 .banner-alto {
   display: flex; align-items: center;
@@ -161,6 +182,8 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 .grade { display: grid; gap: 30px; }
 .grade-2 { grid-template-columns: repeat(2, 1fr); }
 .grade-3 { grid-template-columns: repeat(3, 1fr); }
+/* Cartões de publicação não têm caixa: mais ar entre as linhas. */
+.grade:has(> .cartao-artigo, > li > .cartao-artigo) { row-gap: 48px; }
 .cartao {
   background: #fff;
   border-radius: 6px;
@@ -310,6 +333,8 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
   .banner-pagina { padding: calc(var(--altura-topo) + 44px) 0 46px; }
   .banner-pagina h1 { font-size: 30px; }
   .banner-alto { min-height: 560px; padding-top: calc(var(--altura-topo) + 48px); align-items: flex-end; }
+  .banner-cheio { min-height: 520px; padding-top: calc(var(--altura-topo) + 40px); }
+  .banner-cheio h1 { font-size: 34px; }
   /* No celular a foto ocupa a largura toda; o enquadramento próprio
      (--posicao-celular) mantém os dois rostos na tela. */
   .banner-foto {

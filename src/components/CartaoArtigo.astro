@@ -1,16 +1,15 @@
 ---
 /**
- * Cartão de artigo do blog: capa, etiqueta de categoria, título, data,
- * resumo e "Continuar lendo". Usado na home e na lista do blog.
+ * Cartão de publicação (home e Central de Conteúdos), no desenho comum aos
+ * blogs de escritório: imagem solta no alto, com canto levemente
+ * arredondado, e abaixo o rótulo (formato · área), o título, o resumo e a
+ * data. Sem caixa branca nem sombra em volta (redesenho de 07/11/2026).
  *
- * A categoria é uma etiqueta colorida pela área, logo acima do título
- * (pedido do cliente: ler como assunto, não como sobretítulo em caixa alta).
- *
- * Cantos de 12px e capa que cresce de leve no hover: o mesmo arredondado
- * da capa do artigo e da página de áreas, para o blog não destoar delas.
+ * O título é o link; a imagem também leva ao texto, mas fica fora da ordem
+ * de tabulação para o leitor de tela não ouvir o mesmo link duas vezes.
  */
 import type { Artigo } from '../lib/artigos';
-import { dataLegivel } from '../lib/artigos';
+import { dataLegivel, hrefArtigo } from '../lib/artigos';
 import EtiquetaCategoria from './EtiquetaCategoria.astro';
 
 interface Props {
@@ -18,38 +17,38 @@ interface Props {
 }
 const { artigo } = Astro.props;
 const d = artigo.data;
-const href = `/blog/${artigo.id}/`;
+const href = hrefArtigo(artigo.id);
 ---
 
-<article class="cartao cartao-artigo">
+<article class="cartao-artigo">
   {d.capa && (
     <a class="capa" href={href} tabindex="-1" aria-hidden="true">
       <img src={d.capa} alt="" width={d.capaLargura ?? 1600} height={d.capaAltura ?? 1200} loading="lazy" />
     </a>
   )}
-  <div class="cartao-corpo">
-    {d.categoria && <EtiquetaCategoria categoria={d.categoria} />}
-    <h3><a href={href}>{d.titulo}</a></h3>
-    <p class="data">
-      <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
-      {d.tempoLeitura && <span> · {d.tempoLeitura} min de leitura</span>}
-    </p>
-    <p>{d.resumo}</p>
-    <a class="ver-mais" href={href}>Continuar lendo →</a>
-  </div>
+  <EtiquetaCategoria categoria={d.categoria} formato={d.formato} />
+  <h3><a href={href}>{d.titulo}</a></h3>
+  <p class="resumo">{d.resumo}</p>
+  <p class="data">
+    <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
+    {d.tempoLeitura && <span> · {d.tempoLeitura} min de leitura</span>}
+  </p>
 </article>
 
 <style>
-  .cartao-artigo { border-radius: 12px; }
-  /* O recorte fica no link, e não no cartão inteiro, para a imagem crescer
-     sem empurrar o texto. */
-  .capa { display: block; overflow: hidden; }
+  .cartao-artigo { display: flex; flex-direction: column; }
+  /* O recorte fica no link, para a imagem crescer sem empurrar o texto. */
+  .capa { display: block; overflow: hidden; border-radius: 6px; margin-bottom: 18px; }
   .capa img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; transition: transform .4s ease; }
   .cartao-artigo:hover .capa img { transform: scale(1.03); }
-  .cartao-artigo h3 { font-size: 19px; }
-  .cartao-artigo h3 a { color: var(--azul); text-decoration: none; }
-  .cartao-artigo h3 a:hover { color: var(--azul-medio); text-decoration: underline; }
-  .data { font-size: 14px; margin-bottom: 10px; }
+  h3 { font-size: 21px; line-height: 1.3; margin: 0 0 10px; }
+  h3 a { color: var(--azul); text-decoration: none; }
+  h3 a:hover { color: var(--azul-medio); text-decoration: underline; text-underline-offset: 3px; }
+  .resumo {
+    font-size: 16px; line-height: 1.6; color: var(--texto-suave); margin: 0 0 12px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .data { font-size: 14px; color: var(--texto-suave); margin: auto 0 0; }
 
   @media (prefers-reduced-motion: reduce) {
     .capa img { transition: none; }

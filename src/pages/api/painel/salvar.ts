@@ -21,6 +21,10 @@
  */
 import type { APIRoute } from 'astro';
 import { clienteComSessao, tokenDaSessao, configSupabase } from '~/lib/painel-auth';
+import { site } from '~/lib/site';
+
+/** Mesmos valores da constraint da migração 004 e de FORMATOS em lib/artigos. */
+const FORMATOS_VALIDOS = ['artigo', 'noticia', 'video'];
 import {
   htmlParaMarkdown,
   minutosDeLeitura,
@@ -116,7 +120,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     resumo,
     corpo,
     categoria: texto('categoria', 60) || 'Informativo',
-    autor: texto('autor', 80),
+    /* Autores marcados no painel, na ordem do site; só nomes de sócio. */
+    autor: site.socios
+      .map((s) => s.nome)
+      .filter((nome) => dados.getAll('autores').map(String).includes(nome))
+      .join(', '),
+    formato: FORMATOS_VALIDOS.includes(texto('formato_publicacao', 10)) ? texto('formato_publicacao', 10) : 'artigo',
     estado: publicar ? 'publicado' : 'rascunho',
     capa,
     capa_alt: capa ? capaAlt : null,

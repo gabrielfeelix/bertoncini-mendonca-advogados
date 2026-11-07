@@ -1,0 +1,572 @@
+---
+/**
+ * Central de Conteúdos (v3), na linha da do TozziniFreire: capa alta com
+ * busca, o texto mais recente em destaque e, abaixo, todos os textos em
+ * grade com uma barra de filtros (busca, formato, área, autor, limpar) que
+ * gruda sob o cabeçalho ao rolar.
+ *
+ * Sem paginação: o filtro roda no navegador e precisa de todos os textos na
+ * página. Com algumas dezenas isso continua leve; se um dia forem centenas,
+ * a busca deve ir para o servidor, não voltar a paginar.
+ *
+ * Sem JavaScript tudo continua visível: a barra de filtros nasce escondida
+ * e só aparece quando o script que a faz funcionar roda. A busca da capa é
+ * um formulário GET (`?busca=`), que o script lê ao abrir a página.
+ */
+import Base from '~/layouts/Base.astro';
+import BannerPagina from '~/components/BannerPagina.astro';
+import CartaoArtigo from '~/components/CartaoArtigo.astro';
+import EtiquetaCategoria from '~/components/EtiquetaCategoria.astro';
+import Chamada from '~/components/Chamada.astro';
+import Seletor from '~/components/Seletor.astro';
+import { site } from '~/lib/site';
+import {
+  listarArtigos,
+  dataLegivel,
+  hrefArtigo,
+  autoresDoArtigo,
+  chaveDoSocio,
+  FORMATOS,
+  NOME_CONTEUDOS,
+  ROTA_CONTEUDOS,
+} from '~/lib/artigos';
+
+const artigos = await listarArtigos();
+const [destaque] = artigos;
+
+/** Minúsculas e sem acento: "sucessório" acha "sucessorio" e vice-versa. */
+const normalizar = (texto: string) =>
+  texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+/** Categoria em formato de URL, para `?assunto=direito-digital`. */
+const slugDe = (texto: string) => normalizar(texto).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/* As áreas saem dos dados: uma categoria nova no banco entra no filtro
+   sozinha, e nenhuma opção leva a uma lista vazia. Formato e autor são
+   listas fixas (os formatos do painel e os sócios). */
+const areas = [...new Set(artigos.map((a) => a.data.categoria))]
+  .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  .map((nome) => ({ nome, slug: slugDe(nome) }));
+const formatos = Object.entries(FORMATOS).map(([valor, f]) => ({ valor, rotulo: f.plural }));
+const autores = site.socios.map((s) => ({ valor: chaveDoSocio(s.nome), rotulo: s.nome }));
+
+const contagem = (n: number) => `${n} ${n === 1 ? 'publicação' : 'publicações'}`;
+
+const titulo = `${NOME_CONTEUDOS} | Bertoncini & Mendonça Advogados`;
+const descricao =
+  'Textos sobre Planejamento Patrimonial e Sucessório e Direito Digital, escritos para quem não é da ' +
+  'área. Um assunto por vez, em linguagem simples, pelo escritório ' +
+  'Bertoncini & Mendonça, em Maringá, PR.';
+---
+
+<Base titulo={titulo} descricao={descricao} paginaAtual={ROTA_CONTEUDOS}>
+  <BannerPagina
+    cheio
+    html="Central de <strong>Conteúdos</strong>"
+    foto="/media/novas/passo-escreve.jpg"
+    apoio="Textos sobre planejamento patrimonial e sucessório e direito digital, para quem não é da área."
+    migalhas={[{ rotulo: NOME_CONTEUDOS }]}
+  >
+    {artigos.length > 0 && (
+      <form class="capa-busca" action={ROTA_CONTEUDOS} method="get" role="search" data-capa-busca>
+        <label class="oculto" for="capa-busca">Buscar na Central de Conteúdos</label>
+        <input
+          id="capa-busca" name="busca" type="search" placeholder="O que você procura?" autocomplete="off"
+          role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="capa-sugestoes"
+        />
+        <button type="submit" aria-label="Buscar">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75" /><path d="M13 13l4.5 4.5" /></svg>
+        </button>
+        {/* Resultados enquanto se digita: até 5 títulos, já como links. */}
+        <div class="sugestoes" id="capa-sugestoes" hidden data-sugestoes>
+          <ul role="listbox" aria-label="Publicações encontradas" data-sugestoes-lista></ul>
+          <p class="sugestoes-vazio" data-sugestoes-vazio hidden>Nenhuma publicação encontrada.</p>
+          <button type="submit" class="sugestoes-todos" data-sugestoes-todos></button>
+        </div>
+      </form>
+    )}
+  </BannerPagina>
+
+  {artigos.length === 0 ? (
+    <section class="secao">
+      <div class="container">
+        <p class="sem-artigos">Ainda não há publicações. Os primeiros textos estão sendo escritos.</p>
+      </div>
+    </section>
+  ) : (
+    <div class="central" data-central>
+      {destaque && (
+        <section class="destaque-secao" aria-labelledby="destaque-titulo" data-destaque-bloco>
+          <div class="container">
+            <article class="destaque">
+              {destaque.data.capa && (
+                <a class="destaque-capa" href={hrefArtigo(destaque.id)} tabindex="-1" aria-hidden="true">
+                  <img
+                    src={destaque.data.capa}
+                    alt=""
+                    width={destaque.data.capaLargura ?? 1600}
+                    height={destaque.data.capaAltura ?? 1200}
+                    loading="eager"
+                    fetchpriority="high"
+                  />
+                </a>
+              )}
+              <div class="destaque-texto">
+                <EtiquetaCategoria categoria={destaque.data.categoria} formato={destaque.data.formato} />
+                <h2 id="destaque-titulo"><a href={hrefArtigo(destaque.id)}>{destaque.data.titulo}</a></h2>
+                <p class="destaque-meta">
+                  <time datetime={destaque.data.publicadoEm.toISOString()}>{dataLegivel(destaque.data.publicadoEm)}</time>
+                  {destaque.data.tempoLeitura && <span>{destaque.data.tempoLeitura} min de leitura</span>}
+                </p>
+                <p class="destaque-resumo">{destaque.data.resumo}</p>
+                <a class="link-seta" href={hrefArtigo(destaque.id)}>Ler artigo <span aria-hidden="true">→</span></a>
+              </div>
+            </article>
+          </div>
+        </section>
+      )}
+
+      {/* Barra de filtros: gruda sob o cabeçalho enquanto a lista está na tela. */}
+      <div class="filtros-faixa" data-filtros hidden>
+        <div class="container filtros" role="search" aria-label="Filtrar publicações">
+          <div class="filtro filtro-busca">
+            <label class="oculto" for="busca-conteudos">Buscar por título ou assunto</label>
+            <input id="busca-conteudos" type="search" placeholder="Buscar por título ou assunto" autocomplete="off" data-busca />
+          </div>
+          <div class="filtro">
+            <label class="oculto" for="filtro-formato">Formato</label>
+            <select id="filtro-formato" data-seletor data-filtro="formato">
+              <option value="">Todos os formatos</option>
+              {formatos.map((f) => <option value={f.valor}>{f.rotulo}</option>)}
+            </select>
+          </div>
+          <div class="filtro">
+            <label class="oculto" for="filtro-assunto">Área</label>
+            <select id="filtro-assunto" data-seletor data-filtro="assunto">
+              <option value="">Todas as áreas</option>
+              {areas.map((a) => <option value={a.slug}>{a.nome}</option>)}
+            </select>
+          </div>
+          <div class="filtro">
+            <label class="oculto" for="filtro-autor">Autor</label>
+            <select id="filtro-autor" data-seletor data-filtro="autor">
+              <option value="">Todos os autores</option>
+              {autores.map((a) => <option value={a.valor}>{a.rotulo}</option>)}
+            </select>
+          </div>
+          <button type="button" class="limpar" data-limpar>Limpar filtro</button>
+        </div>
+      </div>
+
+      <section class="lista" aria-labelledby="lista-titulo">
+        <div class="container">
+          <div class="lista-cabeca">
+            <h2 id="lista-titulo">Todas as <strong>publicações</strong></h2>
+            <p class="contagem" role="status" aria-live="polite" data-contagem>{contagem(artigos.length)}</p>
+          </div>
+
+          <ul class="grade grade-3 artigos">
+            {artigos.map((artigo, i) => (
+              <li
+                data-item
+                data-assunto={slugDe(artigo.data.categoria)}
+                data-formato={artigo.data.formato}
+                data-autor={autoresDoArtigo(artigo.data.autor).map((s) => chaveDoSocio(s.nome)).join(' ')}
+                data-texto={normalizar(`${artigo.data.titulo} ${artigo.data.resumo} ${artigo.data.categoria}`)}
+                data-titulo={artigo.data.titulo}
+                data-href={hrefArtigo(artigo.id)}
+                data-rotulo={`${FORMATOS[artigo.data.formato].singular} · ${artigo.data.categoria}`}
+                data-destaque={i === 0 ? '' : undefined}
+                hidden={i === 0}
+              >
+                <CartaoArtigo artigo={artigo} />
+              </li>
+            ))}
+          </ul>
+
+          <div class="vazio" data-vazio hidden>
+            <p class="vazio-titulo">Nenhuma publicação encontrada.</p>
+            <p>Tente outra palavra ou limpe os filtros para ver todos os textos.</p>
+            <button type="button" class="botao botao-contorno" data-limpar>Limpar filtro</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  )}
+
+  <Seletor />
+  <Chamada />
+</Base>
+
+<script>
+  const raiz = document.querySelector<HTMLElement>('[data-central]');
+
+  if (raiz) {
+    const faixa = raiz.querySelector<HTMLElement>('[data-filtros]')!;
+    const busca = raiz.querySelector<HTMLInputElement>('[data-busca]')!;
+    const selects = [...raiz.querySelectorAll<HTMLSelectElement>('select[data-filtro]')];
+    const itens = [...raiz.querySelectorAll<HTMLElement>('[data-item]')];
+    const destaque = raiz.querySelector<HTMLElement>('[data-destaque-bloco]');
+    const lista = raiz.querySelector<HTMLElement>('.lista')!;
+    const contagem = raiz.querySelector<HTMLElement>('[data-contagem]')!;
+    const vazio = raiz.querySelector<HTMLElement>('[data-vazio]')!;
+    const capaBusca = document.querySelector<HTMLFormElement>('[data-capa-busca]');
+
+    const normalizar = (texto: string) =>
+      texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const plural = (n: number) => `${n} ${n === 1 ? 'publicação' : 'publicações'}`;
+
+    /** O que cada filtro compara no item: autor é lista ("juscelino beatriz"). */
+    const casa = (item: HTMLElement, filtro: string, valor: string) => {
+      if (!valor) return true;
+      const campo = item.dataset[filtro] ?? '';
+      return filtro === 'autor' ? campo.split(' ').includes(valor) : campo === valor;
+    };
+
+    function aplicar() {
+      const termos = normalizar(busca.value).split(/\s+/).filter(Boolean);
+      const escolhidos = selects.map((s) => [s.dataset.filtro!, s.value] as const);
+      const ativo = termos.length > 0 || escolhidos.some(([, v]) => v);
+
+      /* Com filtro ativo o destaque some e o texto dele volta para a grade,
+         para ser achado como qualquer outro. Sumir o bloco acima puxa a barra
+         para cima; a rolagem compensa, para o campo em uso não fugir de
+         debaixo do leitor (a barra grudada não se mexe, aí não há o que
+         compensar). */
+      const antes = faixa.getBoundingClientRect().top;
+
+      let total = 0;
+      for (const item of itens) {
+        const passa =
+          escolhidos.every(([f, v]) => casa(item, f, v)) &&
+          termos.every((t) => (item.dataset.texto ?? '').includes(t));
+        if (passa) total++;
+        item.hidden = ativo ? !passa : 'destaque' in item.dataset;
+      }
+      if (destaque) destaque.hidden = ativo;
+
+      const depois = faixa.getBoundingClientRect().top;
+      if (depois !== antes) window.scrollBy({ top: depois - antes, behavior: 'instant' });
+
+      const partes = selects
+        .filter((s) => s.value)
+        .map((s) => s.selectedOptions[0]?.text)
+        .filter(Boolean);
+      let texto = plural(total);
+      if (partes.length) texto += ` · ${partes.join(' · ')}`;
+      if (termos.length) texto += ` · “${busca.value.trim()}”`;
+      contagem.textContent = texto;
+      vazio.hidden = total > 0;
+    }
+
+    /* Os filtros vão para o endereço (?assunto=, ?formato=, ?autor=) para
+       sobreviverem ao voltar de um texto e poderem ser compartilhados. A
+       busca não vai: muda a cada tecla e encheria o histórico. */
+    function gravarEndereco() {
+      const url = new URL(location.href);
+      for (const s of selects) {
+        if (s.value) url.searchParams.set(s.dataset.filtro!, s.value);
+        else url.searchParams.delete(s.dataset.filtro!);
+      }
+      url.searchParams.delete('busca');
+      history.replaceState(null, '', url);
+    }
+
+    function definir(select: HTMLSelectElement, valor: string) {
+      if (select.value === valor) return;
+      select.value = valor;
+      /* O Seletor (dropdown próprio) relê o valor no `change`. */
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    for (const s of selects) {
+      s.addEventListener('change', () => {
+        gravarEndereco();
+        aplicar();
+      });
+    }
+    busca.addEventListener('input', aplicar);
+
+    function limpar() {
+      busca.value = '';
+      for (const s of selects) definir(s, '');
+      gravarEndereco();
+      aplicar();
+      busca.focus({ preventScroll: true });
+    }
+    for (const b of raiz.querySelectorAll<HTMLButtonElement>('[data-limpar]')) b.addEventListener('click', limpar);
+
+    /* Busca da capa: leva o termo para a barra e desce até a lista. */
+    function buscarDaCapa(termo: string) {
+      busca.value = termo;
+      aplicar();
+      const topo = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--altura-barra')) || 84;
+      const alvo = faixa.getBoundingClientRect().top + window.scrollY - topo;
+      const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: alvo, behavior: calmo ? 'instant' : 'smooth' });
+      busca.focus({ preventScroll: true });
+    }
+    /* Enquanto se digita na capa: a lista de baixo filtra junto e, sob o
+       campo, aparecem os títulos encontrados (até 5), já como links. */
+    const campoCapa = capaBusca?.querySelector<HTMLInputElement>('input');
+    const sugestoes = capaBusca?.querySelector<HTMLElement>('[data-sugestoes]');
+    const sugLista = capaBusca?.querySelector<HTMLUListElement>('[data-sugestoes-lista]');
+    const sugVazio = capaBusca?.querySelector<HTMLElement>('[data-sugestoes-vazio]');
+    const sugTodos = capaBusca?.querySelector<HTMLButtonElement>('[data-sugestoes-todos]');
+
+    function fechaSugestoes() {
+      if (!sugestoes || !campoCapa) return;
+      sugestoes.hidden = true;
+      campoCapa.setAttribute('aria-expanded', 'false');
+    }
+
+    function mostraSugestoes() {
+      if (!campoCapa || !sugestoes || !sugLista || !sugVazio || !sugTodos) return;
+      const termo = campoCapa.value.trim();
+      busca.value = termo;
+      aplicar();
+      if (!termo) return fechaSugestoes();
+      const termos = normalizar(termo).split(/\s+/).filter(Boolean);
+      const achados = itens.filter((i) => termos.every((t) => (i.dataset.texto ?? '').includes(t)));
+      sugLista.replaceChildren(
+        ...achados.slice(0, 5).map((i) => {
+          const li = document.createElement('li');
+          li.setAttribute('role', 'option');
+          const a = document.createElement('a');
+          a.href = i.dataset.href ?? '#';
+          const rotulo = document.createElement('span');
+          rotulo.className = 'sugestao-rotulo';
+          rotulo.textContent = i.dataset.rotulo ?? '';
+          const titulo = document.createElement('span');
+          titulo.className = 'sugestao-titulo';
+          titulo.textContent = i.dataset.titulo ?? '';
+          a.append(rotulo, titulo);
+          li.append(a);
+          return li;
+        }),
+      );
+      sugVazio.hidden = achados.length > 0;
+      sugTodos.hidden = achados.length === 0;
+      sugTodos.textContent = `Ver ${achados.length === 1 ? 'o resultado' : `os ${achados.length} resultados`} ↓`;
+      sugestoes.hidden = false;
+      campoCapa.setAttribute('aria-expanded', 'true');
+    }
+
+    campoCapa?.addEventListener('input', mostraSugestoes);
+    campoCapa?.addEventListener('focus', () => { if (campoCapa.value.trim()) mostraSugestoes(); });
+    capaBusca?.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { fechaSugestoes(); campoCapa?.focus(); }
+      /* Seta para baixo no campo leva ao primeiro resultado; entre os
+         resultados, as setas andam pela lista. */
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      const links = [...(sugLista?.querySelectorAll<HTMLAnchorElement>('a') ?? [])];
+      if (!links.length || sugestoes?.hidden) return;
+      const atual = links.indexOf(document.activeElement as HTMLAnchorElement);
+      e.preventDefault();
+      if (e.key === 'ArrowDown') links[Math.min(atual + 1, links.length - 1)].focus();
+      else if (atual <= 0) campoCapa?.focus();
+      else links[atual - 1].focus();
+    });
+    document.addEventListener('click', (e) => {
+      if (capaBusca && !capaBusca.contains(e.target as Node)) fechaSugestoes();
+    });
+    capaBusca?.addEventListener('focusout', (e) => {
+      if (capaBusca && !capaBusca.contains(e.relatedTarget as Node | null)) fechaSugestoes();
+    });
+
+    capaBusca?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      fechaSugestoes();
+      buscarDaCapa(campoCapa?.value.trim() ?? '');
+    });
+
+    /* Estado vindo do endereço (filtros) ou da busca da capa sem JavaScript. */
+    const params = new URLSearchParams(location.search);
+    for (const s of selects) {
+      const valor = params.get(s.dataset.filtro!) ?? '';
+      if ([...s.options].some((o) => o.value === valor)) s.value = valor;
+    }
+    faixa.hidden = false;
+    const termoInicial = params.get('busca')?.trim();
+    if (termoInicial) buscarDaCapa(termoInicial);
+    else if (busca.value || selects.some((s) => s.value)) aplicar();
+
+    /* Sombra só quando a barra está grudada sob o cabeçalho. */
+    let pendente = false;
+    const marcaGrudada = () => {
+      pendente = false;
+      const estilo = getComputedStyle(faixa);
+      if (estilo.position !== 'sticky') return faixa.classList.remove('grudada');
+      const topo = parseFloat(estilo.top) || 0;
+      const r = faixa.getBoundingClientRect();
+      const fimLista = lista.getBoundingClientRect().bottom;
+      faixa.classList.toggle('grudada', r.top <= topo + 0.5 && fimLista > r.bottom);
+    };
+    window.addEventListener('scroll', () => {
+      if (!pendente) {
+        pendente = true;
+        requestAnimationFrame(marcaGrudada);
+      }
+    }, { passive: true });
+    marcaGrudada();
+  }
+</script>
+
+<style>
+  .sem-artigos { text-align: center; color: var(--texto-suave); margin: 0; }
+
+  /* ---------- Busca da capa ---------- */
+  .capa-busca {
+    position: relative; max-width: 500px; margin: 4px 0 26px;
+  }
+  .capa-busca input {
+    width: 100%; font: 16px/1.4 var(--fonte); color: #fff;
+    padding: 16px 56px 16px 20px;
+    background: rgba(11, 30, 63, .35);
+    border: 1px solid rgba(248, 247, 242, .55); border-radius: 6px;
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  .capa-busca input::placeholder { color: rgba(248, 247, 242, .8); }
+  .capa-busca input:focus { outline: 2px solid rgba(248, 247, 242, .6); outline-offset: 2px; border-color: #fff; }
+  .capa-busca input::-webkit-search-cancel-button { filter: brightness(0) invert(1); cursor: pointer; }
+  .capa-busca > button {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 44px; height: 44px; display: grid; place-items: center;
+    background: none; border: 0; border-radius: 4px; color: #fff; cursor: pointer;
+  }
+  .capa-busca > button:hover { background: rgba(248, 247, 242, .12); }
+  .sugestoes {
+    position: absolute; left: 0; right: 0; top: calc(100% + 8px); z-index: 5;
+    background: #fff; border-radius: 6px; padding: 6px;
+    box-shadow: 0 18px 44px rgba(11, 30, 63, .28);
+    text-align: left; text-shadow: none;
+  }
+  .sugestoes[hidden] { display: none; }
+  .sugestoes ul { list-style: none; margin: 0; padding: 0; }
+  /* Os itens são criados pelo script: sem o atributo de escopo do Astro, daí :global. */
+  .sugestoes :global(a) {
+    display: block; padding: 10px 12px; border-radius: 4px; text-decoration: none;
+  }
+  .sugestoes :global(a:hover), .sugestoes :global(a:focus-visible) { background: var(--fundo-cinza); outline: none; }
+  .sugestoes :global(.sugestao-rotulo) { display: block; font-size: 13px; color: var(--azul-claro); margin-bottom: 2px; }
+  .sugestoes :global(.sugestao-titulo) { display: block; font-size: 16px; font-weight: 500; line-height: 1.35; color: var(--azul); }
+  .sugestoes-vazio { margin: 0; padding: 12px; color: var(--texto-suave); font-size: 15px; }
+  .sugestoes-todos {
+    display: block; width: 100%; margin-top: 4px; padding: 11px 12px;
+    border: 0; border-top: 1px solid var(--linha); border-radius: 0 0 4px 4px;
+    background: none; text-align: left; cursor: pointer;
+    font: 500 15px/1.3 var(--fonte); color: var(--azul-medio);
+  }
+  .sugestoes-todos:hover { background: var(--fundo-cinza); }
+  .sugestoes-todos[hidden] { display: none; }
+  .capa-busca svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+
+  /* ---------- Destaque: capa larga à esquerda, texto à direita ---------- */
+  .destaque-secao { padding: 72px 0 64px; }
+  .destaque-secao[hidden] { display: none; }
+  .destaque {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 56px;
+    align-items: center;
+  }
+  .destaque-capa {
+    display: block; overflow: hidden; border-radius: 6px;
+    box-shadow: 0 24px 50px rgba(11, 30, 63, .14);
+  }
+  .destaque-texto :global(.etiqueta-linha) { margin-bottom: 14px; }
+  .destaque-capa img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; transition: transform .4s ease; }
+  .destaque:hover .destaque-capa img { transform: scale(1.03); }
+  .destaque-texto h2 { font-size: 34px; line-height: 1.2; letter-spacing: -.01em; margin-bottom: 14px; }
+  .destaque-texto h2 a { color: var(--azul); text-decoration: none; }
+  .destaque-texto h2 a:hover { color: var(--azul-medio); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+  .destaque-meta { font-size: 15px; color: var(--texto-suave); display: flex; flex-wrap: wrap; gap: 4px 16px; margin-bottom: 16px; }
+  .destaque-meta time { color: var(--azul-medio); font-weight: 500; }
+  .destaque-resumo { font-size: 18px; line-height: 1.6; margin-bottom: 22px; }
+  .link-seta { font-weight: 500; text-decoration: none; color: var(--azul-medio); }
+  .link-seta:hover { text-decoration: underline; }
+  .link-seta span { display: inline-block; transition: transform .15s ease; }
+  .link-seta:hover span { transform: translateX(4px); }
+
+  /* ---------- Barra de filtros (gruda sob o cabeçalho) ---------- */
+  .filtros-faixa {
+    position: sticky; top: var(--altura-barra); z-index: 40;
+    padding: 18px 0;
+    border-top: 1px solid var(--linha);
+    background: rgba(255, 255, 255, .92);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    transition: box-shadow .2s ease;
+  }
+  .filtros-faixa[hidden] { display: none; }
+  .filtros-faixa.grudada { box-shadow: 0 10px 24px rgba(11, 30, 63, .1); border-top-color: transparent; }
+  .filtros {
+    display: grid;
+    grid-template-columns: minmax(200px, 1.3fr) repeat(3, minmax(0, 1fr)) auto;
+    align-items: center; gap: 16px 20px;
+  }
+  /* Busca em linha só embaixo, como campo de texto; selects em caixa. */
+  .filtro-busca input {
+    width: 100%; font: 16px/1.4 var(--fonte); color: var(--texto);
+    padding: 12px 2px; border: 0; border-bottom: 2px solid var(--azul);
+    border-radius: 0; background: transparent;
+  }
+  .filtro-busca input::placeholder { color: #6b7480; }
+  .filtro-busca input:focus { outline: none; border-bottom-color: var(--azul-medio); box-shadow: 0 2px 0 var(--azul-medio); }
+  .filtro select { width: 100%; font: 16px var(--fonte); padding: 11px 12px; border: 1px solid var(--azul); border-radius: 6px; background: #fff; }
+  .filtro :global(.seletor-gatilho) { border-color: var(--azul); min-height: 48px; }
+  .filtro :global(.seletor-gatilho.vazio .seletor-valor),
+  .filtro :global(.seletor-valor) { color: var(--azul); }
+  .limpar {
+    font: 500 15px/1.3 var(--fonte); color: var(--azul);
+    background: none; border: 0; padding: 12px 4px; cursor: pointer; white-space: nowrap;
+    text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px;
+    transition: text-decoration-color .15s ease;
+  }
+  .limpar:hover { text-decoration-color: currentColor; }
+
+  /* ---------- Lista ---------- */
+  .lista { padding: 48px 0 80px; }
+  .lista-cabeca { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; margin-bottom: 28px; }
+  .lista-cabeca h2 { font-size: 34px; font-weight: 300; margin: 0; }
+  .lista-cabeca h2 strong { font-weight: 700; }
+  .contagem { margin: 0; font-size: 15px; color: var(--texto-suave); }
+
+  .artigos { list-style: none; padding: 0; margin: 0; }
+  .artigos > li { display: flex; }
+  .artigos > li[hidden] { display: none; }
+  .artigos > li > :global(.cartao-artigo) { flex: 1; }
+
+  .vazio { text-align: center; padding: 48px 20px 8px; color: var(--texto-suave); }
+  .vazio[hidden] { display: none; }
+  .vazio-titulo { font-size: 20px; font-weight: 500; color: var(--azul); margin-bottom: 6px; }
+  .vazio .botao { margin-top: 8px; }
+
+  .oculto {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .destaque-capa img, .link-seta span { transition: none; }
+    .destaque:hover .destaque-capa img, .link-seta:hover span { transform: none; }
+  }
+  @media (max-width: 991px) {
+    .destaque { grid-template-columns: 1fr; gap: 32px; }
+    .filtros { grid-template-columns: 1fr 1fr 1fr; }
+    .filtro-busca { grid-column: 1 / -1; }
+    .limpar { grid-column: 1 / -1; justify-self: end; padding: 0 4px; }
+  }
+  /* No celular a barra não gruda: com quatro campos empilhados ela taparia
+     metade da tela. */
+  @media (max-width: 680px) {
+    .filtros-faixa { position: static; padding: 16px 0; }
+    .filtros { grid-template-columns: 1fr; gap: 12px; }
+    .limpar { justify-self: start; }
+    .destaque-secao { padding: 44px 0 48px; }
+    .destaque-texto h2 { font-size: 27px; }
+    .destaque-resumo { font-size: 17px; }
+    .lista { padding: 36px 0 60px; }
+    .lista-cabeca h2 { font-size: 28px; }
+    .capa-busca { margin-bottom: 20px; }
+  }
+</style>

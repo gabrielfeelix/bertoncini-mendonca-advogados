@@ -1,6 +1,6 @@
 ---
 /**
- * Artigo do blog (v3), no formato do blog do Martinelli: cabeçalho em
+ * Texto da Central de Conteúdos (v3), no formato do blog do Martinelli: cabeçalho em
  * fundo branco (categoria, título, data, compartilhar), capa larga e
  * arredondada, texto numa coluna de leitura, "Leia também" em cartões
  * horizontais e o formulário curto "Como podemos ajudar?" no fim.
@@ -11,7 +11,8 @@ import { Image } from 'astro:assets';
 import Base from '~/layouts/Base.astro';
 import FormRapido from '~/components/FormRapido.astro';
 import Icone from '~/components/Icone.astro';
-import { listarArtigos, dataLegivel, NOME_DO_BLOG } from '~/lib/artigos';
+import AutoresArtigo from '~/components/AutoresArtigo.astro';
+import { listarArtigos, dataLegivel, hrefArtigo, NOME_CONTEUDOS, ROTA_CONTEUDOS } from '~/lib/artigos';
 import { site } from '~/lib/site';
 
 export const getStaticPaths = (async () => {
@@ -54,11 +55,11 @@ const compartilhar = {
 const leiaTambem = relacionados.slice(0, 2);
 ---
 
-<Base titulo={titulo} descricao={descricao} paginaAtual="/blog/" sobreposto={false}>
+<Base titulo={titulo} descricao={descricao} paginaAtual={ROTA_CONTEUDOS} sobreposto={false}>
   <article class="artigo">
     <header class="cabeca">
       <p class="trilha">
-        <a href="/blog/">{NOME_DO_BLOG}</a>
+        <a href={ROTA_CONTEUDOS}>{NOME_CONTEUDOS}</a>
         <span aria-hidden="true">/</span>
         <span>{d.categoria}</span>
       </p>
@@ -69,7 +70,7 @@ const leiaTambem = relacionados.slice(0, 2);
         <p class="meta">
           <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
           {d.tempoLeitura && <span>{d.tempoLeitura} min de leitura</span>}
-          {d.autor && <span>{d.autor}</span>}
+          {d.autor && <span>Por {d.autor}</span>}
           {d.atualizadoEm && (
             <span>Atualizado em <time datetime={d.atualizadoEm.toISOString()}>{dataLegivel(d.atualizadoEm)}</time></span>
           )}
@@ -93,7 +94,7 @@ const leiaTambem = relacionados.slice(0, 2);
           width={d.capaLargura}
           height={d.capaAltura}
           widths={[640, 1040, 1600]}
-          sizes="(min-width: 1000px) 960px, 100vw"
+          sizes="(min-width: 1080px) 1040px, 100vw"
           loading="eager"
         />
         {d.capaCredito && <figcaption>{d.capaCredito}</figcaption>}
@@ -104,6 +105,8 @@ const leiaTambem = relacionados.slice(0, 2);
       <Content />
       <p class="aviso">{site.avisoInformativo}</p>
     </div>
+    {/* Fora de .texto, para as regras de imagem do corpo não pegarem nos retratos. */}
+    <div class="corpo-largura"><AutoresArtigo autor={d.autor} /></div>
   </article>
 
   {leiaTambem.length > 0 && (
@@ -114,15 +117,15 @@ const leiaTambem = relacionados.slice(0, 2);
           {leiaTambem.map((item) => (
             <article class="rel">
               {item.data.capa && (
-                <a class="rel-foto" href={`/blog/${item.id}/`} tabindex="-1" aria-hidden="true">
+                <a class="rel-foto" href={hrefArtigo(item.id)} tabindex="-1" aria-hidden="true">
                   <img src={item.data.capa} alt="" width={item.data.capaLargura ?? 1600} height={item.data.capaAltura ?? 1200} loading="lazy" />
                 </a>
               )}
               <div>
                 <p class="rel-categoria">{item.data.categoria}</p>
-                <h3><a href={`/blog/${item.id}/`}>{item.data.titulo}</a></h3>
+                <h3><a href={hrefArtigo(item.id)}>{item.data.titulo}</a></h3>
                 <p class="rel-resumo">{item.data.resumo}</p>
-                <a class="rel-mais" href={`/blog/${item.id}/`}>Continuar lendo <span aria-hidden="true">→</span></a>
+                <a class="rel-mais" href={hrefArtigo(item.id)}>Continuar lendo <span aria-hidden="true">→</span></a>
               </div>
             </article>
           ))}
@@ -151,7 +154,11 @@ const leiaTambem = relacionados.slice(0, 2);
 
 <style>
   .artigo { padding: 56px 20px 24px; }
-  .cabeca, .corpo { max-width: 840px; margin: 0 auto; }
+  /* Coluna de leitura larga (pedido de 07/11/2026: "dá uma esticada boa",
+     sem ir à largura toda como no TozziniFreire). Com 18px dá ~95
+     caracteres por linha, o limite do confortável. */
+  .cabeca, .corpo, .corpo-largura { max-width: 1040px; margin: 0 auto; }
+  .corpo { font-size: 18px; }
   .trilha { font-size: 15px; color: var(--azul-claro); margin-bottom: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
   .trilha a { color: var(--azul-medio); text-decoration: none; font-weight: 500; }
   .trilha a:hover { text-decoration: underline; }
@@ -174,8 +181,10 @@ const leiaTambem = relacionados.slice(0, 2);
   .compartilhar a:hover, .copiar:hover { background: var(--azul-medio); color: #fff; }
   .copiado { position: absolute; right: 0; top: calc(100% + 6px); font-size: 13px; color: var(--azul-medio); white-space: nowrap; }
 
-  .capa-env { max-width: 960px; margin: 40px auto 8px; }
-  .capa-env :global(.capa) { width: 100%; height: auto; border-radius: 16px; display: block; }
+  /* Capa em faixa (5:2), da largura do texto: em proporção natural ela
+     passava de 800px de altura e empurrava o texto para fora da tela. */
+  .capa-env { max-width: 1040px; margin: 40px auto 8px; }
+  .capa-env :global(.capa) { width: 100%; height: auto; aspect-ratio: 5 / 2; object-fit: cover; border-radius: 6px; display: block; }
   .capa-env figcaption { font-size: 13px; color: var(--texto-suave); margin-top: 8px; }
 
   .corpo { padding-top: 32px; }
@@ -183,7 +192,7 @@ const leiaTambem = relacionados.slice(0, 2);
 
   /* ---------- Leia também ---------- */
   .relacionados { padding: 40px 20px 32px; }
-  .largo { max-width: 1040px; margin: 0 auto; }
+  .largo { max-width: 1170px; margin: 0 auto; }
   .relacionados h2 { font-size: 34px; font-weight: 300; margin-bottom: 28px; }
   .relacionados h2 strong { font-weight: 700; }
   .rel-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -206,6 +215,7 @@ const leiaTambem = relacionados.slice(0, 2);
   @media (max-width: 680px) {
     .artigo { padding-top: 36px; }
     .cabeca h1 { font-size: 31px; }
+    .capa-env :global(.capa) { aspect-ratio: 16 / 9; }
     .resumo { font-size: 18px; }
     .rel { grid-template-columns: 110px 1fr; gap: 16px; }
     .relacionados h2 { font-size: 28px; }

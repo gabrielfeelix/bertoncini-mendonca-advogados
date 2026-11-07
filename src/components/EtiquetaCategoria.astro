@@ -1,37 +1,37 @@
 ---
 /**
- * Etiqueta de categoria do artigo: o assunto do texto, com a cor da área.
+ * Rótulo da publicação, acima do título: formato e área ("Artigo · Direito
+ * digital"), em texto colorido, como os blogs de escritório costumam fazer.
  *
- * Fica num componente só porque aparece em dois lugares (cartão e destaque
- * do blog) e as cores precisam ser as mesmas nos dois. Qual cor vai para
- * qual categoria é decidido em `tomDaCategoria()`; aqui mora só o desenho.
+ * Era uma etiqueta em caixa colorida (pílula); virou texto em 07/11/2026,
+ * no redesenho dos cartões. Continua em letra normal, e não em caixa alta,
+ * porque o cliente pediu que a área "leia como assunto, não como
+ * sobretítulo em caixa alta".
  *
- * Vai acima do título, numa linha só dela, e não sobre a foto: o cliente
- * provou as duas e ficou com esta.
+ * Fica num componente só porque aparece no cartão e no destaque da Central
+ * de Conteúdos, e os dois precisam ser iguais.
  */
-import { tomDaCategoria } from '../lib/artigos';
+import { FORMATOS, type Formato } from '../lib/artigos';
 
 interface Props {
   categoria: string;
+  formato?: Formato;
 }
-const { categoria } = Astro.props;
+const { categoria, formato } = Astro.props;
 ---
 
-<p class="etiqueta-linha"><span class:list={['etiqueta', tomDaCategoria(categoria)]}>{categoria}</span></p>
+<p class="etiqueta-linha">
+  {formato && <span class="etiqueta-formato">{FORMATOS[formato].singular}</span>}
+  {formato && <span class="etiqueta-ponto" aria-hidden="true">·</span>}
+  <span>{categoria}</span>
+</p>
 
 <style>
-  /* O parágrafo segura a linha; a etiqueta em si é inline-block, para ter
-     a largura do texto e não esticar dentro de um contêiner flex. */
-  .etiqueta-linha { margin: 0 0 10px; line-height: 1; }
-  .etiqueta {
-    display: inline-block;
-    padding: 4px 10px;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    font: 500 12px/1.4 var(--fonte);
-    letter-spacing: .01em;
+  .etiqueta-linha {
+    margin: 0 0 8px;
+    font: 500 14px/1.4 var(--fonte);
+    color: var(--azul-claro);
   }
-  .etiqueta-patrimonial { background: var(--azul); color: #f8f7f2; }
-  .etiqueta-digital { background: var(--azul-medio); color: #fff; }
-  .etiqueta-neutra { background: var(--fundo-cinza); color: var(--azul); border-color: var(--linha); }
+  .etiqueta-formato { color: var(--azul-medio); font-weight: 700; }
+  .etiqueta-ponto { margin: 0 6px; }
 </style>

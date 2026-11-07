@@ -1,6 +1,6 @@
 /**
- * Acesso à coleção `artigos`, num lugar só, para a lista (`/blog/`) e para
- * a página do artigo (`/blog/[slug]/`) não repetirem a mesma leitura nem
+ * Acesso à coleção `artigos`, num lugar só, para a lista (`/conteudos/`) e
+ * para a página do artigo (`/conteudos/[slug]/`) não repetirem a mesma leitura nem
  * discordarem sobre a ordem.
  *
  * A coleção vem do Supabase pelo loader em `loader-supabase.ts`, e **pode
@@ -9,6 +9,7 @@
  * lista vazia, não supor que há pelo menos um artigo.
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { site } from './site';
 
 export type Artigo = CollectionEntry<'artigos'>;
 
@@ -16,14 +17,51 @@ export type Artigo = CollectionEntry<'artigos'>;
 export const POR_PAGINA = 6;
 
 /**
- * Como o blog se chama na interface.
+ * Como a seção de textos se chama na interface, e onde ela mora.
  *
- * Era "Em português claro", nome próprio, e a palavra "blog" não aparecia
- * para o leitor. O cliente reverteu: "tudo BLOG, sempre, textos nunca" —
- * a rota virou /blog/ e o rótulo é Blog em todo lugar. Nome próprio de
- * seção obriga o leitor a descobrir o que a seção é; "Blog" ele já sabe.
+ * Histórico: "Em português claro" (/textos/) → "Blog" (/blog/, pedido do
+ * cliente: "tudo BLOG, sempre, textos nunca") → "Central de Conteúdos"
+ * (/conteudos/, pedido do Gabriel em 07/11/2026, na linha do TozziniFreire).
+ * Os endereços antigos redirecionam (src/pages/blog e src/pages/textos).
+ * Se os sócios pedirem "Blog" de volta, é trocar o rótulo aqui.
  */
-export const NOME_DO_BLOG = 'Blog';
+export const NOME_CONTEUDOS = 'Central de Conteúdos';
+export const ROTA_CONTEUDOS = '/conteudos/';
+
+/** Endereço de um artigo. */
+export const hrefArtigo = (id: string) => `${ROTA_CONTEUDOS}${id}/`;
+
+/**
+ * Formatos de publicação. A chave é o que o banco grava; o rótulo é o que
+ * o leitor vê (singular no cartão, plural no filtro).
+ */
+export const FORMATOS = {
+  artigo: { singular: 'Artigo', plural: 'Artigos' },
+  noticia: { singular: 'Notícia', plural: 'Notícias' },
+  video: { singular: 'Vídeo', plural: 'Vídeos' },
+} as const;
+export type Formato = keyof typeof FORMATOS;
+
+/** Minúsculas e sem acento, para comparar nomes. */
+const normalizar = (texto: string) =>
+  texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+/** Chave curta de cada sócio ("juscelino", "beatriz"): âncora do perfil e valor do filtro. */
+export const chaveDoSocio = (nome: string) => normalizar(nome.split(' ')[0]);
+
+/**
+ * Sócios que assinam o artigo.
+ *
+ * O campo `autor` é texto (o painel grava os nomes marcados, separados por
+ * vírgula). Cada sócio entra se o primeiro nome dele aparece no campo, então
+ * "Beatriz Mendonça", "Beatriz" e "Juscelino Bertoncini, Beatriz Mendonça"
+ * funcionam. Vazio = texto do escritório, sem assinatura individual.
+ */
+export function autoresDoArtigo(autor: string) {
+  const campo = normalizar(autor);
+  if (!campo.trim()) return [];
+  return site.socios.filter((s) => campo.includes(chaveDoSocio(s.nome)));
+}
 
 /**
  * Todos os artigos publicados, do mais novo para o mais velho.
@@ -48,20 +86,6 @@ export function dataLegivel(valor: Date): string {
   }).format(valor);
 }
 
-/**
- * Classe de cor da etiqueta de categoria (cartão, destaque do blog).
- *
- * Cada área conhecida tem o seu tom, para a etiqueta ler como assunto e não
- * como enfeite; categoria nova cai no tom neutro até ganhar um. Só pinta a
- * etiqueta, nunca a foto (ver nota abaixo sobre `tomDaCapa()`). As cores
- * moram em `EtiquetaCategoria.astro`.
- */
-export function tomDaCategoria(categoria: string): 'etiqueta-patrimonial' | 'etiqueta-digital' | 'etiqueta-neutra' {
-  const nome = categoria.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-  if (nome === 'planejamento patrimonial e sucessorio') return 'etiqueta-patrimonial';
-  if (nome === 'direito digital') return 'etiqueta-digital';
-  return 'etiqueta-neutra';
-}
 
 /*
   `tomDaCapa()` saiu daqui.

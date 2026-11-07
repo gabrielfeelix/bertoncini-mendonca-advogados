@@ -29,10 +29,11 @@ const hostDoSupabase = (() => {
    local a carrega junto. O `.vercelignore` agora impede a subida; isto
    garante que, se ela subir de outro jeito, ao menos não é anunciada. */
 /* `/textos` entrou junto porque virou rota de redirecionamento para
-   `/blog/` (ver src/pages/textos/[...caminho].astro): anunciar no sitemap
+   `/blog/`, e `/blog` virou redirecionamento para `/conteudos/` (07/11/2026;
+   ver src/pages/blog/[...caminho].astro): anunciar no sitemap
    uma URL que só redireciona é pedir ao buscador que rastreie o caminho
    antigo em vez do novo. */
-const ROTAS_FORA_DO_SITEMAP = ['/painel', '/previa', '/textos'];
+const ROTAS_FORA_DO_SITEMAP = ['/painel', '/previa', '/textos', '/blog'];
 
 export default defineConfig({
   // Placeholder: o domínio final ainda não foi confirmado com o escritório.

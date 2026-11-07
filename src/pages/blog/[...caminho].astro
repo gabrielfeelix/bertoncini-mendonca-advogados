@@ -1,0 +1,32 @@
+---
+/**
+ * `/blog/...` → `/conteudos/...`.
+ *
+ * A seção virou "Central de Conteúdos" em 07/11/2026 (ver NOME_CONTEUDOS em
+ * lib/artigos). Página de redirecionamento, e não `redirects` do Astro, pelo
+ * mesmo motivo de src/pages/textos/[...caminho].astro: a regex que o
+ * adaptador da Vercel monta não casa a barra final.
+ *
+ * Gera a raiz, as páginas da lista paginada antiga (`/blog/2/`...) e cada
+ * artigo. Pode sair quando não houver mais tráfego vindo de `/blog/`.
+ */
+import type { GetStaticPaths } from 'astro';
+import { listarArtigos, POR_PAGINA, ROTA_CONTEUDOS, hrefArtigo } from '~/lib/artigos';
+
+export const getStaticPaths = (async () => {
+  const artigos = await listarArtigos();
+  const caminhos: { params: { caminho: string | undefined }; props: { destino: string } }[] = [
+    { params: { caminho: undefined }, props: { destino: ROTA_CONTEUDOS } },
+  ];
+  const paginasAntigas = Math.ceil(Math.max(0, artigos.length - 1) / POR_PAGINA);
+  for (let n = 2; n <= paginasAntigas; n++) {
+    caminhos.push({ params: { caminho: String(n) }, props: { destino: ROTA_CONTEUDOS } });
+  }
+  for (const artigo of artigos) {
+    caminhos.push({ params: { caminho: artigo.id }, props: { destino: hrefArtigo(artigo.id) } });
+  }
+  return caminhos;
+}) satisfies GetStaticPaths;
+
+return Astro.redirect(Astro.props.destino, 301);
+---
