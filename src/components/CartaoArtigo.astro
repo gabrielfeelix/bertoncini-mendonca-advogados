@@ -1,10 +1,17 @@
 ---
 /**
- * Cartão de artigo do blog: capa, categoria, título, data, resumo e
- * "Continuar lendo". O cartão de "post" padrão de tema WordPress.
+ * Cartão de artigo do blog: capa, etiqueta de categoria, título, data,
+ * resumo e "Continuar lendo". Usado na home e na lista do blog.
+ *
+ * A categoria é uma etiqueta colorida pela área, logo acima do título
+ * (pedido do cliente: ler como assunto, não como sobretítulo em caixa alta).
+ *
+ * Cantos de 12px e capa que cresce de leve no hover: o mesmo arredondado
+ * da capa do artigo e da página de áreas, para o blog não destoar delas.
  */
 import type { Artigo } from '../lib/artigos';
 import { dataLegivel } from '../lib/artigos';
+import EtiquetaCategoria from './EtiquetaCategoria.astro';
 
 interface Props {
   artigo: Artigo;
@@ -16,23 +23,36 @@ const href = `/blog/${artigo.id}/`;
 
 <article class="cartao cartao-artigo">
   {d.capa && (
-    <a href={href} tabindex="-1" aria-hidden="true">
+    <a class="capa" href={href} tabindex="-1" aria-hidden="true">
       <img src={d.capa} alt="" width={d.capaLargura ?? 1600} height={d.capaAltura ?? 1200} loading="lazy" />
     </a>
   )}
   <div class="cartao-corpo">
-    {d.categoria && <p class="rotulo">{d.categoria}</p>}
+    {d.categoria && <EtiquetaCategoria categoria={d.categoria} />}
     <h3><a href={href}>{d.titulo}</a></h3>
-    <p class="data"><time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time></p>
+    <p class="data">
+      <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
+      {d.tempoLeitura && <span> · {d.tempoLeitura} min de leitura</span>}
+    </p>
     <p>{d.resumo}</p>
     <a class="ver-mais" href={href}>Continuar lendo →</a>
   </div>
 </article>
 
 <style>
-  .cartao-artigo img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .cartao-artigo { border-radius: 12px; }
+  /* O recorte fica no link, e não no cartão inteiro, para a imagem crescer
+     sem empurrar o texto. */
+  .capa { display: block; overflow: hidden; }
+  .capa img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; transition: transform .4s ease; }
+  .cartao-artigo:hover .capa img { transform: scale(1.03); }
   .cartao-artigo h3 { font-size: 19px; }
   .cartao-artigo h3 a { color: var(--azul); text-decoration: none; }
   .cartao-artigo h3 a:hover { color: var(--azul-medio); text-decoration: underline; }
   .data { font-size: 14px; margin-bottom: 10px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .capa img { transition: none; }
+    .cartao-artigo:hover .capa img { transform: none; }
+  }
 </style>

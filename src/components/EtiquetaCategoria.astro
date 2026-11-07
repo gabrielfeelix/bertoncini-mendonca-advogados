@@ -1,0 +1,37 @@
+---
+/**
+ * Etiqueta de categoria do artigo: o assunto do texto, com a cor da área.
+ *
+ * Fica num componente só porque aparece em dois lugares (cartão e destaque
+ * do blog) e as cores precisam ser as mesmas nos dois. Qual cor vai para
+ * qual categoria é decidido em `tomDaCategoria()`; aqui mora só o desenho.
+ *
+ * Vai acima do título, numa linha só dela, e não sobre a foto: o cliente
+ * provou as duas e ficou com esta.
+ */
+import { tomDaCategoria } from '../lib/artigos';
+
+interface Props {
+  categoria: string;
+}
+const { categoria } = Astro.props;
+---
+
+<p class="etiqueta-linha"><span class:list={['etiqueta', tomDaCategoria(categoria)]}>{categoria}</span></p>
+
+<style>
+  /* O parágrafo segura a linha; a etiqueta em si é inline-block, para ter
+     a largura do texto e não esticar dentro de um contêiner flex. */
+  .etiqueta-linha { margin: 0 0 10px; line-height: 1; }
+  .etiqueta {
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font: 500 12px/1.4 var(--fonte);
+    letter-spacing: .01em;
+  }
+  .etiqueta-patrimonial { background: var(--azul); color: #f8f7f2; }
+  .etiqueta-digital { background: var(--azul-medio); color: #fff; }
+  .etiqueta-neutra { background: var(--fundo-cinza); color: var(--azul); border-color: var(--linha); }
+</style>

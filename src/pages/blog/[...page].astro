@@ -1,136 +1,344 @@
 ---
 /**
- * Lista do blog (v3): grade de cartões com paginação e barra lateral.
- * Com zero artigos a rota continua existindo, porque o menu aponta para ela.
+ * Lista do blog (v3), na linha do "Updates" do Martinelli: o artigo mais
+ * recente em destaque no topo e, abaixo, todos os textos em grade, com
+ * filtro por assunto e busca.
+ *
+ * Sem paginação: o filtro roda no navegador e precisa de todos os artigos
+ * na página. Com algumas dezenas de textos isso continua leve; se um dia
+ * forem centenas, a busca deve ir para o servidor, não voltar a paginar.
+ *
+ * Sem JavaScript tudo continua visível: os controles de filtro nascem
+ * escondidos e só aparecem quando o script que os faz funcionar roda.
  */
 import type { GetStaticPaths } from 'astro';
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
 import CartaoArtigo from '~/components/CartaoArtigo.astro';
+import EtiquetaCategoria from '~/components/EtiquetaCategoria.astro';
 import Chamada from '~/components/Chamada.astro';
-import { listarAreasConfirmadas } from '~/lib/areas';
-import { listarArtigos, POR_PAGINA, NOME_DO_BLOG } from '~/lib/artigos';
+import { listarArtigos, dataLegivel, POR_PAGINA, NOME_DO_BLOG } from '~/lib/artigos';
 
-export const getStaticPaths = (async ({ paginate }) => {
+export const getStaticPaths = (async () => {
   const artigos = await listarArtigos();
 
-  /* A lista vazia também precisa de uma rota: sem isto, `paginate([])` não
-     devolveria caminho nenhum e `/blog/` seria 404 — mas o menu do site
-     aponta para ela em toda página. Um item 404 no menu principal é pior que
-     uma página explicando que ainda não há texto. */
-  if (artigos.length === 0) {
-    return [
-      {
-        params: { page: undefined },
-        props: {
-          /* O mesmo formato que `paginate()` devolve, para a página abaixo
-             não precisar de um segundo caminho de leitura. */
-          page: {
-            data: [],
-            start: 0,
-            end: -1,
-            total: 0,
-            size: POR_PAGINA,
-            currentPage: 1,
-            lastPage: 1,
-            url: {
-              current: '/blog/',
-              prev: undefined,
-              next: undefined,
-              first: undefined,
-              last: undefined,
-            },
-          },
-          destaque: undefined,
-        },
-      },
-    ];
+  /* `/blog/` existe sempre, mesmo com zero artigos: o menu aponta para ela
+     em toda página, e um 404 no menu principal é pior que uma página
+     explicando que ainda não há texto. */
+  const caminhos: { params: { page: string | undefined }; props: { redirecionar: boolean } }[] = [
+    { params: { page: undefined }, props: { redirecionar: false } },
+  ];
+
+  /* `/blog/2/`, `/blog/3/`... eram as páginas da lista paginada, e
+     `/textos/N/` ainda redireciona para elas. Com a lista numa página só,
+     cada uma devolve o leitor para `/blog/` em vez de virar 404. A conta é
+     a mesma da paginação antiga (destaque fora, POR_PAGINA por página). */
+  const paginasAntigas = Math.ceil(Math.max(0, artigos.length - 1) / POR_PAGINA);
+  for (let n = 2; n <= paginasAntigas; n++) {
+    caminhos.push({ params: { page: String(n) }, props: { redirecionar: true } });
   }
 
-  /* O mais recente sai da grade e vira destaque da primeira página. */
-  const [destaque, ...resto] = artigos;
-
-  return paginate(resto, {
-    pageSize: POR_PAGINA,
-    props: { destaque },
-  });
+  return caminhos;
 }) satisfies GetStaticPaths;
 
-const { page, destaque } = Astro.props;
+if (Astro.props.redirecionar) return Astro.redirect('/blog/', 301);
 
-const primeira = page.currentPage === 1;
-const temArtigos = Boolean(destaque) || page.data.length > 0;
+const artigos = await listarArtigos();
+const [destaque] = artigos;
 
-const titulo = primeira
-  ? `${NOME_DO_BLOG} | Bertoncini & Mendonça Advogados`
-  : `${NOME_DO_BLOG}, página ${page.currentPage} | Bertoncini & Mendonça Advogados`;
+/** Minúsculas e sem acento: "sucessório" acha "sucessorio" e vice-versa. */
+const normalizar = (texto: string) =>
+  texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
+/** Categoria em formato de URL, para `?assunto=direito-digital`. */
+const slugDe = (texto: string) => normalizar(texto).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/* Os botões saem dos dados: uma categoria nova no banco ganha botão sozinha,
+   e nenhum botão leva a uma lista vazia. */
+const categorias = [...new Set(artigos.map((a) => a.data.categoria))]
+  .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  .map((nome) => ({ nome, slug: slugDe(nome) }));
+
+const contagem = (n: number) => `${n} ${n === 1 ? 'publicação' : 'publicações'}`;
+
+const titulo = `${NOME_DO_BLOG} | Bertoncini & Mendonça Advogados`;
 const descricao =
   'Textos sobre Planejamento Patrimonial e Sucessório e Direito Digital, escritos para quem não é da ' +
   'área. Um assunto por vez, em linguagem simples, pelo escritório ' +
   'Bertoncini & Mendonça, em Maringá, PR.';
-
-/** Endereço de uma página da lista. A primeira é `/blog/`, sem número. */
-const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/${numero}/`);
-
-/* Na v3 não há destaque separado: o mais recente volta para o topo da grade. */
-const lista = primeira && destaque ? [destaque, ...page.data] : page.data;
-const areas = await listarAreasConfirmadas();
 ---
 
 <Base titulo={titulo} descricao={descricao} paginaAtual="/blog/">
   <BannerPagina html="<strong>Blog</strong>" migalhas={[{ rotulo: 'Blog' }]} />
 
-  <section class="secao">
-    <div class="container com-lateral">
-      <div>
-        {temArtigos ? (
-          <div class="grade grade-2">
-            {lista.map((artigo) => <CartaoArtigo artigo={artigo} />)}
-          </div>
-        ) : (
-          <p>Ainda não há publicações. Os primeiros textos estão sendo escritos.</p>
-        )}
-
-        {page.lastPage > 1 && (
-          <nav class="paginacao" aria-label="Páginas do blog">
-            {page.url.prev && <a href={page.url.prev}>← Anteriores</a>}
-            {Array.from({ length: page.lastPage }, (_, i) => i + 1).map((n) =>
-              n === page.currentPage ? (
-                <span aria-current="page">{n}</span>
-              ) : (
-                <a href={enderecoDaPagina(n)}>{n}</a>
-              ),
-            )}
-            {page.url.next && <a href={page.url.next}>Próximas →</a>}
-          </nav>
-        )}
+  {artigos.length === 0 ? (
+    <section class="secao">
+      <div class="container">
+        <p class="sem-artigos">Ainda não há publicações. Os primeiros textos estão sendo escritos.</p>
       </div>
+    </section>
+  ) : (
+    <div class="blog" data-blog>
+      {destaque && (
+        <section class="destaque-secao" aria-labelledby="destaque-titulo" data-destaque-bloco>
+          <div class="container">
+            <article class="destaque">
+              {destaque.data.capa && (
+                <a class="destaque-capa" href={`/blog/${destaque.id}/`} tabindex="-1" aria-hidden="true">
+                  <img
+                    src={destaque.data.capa}
+                    alt=""
+                    width={destaque.data.capaLargura ?? 1600}
+                    height={destaque.data.capaAltura ?? 1200}
+                    loading="eager"
+                    fetchpriority="high"
+                  />
+                </a>
+              )}
+              <div class="destaque-texto">
+                <EtiquetaCategoria categoria={destaque.data.categoria} />
+                <h2 id="destaque-titulo"><a href={`/blog/${destaque.id}/`}>{destaque.data.titulo}</a></h2>
+                <p class="destaque-meta">
+                  <time datetime={destaque.data.publicadoEm.toISOString()}>{dataLegivel(destaque.data.publicadoEm)}</time>
+                  {destaque.data.tempoLeitura && <span>{destaque.data.tempoLeitura} min de leitura</span>}
+                </p>
+                <p class="destaque-resumo">{destaque.data.resumo}</p>
+                <a class="link-seta" href={`/blog/${destaque.id}/`}>Ler artigo <span aria-hidden="true">→</span></a>
+              </div>
+            </article>
+          </div>
+        </section>
+      )}
 
-      <aside class="lateral">
-        <div class="widget">
-          <h2>Áreas de atuação</h2>
-          <ul>
-            {areas.map((a) => <li><a href={`/areas/${a.data.slug}/`}>{a.data.nome}</a></li>)}
+      <section class="lista" aria-labelledby="lista-titulo">
+        <div class="container">
+          <div class="lista-cabeca">
+            <h2 id="lista-titulo">Todas as <strong>publicações</strong></h2>
+            <p class="contagem" role="status" aria-live="polite" data-contagem>{contagem(artigos.length)}</p>
+          </div>
+
+          <div class="filtros" data-filtros hidden>
+            <div class="assuntos" role="group" aria-label="Filtrar por assunto">
+              <button type="button" class="assunto" data-assunto="" aria-pressed="true">Todos</button>
+              {categorias.map((c) => (
+                <button type="button" class="assunto" data-assunto={c.slug} data-nome={c.nome} aria-pressed="false">{c.nome}</button>
+              ))}
+            </div>
+            <div class="busca" role="search">
+              <label class="oculto" for="busca-blog">Buscar no blog</label>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75" /><path d="M13 13l4.5 4.5" /></svg>
+              <input id="busca-blog" type="search" placeholder="Buscar por título ou assunto" autocomplete="off" data-busca />
+            </div>
+          </div>
+
+          <ul class="grade grade-3 artigos">
+            {artigos.map((artigo, i) => (
+              <li
+                data-item
+                data-assunto={slugDe(artigo.data.categoria)}
+                data-texto={normalizar(`${artigo.data.titulo} ${artigo.data.resumo}`)}
+                data-destaque={i === 0 ? '' : undefined}
+                hidden={i === 0}
+              >
+                <CartaoArtigo artigo={artigo} />
+              </li>
+            ))}
           </ul>
+
+          <div class="vazio" data-vazio hidden>
+            <p class="vazio-titulo">Nenhuma publicação encontrada.</p>
+            <p>Tente outra palavra ou veja os textos de todos os assuntos.</p>
+            <button type="button" class="botao botao-contorno" data-limpar>Limpar filtros</button>
+          </div>
         </div>
-        <div class="widget widget-azul">
-          <h2>Fale conosco</h2>
-          <p>Tem uma dúvida sobre o seu caso? Escreva para o escritório.</p>
-          <a class="botao botao-claro" href="/contato/">Enviar mensagem</a>
-        </div>
-      </aside>
+      </section>
     </div>
-  </section>
+  )}
 
   <Chamada />
 </Base>
 
-<style>
-  .paginacao { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 40px; }
-  .paginacao a, .paginacao span {
-    display: inline-block; min-width: 40px; padding: 8px 12px; text-align: center;
-    border: 1px solid var(--linha); border-radius: 4px; text-decoration: none;
+<script>
+  const raiz = document.querySelector<HTMLElement>('[data-blog]');
+
+  if (raiz) {
+    const filtros = raiz.querySelector<HTMLElement>('[data-filtros]')!;
+    const botoes = [...raiz.querySelectorAll<HTMLButtonElement>('button[data-assunto]')];
+    const busca = raiz.querySelector<HTMLInputElement>('[data-busca]')!;
+    const itens = [...raiz.querySelectorAll<HTMLElement>('[data-item]')];
+    const destaque = raiz.querySelector<HTMLElement>('[data-destaque-bloco]');
+    const contagem = raiz.querySelector<HTMLElement>('[data-contagem]')!;
+    const vazio = raiz.querySelector<HTMLElement>('[data-vazio]')!;
+    const limpar = raiz.querySelector<HTMLButtonElement>('[data-limpar]')!;
+
+    const normalizar = (texto: string) =>
+      texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const plural = (n: number) => `${n} ${n === 1 ? 'publicação' : 'publicações'}`;
+
+    let assunto = '';
+
+    function aplicar() {
+      const termos = normalizar(busca.value).split(/\s+/).filter(Boolean);
+      const ativo = assunto !== '' || termos.length > 0;
+
+      /* Com filtro ativo o destaque some e o artigo dele volta para a grade,
+         para ser achado como qualquer outro. Sumir o bloco acima puxa a barra
+         de filtros para cima; a rolagem compensa, para o botão clicado (ou o
+         campo em que se digita) não fugir de debaixo do leitor. */
+      const antes = filtros.getBoundingClientRect().top;
+
+      let total = 0;
+      for (const item of itens) {
+        const passa =
+          (assunto === '' || item.dataset.assunto === assunto) &&
+          termos.every((t) => (item.dataset.texto ?? '').includes(t));
+        if (passa) total++;
+        item.hidden = ativo ? !passa : 'destaque' in item.dataset;
+      }
+      if (destaque) destaque.hidden = ativo;
+
+      const depois = filtros.getBoundingClientRect().top;
+      if (depois !== antes) window.scrollBy({ top: depois - antes, behavior: 'instant' });
+
+      for (const botao of botoes) botao.setAttribute('aria-pressed', String(botao.dataset.assunto === assunto));
+
+      const nome = botoes.find((b) => b.dataset.assunto === assunto)?.dataset.nome;
+      let texto = plural(total);
+      if (nome) texto += ` em ${nome}`;
+      if (termos.length) texto += ` para “${busca.value.trim()}”`;
+      contagem.textContent = texto;
+      vazio.hidden = total > 0;
+    }
+
+    /* O assunto vai para o endereço (?assunto=) para o filtro sobreviver ao
+       voltar de um artigo e poder ser compartilhado. A busca não vai: muda a
+       cada tecla e encheria o histórico. */
+    function gravarAssunto() {
+      const url = new URL(location.href);
+      if (assunto) url.searchParams.set('assunto', assunto);
+      else url.searchParams.delete('assunto');
+      history.replaceState(null, '', url);
+    }
+
+    for (const botao of botoes) {
+      botao.addEventListener('click', () => {
+        assunto = botao.dataset.assunto ?? '';
+        gravarAssunto();
+        aplicar();
+      });
+    }
+    busca.addEventListener('input', aplicar);
+    limpar.addEventListener('click', () => {
+      assunto = '';
+      busca.value = '';
+      gravarAssunto();
+      aplicar();
+      botoes[0]?.focus();
+    });
+
+    const doEndereco = new URLSearchParams(location.search).get('assunto') ?? '';
+    if (botoes.some((b) => b.dataset.assunto === doEndereco)) assunto = doEndereco;
+
+    filtros.hidden = false;
+    /* O navegador pode restaurar o texto da busca ao voltar no histórico. */
+    if (assunto || busca.value) aplicar();
   }
-  .paginacao span { background: var(--azul); border-color: var(--azul); color: #fff; }
+</script>
+
+<style>
+  .sem-artigos { text-align: center; color: var(--texto-suave); margin: 0; }
+
+  /* ---------- Destaque: capa larga à esquerda, texto à direita ---------- */
+  .destaque-secao { padding: 72px 0 64px; }
+  .destaque-secao[hidden] { display: none; }
+  .destaque {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 56px;
+    align-items: center;
+  }
+  .destaque-capa {
+    display: block; overflow: hidden; border-radius: 16px;
+    box-shadow: 0 24px 50px rgba(11, 30, 63, .14);
+  }
+  .destaque-texto :global(.etiqueta-linha) { margin-bottom: 14px; }
+  .destaque-capa img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; transition: transform .4s ease; }
+  .destaque:hover .destaque-capa img { transform: scale(1.03); }
+  .destaque-texto h2 { font-size: 34px; line-height: 1.2; letter-spacing: -.01em; margin-bottom: 14px; }
+  .destaque-texto h2 a { color: var(--azul); text-decoration: none; }
+  .destaque-texto h2 a:hover { color: var(--azul-medio); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+  .destaque-meta { font-size: 15px; color: var(--texto-suave); display: flex; flex-wrap: wrap; gap: 4px 16px; margin-bottom: 16px; }
+  .destaque-meta time { color: var(--azul-medio); font-weight: 500; }
+  .destaque-resumo { font-size: 18px; line-height: 1.6; margin-bottom: 22px; }
+  .link-seta { font-weight: 500; text-decoration: none; color: var(--azul-medio); }
+  .link-seta:hover { text-decoration: underline; }
+  .link-seta span { display: inline-block; transition: transform .15s ease; }
+  .link-seta:hover span { transform: translateX(4px); }
+
+  /* ---------- Lista com filtros ---------- */
+  .lista { padding: 64px 0 80px; border-top: 1px solid var(--linha); }
+  .destaque-secao[hidden] + .lista { border-top: 0; }
+  .lista-cabeca { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; margin-bottom: 24px; }
+  .lista-cabeca h2 { font-size: 34px; font-weight: 300; margin: 0; }
+  .lista-cabeca h2 strong { font-weight: 700; }
+  .contagem { margin: 0; font-size: 15px; color: var(--texto-suave); }
+
+  .filtros { display: flex; align-items: center; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; margin-bottom: 36px; }
+  .filtros[hidden] { display: none; }
+  .assuntos { display: flex; flex-wrap: wrap; gap: 10px; }
+  .assunto {
+    font: 500 15px/1.3 var(--fonte);
+    padding: 10px 20px; border: 0; border-radius: 999px;
+    background: var(--fundo-cinza); color: var(--azul);
+    box-shadow: inset 0 0 0 1px var(--linha);
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+  }
+  .assunto:hover { background: #eceff3; }
+  .assunto[aria-pressed='true'] { background: var(--azul); color: #fff; box-shadow: none; }
+
+  .busca { position: relative; flex: 0 1 320px; }
+  .busca svg {
+    position: absolute; left: 16px; top: 50%; width: 18px; height: 18px; margin-top: -9px;
+    fill: none; stroke: var(--azul-claro); stroke-width: 1.8; stroke-linecap: round; pointer-events: none;
+  }
+  .busca input {
+    width: 100%; font: 15px/1.3 var(--fonte); color: var(--texto);
+    padding: 11px 16px 11px 44px;
+    border: 1px solid #cfd5dc; border-radius: 999px; background: #fff;
+  }
+  .busca input::placeholder { color: #8a929c; }
+  .busca input:focus { border-color: var(--azul-medio); outline: 2px solid rgba(0, 67, 105, .2); }
+
+  .artigos { list-style: none; padding: 0; margin: 0; }
+  .artigos > li { display: flex; }
+  .artigos > li[hidden] { display: none; }
+  .artigos > li > :global(.cartao) { flex: 1; }
+
+  .vazio { text-align: center; padding: 48px 20px 8px; color: var(--texto-suave); }
+  .vazio[hidden] { display: none; }
+  .vazio-titulo { font-size: 20px; font-weight: 500; color: var(--azul); margin-bottom: 6px; }
+  .vazio .botao { margin-top: 8px; }
+
+  .oculto {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .destaque-capa img, .link-seta span { transition: none; }
+    .destaque:hover .destaque-capa img, .link-seta:hover span { transform: none; }
+  }
+  @media (max-width: 991px) {
+    .destaque { grid-template-columns: 1fr; gap: 32px; }
+    .busca { flex-basis: 100%; }
+  }
+  @media (max-width: 680px) {
+    .destaque-secao { padding: 44px 0 48px; }
+    .destaque-texto h2 { font-size: 27px; }
+    .destaque-resumo { font-size: 17px; }
+    .lista { padding: 48px 0 60px; }
+    .lista-cabeca h2 { font-size: 28px; }
+    .assunto { padding: 9px 16px; font-size: 14px; }
+  }
 </style>

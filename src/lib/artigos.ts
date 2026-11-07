@@ -48,6 +48,21 @@ export function dataLegivel(valor: Date): string {
   }).format(valor);
 }
 
+/**
+ * Classe de cor da etiqueta de categoria (cartão, destaque do blog).
+ *
+ * Cada área conhecida tem o seu tom, para a etiqueta ler como assunto e não
+ * como enfeite; categoria nova cai no tom neutro até ganhar um. Só pinta a
+ * etiqueta, nunca a foto (ver nota abaixo sobre `tomDaCapa()`). As cores
+ * moram em `EtiquetaCategoria.astro`.
+ */
+export function tomDaCategoria(categoria: string): 'etiqueta-patrimonial' | 'etiqueta-digital' | 'etiqueta-neutra' {
+  const nome = categoria.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  if (nome === 'planejamento patrimonial e sucessorio') return 'etiqueta-patrimonial';
+  if (nome === 'direito digital') return 'etiqueta-digital';
+  return 'etiqueta-neutra';
+}
+
 /*
   `tomDaCapa()` saiu daqui.
 
