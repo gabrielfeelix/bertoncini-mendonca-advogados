@@ -76,7 +76,7 @@ const escritorio = rota(lang, '/escritorio/');
 
         {d.perguntas.length > 0 && (
           <>
-            <h2>{ar.perguntas}</h2>
+            <h2 id="perguntas">{ar.perguntas}</h2>
             <div class="faq">
               {d.perguntas.map((p) => (
                 <details>
@@ -138,6 +138,7 @@ const escritorio = rota(lang, '/escritorio/');
 </Base>
 
 <style>
+  #perguntas { scroll-margin-top: calc(var(--altura-barra) + 24px); }
   .lead { font-size: 20px; color: var(--azul); font-weight: 500; }
   .servicos { background: var(--fundo-cinza); border-radius: 6px; padding: 24px 28px; margin: 28px 0 32px; }
   .servicos h2 { margin-top: 0; font-size: 22px; }

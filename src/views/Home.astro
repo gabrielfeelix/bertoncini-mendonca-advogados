@@ -1,15 +1,21 @@
 ---
 /**
- * Home (v3), nos dois idiomas. Ordem de site institucional de escritório:
- * capa em slides → áreas de atuação → o escritório → sócios →
- * publicações (só em português, o blog não tem versão em inglês) → chamada.
+ * Home (v3), nos dois idiomas. Ordem combinada em 07/11/2026, a partir do
+ * retorno dos sócios de 06/11 (docs/RETORNO-2026-11-06.md na branch v2) e
+ * da home do Martinelli:
+ *
+ *   capa em slides → áreas, já com os serviços (retorno, item 2) e
+ *   "também atuamos em" (item 3) → sobre nós, com os sócios dentro (sem
+ *   seção própria) → onde atendemos (o equivalente honesto das "unidades"
+ *   do Martinelli) → publicações (só em português) → perguntas frequentes
+ *   em acordeão com abas (item 5) → newsletter mensal (item 7, só em
+ *   português, porque os textos são em português).
  */
 import Base from '~/layouts/Base.astro';
-import Chamada from '~/components/Chamada.astro';
 import HeroSlides from '~/components/HeroSlides.astro';
 import IconeArea from '~/components/IconeArea.astro';
-import CartaoSocio from '~/components/CartaoSocio.astro';
 import CartaoArtigo from '~/components/CartaoArtigo.astro';
+import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
 import { areasDoIdioma, FOTO_DA_AREA } from '~/lib/areas';
 import { listarArtigos } from '~/lib/artigos';
@@ -20,66 +26,109 @@ interface Props {
 }
 const { lang } = Astro.props;
 const tx = t(lang);
+const h = tx.home;
 const areas = await areasDoIdioma(lang);
 const artigos = lang === 'pt' ? (await listarArtigos()).slice(0, 3) : [];
+const escritorio = rota(lang, '/escritorio/');
+
+/* Abas das perguntas: as quatro primeiras de cada área + atendimento. */
+const grupos = [
+  ...areas.map((a) => ({
+    id: `faq-${a.slugPt}`,
+    rotulo: a.data.nome,
+    perguntas: a.data.perguntas.slice(0, 4),
+    mais: `${a.href}#perguntas`,
+  })),
+  { id: 'faq-atendimento', rotulo: h.faqAtendimento, perguntas: h.atendimento, mais: undefined as string | undefined },
+];
 ---
 
-<Base
-  titulo={tx.home.titulo}
-  descricao={tx.descricao}
-  paginaAtual="/"
-  lang={lang}
-  alternativa={lang === 'pt' ? '/en/' : '/'}
->
+<Base titulo={h.titulo} descricao={tx.descricao} paginaAtual="/" lang={lang} alternativa={lang === 'pt' ? '/en/' : '/'}>
   <HeroSlides lang={lang} />
 
+  <!-- Áreas de atuação, com os serviços -->
   <section class="secao">
     <div class="container">
       <div class="titulo-secao">
-        <h2 set:html={tx.home.areasTitulo} />
-        <p>{tx.home.areasApoio}</p>
+        <h2 set:html={h.areasTitulo} />
+        <p>{h.areasApoio}</p>
       </div>
       <div class="grade grade-2">
         {areas.map((area) => (
-          <article class="cartao">
-            <img class="cartao-foto" src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="900" loading="lazy" />
+          <article class="cartao area">
+            <a class="area-foto" href={area.href} tabindex="-1" aria-hidden="true">
+              <img src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="900" loading="lazy" />
+            </a>
             <div class="cartao-corpo">
-              <IconeArea slug={area.slugPt} />
-              <h3>{area.data.nome}</h3>
+              <span class="area-icone"><IconeArea slug={area.slugPt} class="area-icone-svg" /></span>
+              <h3><a href={area.href}>{area.data.nome}</a></h3>
               <p>{area.data.resumo}</p>
-              {area.data.publicoCurto && <p class="publico"><strong>{tx.home.paraQuem}</strong> {area.data.publicoCurto}</p>}
-              <a class="ver-mais" href={area.href}>{tx.home.verMais}</a>
+              <p class="rotulo">{h.servicos}</p>
+              <ul class="servicos">
+                {area.data.servicos.slice(0, 6).map((s) => (
+                  <li>
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" /><path d="M6 10.3l2.6 2.5L14 7.4" /></svg>
+                    {s}
+                  </li>
+                ))}
+              </ul>
+              <a class="ver-mais" href={area.href}>{h.verMais}</a>
             </div>
           </article>
         ))}
       </div>
       <div class="outras">
-        <h3>{tx.home.tambem}</h3>
+        <h3>{h.tambem}</h3>
         <ul>{tx.outrasAreas.map((a) => <li>{a}</li>)}</ul>
       </div>
     </div>
   </section>
 
+  <!-- Sobre nós, com os sócios dentro -->
   <section class="secao secao-cinza">
     <div class="container duas-colunas">
-      <img class="foto-escritorio" src="/media/hero/socios-1600.jpg" alt={tx.home.fotoSocios} width="1600" height="900" loading="lazy" />
+      <img class="foto-escritorio" src="/media/hero/socios-1600.jpg" alt={h.fotoSocios} width="1600" height="900" loading="lazy" />
       <div>
-        <p class="rotulo">{tx.home.sobreRotulo}</p>
-        <h2 class="titulo-bloco" set:html={tx.home.sobreTitulo} />
-        {tx.home.sobre.map((p) => <p>{p}</p>)}
-        <a class="botao botao-contorno" href={rota(lang, '/escritorio/')}>{tx.home.saibaMais}</a>
+        <p class="rotulo">{h.sobreRotulo}</p>
+        <h2 class="titulo-bloco" set:html={h.sobreTitulo} />
+        {h.sobre.slice(0, 2).map((p) => <p>{p}</p>)}
+        <ul class="socios-mini">
+          {site.socios.map((s, i) => (
+            <li>
+              <a href={`${escritorio}#${s.nome.split(' ')[0].toLowerCase()}`}>
+                <img src={`${s.retrato}-560.jpg`} alt="" width="560" height="840" loading="lazy" />
+                <span>
+                  <strong>{s.nome}</strong>
+                  <span>{tx.socio[i === 1 ? 'a' : 'o']} · {s.oab.valor}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a class="botao botao-contorno" href={escritorio}>{h.conhecaSocios}</a>
       </div>
     </div>
   </section>
 
-  <section class="secao">
-    <div class="container">
-      <div class="titulo-secao">
-        <h2 set:html={tx.home.sociosTitulo} />
+  <!-- Onde atendemos -->
+  <section class="secao onde">
+    <div class="container duas-colunas">
+      <div>
+        <p class="rotulo">{h.ondeRotulo}</p>
+        <h2 class="titulo-bloco" set:html={h.ondeTitulo} />
+        {h.ondeTexto.map((p) => <p>{p}</p>)}
+        <dl class="modos">
+          <div>
+            <dt>{h.ondeOnline}</dt>
+            <dd>{h.ondeOnlineTexto}</dd>
+          </div>
+          <div>
+            <dt>{h.ondePresencial}</dt>
+            <dd>{h.ondePresencialTexto}</dd>
+          </div>
+        </dl>
       </div>
-      <div class="grade grade-2 socios">
-        {site.socios.map((socio, i) => <CartaoSocio socio={socio} genero={i === 1 ? 'a' : 'o'} lang={lang} />)}
-      </div>
+      <img class="foto-maringa" src="/media/areas/maringa-1400.jpg" alt={h.fotoMaringa} width="1400" height="1050" loading="lazy" />
     </div>
   </section>
 
@@ -97,27 +146,226 @@ const artigos = lang === 'pt' ? (await listarArtigos()).slice(0, 3) : [];
     </section>
   )}
 
-  <Chamada lang={lang} />
+  <!-- Perguntas frequentes, com abas -->
+  <section class="secao faq-home" data-faq-abas>
+    <div class="container">
+      <div class="titulo-secao">
+        <h2 set:html={h.faqTitulo} />
+      </div>
+      <div class="abas" role="tablist" aria-label={h.faqAbasAria} hidden>
+        {grupos.map((g, i) => (
+          <button type="button" role="tab" id={`aba-${g.id}`} aria-controls={g.id} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+            {g.rotulo}
+          </button>
+        ))}
+      </div>
+      {grupos.map((g) => (
+        <div class="faq-grupo" id={g.id} role="tabpanel" aria-labelledby={`aba-${g.id}`}>
+          <h3 class="faq-grupo-titulo">{g.rotulo}</h3>
+          <div class="faq">
+            {g.perguntas.map((p) => (
+              <details>
+                <summary>{p.pergunta}</summary>
+                <p>{p.resposta}</p>
+              </details>
+            ))}
+          </div>
+          {g.mais && <p class="faq-mais"><a href={g.mais}>{h.faqVerTodas} <span aria-hidden="true">→</span></a></p>}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Newsletter mensal (só em português: os textos são em português) -->
+  {lang === 'pt' && (
+    <section class="news">
+      <div class="container news-env">
+        <div>
+          <h2 set:html={h.newsTitulo} />
+          <p>{h.newsTexto}</p>
+        </div>
+        <form class="news-form" action="/api/newsletter" method="post" data-ok={h.newsOk} data-erros={JSON.stringify(h.newsErros)}>
+          <input type="hidden" name="origem" value="/" />
+          <label class="sr" for="news-email">{h.newsEmail}</label>
+          <div class="news-linha">
+            <input id="news-email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder={h.newsEmail} />
+            <button type="submit" class="botao">{h.newsBotao}</button>
+          </div>
+          <div class="isca" aria-hidden="true">
+            {CAMPOS_ISCA.map((campo) => <input type="text" name={campo} tabindex="-1" autocomplete="off" />)}
+          </div>
+          <p class="news-resultado" role="status" aria-live="polite" hidden></p>
+          <p class="news-nota">{h.newsNota} <a href={rota(lang, '/politica-de-privacidade/')}>{lang === 'pt' ? 'política de privacidade' : 'privacy policy'}</a>.</p>
+        </form>
+      </div>
+    </section>
+  )}
 </Base>
 
-<style>
-  .cartao-foto { width: 100%; aspect-ratio: 16 / 7; object-fit: cover; }
-  .publico { font-size: 15px; }
-  .publico strong { color: var(--azul); }
+<script>
+  /* Abas das perguntas (padrão ARIA de tabs). Sem JavaScript as abas ficam
+     escondidas e os grupos aparecem empilhados, cada um com o seu título. */
+  for (const secao of document.querySelectorAll<HTMLElement>('[data-faq-abas]')) {
+    const lista = secao.querySelector<HTMLElement>('[role="tablist"]');
+    const abas = [...secao.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const paineis = abas.map((a) => document.getElementById(a.getAttribute('aria-controls') ?? ''));
+    if (!lista || abas.length < 2) continue;
+    lista.hidden = false;
+    secao.classList.add('com-abas');
+    const ativar = (i: number, foco = false) => {
+      abas.forEach((a, k) => {
+        a.setAttribute('aria-selected', String(k === i));
+        a.tabIndex = k === i ? 0 : -1;
+        if (paineis[k]) paineis[k]!.hidden = k !== i;
+      });
+      if (foco) abas[i].focus();
+    };
+    abas.forEach((a, i) => {
+      a.addEventListener('click', () => ativar(i));
+      a.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') ativar((i + 1) % abas.length, true);
+        if (e.key === 'ArrowLeft') ativar((i - 1 + abas.length) % abas.length, true);
+        if (e.key === 'Home') ativar(0, true);
+        if (e.key === 'End') ativar(abas.length - 1, true);
+      });
+    });
+    ativar(0);
+  }
 
-  .outras { margin-top: 30px; padding: 24px 28px; background: var(--fundo-cinza); border-radius: 6px; display: flex; align-items: center; gap: 12px 28px; flex-wrap: wrap; }
+  /* Newsletter: envia sem sair da página. Sem JS, a API volta para a home
+     com ?envio-newsletter=, e este mesmo script mostra o resultado. */
+  for (const forma of document.querySelectorAll<HTMLFormElement>('.news-form')) {
+    const resultado = forma.querySelector<HTMLElement>('.news-resultado');
+    const botao = forma.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const erros = JSON.parse(forma.dataset.erros ?? '{}') as Record<string, string>;
+    if (!resultado || !botao) continue;
+    const mostrar = (ok: boolean, texto: string) => {
+      resultado.hidden = false;
+      resultado.classList.toggle('falhou', !ok);
+      resultado.textContent = texto;
+    };
+    const volta = new URLSearchParams(location.search);
+    if (volta.get('envio-newsletter') === 'ok') mostrar(true, forma.dataset.ok ?? '');
+    if (volta.get('envio-newsletter') === 'erro') mostrar(false, erros[volta.get('motivo-newsletter') ?? ''] ?? erros.envio);
+    forma.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      botao.disabled = true;
+      try {
+        const resposta = await fetch('/api/newsletter', { method: 'POST', body: new FormData(forma), headers: { accept: 'application/json' } });
+        const dados = (await resposta.json().catch(() => ({}))) as { codigo?: string };
+        if (resposta.ok) { forma.reset(); mostrar(true, forma.dataset.ok ?? ''); }
+        else mostrar(false, erros[dados.codigo ?? ''] ?? erros.envio);
+      } catch {
+        mostrar(false, erros.envio);
+      } finally {
+        botao.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  /* ---------- Áreas ---------- */
+  .area-foto { display: block; overflow: hidden; }
+  .area-foto img { width: 100%; aspect-ratio: 16 / 7; object-fit: cover; transition: transform .4s ease; }
+  .area:hover .area-foto img { transform: scale(1.03); }
+  .area-icone {
+    display: grid; place-items: center; width: 64px; height: 64px; margin: -60px 0 16px;
+    border-radius: 50%; background: #fff; color: var(--azul-medio);
+    box-shadow: 0 10px 24px rgba(11, 30, 63, .16); position: relative;
+  }
+  .area-icone :global(.area-icone-svg) { width: 34px; height: 34px; margin: 0; }
+  .area h3 a { color: var(--azul); text-decoration: none; }
+  .area h3 a:hover { color: var(--azul-medio); }
+  .area .rotulo { margin: 6px 0 10px; }
+  .servicos { list-style: none; padding: 0; margin: 0 0 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; }
+  .servicos li { display: flex; gap: 9px; align-items: flex-start; font-size: 15px; line-height: 1.4; color: var(--texto); }
+  .servicos svg { flex: none; width: 17px; height: 17px; margin-top: 1px; }
+  .servicos circle { fill: rgba(0, 67, 105, .1); }
+  .servicos path { fill: none; stroke: var(--azul-medio); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .outras { margin-top: 30px; padding: 24px 28px; background: var(--fundo-cinza); border-radius: 10px; display: flex; align-items: center; gap: 12px 28px; flex-wrap: wrap; }
   .outras h3 { font-size: 17px; margin: 0; }
   .outras ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 10px; }
-  .outras li { background: #fff; border: 1px solid var(--linha); border-radius: 4px; padding: 4px 12px; font-size: 15px; }
+  .outras li { background: #fff; border: 1px solid var(--linha); border-radius: 6px; padding: 4px 12px; font-size: 15px; }
 
-  .foto-escritorio { border-radius: 6px; box-shadow: var(--sombra); }
+  /* ---------- Sobre nós ---------- */
+  .foto-escritorio { border-radius: 14px; box-shadow: 0 24px 50px rgba(11, 30, 63, .16); }
   .titulo-bloco { font-size: 34px; font-weight: 300; }
   .titulo-bloco :global(strong) { font-weight: 700; }
+  .socios-mini { list-style: none; padding: 0; margin: 22px 0 26px; display: flex; flex-wrap: wrap; gap: 14px 28px; }
+  .socios-mini a { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .socios-mini img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; object-position: 50% 18%; box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--linha); }
+  .socios-mini span { display: grid; }
+  .socios-mini strong { color: var(--azul); font-size: 16px; }
+  .socios-mini span span { font-size: 13px; color: var(--texto-suave); }
+  .socios-mini a:hover strong { color: var(--azul-medio); text-decoration: underline; }
 
-  .socios { max-width: 780px; margin: 0 auto; }
+  /* ---------- Onde atendemos ---------- */
+  .foto-maringa { border-radius: 14px; aspect-ratio: 4 / 3; object-fit: cover; box-shadow: 0 24px 50px rgba(11, 30, 63, .16); }
+  .modos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 26px 0 0; }
+  .modos div { padding: 18px 20px; border: 1px solid var(--linha); border-radius: 10px; }
+  .modos dt { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--azul-claro); margin-bottom: 4px; }
+  .modos dd { margin: 0; color: var(--azul); font-weight: 500; }
+
   .ver-todas { text-align: center; margin: 40px 0 0; }
 
+  /* ---------- Perguntas frequentes ---------- */
+  .faq-home .container { max-width: 900px; }
+  .abas { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: -12px 0 32px; }
+  .abas button {
+    padding: 10px 18px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--linha); background: #fff;
+    font: 500 15px var(--fonte); color: var(--azul);
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .abas button:hover { border-color: var(--azul-claro); }
+  .abas button[aria-selected='true'] { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .faq-grupo + .faq-grupo { margin-top: 40px; }
+  .com-abas .faq-grupo + .faq-grupo { margin-top: 0; }
+  .com-abas .faq-grupo-titulo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .faq-grupo-titulo { font-size: 20px; margin-bottom: 14px; }
+  .faq-mais { margin: 18px 0 0; text-align: right; }
+  .faq-mais a { font-weight: 500; text-decoration: none; }
+  .faq-mais a:hover { text-decoration: underline; }
+
+  /* ---------- Newsletter ---------- */
+  .news { background: var(--azul); color: rgba(248, 247, 242, .82); padding: 64px 0; position: relative; overflow: hidden; }
+  .news::after {
+    content: ''; position: absolute; right: -40px; top: 50%; transform: translateY(-50%);
+    width: 280px; height: 304px; opacity: .06; pointer-events: none;
+    background: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
+  }
+  .news-env { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 48px; align-items: center; position: relative; z-index: 1; }
+  .news h2 { color: #fff; font-size: 32px; font-weight: 300; margin-bottom: 8px; }
+  .news h2 :global(strong) { font-weight: 700; }
+  .news-env > div > p { margin: 0; }
+  .news-linha { display: flex; gap: 10px; }
+  .news-linha input {
+    flex: 1; min-width: 0; font: 16px var(--fonte); padding: 13px 16px;
+    border: 1px solid transparent; border-radius: 6px; background: #fff; color: var(--texto);
+  }
+  .news-linha input:focus { outline: 3px solid rgba(159, 180, 200, .7); outline-offset: 1px; }
+  .news-linha .botao { background: #f8f7f2; border-color: #f8f7f2; color: var(--azul); white-space: nowrap; }
+  .news-linha .botao:hover { background: #fff; border-color: #fff; color: var(--azul); }
+  .news-nota { font-size: 13px; color: rgba(248, 247, 242, .65); margin: 10px 0 0; }
+  .news-nota a { color: #fff; }
+  .news-resultado { margin: 12px 0 0; padding: 10px 14px; border-radius: 6px; background: rgba(232, 243, 236, .95); color: #1d5b33; }
+  .news-resultado.falhou { background: rgba(251, 234, 236, .95); color: #8a1c2b; }
+  .isca { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .area-foto img, .abas button { transition: none; }
+  }
+  @media (max-width: 900px) {
+    .news-env { grid-template-columns: 1fr; gap: 24px; }
+  }
   @media (max-width: 680px) {
     .titulo-bloco { font-size: 28px; }
+    .servicos { grid-template-columns: 1fr; }
+    .modos { grid-template-columns: 1fr; }
+    .news-linha { flex-direction: column; }
+    .news h2 { font-size: 27px; }
   }
 </style>
