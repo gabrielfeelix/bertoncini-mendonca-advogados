@@ -39,8 +39,8 @@ const lista = outrasAreas(lang);
 const grandes = await areasDoIdioma(lang);
 const contato = rota(lang, '/contato/');
 const T = lang === 'en'
-  ? { rotulo: 'We also practice', parte: 'Part of', falar: 'Talk to us about', fechar: 'Close', abrir: 'Learn more about' }
-  : { rotulo: 'Também atuamos em', parte: 'Faz parte de', falar: 'Falar sobre', fechar: 'Fechar', abrir: 'Saiba mais sobre' };
+  ? { rotulo: 'We also practice', parte: 'Part of', falar: 'Talk to us about', fechar: 'Close', abrir: 'Learn more about', duvidas: 'Quick questions' }
+  : { rotulo: 'Também atuamos em', parte: 'Faz parte de', falar: 'Falar sobre', fechar: 'Fechar', abrir: 'Saiba mais sobre', duvidas: 'Dúvidas rápidas' };
 const nomeMinusculo = (n: string) => (lang === 'en' ? n.toLowerCase() : n.charAt(0).toLowerCase() + n.slice(1));
 ---
 
@@ -81,6 +81,17 @@ const nomeMinusculo = (n: string) => (lang === 'en' ? n.toLowerCase() : n.charAt
               <>{i > 0 && (lang === 'en' ? ' and ' : ' e ')}<a href={g.href}>{g.data.nome}</a></>
             ))}
           </p>
+        )}
+        {a.perguntas.length > 0 && (
+          <div class="oa-faq">
+            <p class="oa-faq-rotulo">{T.duvidas}</p>
+            {a.perguntas.map((q) => (
+              <details>
+                <summary>{q.pergunta}</summary>
+                <p>{q.resposta}</p>
+              </details>
+            ))}
+          </div>
         )}
         <a class="botao" href={`${contato}?assunto=${a.chave}`}>{T.falar} {nomeMinusculo(a.nome)}</a>
       </div>
@@ -201,6 +212,7 @@ const nomeMinusculo = (n: string) => (lang === 'en' ? n.toLowerCase() : n.charAt
   .oa-painel[open] .oa-corpo > :nth-child(3) { animation-delay: .30s; }
   .oa-painel[open] .oa-corpo > :nth-child(4) { animation-delay: .36s; }
   .oa-painel[open] .oa-corpo > :nth-child(5) { animation-delay: .42s; }
+  .oa-painel[open] .oa-corpo > :nth-child(6) { animation-delay: .48s; }
   @keyframes oa-foto { from { transform: scale(1.08); } to { transform: none; } }
   @keyframes oa-sobe { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
   .oa-foto { position: relative; }
@@ -217,6 +229,28 @@ const nomeMinusculo = (n: string) => (lang === 'en' ? n.toLowerCase() : n.charAt
   .oa-texto { font-size: 17px; line-height: 1.65; }
   .oa-ligada { font-size: 15px; color: var(--texto-suave); margin-bottom: 24px; }
   .oa-ligada a { color: var(--azul-medio); font-weight: 500; }
+
+  /* FAQ rápido: acordeão com filete e "+" que vira "−". */
+  .oa-faq { margin: 0 0 28px; border-top: 1px solid var(--linha); }
+  .oa-faq-rotulo { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--azul-claro); margin: 20px 0 6px; }
+  .oa-faq details { border-bottom: 1px solid var(--linha); }
+  .oa-faq summary {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    padding: 14px 0; cursor: pointer; list-style: none;
+    font-size: 16px; font-weight: 500; line-height: 1.4; color: var(--azul);
+  }
+  .oa-faq summary::-webkit-details-marker { display: none; }
+  .oa-faq summary::after {
+    content: ''; flex: none; width: 12px; height: 12px; margin-top: 5px;
+    background:
+      linear-gradient(var(--azul-medio), var(--azul-medio)) center / 12px 1.5px no-repeat,
+      linear-gradient(var(--azul-medio), var(--azul-medio)) center / 1.5px 12px no-repeat;
+    transition: background-size .25s ease;
+  }
+  .oa-faq details[open] summary::after { background-size: 12px 1.5px, 1.5px 0; }
+  .oa-faq summary:hover { color: var(--azul-medio); }
+  .oa-faq details p { margin: -4px 0 16px; font-size: 15.5px; line-height: 1.65; color: var(--texto-suave); }
+  .oa-faq details[open] p { animation: oa-sobe .35s ease both; }
 
   @media (prefers-reduced-motion: reduce) {
     .oa-painel[open], .oa-painel[open]::backdrop, .oa-painel.fechando, .oa-painel.fechando::backdrop,

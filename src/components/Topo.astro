@@ -39,11 +39,16 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
   <div class="topbar-env">
     <div class="topbar">
       <div class="container">
-        <span>{site.cidade}/{site.estado} · {tx.atendimento}</span>
+        {/* No celular a frase vira "Maringá/PR | Online" e os contatos viram só
+            ícones (o nome acessível de cada link continua completo). */}
+        <span class="topbar-local">
+          <span class="so-largo">{site.cidade}/{site.estado} · {tx.atendimento}</span>
+          <span class="so-estreito">{site.cidade}/{site.estado}<span class="barra" aria-hidden="true"></span>Online</span>
+        </span>
         <span class="topbar-contato">
-          <a href={site.whatsapp.valor} rel="noopener" target="_blank"><Icone nome="whatsapp" />{site.telefone.valor}</a>
-          <a href={`mailto:${site.email.valor}`}><Icone nome="email" />{site.email.valor}</a>
-          <a href={site.redes.instagram.valor} rel="noopener" target="_blank"><Icone nome="instagram" />Instagram</a>
+          <a href={site.whatsapp.valor} rel="noopener" target="_blank" aria-label={`WhatsApp ${site.telefone.valor}`}><Icone nome="whatsapp" /><span class="contato-texto">{site.telefone.valor}</span></a>
+          <a href={`mailto:${site.email.valor}`} aria-label={`E-mail ${site.email.valor}`}><Icone nome="email" /><span class="contato-texto">{site.email.valor}</span></a>
+          <a href={site.redes.instagram.valor} rel="noopener" target="_blank" aria-label={`Instagram ${site.redes.instagramArroba}`}><Icone nome="instagram" /><span class="contato-texto">Instagram</span></a>
           <span class="idioma" role="group" aria-label={tx.topo.idiomaAria}>
             {lang === 'pt' ? (
               <><strong aria-current="true" lang="pt-BR">PT</strong><span aria-hidden="true">·</span><a href={outro} lang="en" hreflang="en" aria-label="English version">EN</a></>
@@ -154,6 +159,8 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
   .topbar a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; min-height: var(--altura-topbar); }
   .topbar a:hover { text-decoration: underline; color: #fff; }
   .topbar-contato { display: flex; gap: 22px; align-items: center; }
+  .so-estreito { display: none; align-items: center; }
+  .barra { width: 1px; height: 12px; background: rgba(248, 247, 242, .35); margin: 0 10px; }
   /* Seletor de idioma: texto discreto, o atual em negrito. */
   .idioma {
     display: inline-flex; gap: 6px; align-items: center;
@@ -220,8 +227,12 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
     color: var(--azul); font-size: 15px; font-weight: 400; text-decoration: none; white-space: nowrap;
   }
   .sub a:hover, .sub a:focus-visible { background: var(--fundo-cinza); color: var(--azul-medio); }
+  @keyframes menu-item { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {
     .sub, .tem-sub:hover .sub, .menu > ul > li > a::before, .tem-sub > a::after { transition: none; }
+    :global(.com-js) .menu, :global(.com-js) .menu:not(.aberto),
+    .hamburguer, .hamburguer::before, .hamburguer::after { transition: none !important; }
+    .menu.aberto > ul > li, .menu.aberto > .menu-botao { animation: none; }
   }
 
   /* Botão do menu em creme, o claro da marca. */
@@ -239,11 +250,20 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
   .hamburguer::before, .hamburguer::after { content: ''; position: absolute; left: 0; }
   .hamburguer::before { top: -6px; }
   .hamburguer::after { top: 6px; }
+  /* Aberto: as três linhas viram um X. */
+  .hamburguer, .hamburguer::before, .hamburguer::after { transition: transform .35s cubic-bezier(.22, 1, .36, 1), top .2s ease, background-color .2s ease; }
+  .topo.menu-aberto .hamburguer { background-color: transparent; }
+  .topo.menu-aberto .hamburguer::before { top: 0; transform: rotate(45deg); }
+  .topo.menu-aberto .hamburguer::after { top: 0; transform: rotate(-45deg); }
 
   @media (max-width: 1080px) {
-    .topbar .container > span:first-child { display: none; }
-    .topbar .container { justify-content: flex-end; }
-    .topbar-contato { gap: 14px; }
+    .so-largo { display: none; }
+    .so-estreito { display: inline-flex; }
+    .contato-texto { display: none; }
+    .topbar-contato { gap: 4px; }
+    /* Só ícone: alvo de toque quadrado, com a altura da faixa. */
+    .topbar-contato > a { justify-content: center; min-width: 36px; }
+    .idioma { margin-left: 8px; }
     .cabecalho .container { flex-wrap: wrap; height: auto; min-height: var(--altura-barra); }
     /* A logo ocupa a altura da barra: ao abrir o menu (que quebra para a
        linha de baixo), a primeira linha não encolhe e a logo não pula. */
@@ -257,7 +277,30 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
       max-height: calc(100vh - var(--altura-topo)); max-height: calc(100dvh - var(--altura-topo));
       overflow-y: auto; overscroll-behavior: contain;
     }
-    :global(.com-js) .menu:not(.aberto) { display: none; }
+    /* Abrir: a lista desce com desaceleração longa e os itens entram em
+       sequência; fechar é mais rápido. Sem JS, a lista fica aberta. */
+    :global(.com-js) .menu {
+      transition: max-height .6s cubic-bezier(.22, 1, .36, 1), opacity .35s ease, padding-bottom .6s cubic-bezier(.22, 1, .36, 1);
+    }
+    :global(.com-js) .menu:not(.aberto) {
+      max-height: 0; opacity: 0; padding-bottom: 0; overflow: hidden; visibility: hidden;
+      transition: max-height .3s cubic-bezier(.4, 0, 1, 1), opacity .2s ease, padding-bottom .3s ease, visibility 0s linear .3s;
+    }
+    .menu.aberto > ul > li, .menu.aberto > .menu-botao { animation: menu-item .55s cubic-bezier(.22, 1, .36, 1) both; }
+    .menu.aberto > ul > li:nth-child(1) { animation-delay: .06s; }
+    .menu.aberto > ul > li:nth-child(2) { animation-delay: .11s; }
+    .menu.aberto > ul > li:nth-child(3) { animation-delay: .16s; }
+    .menu.aberto > ul > li:nth-child(4) { animation-delay: .21s; }
+    .menu.aberto > ul > li:nth-child(5) { animation-delay: .26s; }
+    .menu.aberto > .menu-botao { animation-delay: .3s; }
+    /* Menu aberto: a luz do desktop e um segundo brilho petróleo embaixo,
+       para a área alta do menu não ficar chapada. */
+    .topo.menu-aberto::before {
+      background:
+        radial-gradient(760px 260px at 86% -30%, rgba(0, 67, 105, .62), rgba(0, 67, 105, 0) 72%),
+        radial-gradient(520px 420px at 0% 100%, rgba(0, 67, 105, .5), rgba(0, 67, 105, 0) 70%),
+        radial-gradient(420px 300px at 100% 70%, rgba(81, 116, 147, .18), rgba(81, 116, 147, 0) 70%);
+    }
     .menu > ul { flex-direction: column; gap: 0; }
     .menu > ul > li > a { padding: 13px 4px; border-bottom: 1px solid rgba(248, 247, 242, .14); }
     .menu > ul > li > a::before { display: none; }
@@ -272,8 +315,5 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
     .sub a { padding: 10px 4px; border-radius: 0; white-space: normal; font-weight: 400; color: rgba(248, 247, 242, .85); border-bottom: 1px solid rgba(248, 247, 242, .14); }
     .sub a:hover { background: transparent; color: #fff; }
     .menu-botao { margin-top: 16px; text-align: center; }
-  }
-  @media (max-width: 560px) {
-    .topbar-contato a[href^='mailto:'] { display: none; }
   }
 </style>

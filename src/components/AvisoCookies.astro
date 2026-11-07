@@ -79,8 +79,8 @@ const {
 
 <!-- Reabre o aviso depois que a pessoa já escolheu. Pela LGPD, retirar o
      consentimento tem de ser tão fácil quanto dar: sem isto, quem aceitou
-     não tinha por onde voltar atrás. Canto inferior esquerdo, porque a
-     direita é da acessibilidade. -->
+     não tinha por onde voltar atrás. Canto inferior direito (07/11/2026): a
+     acessibilidade fica no meio da lateral direita, o canto de baixo é livre. -->
 <button type="button" class="cookie-flutuante" data-abrir-cookies aria-label={preferencias} title={preferencias} hidden>
   <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20.5 12.3A8.5 8.5 0 1 1 11.7 3.5a3 3 0 0 0 3.4 3.4 3 3 0 0 0 3 3 3 3 0 0 0 2.4 2.4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="8.5" cy="10" r="1.2" fill="currentColor"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/><circle cx="15.8" cy="13" r="1" fill="currentColor"/><circle cx="8.8" cy="15" r=".9" fill="currentColor"/></svg>
 </button>
@@ -137,7 +137,7 @@ const {
   .aviso {
     position: fixed;
     z-index: 90;
-    left: 16px;
+    right: 16px;
     bottom: 16px;
     max-width: 420px;
     padding: 20px 22px;
@@ -204,7 +204,7 @@ const {
   }
 
   .cookie-flutuante {
-    position: fixed; left: 16px; bottom: 16px; z-index: 55;
+    position: fixed; right: 16px; bottom: 16px; z-index: 55;
     display: grid; place-items: center; width: 44px; height: 44px;
     border-radius: 50%; border: 1px solid rgba(248, 247, 242, .35); cursor: pointer;
     background: var(--azul, #0b1e3f); color: #fff;
