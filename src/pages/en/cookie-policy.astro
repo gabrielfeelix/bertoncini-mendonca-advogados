@@ -69,7 +69,7 @@ const secoes = [
           you have been.
         </p>
         <p>
-          Other technologies play the same role under a different name, such as
+          Other technologies play the same role under a different name, such as{' '}
           <code>localStorage</code>, <code>sessionStorage</code>, and tracking
           pixels. When this page talks about cookies, it applies to all of them.
         </p>
@@ -92,28 +92,28 @@ const secoes = [
             <tbody>
               <tr>
                 <th scope="row">Your cookie choice</th>
-                <td>Remembering what you answered in the notice, so it doesn't ask again</td>
-                <td>
-                  Yes, if you answer the notice. A single record, named
+                <td data-rotulo="What it is for">Remembering what you answered in the notice, so it doesn't ask again</td>
+                <td data-rotulo="Stores anything in your browser">
+                  Yes, if you answer the notice. A single record, named{' '}
                   <code>consentimento</code>, stored on your device and never sent to
                   anyone
                 </td>
               </tr>
               <tr>
                 <th scope="row">Vercel (hosting)</th>
-                <td>Delivering the pages and protecting the website against overload and attacks</td>
-                <td>No, during normal browsing</td>
+                <td data-rotulo="What it is for">Delivering the pages and protecting the website against overload and attacks</td>
+                <td data-rotulo="Stores anything in your browser">No, during normal browsing</td>
               </tr>
               <tr>
                 <th scope="row">Contact form</th>
-                <td>Sending your message to the firm</td>
-                <td>No. The data goes out with the submission and nothing is kept in the browser</td>
+                <td data-rotulo="What it is for">Sending your message to the firm</td>
+                <td data-rotulo="Stores anything in your browser">No. The data goes out with the submission and nothing is kept in the browser</td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          The data you type into the form is handled as described in the
+          The data you type into the form is handled as described in the{' '}
           <a href="/en/privacy-policy/">privacy policy</a>.
         </p>
 
@@ -187,8 +187,8 @@ const secoes = [
 
         <h2 id="falar">Questions</h2>
         <p>
-          Any question about this policy can be sent to
-          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
+          Any question about this policy can be sent to{' '}
+          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>{' '}
           or through the <a href="/en/contact/">contact page</a>.
         </p>
       </div>

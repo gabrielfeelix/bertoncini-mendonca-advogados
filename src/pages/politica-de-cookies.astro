@@ -83,7 +83,7 @@ const secoes = [
           andou.
         </p>
         <p>
-          Outras tecnologias fazem o mesmo papel com outro nome, como o
+          Outras tecnologias fazem o mesmo papel com outro nome, como o{' '}
           <code>localStorage</code>, o <code>sessionStorage</code> e os pixels de
           rastreamento. Quando esta página fala em cookies, vale para todas elas.
         </p>
@@ -106,28 +106,28 @@ const secoes = [
             <tbody>
               <tr>
                 <th scope="row">Sua escolha sobre cookies</th>
-                <td>Lembrar o que você respondeu no aviso, para não perguntar de novo</td>
-                <td>
-                  Sim, se você responder ao aviso. Um único registro, de nome
+                <td data-rotulo="Para que serve">Lembrar o que você respondeu no aviso, para não perguntar de novo</td>
+                <td data-rotulo="Guarda algo no seu navegador">
+                  Sim, se você responder ao aviso. Um único registro, de nome{' '}
                   <code>consentimento</code>, guardado no seu aparelho e nunca enviado a
                   ninguém
                 </td>
               </tr>
               <tr>
                 <th scope="row">Vercel (hospedagem)</th>
-                <td>Entregar as páginas e proteger o site contra sobrecarga e ataque</td>
-                <td>Não, em navegação normal</td>
+                <td data-rotulo="Para que serve">Entregar as páginas e proteger o site contra sobrecarga e ataque</td>
+                <td data-rotulo="Guarda algo no seu navegador">Não, em navegação normal</td>
               </tr>
               <tr>
                 <th scope="row">Formulário de contato</th>
-                <td>Enviar a sua mensagem ao escritório</td>
-                <td>Não. Os dados seguem no envio e nada fica guardado no navegador</td>
+                <td data-rotulo="Para que serve">Enviar a sua mensagem ao escritório</td>
+                <td data-rotulo="Guarda algo no seu navegador">Não. Os dados seguem no envio e nada fica guardado no navegador</td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          Os dados que você digita no formulário são tratados como descreve a
+          Os dados que você digita no formulário são tratados como descreve a{' '}
           <a href="/politica-de-privacidade/">política de privacidade</a>.
         </p>
 
@@ -201,8 +201,8 @@ const secoes = [
 
         <h2 id="falar">Dúvidas</h2>
         <p>
-          Qualquer pergunta sobre esta política pode ser enviada para
-          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
+          Qualquer pergunta sobre esta política pode ser enviada para{' '}
+          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>{' '}
           ou pela <a href="/contato/">página de contato</a>.
         </p>
       </div>

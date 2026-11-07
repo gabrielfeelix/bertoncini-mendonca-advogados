@@ -21,4 +21,19 @@
 .politica table { width: 100%; border-collapse: collapse; font-size: 15px; }
 .politica th, .politica td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--linha); }
 .politica th { background: var(--fundo-cinza); color: var(--azul); }
-@media (max-width: 680px) { .politica h1 { font-size: 30px; } }
+@media (max-width: 680px) {
+  .politica h1 { font-size: 30px; }
+  /* No celular a tabela de três colunas virava colunas de uma palavra e
+     rolava de lado escondida. Cada linha vira um bloco; o nome da coluna
+     vem do data-rotulo de cada célula. */
+  .politica .tabela table, .politica .tabela tbody, .politica .tabela tr,
+  .politica .tabela th, .politica .tabela td { display: block; }
+  .politica .tabela thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .politica .tabela tr { border-bottom: 1px solid var(--linha); padding-bottom: 6px; }
+  .politica .tabela th[scope='row'] { border-bottom: 0; padding: 12px 14px; }
+  .politica .tabela td { border-bottom: 0; padding: 8px 14px 4px; }
+  .politica .tabela td[data-rotulo]::before {
+    content: attr(data-rotulo); display: block;
+    font-size: 13px; font-weight: 500; color: var(--azul-claro); text-transform: uppercase; letter-spacing: .04em;
+  }
+}
