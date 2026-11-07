@@ -76,7 +76,11 @@ const perfis = site.socios.map((socio, i) => ({
 
   {/* Missão e valores (07/11/2026): a missão como declaração, em letra
       grande e fina, e os três valores em colunas abertas, sem caixa. */}
-  <section class="secao secao-cinza missao-secao">
+  <section class="secao missao-secao">
+    {/* Personalidade (07/11/2026), no espírito do "Também atuamos em": faixa
+        azul-noite em diagonal, luz petróleo desfocada e o monograma vazando. */}
+    <span class="missao-arte" aria-hidden="true"></span>
+    <span class="missao-luz" aria-hidden="true"></span>
     <div class="container">
       <div class="missao-bloco">
         <p class="rotulo" set:html={e.missaoTitulo.replace(/<[^>]+>/g, '')} />
@@ -175,16 +179,38 @@ const perfis = site.socios.map((socio, i) => ({
     .perfil img { max-width: 320px; }
     .titulo-bloco { font-size: 26px; }
   }
-  /* ---------- Missão e valores ---------- */
-  .missao-secao { padding: 104px 0; }
-  .missao-bloco { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 40px; align-items: baseline; margin-bottom: 72px; }
-  .missao-bloco .rotulo { margin: 0; }
-  .missao-frase { margin: 0; font-size: 40px; font-weight: 300; line-height: 1.25; letter-spacing: -.015em; color: var(--azul); }
-  /* Alinhados à coluna da frase da missão (3fr | 9fr com 40px de vão). */
+  /* ---------- Missão e valores: faixa azul-noite em diagonal ---------- */
+  .missao-secao {
+    position: relative; overflow: hidden;
+    background: var(--azul); color: #f8f7f2;
+    padding: 168px 0 176px;
+    --corte: 64px;
+    clip-path: polygon(0 var(--corte), 100% 0, 100% calc(100% - var(--corte)), 0 100%);
+  }
+  .missao-arte {
+    position: absolute; left: -120px; top: 50%; transform: translateY(-50%);
+    width: 600px; aspect-ratio: 254 / 276; background: #f8f7f2; opacity: .05; pointer-events: none;
+    -webkit-mask: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
+    mask: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
+  }
+  .missao-luz {
+    position: absolute; right: -260px; bottom: -320px; width: 860px; aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(circle, rgba(10, 98, 150, .7) 0%, rgba(0, 67, 105, .4) 38%, rgba(0, 67, 105, 0) 70%);
+    filter: blur(70px); pointer-events: none;
+  }
+  .missao-secao .container { position: relative; }
+  .missao-bloco { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 40px; align-items: baseline; margin-bottom: 80px; }
+  .missao-bloco .rotulo { margin: 0; color: #9fb6cc; display: flex; align-items: center; gap: 12px; }
+  .missao-bloco .rotulo::before { content: ''; width: 28px; height: 1px; background: #9fb6cc; }
+  .missao-frase { margin: 0; font-size: 44px; font-weight: 300; line-height: 1.22; letter-spacing: -.015em; color: #fff; }
+  /* Alinhados à coluna da frase (3fr | 9fr com 40px de vão); a coluna do
+     meio desce um pouco, quebrando a grade. */
   .valores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-left: calc((100% - 40px) * 3 / 12 + 40px); }
-  .valor { padding-top: 22px; border-top: 1px solid rgba(11, 30, 63, .18); }
-  .valor h3 { font-size: 24px; font-weight: 700; margin: 0 0 10px; color: var(--azul); }
-  .valor p { margin: 0; font-size: 16px; line-height: 1.65; color: var(--texto-suave); }
+  .valor { position: relative; padding-top: 24px; border-top: 1px solid rgba(248, 247, 242, .18); }
+  .valor::before { content: ''; position: absolute; left: 0; top: -1px; width: 36px; height: 2px; background: #5b9bc8; }
+  .valor:nth-child(2) { transform: translateY(36px); }
+  .valor h3 { font-size: 24px; font-weight: 700; margin: 0 0 10px; color: #fff; }
+  .valor p { margin: 0; font-size: 16px; line-height: 1.65; color: rgba(248, 247, 242, .72); }
 
   /* ---------- Como atuamos ---------- */
   .atuacao-grade { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 56px; align-items: start; }
@@ -202,14 +228,18 @@ const perfis = site.socios.map((socio, i) => ({
 
   @media (max-width: 991px) {
     .missao-bloco, .atuacao-grade { grid-template-columns: 1fr; gap: 16px; }
+    .missao-secao { padding: 120px 0 128px; --corte: 40px; }
     .missao-frase { font-size: 32px; }
     .valores { margin-left: 0; }
+    .missao-luz { width: 600px; right: -260px; bottom: -260px; }
     .atuacao-grade { gap: 32px; }
     .recusa-faixa { padding: 112px 0 64px; }
     .recusa-frase { font-size: 36px; }
   }
   @media (max-width: 680px) {
-    .missao-secao { padding: 64px 0; }
+    .missao-secao { padding: 88px 0 96px; --corte: 28px; }
+    .valor:nth-child(2) { transform: none; }
+    .missao-arte { width: 360px; left: -140px; top: 0; transform: none; }
     .missao-bloco { margin-bottom: 44px; }
     .missao-frase { font-size: 26px; }
     .valores, .atuacao { grid-template-columns: 1fr; gap: 0; }

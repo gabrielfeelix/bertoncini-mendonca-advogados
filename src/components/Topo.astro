@@ -33,6 +33,13 @@ const ativo = (chave: string) =>
   paginaAtual === chave || (chave !== '/' && paginaAtual?.startsWith(chave)) ? 'page' : undefined;
 /* Sem página equivalente (ex.: blog), o seletor leva à home do outro idioma. */
 const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
+
+/* Bandeiras em SVG (emoji de bandeira não aparece no Chrome do Windows).
+   Decorativas: o idioma já está no texto e no aria-label do link. */
+const BANDEIRA_BR =
+  '<svg class="bandeira" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect width="20" height="14" rx="2" fill="#009c3b"/><path d="M10 2.1 17.4 7 10 11.9 2.6 7Z" fill="#ffdf00"/><circle cx="10" cy="7" r="3" fill="#002776"/><path d="M7.1 6.4c2-.5 4-.3 5.8.6" stroke="#fff" stroke-width=".55" fill="none"/></svg>';
+const BANDEIRA_EUA =
+  '<svg class="bandeira" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><clipPath id="bandeira-eua"><rect width="20" height="14" rx="2"/></clipPath><g clip-path="url(#bandeira-eua)"><rect width="20" height="14" fill="#fff"/><path d="M0 0h20v1.08H0zM0 2.15h20v1.08H0zM0 4.3h20v1.08H0zM0 6.46h20v1.08H0zM0 8.62h20v1.08H0zM0 10.77h20v1.08H0zM0 12.92h20V14H0z" fill="#b22234"/><rect width="8.6" height="7.54" fill="#3c3b6e"/><g fill="#fff"><circle cx="1.5" cy="1.4" r=".45"/><circle cx="3.6" cy="1.4" r=".45"/><circle cx="5.7" cy="1.4" r=".45"/><circle cx="7.6" cy="1.4" r=".45"/><circle cx="2.5" cy="2.9" r=".45"/><circle cx="4.6" cy="2.9" r=".45"/><circle cx="6.7" cy="2.9" r=".45"/><circle cx="1.5" cy="4.4" r=".45"/><circle cx="3.6" cy="4.4" r=".45"/><circle cx="5.7" cy="4.4" r=".45"/><circle cx="7.6" cy="4.4" r=".45"/><circle cx="2.5" cy="5.9" r=".45"/><circle cx="4.6" cy="5.9" r=".45"/><circle cx="6.7" cy="5.9" r=".45"/></g></g></svg>';
 ---
 
 <div class="topo" data-sobreposto={sobreposto ? '' : undefined}>
@@ -51,9 +58,9 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
           <a href={site.redes.instagram.valor} rel="noopener" target="_blank" aria-label={`Instagram ${site.redes.instagramArroba}`}><Icone nome="instagram" /><span class="contato-texto">Instagram</span></a>
           <span class="idioma" role="group" aria-label={tx.topo.idiomaAria}>
             {lang === 'pt' ? (
-              <><strong aria-current="true" lang="pt-BR">PT</strong><span aria-hidden="true">·</span><a href={outro} lang="en" hreflang="en" aria-label="English version">EN</a></>
+              <><strong aria-current="true" lang="pt-BR"><Fragment set:html={BANDEIRA_BR} /><span class="sigla">PT</span></strong><span aria-hidden="true">·</span><a href={outro} lang="en" hreflang="en" aria-label="English version"><Fragment set:html={BANDEIRA_EUA} /><span class="sigla">EN</span></a></>
             ) : (
-              <><a href={outro} lang="pt-BR" hreflang="pt-BR" aria-label="Versão em português">PT</a><span aria-hidden="true">·</span><strong aria-current="true" lang="en">EN</strong></>
+              <><a href={outro} lang="pt-BR" hreflang="pt-BR" aria-label="Versão em português"><Fragment set:html={BANDEIRA_BR} /><span class="sigla">PT</span></a><span aria-hidden="true">·</span><strong aria-current="true" lang="en"><Fragment set:html={BANDEIRA_EUA} /><span class="sigla">EN</span></strong></>
             )}
           </span>
         </span>
@@ -68,6 +75,9 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
             e, com 60px, cada linha fica com ~1px e serrilha). Retina: o original. */}
         <picture>
           <source media="(min-resolution: 2dppx)" srcset="/media/marca/lockup-creme.svg" />
+          {/* Celular em tela 1x: engrossamento mais leve; o normal empastava
+              as letras pequenas ("ADVOGADOS") com o logo em 50px. */}
+          <source media="(max-width: 1080px)" srcset="/media/marca/lockup-creme-tela-pequena.svg" />
           <img src="/media/marca/lockup-creme-tela.svg" alt={site.nome} width="550" height="196" />
         </picture>
       </a>
@@ -168,6 +178,11 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
     letter-spacing: .06em;
   }
   .idioma strong { color: #fff; font-weight: 700; }
+  .idioma strong, .idioma a { display: inline-flex; align-items: center; gap: 6px; }
+  .idioma :global(.bandeira) { width: 18px; height: 13px; flex: none; border-radius: 2px; box-shadow: 0 0 0 1px rgba(248, 247, 242, .25); }
+  /* O idioma que não está ativo fica com a bandeira um pouco apagada. */
+  .idioma a :global(.bandeira) { opacity: .7; transition: opacity .15s ease; }
+  .idioma a:hover :global(.bandeira) { opacity: 1; }
   .idioma a { color: rgba(248, 247, 242, .7); }
   .idioma a:hover { color: #fff; }
 
@@ -256,6 +271,15 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
   .topo.menu-aberto .hamburguer::before { top: 0; transform: rotate(45deg); }
   .topo.menu-aberto .hamburguer::after { top: 0; transform: rotate(-45deg); }
 
+  /* Tela estreita: só as bandeiras (a sigla fica para o leitor de tela);
+     a do idioma ativo ganha contorno claro. */
+  @media (max-width: 560px) {
+    .sigla { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .idioma { gap: 4px; padding-left: 10px; margin-left: 2px !important; }
+    .idioma > span[aria-hidden] { display: none; }
+    .idioma strong, .idioma a { padding: 6px 4px; }
+    .idioma strong :global(.bandeira) { box-shadow: 0 0 0 1.5px #f8f7f2; }
+  }
   @media (max-width: 1080px) {
     .so-largo { display: none; }
     .so-estreito { display: inline-flex; }
@@ -264,11 +288,13 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
     /* Só ícone: alvo de toque quadrado, com a altura da faixa. */
     .topbar-contato > a { justify-content: center; min-width: 36px; }
     .idioma { margin-left: 8px; }
-    .cabecalho .container { flex-wrap: wrap; height: auto; min-height: var(--altura-barra); }
+    /* row-gap 0: o menu fechado quebra para uma segunda linha de altura
+       zero, e o vão entre linhas deixava 24px sobrando embaixo da barra. */
+    .cabecalho .container { flex-wrap: wrap; height: auto; min-height: var(--altura-barra); row-gap: 0; }
     /* A logo ocupa a altura da barra: ao abrir o menu (que quebra para a
        linha de baixo), a primeira linha não encolhe e a logo não pula. */
     .logo { display: flex; align-items: center; height: var(--altura-barra); }
-    .logo img { height: 46px; }
+    .logo img { height: 50px; }
     .abre-menu:not([hidden]) { display: inline-flex; }
     .menu {
       flex-basis: 100%; flex-direction: column; align-items: stretch; gap: 0; padding-bottom: 16px;

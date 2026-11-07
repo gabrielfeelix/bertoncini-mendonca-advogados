@@ -493,8 +493,10 @@ const descricao =
     position: sticky; top: var(--altura-barra); z-index: 40;
     padding: 18px 0;
     border-top: 1px solid var(--linha);
-    background: rgba(255, 255, 255, .92);
-    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    /* Sem backdrop-filter: ele vira o bloco de referência dos elementos
+       fixos de dentro, e a lista do seletor (position: fixed) abria longe
+       do campo. Fundo quase opaco no lugar. */
+    background: rgba(255, 255, 255, .97);
     transition: box-shadow .2s ease;
   }
   .filtros-faixa[hidden] { display: none; }

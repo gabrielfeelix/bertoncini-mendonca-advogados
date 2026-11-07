@@ -14,7 +14,7 @@ estado: publicado
 seoDescricao: "Quando o inventário pode ser feito em cartório e quando ele é obrigatoriamente judicial. O que mudou com o Provimento CNJ 149/2023 e a Resolução CNJ 571/2024."
 ---
 
-Inventário é o procedimento que transfere para os herdeiros os bens de quem morreu. Ele tem dois caminhos possíveis, e a diferença entre eles costuma ser de meses — às vezes de anos.
+Inventário é o procedimento que transfere para os herdeiros os bens de quem morreu. Ele tem dois caminhos possíveis, e a diferença entre eles costuma ser de meses, às vezes de anos.
 
 ## O caminho extrajudicial
 
@@ -38,7 +38,7 @@ Por muito tempo, a existência de testamento levava o inventário necessariament
 
 O **Provimento CNJ 149/2023** e a **Resolução CNJ 571/2024** abriram hipóteses de via extrajudicial mesmo havendo testamento, e mesmo havendo interessado incapaz, observadas condições específicas e, em geral, manifestação do Ministério Público.
 
-É um ponto em que a regra mudou há pouco. Vale examinar o caso concreto antes de presumir que o caminho é o judicial — a informação que circula sobre isso ainda é, em boa parte, anterior à mudança.
+É um ponto em que a regra mudou há pouco. Vale examinar o caso concreto antes de presumir que o caminho é o judicial: a informação que circula sobre isso ainda é, em boa parte, anterior à mudança.
 
 ## O prazo que quase ninguém lembra
 
@@ -50,4 +50,4 @@ A lei prevê que o inventário seja **aberto em até dois meses** da data do fal
 
 Na maior parte dos casos que chegam ao escritório, o que atrasa não é a escolha do caminho: é a documentação. Certidão de imóvel desatualizada, bem em nome de quem já morreu antes, dívida não localizada, conta esquecida.
 
-Por isso o trabalho começa por entender o que existe — quais bens, em nome de quem, com que dívidas e quais pessoas envolvidas — antes de decidir qualquer coisa sobre o procedimento.
+Por isso o trabalho começa por entender o que existe (quais bens, em nome de quem, com que dívidas e quais pessoas envolvidas) antes de decidir qualquer coisa sobre o procedimento.

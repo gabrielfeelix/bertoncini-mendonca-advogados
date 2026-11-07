@@ -1,6 +1,6 @@
 ---
 titulo: "Testamento: até onde vai a liberdade de escolher"
-resumo: "Havendo herdeiros necessários, metade do patrimônio já tem destino definido por lei. O testamento dispõe da outra metade — e é nessa metade que ele resolve problemas."
+resumo: "Havendo herdeiros necessários, metade do patrimônio já tem destino definido por lei. O testamento dispõe da outra metade, e é nessa metade que ele resolve problemas."
 capa: /media/capas/testamento.jpg
 capaLargura: 1600
 capaAltura: 1200
@@ -24,7 +24,7 @@ O Código Civil chama de **herdeiros necessários** os descendentes, os ascenden
 
 Essa metade não pode ser afastada por testamento. Não é uma formalidade contornável: uma cláusula que disponha da legítima é ineficaz nessa parte, e o testamento acaba produzindo efeito diferente do que a pessoa imaginou ao escrevê-lo.
 
-A outra metade — a **parte disponível** — o testamento distribui livremente.
+A outra metade, a **parte disponível**, o testamento distribui livremente.
 
 Sem herdeiros necessários, a liberdade é total.
 
@@ -41,7 +41,7 @@ A última costuma ser a mais relevante. Boa parte das disputas de inventário n�
 
 ## Formas e cuidados
 
-O testamento tem formas previstas em lei, e cada uma tem requisitos próprios — o público, lavrado em cartório, é o mais comum e o que oferece mais segurança quanto à validade.
+O testamento tem formas previstas em lei, e cada uma tem requisitos próprios. O público, lavrado em cartório, é o mais comum e o que oferece mais segurança quanto à validade.
 
 Vale registrar um ponto prático: testamento escrito sem assistência jurídica é a principal origem de testamento anulado. Não por má-fé, mas porque a forma importa, e porque é fácil dispor sem querer de algo que não era disponível.
 
@@ -49,4 +49,4 @@ Vale registrar um ponto prático: testamento escrito sem assistência jurídica 
 
 Na maioria dos casos ele aparece junto com outras: doação com reserva de usufruto, pacto antenupcial, alteração de regime de bens, constituição de holding familiar.
 
-Cada uma tem custo, efeito tributário e limite legal próprios. A escolha entre elas depende do que existe, de quem está envolvido e do que se quer evitar — e essa conta se faz antes, não depois.
+Cada uma tem custo, efeito tributário e limite legal próprios. A escolha entre elas depende do que existe, de quem está envolvido e do que se quer evitar, e essa conta se faz antes, não depois.

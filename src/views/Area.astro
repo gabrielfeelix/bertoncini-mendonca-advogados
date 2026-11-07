@@ -1,10 +1,17 @@
 ---
 /**
- * Página de uma área (v3), nos dois idiomas. Layout de página de tema
- * WordPress: banner com o nome, coluna de conteúdo (resumo, serviços,
- * texto, para quem, o que fazemos, perguntas) e barra lateral (áreas,
- * quem atende, também atuamos em, contato). O texto é o da área, sem
- * alteração; o inglês vem de src/content/areas-en.
+ * Página de uma área (v3), nos dois idiomas. Modelo de 07/11/2026, depois de
+ * o Gabriel provar a versão toda em faixas largas e preferir o modelo antigo:
+ *
+ * - capa cheia (nome em peso misto, resumo, "Falar sobre…");
+ * - conteúdo à esquerda, dividido em blocos: resumo, serviços, para quem, o
+ *   que fazemos e "Entenda a área" com rubrica por tema (campo `cenas`);
+ * - barra lateral à direita, como antes: áreas, quem atende, temas (atalhos
+ *   para as rubricas), também atuamos em e fale conosco;
+ * - Perguntas frequentes na largura toda, com o título fixo à esquerda e o
+ *   acordeão com filetes (aprovado assim).
+ *
+ * O texto é o da área, sem alteração; o inglês vem de src/content/areas-en.
  */
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
@@ -28,68 +35,107 @@ const todas = await areasDoIdioma(lang);
 const assuntos = assuntosDaArea(d.assuntos);
 const aConfirmar = new Set(d.corpoAConfirmar);
 const escritorio = rota(lang, '/escritorio/');
+const contatoArea = `${rota(lang, '/contato/')}?assunto=${area.slugPt}`;
+
+/** Vídeo de fundo da capa, por área (gerado no Gemini em 07/11/2026). */
+const VIDEO_DA_AREA: Record<string, string> = {
+  'planejamento-patrimonial-e-sucessorio': '/media/videos/planejamento',
+  'direito-digital': '/media/videos/digital',
+};
+
+const T = lang === 'en'
+  ? { falar: 'Talk to us about', entenda: 'About this <strong>area</strong>', temas: 'Topics', naoEncontrou: 'Didn’t find your question?', fale: 'Talk to the firm', paraQuem: 'Who it is <strong>for</strong>', oQue: 'What we <strong>do</strong>', perguntas: 'Frequently asked <strong>questions</strong>' }
+  : { falar: 'Falar sobre', entenda: 'Entenda a <strong>área</strong>', temas: 'Temas', naoEncontrou: 'Não encontrou sua dúvida?', fale: 'Fale com o escritório', paraQuem: 'Para <strong>quem</strong>', oQue: 'O que <strong>fazemos</strong>', perguntas: 'Perguntas <strong>frequentes</strong>' };
+
+/** "Planejamento Patrimonial e Sucessório" → última palavra em negrito. */
+const i = d.nome.lastIndexOf(' ');
+const tituloMisto = i < 0 ? `<strong>${d.nome}</strong>` : `${d.nome.slice(0, i)} <strong>${d.nome.slice(i + 1)}</strong>`;
+const nomeMinusculo = d.nome.toLowerCase();
+
+/* O corpo em blocos: abertura (antes da primeira rubrica), um tema por
+   rubrica (`cenas`) e fecho (depois da última). */
+const cenas = [...d.cenas].sort((a, b) => a.indice - b.indice);
+const primeira = cenas[0]?.indice ?? d.corpo.length;
+const ultima = cenas.at(-1)?.indice ?? -1;
+const abertura = d.corpo.slice(0, primeira).map((texto, n) => ({ texto, n }));
+const temas = cenas.map((c, k) => ({
+  id: `tema-${k + 1}`,
+  rubrica: c.rubrica,
+  texto: d.corpo[c.indice],
+  n: c.indice,
+}));
+const fecho = d.corpo.slice(ultima + 1).map((texto, k) => ({ texto, n: ultima + 1 + k }));
 ---
 
 <Base titulo={`${d.nome} | ${site.nome}`} descricao={d.resumo} paginaAtual="/areas/" lang={lang} alternativa={alternativa}>
   <BannerPagina
-    titulo={d.nome}
+    cheio
+    baixo
+    html={tituloMisto}
+    apoio={d.resumo}
     foto={FOTO_DA_AREA[area.slugPt]}
+    video={VIDEO_DA_AREA[area.slugPt]}
     migalhas={[{ rotulo: ar.migalha, href: rota(lang, '/areas/') }, { rotulo: d.nome }]}
     lang={lang}
-  />
+  >
+    <p class="capa-acoes"><a class="botao botao-claro" href={contatoArea}>{T.falar} {nomeMinusculo}</a></p>
+  </BannerPagina>
 
+  {/* Conteúdo à esquerda (resumo, serviços, para quem, o que fazemos e o
+      texto por temas) e a barra lateral à direita, como no modelo antigo. */}
   <section class="secao">
     <div class="container com-lateral">
-      <article class="texto">
+      <article class="conteudo-area">
         <p class="lead">{d.resumo}</p>
 
         {d.servicos.length > 0 && (
-          <div class="servicos">
+          <div class="bloco-area">
             <h2>{ar.servicos}</h2>
-            <ul>{d.servicos.map((s) => <li>{s}</li>)}</ul>
+            <ul class="servicos">{d.servicos.map((s) => <li>{s}</li>)}</ul>
           </div>
         )}
 
-        {d.corpo.map((paragrafo, i) => (
-          <p data-placeholder={aConfirmar.has(i) ? '1' : undefined}>{paragrafo}</p>
-        ))}
-
         {d.publicos.length > 0 && (
-          <>
-            <h2>{ar.paraQuem}</h2>
-            <ul class="publicos">
-              {d.publicos.map((p) => <li><strong>{p.titulo}.</strong> {p.texto}</li>)}
-            </ul>
-          </>
-        )}
-
-        <h2>{ar.oQueFazemos}</h2>
-        <table class="tabela-assuntos">
-          <tbody>
-            {assuntos.map((a) => (
-              <tr>
-                <th scope="row">{a.nome}</th>
-                <td>{a.faz ?? ''}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {d.perguntas.length > 0 && (
-          <>
-            <h2 id="perguntas">{ar.perguntas}</h2>
-            <div class="faq">
-              {d.perguntas.map((p) => (
-                <details>
-                  <summary>{p.pergunta}</summary>
-                  <p>{p.resposta}</p>
-                </details>
+          <div class="bloco-area">
+            <h2 set:html={T.paraQuem} />
+            <div class="publicos">
+              {d.publicos.map((p) => (
+                <div class="publico">
+                  <h3>{p.titulo}</h3>
+                  <p>{p.texto}</p>
+                </div>
               ))}
             </div>
-          </>
+          </div>
         )}
 
-        <p class="aviso">{tx.aviso}</p>
+        <div class="bloco-area">
+          <h2 set:html={T.oQue} />
+          <dl class="assuntos">
+            {assuntos.map((a) => (
+              <div>
+                <dt>{a.nome}</dt>
+                {a.faz && <dd>{a.faz}</dd>}
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div class="bloco-area leitura-texto">
+          <h2 set:html={T.entenda} />
+          {abertura.map((p) => (
+            <p class="abertura" data-placeholder={aConfirmar.has(p.n) ? '1' : undefined}>{p.texto}</p>
+          ))}
+          {temas.map((tm) => (
+            <section class="tema" id={tm.id} aria-labelledby={`${tm.id}-t`}>
+              <h3 class="rotulo" id={`${tm.id}-t`}>{tm.rubrica}</h3>
+              <p data-placeholder={aConfirmar.has(tm.n) ? '1' : undefined}>{tm.texto}</p>
+            </section>
+          ))}
+          {fecho.map((p) => (
+            <p class="fecho" data-placeholder={aConfirmar.has(p.n) ? '1' : undefined}>{p.texto}</p>
+          ))}
+        </div>
       </article>
 
       <aside class="lateral">
@@ -107,19 +153,26 @@ const escritorio = rota(lang, '/escritorio/');
         <div class="widget socio">
           <h2>{ar.quemAtende}</h2>
           <ul class="pessoas">
-            {site.socios.map((s, i) => (
+            {site.socios.map((s, n) => (
               <li>
                 <a href={`${escritorio}#${s.nome.split(' ')[0].toLowerCase()}`}>
                   <img src={`${s.retrato}-560.jpg`} alt="" width="560" height="840" loading="lazy" />
                   <span>
                     <strong>{s.nome}</strong>
-                    <span class="socio-cargo">{tx.socio[i === 1 ? 'a' : 'o']} · {s.oab.valor}</span>
+                    <span class="socio-cargo">{tx.socio[n === 1 ? 'a' : 'o']} · {s.oab.valor}</span>
                   </span>
                 </a>
               </li>
             ))}
           </ul>
         </div>
+
+        {temas.length > 0 && (
+          <nav class="widget indice" aria-label={T.temas}>
+            <h2>{T.temas}</h2>
+            <ul>{temas.map((tm) => <li><a href={`#${tm.id}`}>{tm.rubrica}</a></li>)}</ul>
+          </nav>
+        )}
 
         <div class="widget">
           <h2>{ar.tambem}</h2>
@@ -129,53 +182,138 @@ const escritorio = rota(lang, '/escritorio/');
         <div class="widget widget-azul">
           <h2>{ar.faleTitulo}</h2>
           <p>{ar.faleTexto}</p>
-          <a class="botao botao-claro" href={`${rota(lang, '/contato/')}?assunto=${area.slugPt}`}>{ar.enviar}</a>
+          <a class="botao botao-claro" href={contatoArea}>{ar.enviar}</a>
         </div>
       </aside>
     </div>
   </section>
 
-  <Chamada slot="rodape" lang={lang} href={`${rota(lang, '/contato/')}?assunto=${area.slugPt}`} />
+  {/* 4. Perguntas frequentes */}
+  {d.perguntas.length > 0 && (
+    <section class="secao secao-cinza" id="perguntas">
+      <div class="container duas-partes">
+        <div class="parte-cabeca">
+          <h2 class="titulo-ed" set:html={T.perguntas} />
+          <p class="faq-apoio">{T.naoEncontrou} <a href={contatoArea}>{T.fale}</a>.</p>
+        </div>
+        <div class="faq-ed">
+          {d.perguntas.map((p) => (
+            <details>
+              <summary>{p.pergunta}</summary>
+              <p>{p.resposta}</p>
+            </details>
+          ))}
+          <p class="aviso">{tx.aviso}</p>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <Chamada slot="rodape" lang={lang} href={contatoArea} />
 </Base>
 
-<style>
-  #perguntas { scroll-margin-top: calc(var(--altura-barra) + 24px); }
-  .lead { font-size: 20px; color: var(--azul); font-weight: 500; }
-  .servicos { background: var(--fundo-cinza); border-radius: 6px; padding: 24px 28px; margin: 28px 0 32px; }
-  .servicos h2 { margin-top: 0; font-size: 22px; }
-  .servicos ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
-  .servicos li { position: relative; padding-left: 26px; }
-  .servicos li::before { content: '✓'; position: absolute; left: 0; color: var(--azul-medio); font-weight: 700; }
-  .publicos li { margin-bottom: 8px; }
-  .tabela-assuntos { width: 100%; border-collapse: collapse; font-size: 16px; margin-bottom: 1em; }
-  .tabela-assuntos th, .tabela-assuntos td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--linha); }
-  .tabela-assuntos th { width: 36%; color: var(--azul); font-weight: 500; }
-  .tabela-assuntos tr:nth-child(odd) { background: var(--fundo-cinza); }
-  .aviso { margin-top: 32px; font-size: 14px; color: var(--texto-suave); }
+<script>
+  /* Índice: marca o tema que está na tela. */
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.indice a')];
+  if (links.length && 'IntersectionObserver' in window) {
+    const porId = new Map(links.map((a) => [a.hash.slice(1), a]));
+    const olho = new IntersectionObserver((entradas) => {
+      for (const e of entradas) {
+        if (!e.isIntersecting) continue;
+        links.forEach((a) => a.removeAttribute('aria-current'));
+        porId.get(e.target.id)?.setAttribute('aria-current', 'true');
+      }
+    }, { rootMargin: '-35% 0px -55% 0px' });
+    document.querySelectorAll('.tema').forEach((s) => olho.observe(s));
+  }
+</script>
 
-  .simples li { padding: 8px 0; }
-  /* Um item por sócio: foto redonda à esquerda, nome e OAB à direita. */
+<style>
+  .capa-acoes { margin: 6px 0 24px; }
+
+  /* Título de seção no peso misto do site (FAQ). */
+  .titulo-ed { font-size: 40px; font-weight: 300; line-height: 1.1; letter-spacing: -.015em; margin: 0 0 28px; }
+  .titulo-ed :global(strong) { font-weight: 700; }
+
+  /* ---------- Coluna de conteúdo ---------- */
+  .conteudo-area { min-width: 0; }
+  /* O resumo, em itálico e entre aspas curvas, como uma citação do escritório. */
+  .lead { font-size: 22px; line-height: 1.55; color: var(--azul); font-weight: 400; font-style: italic; margin: 0 0 8px; }
+  .lead::before { content: '“'; }
+  .lead::after { content: '”'; }
+  .bloco-area { padding-top: 36px; margin-top: 36px; border-top: 1px solid var(--linha); }
+  .bloco-area h2 { font-size: 28px; font-weight: 300; letter-spacing: -.01em; margin: 0 0 20px; }
+  .bloco-area h2 :global(strong) { font-weight: 700; }
+  .servicos { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+  .servicos li { padding: 10px 0; border-bottom: 1px solid var(--linha); font-size: 15.5px; color: var(--texto); }
+  .publicos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 28px; }
+  .publico { padding-top: 16px; border-top: 2px solid var(--azul-medio); }
+  .publico h3 { font-size: 18px; margin: 0 0 8px; color: var(--azul); }
+  .publico p { margin: 0; font-size: 15.5px; line-height: 1.6; color: var(--texto-suave); }
+  .assuntos { margin: 0; }
+  .assuntos div { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 20px; padding: 16px 0; border-top: 1px solid var(--linha); }
+  .assuntos div:last-child { border-bottom: 1px solid var(--linha); }
+  .assuntos dt { font-size: 16.5px; font-weight: 700; color: var(--azul); }
+  .assuntos dd { margin: 0; font-size: 15.5px; line-height: 1.6; color: var(--texto-suave); }
+  .leitura-texto p { font-size: 17px; line-height: 1.75; color: var(--texto); margin: 0 0 1em; }
+  .leitura-texto .abertura:first-of-type { font-size: 19px; line-height: 1.65; color: var(--azul); }
+  .tema { padding-top: 20px; margin-top: 8px; border-top: 1px solid var(--linha); scroll-margin-top: calc(var(--altura-barra) + 24px); }
+  .tema .rotulo { margin: 0 0 8px; }
+  .fecho { margin-top: 24px !important; }
+
+  /* Atalhos dos temas na lateral; o tema na tela fica marcado. */
+  .indice a[aria-current] { color: var(--azul-medio); font-weight: 700; }
+
+  /* "Quem atende": o mesmo widget de antes. */
   .pessoas { display: grid; gap: 6px; }
   .pessoas li + li { border-top: 1px solid var(--linha); }
-  .pessoas a {
-    display: flex !important; align-items: center; gap: 14px;
-    padding: 10px 0 !important; text-decoration: none;
-  }
-  .pessoas img {
-    width: 56px; height: 56px; flex: none; border-radius: 50%;
-    object-fit: cover; object-position: 50% 18%;
-    box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--linha);
-  }
+  .pessoas a { display: flex !important; align-items: center; gap: 14px; padding: 10px 0 !important; text-decoration: none; }
+  .pessoas img { width: 56px; height: 56px; flex: none; border-radius: 50%; object-fit: cover; object-position: 50% 18%; box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--linha); }
   .pessoas span { display: grid; gap: 1px; }
   .pessoas strong { color: var(--azul); font-size: 16px; line-height: 1.3; }
   .pessoas a:hover strong { color: var(--azul-medio); text-decoration: underline; }
   .socio-cargo { font-size: 13px; color: var(--texto-suave); }
 
+  /* FAQ: cabeça fixa à esquerda, acordeão à direita. */
+  .duas-partes { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 64px; align-items: start; }
+  .parte-cabeca { position: sticky; top: calc(var(--altura-barra) + 32px); min-width: 0; }
+
+  /* ---------- Perguntas ---------- */
+  #perguntas { scroll-margin-top: var(--altura-barra); }
+  .faq-apoio { font-size: 16px; color: var(--texto-suave); }
+  .faq-apoio a { font-weight: 500; }
+  .faq-ed { border-top: 1px solid rgba(11, 30, 63, .18); }
+  .faq-ed details { border-bottom: 1px solid rgba(11, 30, 63, .12); }
+  .faq-ed summary {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+    padding: 20px 0; cursor: pointer; list-style: none;
+    font-size: 18px; font-weight: 500; line-height: 1.4; color: var(--azul);
+  }
+  .faq-ed summary::-webkit-details-marker { display: none; }
+  .faq-ed summary::after {
+    content: ''; flex: none; width: 14px; height: 14px; margin-top: 6px;
+    background:
+      linear-gradient(var(--azul-medio), var(--azul-medio)) center / 14px 1.5px no-repeat,
+      linear-gradient(var(--azul-medio), var(--azul-medio)) center / 1.5px 14px no-repeat;
+    transition: background-size .25s ease;
+  }
+  .faq-ed details[open] summary::after { background-size: 14px 1.5px, 1.5px 0; }
+  .faq-ed summary:hover { color: var(--azul-medio); }
+  .faq-ed details p { margin: -6px 0 22px; font-size: 16.5px; line-height: 1.7; color: var(--texto-suave); max-width: 64ch; }
+  .aviso { margin: 28px 0 0; font-size: 13.5px; color: var(--texto-suave); }
+
+  @media (max-width: 991px) {
+    .duas-partes { grid-template-columns: 1fr; gap: 28px; }
+    .parte-cabeca { position: static; }
+    /* No celular os atalhos de temas não ajudam (a lateral vem depois). */
+    .indice { display: none; }
+  }
   @media (max-width: 680px) {
-    .servicos ul { grid-template-columns: 1fr; }
-    .tabela-assuntos th, .tabela-assuntos td { display: block; width: auto; }
-    /* Empilhado, o filete entre o assunto e a explicação separava o par. */
-    .tabela-assuntos th { padding-bottom: 2px; border-bottom: 0; }
-    .tabela-assuntos td { padding-top: 0; }
+    .titulo-ed { font-size: 30px; }
+    .lead { font-size: 19px; }
+    .servicos, .assuntos div { grid-template-columns: 1fr; }
+    .assuntos div { gap: 4px; }
+    .leitura-texto p { font-size: 16.5px; }
+    .faq-ed summary { font-size: 16.5px; }
   }
 </style>

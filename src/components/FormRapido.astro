@@ -135,7 +135,8 @@ const escolhido = ASSUNTOS.find((a) => a.toLowerCase() === assuntoPadrao.toLower
 <style>
   .fale { padding: 32px 20px 88px; }
   .fale-cartao {
-    max-width: 1100px; margin: 0 auto;
+    /* Mesma largura do texto do artigo (1040px), para as bordas alinharem. */
+    max-width: 1040px; margin: 0 auto;
     display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
     border-radius: 16px; overflow: hidden;
     background: #fff; border: 1px solid var(--linha);

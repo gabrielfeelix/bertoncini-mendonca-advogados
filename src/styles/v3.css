@@ -23,6 +23,9 @@
   src: url('/fonts/roboto-500.woff2') format('woff2'); }
 @font-face { font-family: 'Roboto'; font-style: normal; font-weight: 700; font-display: swap;
   src: url('/fonts/roboto-700.woff2') format('woff2'); }
+/* Itálico (subconjunto latino): o resumo entre aspas das páginas de área. */
+@font-face { font-family: 'Roboto'; font-style: italic; font-weight: 400; font-display: swap;
+  src: url('/fonts/roboto-400i.woff2') format('woff2'); }
 
 :root {
   --azul: #0b1e3f;          /* azul da marca: rodapé, topbar, títulos */
@@ -118,6 +121,9 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
     linear-gradient(rgba(11, 30, 63, .55), rgba(11, 30, 63, .55));
 }
 .banner-pagina .container { position: relative; }
+/* Vídeo de fundo: entre o fundo da seção e o escurecimento (::before). */
+.banner-pagina { isolation: isolate; }
+.banner-video { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; object-fit: cover; }
 /* Capa cheia (Central de Conteúdos): a foto inteira desde o topo, por
    baixo do cabeçalho transparente, com o escurecimento da capa da home
    (HeroSlides): topo mais escuro para o menu, canto petróleo e véu leve. */
@@ -135,6 +141,7 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
     linear-gradient(32deg, rgba(0, 67, 105, .1) 0%, rgba(0, 67, 105, .065) 20%, rgba(81, 116, 147, .02) 42%, rgba(81, 116, 147, 0) 62%),
     linear-gradient(rgba(11, 30, 63, .47), rgba(11, 30, 63, .47));
 }
+.banner-cheio.banner-baixo { min-height: 540px; padding-bottom: 64px; }
 .banner-cheio h1 { font-size: 52px; text-shadow: 0 2px 18px rgba(11, 30, 63, .35); }
 .banner-cheio .banner-apoio { text-shadow: 0 2px 18px rgba(11, 30, 63, .35); }
 
@@ -337,6 +344,7 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
   .banner-pagina h1 { font-size: 30px; }
   .banner-alto { min-height: 560px; padding-top: calc(var(--altura-topo) + 48px); align-items: flex-end; }
   .banner-cheio { min-height: 520px; padding-top: calc(var(--altura-topo) + 40px); }
+  .banner-cheio.banner-baixo { min-height: 460px; }
   .banner-cheio h1 { font-size: 34px; }
   /* No celular a foto ocupa a largura toda; o enquadramento próprio
      (--posicao-celular) mantém os dois rostos na tela. */

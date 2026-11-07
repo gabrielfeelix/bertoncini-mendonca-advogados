@@ -93,7 +93,7 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <meta property="og:image" content={new URL(site.imagemPadrao.valor, site.url).toString()} />
     <meta property="og:locale" content={tx.locale} />
     <meta name="twitter:card" content="summary_large_image" />
-    {dadosEstruturados && <script type="application/ld+json" set:html={JSON.stringify(dadosEstruturados)} />}
+    {dadosEstruturados && <script is:inline type="application/ld+json" set:html={JSON.stringify(dadosEstruturados)} />}
 
     <!-- Favicon BM (o mesmo da v2): .ico para navegadores antigos, PNG 32px e ícone do iPhone. -->
     <link rel="icon" href="/favicon.ico" sizes="48x48" />

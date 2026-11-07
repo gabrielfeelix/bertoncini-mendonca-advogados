@@ -53,12 +53,12 @@ export const getStaticPaths = (async () => {
 
   for (const artigo of artigos) caminhos.push(artigo.id);
 
-  return caminhos.map((caminho) => ({ params: { caminho }, props: { caminho } }));
+  /* Página da lista antiga (número) volta para a lista; slug vai para o artigo. */
+  return caminhos.map((caminho) => ({
+    params: { caminho },
+    props: { destino: !caminho || /^\d+$/.test(caminho) ? ROTA_CONTEUDOS : hrefArtigo(caminho) },
+  }));
 }) satisfies GetStaticPaths;
 
-const { caminho } = Astro.props;
-
-/* Página da lista antiga (número) volta para a lista; slug vai para o artigo. */
-const destino = !caminho || /^\d+$/.test(caminho) ? ROTA_CONTEUDOS : hrefArtigo(caminho);
-return Astro.redirect(destino, 301);
+return Astro.redirect(Astro.props.destino, 301);
 ---

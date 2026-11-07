@@ -21,6 +21,14 @@ interface Props {
    * cabeçalho e capa leem como uma peça só.
    */
   cheio?: boolean;
+  /** Capa cheia um pouco mais baixa (páginas de área). */
+  baixo?: boolean;
+  /**
+   * Vídeo de fundo (capa cheia): caminho sem extensão em /media/videos/,
+   * com .webm, .mp4 e -capa.jpg (imagem de espera). Sem som, em loop; com
+   * prefers-reduced-motion não toca e fica a imagem.
+   */
+  video?: string;
   /** Enquadramento da foto (CSS background-position). */
   posicao?: string;
   /** Linha de apoio sob o título, só na capa alta. */
@@ -37,6 +45,8 @@ const {
   lang = 'pt',
   alto = false,
   cheio = false,
+  baixo = false,
+  video,
   posicao = 'center',
   apoio,
   posicaoCelular,
@@ -45,12 +55,18 @@ const tx = t(lang);
 ---
 
 <section
-  class:list={['banner-pagina', { 'banner-alto': alto, 'banner-cheio': cheio }]}
+  class:list={['banner-pagina', { 'banner-alto': alto, 'banner-cheio': cheio, 'banner-baixo': baixo }]}
   style={alto ? undefined : `background-image:url('${foto}');background-position:${posicao}`}
 >
   {/* Na capa alta a foto é uma imagem à direita que começa ABAIXO do
       cabeçalho, para rosto nenhum ficar atrás do menu, e se funde no azul
       pela esquerda (mask-image). */}
+  {video && (
+    <video class="banner-video" autoplay muted loop playsinline preload="metadata" poster={`${video}-capa.jpg`} aria-hidden="true" data-banner-video>
+      <source src={`${video}.webm`} type="video/webm" />
+      <source src={`${video}.mp4`} type="video/mp4" />
+    </video>
+  )}
   {alto && <img class="banner-foto" src={foto} alt="" style={`--posicao:${posicao};--posicao-celular:${posicaoCelular ?? posicao}`} />}
   <div class="container">
     {html ? <h1 set:html={html} /> : <h1>{titulo}</h1>}
@@ -72,3 +88,13 @@ const tx = t(lang);
     )}
   </div>
 </section>
+
+<script>
+  /* Quem pediu menos movimento fica com a imagem de espera, sem o vídeo. */
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    for (const v of document.querySelectorAll<HTMLVideoElement>('[data-banner-video]')) {
+      v.removeAttribute('autoplay');
+      v.pause();
+    }
+  }
+</script>

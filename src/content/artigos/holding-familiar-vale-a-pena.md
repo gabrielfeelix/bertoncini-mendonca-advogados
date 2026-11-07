@@ -17,7 +17,7 @@ Holding familiar virou assunto de rede social, e com isso virou também promessa
 
 ## O que é
 
-É uma sociedade constituída para **deter o patrimônio da família** — imóveis, participações em outras empresas, aplicações. Em vez de os bens estarem em nome das pessoas, estão em nome da sociedade, e as pessoas detêm quotas dela.
+É uma sociedade constituída para **deter o patrimônio da família**: imóveis, participações em outras empresas, aplicações. Em vez de os bens estarem em nome das pessoas, estão em nome da sociedade, e as pessoas detêm quotas dela.
 
 A partir daí, a transmissão deixa de ser de bem em bem e passa a ser de quotas.
 
@@ -27,7 +27,7 @@ A partir daí, a transmissão deixa de ser de bem em bem e passa a ser de quotas
 
 **Sucessão.** As quotas podem ser doadas em vida, com reserva de usufruto, de modo que quem doou continua administrando e recebendo os frutos enquanto viver. A transmissão acontece sem inventário sobre aqueles bens.
 
-**Conflito.** Cláusulas de preferência e de restrição à entrada de terceiros reduzem a chance de uma quota ir parar com alguém de fora da família — um ex-cônjuge, por exemplo.
+**Conflito.** Cláusulas de preferência e de restrição à entrada de terceiros reduzem a chance de uma quota ir parar com alguém de fora da família, como um ex-cônjuge.
 
 ## O que ela custa
 
@@ -39,12 +39,12 @@ Para um patrimônio pequeno, esse custo corrente pode superar qualquer economia.
 
 Esta é a parte em que mais se promete e menos se verifica.
 
-A eventual economia depende do **tipo de bem**, da **atividade** da sociedade e da **legislação do estado** — o ITCMD é imposto estadual, e a alíquota e as regras variam. Há operações em que a carga tributária da integralização e da atividade anula o ganho na transmissão.
+A eventual economia depende do **tipo de bem**, da **atividade** da sociedade e da **legislação do estado**. O ITCMD é imposto estadual, e a alíquota e as regras variam. Há operações em que a carga tributária da integralização e da atividade anula o ganho na transmissão.
 
 Além disso, uma holding constituída sem propósito negocial real, apenas para reduzir tributo, é questionável pelo Fisco.
 
 ## Como decidir
 
-Levantando o que existe, quem está envolvido, qual o objetivo — e comparando com os outros caminhos: doação direta, testamento, alteração de regime de bens.
+Levantando o que existe, quem está envolvido, qual o objetivo, e comparando com os outros caminhos: doação direta, testamento, alteração de regime de bens.
 
 É uma conta que se faz antes. Holding é uma solução possível, não uma solução padrão.

@@ -1,6 +1,6 @@
 ---
 titulo: "Registro de marca: o que o uso prolongado não garante"
-resumo: "Usar o nome há anos cria proteção frágil. O registro no INPI é o que garante uso exclusivo — e existe o risco concreto de um terceiro registrar antes."
+resumo: "Usar o nome há anos cria proteção frágil. O registro no INPI é o que garante uso exclusivo, e existe o risco concreto de um terceiro registrar antes."
 capa: /media/capas/marca.jpg
 capaLargura: 1600
 capaAltura: 1200
@@ -21,7 +21,7 @@ Isso acontece, e a razão é simples: **usar não é o mesmo que ter registrado*
 
 O registro no INPI garante o **uso exclusivo da marca em todo o território nacional**, dentro da **classe** em que foi registrada.
 
-A classe importa. O registro é concedido para um ramo de atividade — a mesma palavra pode conviver em setores distintos, e frequentemente convive. Registrar na classe errada é registrar para uma atividade que não é a sua.
+A classe importa. O registro é concedido para um ramo de atividade: a mesma palavra pode conviver em setores distintos, e frequentemente convive. Registrar na classe errada é registrar para uma atividade que não é a sua.
 
 ## O que o uso prolongado garante
 
@@ -43,6 +43,6 @@ A busca de anterioridade no banco do INPI mostra se já existe marca igual ou se
 
 ## Marca é uma parte
 
-No ambiente digital, o que protege um negócio costuma ser um conjunto: a marca no INPI, a definição **em contrato** de a quem pertence o que foi criado — texto, software, identidade visual —, e a reação a uso indevido quando ele aparece.
+No ambiente digital, o que protege um negócio costuma ser um conjunto: a marca no INPI, a definição **em contrato** de a quem pertence o que foi criado (texto, software, identidade visual) e a reação a uso indevido quando ele aparece.
 
 Essa definição contratual é a que mais se esquece. Material criado por terceiro sem cláusula de cessão pode não pertencer a quem pagou por ele.
