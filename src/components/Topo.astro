@@ -124,11 +124,22 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
     box-shadow: 0 2px 14px rgba(11, 30, 63, .25);
     transition: background-color .3s ease, box-shadow .3s ease;
   }
+  /* Luz leve sobre o azul, a mesma do rodapé: brilho petróleo no alto à
+     direita e um reflexo azul-acinzentado embaixo à esquerda. Fica numa
+     camada própria para entrar com fade junto com o azul. */
+  .topo::before {
+    content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(760px 260px at 86% -30%, rgba(0, 67, 105, .62), rgba(0, 67, 105, 0) 72%),
+      radial-gradient(560px 220px at 4% 140%, rgba(81, 116, 147, .2), rgba(81, 116, 147, 0) 70%);
+    transition: opacity .3s ease;
+  }
   /* Transparente só com JS (a classe com-js nasce no <head>) e só no topo. */
   :global(.com-js) .topo[data-sobreposto]:not(.rolou):not(.menu-aberto) {
     background: transparent;
     box-shadow: none;
   }
+  :global(.com-js) .topo[data-sobreposto]:not(.rolou):not(.menu-aberto)::before { opacity: 0; }
 
   /* ---------- Faixa de contato: recolhe ao rolar ---------- */
   .topbar-env { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .3s ease; }

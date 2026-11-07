@@ -13,8 +13,9 @@
  */
 import Base from '~/layouts/Base.astro';
 import HeroSlides from '~/components/HeroSlides.astro';
-import IconeArea from '~/components/IconeArea.astro';
-import OutrasAreas from '~/components/OutrasAreas.astro';
+import TambemAtuamos from '~/components/TambemAtuamos.astro';
+import MapaAtendimento from '~/components/MapaAtendimento.astro';
+import FeedInstagram from '~/components/FeedInstagram.astro';
 import CartaoArtigo from '~/components/CartaoArtigo.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
@@ -54,34 +55,53 @@ const grupos = [
         <h2 set:html={h.areasTitulo} />
         <p>{h.areasApoio}</p>
       </div>
-      <div class="grade grade-2">
+      {/* As duas áreas principais em painéis de foto (07/11/2026): nome e
+          resumo sobre a foto escurecida; os serviços sobem ao passar o mouse
+          ou focar (em tela de toque já aparecem). O painel todo é o link. */}
+      <div class="paineis">
         {areas.map((area) => (
-          <article class="cartao area">
-            <a class="area-foto" href={area.href} tabindex="-1" aria-hidden="true">
-              <img src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="900" loading="lazy" />
-            </a>
-            <div class="cartao-corpo">
-              <span class="area-icone"><IconeArea slug={area.slugPt} class="area-icone-svg" /></span>
+          <article class="painel">
+            <img src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="900" loading="lazy" />
+            <div class="painel-texto">
               <h3><a href={area.href}>{area.data.nome}</a></h3>
-              <p>{area.data.resumo}</p>
-              <p class="rotulo">{h.servicos}</p>
-              <ul class="servicos">
-                {area.data.servicos.slice(0, 6).map((s) => (
-                  <li>
-                    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" /><path d="M6 10.3l2.6 2.5L14 7.4" /></svg>
-                    {s}
-                  </li>
-                ))}
-              </ul>
-              <a class="ver-mais" href={area.href}>{h.verMais}</a>
+              <p class="painel-resumo">{area.data.resumo}</p>
+              <div class="painel-mais">
+                <div>
+                  <p class="painel-rotulo">{h.servicos}</p>
+                  <ul class="painel-servicos">
+                    {area.data.servicos.slice(0, 6).map((s) => <li>{s}</li>)}
+                  </ul>
+                </div>
+              </div>
+              <span class="painel-link" aria-hidden="true">{tx.hero.conhecaArea}</span>
             </div>
           </article>
         ))}
       </div>
-      <div class="outras">
-        <h3>{h.tambem}</h3>
-        <OutrasAreas lang={lang} variante="etiquetas" prefixo="oa-home" />
+    </div>
+  </section>
+
+  <TambemAtuamos lang={lang} apoio={h.tambemApoio} prefixo="oa-home" />
+
+  <!-- Onde atendemos: mapa do Brasil (online no país todo, presencial em Maringá) -->
+  <section class="secao onde">
+    <div class="container onde-grade">
+      <div class="onde-texto">
+        <p class="rotulo">{h.ondeRotulo}</p>
+        <h2 class="onde-titulo" set:html={h.ondeTitulo} />
+        {h.ondeTexto.map((p) => <p>{p}</p>)}
+        <dl class="modos">
+          <div>
+            <dt><span class="modo-linha" aria-hidden="true"></span>{h.ondeOnline}</dt>
+            <dd>{h.ondeOnlineTexto}</dd>
+          </div>
+          <div>
+            <dt><span class="modo-ponto" aria-hidden="true"></span>{h.ondePresencial}</dt>
+            <dd>{h.ondePresencialTexto}</dd>
+          </div>
+        </dl>
       </div>
+      <MapaAtendimento descricao={h.mapaDescricao} />
     </div>
   </section>
 
@@ -111,30 +131,8 @@ const grupos = [
     </div>
   </section>
 
-  <!-- Onde atendemos -->
-  <section class="secao onde">
-    <div class="container duas-colunas">
-      <div>
-        <p class="rotulo">{h.ondeRotulo}</p>
-        <h2 class="titulo-bloco" set:html={h.ondeTitulo} />
-        {h.ondeTexto.map((p) => <p>{p}</p>)}
-        <dl class="modos">
-          <div>
-            <dt>{h.ondeOnline}</dt>
-            <dd>{h.ondeOnlineTexto}</dd>
-          </div>
-          <div>
-            <dt>{h.ondePresencial}</dt>
-            <dd>{h.ondePresencialTexto}</dd>
-          </div>
-        </dl>
-      </div>
-      <img class="foto-maringa" src="/media/areas/maringa-1400.jpg" alt={h.fotoMaringa} width="1400" height="1050" loading="lazy" />
-    </div>
-  </section>
-
   {artigos.length > 0 && (
-    <section class="secao secao-cinza">
+    <section class="secao">
       <div class="container">
         <div class="titulo-secao">
           <h2>Últimas <strong>Publicações</strong></h2>
@@ -146,6 +144,8 @@ const grupos = [
       </div>
     </section>
   )}
+
+  <FeedInstagram lang={lang} />
 
   <!-- Perguntas frequentes, com abas -->
   <section class="secao faq-home" data-faq-abas>
@@ -179,7 +179,7 @@ const grupos = [
 
   <!-- Newsletter mensal (só em português: os textos são em português) -->
   {lang === 'pt' && (
-    <section class="news">
+    <section class="news" slot="rodape">
       <div class="container news-env">
         <div>
           <h2 set:html={h.newsTitulo} />
@@ -266,29 +266,50 @@ const grupos = [
 </script>
 
 <style>
-  /* ---------- Áreas ---------- */
-  .area-foto { display: block; overflow: hidden; }
-  .area-foto img { width: 100%; aspect-ratio: 16 / 7; object-fit: cover; transition: transform .4s ease; }
-  .area:hover .area-foto img { transform: scale(1.03); }
-  .area-icone {
-    display: grid; place-items: center; width: 64px; height: 64px; margin: -60px 0 16px;
-    border-radius: 50%; background: #fff; color: var(--azul-medio);
-    box-shadow: 0 10px 24px rgba(11, 30, 63, .16); position: relative;
+  /* ---------- Áreas: painéis de foto ---------- */
+  .paineis { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .painel {
+    position: relative; overflow: hidden; border-radius: 8px;
+    min-height: 540px; display: flex; align-items: flex-end;
+    background: var(--azul); color: #f8f7f2;
   }
-  .area-icone :global(.area-icone-svg) { width: 34px; height: 34px; margin: 0; }
-  .area h3 a { color: var(--azul); text-decoration: none; }
-  .area h3 a:hover { color: var(--azul-medio); }
-  .area .rotulo { margin: 6px 0 10px; }
-  .servicos { list-style: none; padding: 0; margin: 0 0 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; }
-  .servicos li { display: flex; gap: 9px; align-items: flex-start; font-size: 15px; line-height: 1.4; color: var(--texto); }
-  .servicos svg { flex: none; width: 17px; height: 17px; margin-top: 1px; }
-  .servicos circle { fill: rgba(0, 67, 105, .1); }
-  .servicos path { fill: none; stroke: var(--azul-medio); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-
-  .outras { margin-top: 30px; padding: 24px 28px; background: var(--fundo-cinza); border-radius: 10px; display: flex; align-items: center; gap: 12px 28px; flex-wrap: wrap; }
-  .outras h3 { font-size: 17px; margin: 0; }
-  .outras ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 10px; }
-  .outras li { background: #fff; border: 1px solid var(--linha); border-radius: 6px; padding: 4px 12px; font-size: 15px; }
+  .painel img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    transition: transform .8s cubic-bezier(.2, .8, .2, 1);
+  }
+  /* Escurecimento de baixo para cima, na cor da marca: o texto lê sem
+     tingir a foto inteira. */
+  .painel::before {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, rgba(11, 30, 63, 0) 25%, rgba(11, 30, 63, .55) 55%, rgba(11, 30, 63, .94) 100%);
+    transition: background-color .4s ease;
+  }
+  .painel:hover img, .painel:focus-within img { transform: scale(1.04); }
+  /* Com os serviços abertos o texto sobe: a foto escurece mais. */
+  .painel:hover::before, .painel:focus-within::before { background-color: rgba(11, 30, 63, .35); }
+  .painel-texto { position: relative; z-index: 2; padding: 40px; width: 100%; }
+  .painel h3 { font-size: 36px; font-weight: 300; line-height: 1.12; letter-spacing: -.015em; margin: 0 0 12px; max-width: 16ch; }
+  .painel h3 a { color: #fff; text-decoration: none; }
+  /* O link do título cobre o painel inteiro. */
+  .painel h3 a::after { content: ''; position: absolute; inset: 0; z-index: 3; }
+  .painel h3 a:focus-visible { outline: none; }
+  .painel:has(h3 a:focus-visible) { outline: 3px solid var(--azul-claro); outline-offset: 3px; }
+  .painel-resumo { font-size: 17px; line-height: 1.6; color: rgba(248, 247, 242, .85); margin: 0 0 4px; max-width: 44ch; }
+  /* Serviços: fechados (altura 0) até o hover/foco. */
+  .painel-mais { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s ease; }
+  .painel-mais > div { overflow: hidden; }
+  .painel:hover .painel-mais, .painel:focus-within .painel-mais { grid-template-rows: 1fr; }
+  .painel-rotulo { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(248, 247, 242, .65); margin: 22px 0 4px; }
+  .painel-servicos { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; }
+  .painel-servicos li { padding: 8px 0; border-bottom: 1px solid rgba(248, 247, 242, .18); font-size: 14.5px; line-height: 1.4; }
+  .painel-link {
+    display: inline-block; margin-top: 22px; font-weight: 500; font-size: 15px; color: #fff;
+    padding-bottom: 4px; border-bottom: 1px solid rgba(248, 247, 242, .5);
+    transition: border-color .2s ease;
+  }
+  .painel:hover .painel-link { border-bottom-color: #fff; }
+  /* Sem mouse (toque), não há hover: os serviços ficam à vista. */
+  @media (hover: none) { .painel-mais { grid-template-rows: 1fr; } }
 
   /* ---------- Sobre nós ---------- */
   .foto-escritorio { border-radius: 14px; box-shadow: 0 24px 50px rgba(11, 30, 63, .16); }
@@ -303,11 +324,18 @@ const grupos = [
   .socios-mini a:hover strong { color: var(--azul-medio); text-decoration: underline; }
 
   /* ---------- Onde atendemos ---------- */
-  .foto-maringa { border-radius: 14px; aspect-ratio: 4 / 3; object-fit: cover; box-shadow: 0 24px 50px rgba(11, 30, 63, .16); }
-  .modos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 26px 0 0; }
-  .modos div { padding: 18px 20px; border: 1px solid var(--linha); border-radius: 10px; }
-  .modos dt { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--azul-claro); margin-bottom: 4px; }
-  .modos dd { margin: 0; color: var(--azul); font-weight: 500; }
+  /* Onde atendemos: texto à esquerda, mapa à direita. */
+  .onde-grade { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 72px; align-items: center; }
+  .onde-titulo { font-size: 44px; font-weight: 300; line-height: 1.1; letter-spacing: -.015em; margin-bottom: 20px; }
+  .onde-titulo :global(strong) { font-weight: 700; }
+  .onde-texto > p:not(.rotulo) { font-size: 17px; line-height: 1.7; color: var(--texto-suave); }
+  /* Legenda do mapa: duas linhas com filete, sem caixa. */
+  .modos { margin: 30px 0 0; border-top: 1px solid var(--linha); }
+  .modos div { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--linha); }
+  .modos dt { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--azul); }
+  .modos dd { margin: 0; color: var(--texto); }
+  .modo-linha { width: 22px; height: 0; border-top: 1.5px solid var(--azul-medio); opacity: .7; }
+  .modo-ponto { width: 11px; height: 11px; border-radius: 50%; background: var(--azul); box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--azul-medio); margin: 0 5px; }
 
   .ver-todas { text-align: center; margin: 40px 0 0; }
 
@@ -331,12 +359,9 @@ const grupos = [
   .faq-mais a:hover { text-decoration: underline; }
 
   /* ---------- Newsletter ---------- */
-  .news { background: var(--azul); color: rgba(248, 247, 242, .82); padding: 64px 0; position: relative; overflow: hidden; }
-  .news::after {
-    content: ''; position: absolute; right: -40px; top: 50%; transform: translateY(-50%);
-    width: 280px; height: 304px; opacity: .06; pointer-events: none;
-    background: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
-  }
+  /* Mora dentro do rodapé (slot "rodape" do Base): fundo e monograma são
+     os dele, as duas partes leem como uma peça só. */
+  .news { position: relative; z-index: 1; color: rgba(248, 247, 242, .82); padding: 72px 0 56px; }
   .news-env { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 48px; align-items: center; position: relative; z-index: 1; }
   .news h2 { color: #fff; font-size: 32px; font-weight: 300; margin-bottom: 8px; }
   .news h2 :global(strong) { font-weight: 700; }
@@ -357,18 +382,22 @@ const grupos = [
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
   @media (prefers-reduced-motion: reduce) {
-    .area-foto img, .abas button { transition: none; }
+    .painel img, .painel-mais, .abas button { transition: none; }
   }
   @media (max-width: 900px) {
+    .onde-grade { grid-template-columns: 1fr; gap: 40px; }
     .news-env { grid-template-columns: 1fr; gap: 24px; }
-    /* No tablet os dois cartões dividem a linha e cada um fica estreito:
-       duas colunas de serviços quebravam "Planejamento / patrimonial". */
-    .servicos { grid-template-columns: 1fr; }
+    .paineis { grid-template-columns: 1fr; }
+    .painel { min-height: 480px; }
   }
   @media (max-width: 680px) {
     .titulo-bloco { font-size: 28px; }
-    .servicos { grid-template-columns: 1fr; }
-    .modos { grid-template-columns: 1fr; }
+    .painel { min-height: 0; }
+    .painel-texto { padding: 220px 22px 26px; }
+    .painel h3 { font-size: 28px; }
+    .painel-servicos { grid-template-columns: 1fr; }
+    .modos div { grid-template-columns: 1fr; gap: 4px; }
+    .onde-titulo { font-size: 32px; }
     .news-linha { flex-direction: column; }
     .news h2 { font-size: 27px; }
   }

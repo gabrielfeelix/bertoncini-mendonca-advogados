@@ -46,7 +46,9 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+/* scrollbar-gutter: o painel lateral trava a rolagem (overflow hidden) e,
+   sem o espaço reservado, a página pulava para o lado ao abrir. */
+html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
 body {
   margin: 0;
   font-family: var(--fonte);

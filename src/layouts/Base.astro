@@ -130,7 +130,9 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <main id="conteudo" tabindex="-1" class:list={{ reserva: !sobreposto }}>
       <slot />
     </main>
-    <Rodape lang={lang} />
+    {/* Conteúdo que a página quer DENTRO do rodapé, no mesmo fundo (ex.: a
+        newsletter da home): <section slot="rodape">. */}
+    <Rodape lang={lang}><slot name="rodape" /></Rodape>
     <Acessibilidade lang={lang} />
     {tx.cookies ? <AvisoCookies {...tx.cookies} /> : <AvisoCookies />}
   </body>

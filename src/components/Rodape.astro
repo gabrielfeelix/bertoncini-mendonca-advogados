@@ -16,10 +16,16 @@ const { lang = 'pt' } = Astro.props;
 const tx = t(lang);
 const areas = await areasDoIdioma(lang);
 const ano = new Date().getFullYear();
+/* A página pode pôr conteúdo no topo do rodapé (a newsletter da home). */
+const temTopo = Astro.slots.has('default');
 ---
 
 <footer class="rodape">
-  <div class="container colunas">
+  {/* Fundo: brilho petróleo no alto e o monograma do logo, grande, ocupando
+      a altura toda do rodapé (com a newsletter, quando houver). */}
+  <span class="rodape-arte" aria-hidden="true"></span>
+  <slot />
+  <div class:list={['container colunas', { 'com-topo': temTopo }]}>
     <div>
       <picture>
         <source media="(min-resolution: 2dppx)" srcset="/media/marca/lockup-creme.svg" />
@@ -82,7 +88,22 @@ const ano = new Date().getFullYear();
 </footer>
 
 <style>
-  .rodape { background: var(--azul); color: rgba(255,255,255,.8); font-size: 15px; }
+  .rodape {
+    position: relative; overflow: hidden;
+    background:
+      radial-gradient(900px 520px at 88% 0%, rgba(0, 67, 105, .55), rgba(0, 67, 105, 0) 70%),
+      radial-gradient(700px 420px at 0% 100%, rgba(81, 116, 147, .16), rgba(81, 116, 147, 0) 70%),
+      var(--azul);
+    color: rgba(255,255,255,.8); font-size: 15px;
+  }
+  .rodape-arte {
+    position: absolute; right: -6%; top: 50%; transform: translateY(-50%);
+    height: 125%; aspect-ratio: 254 / 276; opacity: .05; pointer-events: none;
+    background: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
+  }
+  .rodape > :not(.rodape-arte) { position: relative; z-index: 1; }
+  /* Com a newsletter acima, um filete fino separa as duas partes. */
+  .colunas.com-topo { border-top: 1px solid rgba(248, 247, 242, .12); }
   .colunas {
     display: grid; grid-template-columns: 1.15fr .8fr 1.15fr 1.45fr; gap: 40px;
     padding-top: 60px; padding-bottom: 48px;

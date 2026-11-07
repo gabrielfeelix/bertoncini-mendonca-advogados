@@ -107,6 +107,7 @@ const pt = {
     paraQuem: 'Para quem:',
     verMais: 'Ver mais →',
     tambem: 'Também atuamos em',
+    tambemApoio: 'Além do planejamento patrimonial e sucessório e do direito digital, o escritório também atende nestas áreas.',
     sobreRotulo: 'O escritório',
     sobreTitulo: 'Sobre <strong>nós</strong>',
     sobre: [
@@ -129,6 +130,7 @@ const pt = {
     ondeOnlineTexto: 'Todo o Brasil, por mensagem e vídeo',
     ondePresencial: 'Presencial',
     ondePresencialTexto: 'Maringá, Paraná',
+    mapaDescricao: 'Mapa do Brasil com o Paraná em destaque e Maringá marcada, ligada por linhas a capitais de todas as regiões do país.',
     fotoMaringa: 'A Catedral de Maringá ao anoitecer, vista da avenida.',
     faqTitulo: 'Perguntas <strong>Frequentes</strong>',
     faqAbasAria: 'Assunto das perguntas',
@@ -222,7 +224,7 @@ const pt = {
     verMais: 'Ver mais',
     conhecaArea: 'Conheça a área',
     faleConosco: 'Fale conosco',
-    tambemApoio: 'Além das duas áreas acima, o escritório também atende em:',
+    tambemApoio: 'Além das duas áreas acima, o escritório também atende nestas áreas.',
   },
   contato: {
     titulo: `Contato | ${site.nome}`,
@@ -348,6 +350,7 @@ const en: Textos = {
     paraQuem: 'For:',
     verMais: 'Learn more →',
     tambem: 'We also practice',
+    tambemApoio: 'Beyond estate and succession planning and digital law, the firm also practices in these areas.',
     sobreRotulo: 'The firm',
     sobreTitulo: 'About <strong>us</strong>',
     sobre: [
@@ -370,6 +373,7 @@ const en: Textos = {
     ondeOnlineTexto: 'All of Brazil, by message and video',
     ondePresencial: 'In person',
     ondePresencialTexto: 'Maringá, Paraná',
+    mapaDescricao: 'Map of Brazil with the state of Paraná highlighted and Maringá marked, connected by lines to state capitals in every region of the country.',
     fotoMaringa: 'Maringá Cathedral at dusk, seen from the avenue.',
     faqTitulo: 'Frequently Asked <strong>Questions</strong>',
     faqAbasAria: 'Question topics',
@@ -464,7 +468,7 @@ const en: Textos = {
     verMais: 'Learn more',
     conhecaArea: 'About this area',
     faleConosco: 'Contact us',
-    tambemApoio: 'Beyond the two areas above, the firm also practices in:',
+    tambemApoio: 'Beyond the two areas above, the firm also practices in these areas.',
   },
   contato: {
     titulo: `Contact | ${site.nome}`,

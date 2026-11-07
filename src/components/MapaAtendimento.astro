@@ -1,0 +1,128 @@
+---
+/**
+ * Mapa do Brasil da seção "Onde atendemos" (home), pedido de 07/11/2026:
+ * mostrar que o atendimento é online para o país todo e presencial em
+ * Maringá, de forma sóbria.
+ *
+ * Malha: IBGE, API de malhas v3 (países/BR, intrarregião UF, qualidade
+ * mínima), dado público — src/assets/mapa-brasil-uf.svg. As coordenadas
+ * do arquivo são graus: x = longitude, y = −latitude (o grupo escala por
+ * 0,0001 e inverte o y). Por isso Maringá e as capitais entram aqui pelas
+ * coordenadas geográficas, sem conversão.
+ *
+ * Desenho: estados em traço fino sobre cinza claro, o Paraná em petróleo,
+ * Maringá com um pulso discreto e linhas finas de Maringá até capitais de
+ * todas as regiões. As linhas se desenham uma vez quando o mapa entra na
+ * tela; com `prefers-reduced-motion`, já aparecem prontas.
+ */
+import malhaBruta from '../assets/mapa-brasil-uf.svg?raw';
+
+interface Props {
+  /** Descrição do mapa para leitor de tela. */
+  descricao: string;
+}
+const { descricao } = Astro.props;
+
+/* Só os <path> dos estados; o Paraná (código IBGE 41) ganha classe própria. */
+const estados = [...malhaBruta.matchAll(/<path id="(\d+)" d="([^"]+)"/g)]
+  .map(([, id, d]) => `<path class="${id === '41' ? 'uf uf-pr' : 'uf'}" d="${d}"/>`)
+  .join('');
+
+const MARINGA = { lon: -51.9386, lat: -23.4205 };
+/* Capitais de todas as regiões (longitude, latitude). */
+const DESTINOS: [number, number][] = [
+  [-60.02, -3.12], // Manaus
+  [-48.5, -1.46], // Belém
+  [-38.54, -3.72], // Fortaleza
+  [-34.88, -8.05], // Recife
+  [-38.5, -12.97], // Salvador
+  [-47.88, -15.79], // Brasília
+  [-56.1, -15.6], // Cuiabá
+  [-43.17, -22.91], // Rio de Janeiro
+  [-46.63, -23.55], // São Paulo
+  [-51.23, -30.03], // Porto Alegre
+  [-63.9, -8.76], // Porto Velho
+];
+
+const x0 = MARINGA.lon;
+const y0 = -MARINGA.lat;
+/** Arco de Maringá até o destino: curva quadrática com o meio puxado para o lado. */
+const arcos = DESTINOS.map(([lon, lat], i) => {
+  const x1 = lon;
+  const y1 = -lat;
+  const mx = (x0 + x1) / 2;
+  const my = (y0 + y1) / 2;
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const curva = 0.22;
+  const cx = mx - dy * curva;
+  const cy = my + dx * curva;
+  return { d: `M${x0} ${y0} Q${cx.toFixed(2)} ${cy.toFixed(2)} ${x1} ${y1}`, x1, y1, atraso: i * 0.09 };
+});
+---
+
+<figure class="mapa" data-mapa>
+  <svg viewBox="-74.5 -5.8 40.2 40" role="img" aria-label={descricao}>
+    <g transform="scale(0.0001,-0.0001)" set:html={estados} />
+    <g class="arcos">
+      {arcos.map((a) => (
+        <path class="arco" d={a.d} pathLength="1" style={`--atraso:${a.atraso}s`} />
+      ))}
+      {arcos.map((a) => (
+        <circle class="destino" cx={a.x1} cy={a.y1} r="0.32" style={`--atraso:${a.atraso + 0.9}s`} />
+      ))}
+    </g>
+    <g class="maringa">
+      <circle class="pulso" cx={x0} cy={y0} r="0.6" />
+      <circle class="ponto" cx={x0} cy={y0} r="0.55" />
+    </g>
+  </svg>
+</figure>
+
+<script>
+  /* Desenha as linhas uma vez, quando o mapa aparece. Sem IntersectionObserver
+     (ou sem JS), o CSS já mostra tudo pronto. */
+  for (const mapa of document.querySelectorAll<HTMLElement>('[data-mapa]')) {
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) continue;
+    mapa.classList.add('espera');
+    const olho = new IntersectionObserver(
+      (entradas) => {
+        if (entradas.some((e) => e.isIntersecting)) {
+          mapa.classList.add('visto');
+          olho.disconnect();
+        }
+      },
+      { threshold: 0.35 },
+    );
+    olho.observe(mapa);
+  }
+</script>
+
+<style>
+  .mapa { margin: 0; }
+  .mapa svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  .mapa :global(.uf) {
+    fill: #eef1f5; stroke: #c3ccd7; stroke-width: 1px; vector-effect: non-scaling-stroke;
+    transition: fill .3s ease;
+  }
+  .mapa :global(.uf-pr) { fill: var(--azul-medio); stroke: #fff; }
+
+  /* Espessura na unidade do mapa (1 grau ≈ 14px na largura da home): com
+     vector-effect a animação do traço (pathLength) sai tracejada no Chrome. */
+  .arco { fill: none; stroke: var(--azul-medio); stroke-width: .09; stroke-linecap: round; opacity: .55; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .destino { fill: var(--azul-medio); }
+  .ponto { fill: var(--azul); stroke: #fff; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+  .pulso { fill: var(--azul-medio); opacity: 0; transform-box: fill-box; transform-origin: center; }
+
+  /* Animação: só depois que o script marca `espera` (há JS e movimento). */
+  .mapa.espera .arco { stroke-dashoffset: 1; }
+  .mapa.espera .destino { opacity: 0; }
+  .mapa.visto .arco { stroke-dashoffset: 0; transition: stroke-dashoffset 1.1s cubic-bezier(.4, 0, .2, 1) var(--atraso); }
+  .mapa.visto .destino { opacity: 1; transition: opacity .4s ease var(--atraso); }
+  .mapa.visto .pulso { animation: pulso 2.8s ease-out 1.4s infinite; }
+  @keyframes pulso {
+    0% { opacity: .45; transform: scale(1); }
+    100% { opacity: 0; transform: scale(4.5); }
+  }
+</style>

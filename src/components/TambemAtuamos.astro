@@ -1,0 +1,120 @@
+---
+/**
+ * Seção "Também atuamos em" (home e /areas/), com mais personalidade
+ * (pedido de 07/11/2026, referência: as áreas do Mattos Filho).
+ *
+ * As duas áreas principais continuam em cima, grandes; esta seção vem logo
+ * depois, numa faixa azul-noite chapada (era creme; trocada em 07/11/2026). À esquerda, o título grande
+ * em peso fino; à direita, as áreas pequenas em cards iguais (OutrasAreas,
+ * variante 'cartoes'), cada um abrindo o painel lateral.
+ *
+ * O elemento "artístico" é o próprio monograma BM do manual, em escala
+ * grande e vazando da faixa, em creme bem apagado — no lugar do círculo
+ * laranja da referência. Sem número de áreas (os sócios pediram para tirar
+ * números por enquanto).
+ *
+ * "Menos reto" (07/11/2026): a faixa tem as bordas de cima e de baixo em
+ * diagonal (clip-path), um círculo grande em petróleo vaza pelo canto
+ * inferior direito por trás dos cards (que são translúcidos, com desfoque),
+ * e a coluna do meio dos cards desce um pouco, quebrando a grade.
+ */
+import OutrasAreas from './OutrasAreas.astro';
+import type { Idioma } from '../lib/i18n';
+
+interface Props {
+  lang?: Idioma;
+  /** Frase sob o título. */
+  apoio: string;
+  /** Separa os ids dos painéis quando há mais de uma instância na página. */
+  prefixo?: string;
+}
+const { lang = 'pt', apoio, prefixo = 'oa-tambem' } = Astro.props;
+const titulo = lang === 'en' ? 'We also <strong>practice</strong>' : 'Também <strong>atuamos em</strong>';
+const dica = lang === 'en' ? 'Select an area to see what it covers.' : 'Escolha uma área para ver do que se trata.';
+---
+
+<section class="tambem-atuamos" aria-labelledby={`${prefixo}-titulo`}>
+  <span class="tambem-arte" aria-hidden="true"></span>
+  <span class="tambem-circulo" aria-hidden="true"></span>
+  <div class="container tambem-grade">
+    <div class="tambem-cabeca">
+      <h2 id={`${prefixo}-titulo`} set:html={titulo} />
+      <p>{apoio}</p>
+      <p class="tambem-dica">{dica}</p>
+    </div>
+    <OutrasAreas lang={lang} variante="cartoes" prefixo={prefixo} />
+  </div>
+</section>
+
+<style>
+  .tambem-atuamos {
+    position: relative; overflow: hidden;
+    background: var(--azul); color: #f8f7f2;
+    padding: 150px 0 160px;
+    --corte: 64px;
+    clip-path: polygon(0 var(--corte), 100% 0, 100% calc(100% - var(--corte)), 0 100%);
+    /* Cards sobre o azul: vidro claro; no hover, creme com texto azul. */
+    --oa-fundo: rgba(248, 247, 242, .05);
+    --oa-borda: rgba(248, 247, 242, .14);
+    --oa-texto: #f8f7f2;
+    --oa-icone: #9fb6cc;
+    --oa-fundo-hover: #f8f7f2;
+    --oa-texto-hover: var(--azul);
+    --oa-icone-hover: var(--azul-medio);
+  }
+  /* Monograma do logo, recolorido por máscara (o arquivo é creme): grande,
+     saindo pela esquerda e por baixo da faixa. */
+  .tambem-arte {
+    position: absolute; left: -110px; bottom: -150px;
+    width: 560px; aspect-ratio: 254 / 276;
+    background: #f8f7f2; opacity: .05;
+    -webkit-mask: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
+    mask: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
+    pointer-events: none;
+  }
+  /* Luz petróleo bem desfocada, sem borda: vem do canto inferior direito e
+     aparece através dos cards de vidro. */
+  .tambem-circulo {
+    position: absolute; right: -220px; bottom: -300px;
+    width: 820px; aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(circle, rgba(10, 98, 150, .75) 0%, rgba(0, 67, 105, .45) 38%, rgba(0, 67, 105, 0) 70%);
+    filter: blur(70px);
+    pointer-events: none;
+  }
+  /* Vidro: o círculo aparece através dos cards, desfocado. */
+  .tambem-atuamos :global(.oa-cartoes a) {
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  }
+  /* Coluna do meio um pouco abaixo das outras. */
+  .tambem-atuamos :global(.oa-cartoes li:nth-child(3n + 2)) { transform: translateY(36px); }
+  .tambem-grade {
+    position: relative;
+    display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: 56px; align-items: center;
+  }
+  .tambem-cabeca h2 {
+    font-size: 52px; font-weight: 300; line-height: 1.05; letter-spacing: -.02em;
+    color: #fff; margin: 0 0 22px;
+  }
+  .tambem-cabeca h2 :global(strong) { display: block; font-weight: 700; }
+  .tambem-cabeca p { font-size: 17px; line-height: 1.65; color: rgba(248, 247, 242, .78); margin: 0 0 12px; max-width: 34ch; }
+  .tambem-dica { font-size: 15px !important; color: #9fb6cc !important; }
+
+  @media (max-width: 991px) {
+    .tambem-atuamos { padding: 112px 0 120px; --corte: 40px; }
+    .tambem-circulo { width: 600px; right: -260px; bottom: -260px; }
+    /* Em duas colunas, quem desce é a segunda. */
+    .tambem-atuamos :global(.oa-cartoes li:nth-child(3n + 2)) { transform: none; }
+    .tambem-atuamos :global(.oa-cartoes li:nth-child(2n)) { transform: translateY(24px); }
+    .tambem-grade { grid-template-columns: 1fr; gap: 36px; }
+    .tambem-cabeca h2 { font-size: 42px; }
+    .tambem-arte { width: 420px; left: auto; right: -140px; bottom: auto; top: -90px; }
+  }
+  @media (max-width: 680px) {
+    .tambem-atuamos { padding: 84px 0 96px; --corte: 28px; }
+    .tambem-circulo { width: 420px; right: -200px; bottom: -200px; filter: blur(50px); }
+    .tambem-atuamos :global(.oa-cartoes li:nth-child(2n)) { transform: translateY(16px); }
+    .tambem-cabeca h2 { font-size: 34px; }
+    .tambem-arte { width: 300px; right: -110px; top: -60px; }
+  }
+</style>

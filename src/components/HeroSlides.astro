@@ -6,8 +6,8 @@
  * `intervalo` ms, com crossfade; setas, bolinhas e arrastar no celular.
  *
  * Cor: só a paleta do manual de marca (marca/identidade-visual.pdf):
- * #0B1E3F, #004369, #517493 sobre a foto, e o monograma BM como
- * marca-d'água, como o manual faz na pasta e no papel timbrado.
+ * #0B1E3F, #004369, #517493 sobre a foto. (O monograma BM como
+ * marca-d'água saiu em 07/11/2026: competia com a foto.)
  *
  * Acessibilidade (WCAG 2.2.2): conteúdo que se move sozinho por mais de
  * 5s precisa de pausa. Há botão de pausar, e o carrossel para quando o
@@ -91,7 +91,6 @@ const slides = [
     ))}
   </div>
 
-  <img class="monograma" src="/media/marca/monograma-creme.svg" alt="" width="254" height="276" aria-hidden="true" />
 
   <div class="controles" hidden>
     <div class="container">
@@ -266,18 +265,6 @@ const slides = [
   }
   .hero h1, .hero .h1, .texto, .rotulo-hero { text-shadow: 0 2px 18px rgba(11, 30, 63, .35); }
 
-  /* Monograma do manual, como marca-d'água à direita. */
-  .monograma {
-    position: absolute;
-    right: -2%;
-    top: 50%;
-    height: 132%;
-    width: auto;
-    transform: translateY(-50%);
-    opacity: .07;
-    pointer-events: none;
-    z-index: 0;
-  }
 
   .conteudo { position: relative; z-index: 1; }
   .rotulo-hero {
@@ -338,7 +325,6 @@ const slides = [
     .slide { min-height: 600px; padding: calc(var(--altura-topo) + 48px) 0 120px; }
     .hero h1, .hero .h1 { font-size: 31px; }
     .texto { font-size: 16px; }
-    .monograma { height: 90%; right: -30%; }
     .pontos { gap: 6px; }
     /* 40px de altura para o toque; a barra continua com 3px. */
     .controles .ponto { width: 34px; height: 40px; }

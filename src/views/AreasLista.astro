@@ -15,7 +15,7 @@ import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
 import Chamada from '~/components/Chamada.astro';
 import IconeArea from '~/components/IconeArea.astro';
-import OutrasAreas from '~/components/OutrasAreas.astro';
+import TambemAtuamos from '~/components/TambemAtuamos.astro';
 import { areasDoIdioma, assuntosDaArea, FOTO_DA_AREA } from '~/lib/areas';
 import { t, rota, type Idioma } from '~/lib/i18n';
 
@@ -80,15 +80,7 @@ const contato = rota(lang, '/contato/');
     </div>
   </section>
 
-  <section class="tambem">
-    <div class="container">
-      <div class="tambem-cabeca">
-        <h2>{ar.tambem}</h2>
-        <p>{ar.tambemApoio}</p>
-      </div>
-      <OutrasAreas lang={lang} variante="grade" prefixo="oa-lista" />
-    </div>
-  </section>
+  <TambemAtuamos lang={lang} apoio={ar.tambemApoio} prefixo="oa-lista" />
 
   <Chamada lang={lang} />
 </Base>
@@ -145,26 +137,6 @@ const contato = rota(lang, '/contato/');
   .link-seta span { display: inline-block; transition: transform .15s ease; }
   .link-seta:hover span { transform: translateX(4px); }
 
-  /* ---------- Também atuamos em: faixa cinza clara ---------- */
-  .tambem { background: var(--fundo-cinza); color: var(--texto-suave); padding: 72px 0; border-top: 1px solid var(--linha); }
-  .tambem .container { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 48px; align-items: start; }
-  .tambem h2 { color: var(--azul); font-size: 30px; font-weight: 300; margin-bottom: 10px; }
-  .tambem-cabeca p { margin: 0; }
-  .tambem-lista {
-    list-style: none; padding: 0; margin: 0;
-    display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 32px;
-  }
-  .tambem-lista li {
-    position: relative; padding: 16px 0 16px 22px;
-    border-bottom: 1px solid var(--linha);
-    color: var(--azul); font-size: 16px;
-  }
-  .tambem-lista li::before {
-    content: ''; position: absolute; left: 2px; top: 29px; /* centro da 1ª linha */
-    width: 7px; height: 7px; margin-top: -4px;
-    border-top: 2px solid var(--azul-claro); border-right: 2px solid var(--azul-claro); transform: rotate(45deg);
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .link-seta span { transition: none; }
   }
@@ -172,8 +144,6 @@ const contato = rota(lang, '/contato/');
     .bloco { grid-template-columns: 1fr; gap: 48px; }
     .invertido .foto { order: 0; }
     .invertido .selo { right: auto; left: 24px; }
-    .tambem .container { grid-template-columns: 1fr; gap: 24px; }
-    .tambem-lista { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 680px) {
     .bloco { padding-bottom: 56px; }
@@ -181,7 +151,5 @@ const contato = rota(lang, '/contato/');
     .conteudo h2 { font-size: 28px; }
     .resumo { font-size: 17px; }
     .servicos { grid-template-columns: 1fr; }
-    .tambem { padding: 56px 0; }
-    .tambem-lista { grid-template-columns: 1fr; }
   }
 </style>

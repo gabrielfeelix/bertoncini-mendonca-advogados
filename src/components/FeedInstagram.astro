@@ -1,0 +1,369 @@
+---
+/**
+ * Faixa de publicações do Instagram (v3).
+ *
+ * Referência: a faixa "Nosso LinkedIn" do martinelli.adv.br, na nossa
+ * identidade. À esquerda, título, texto curto e o botão para o perfil; à
+ * direita, um carrossel de cards em 4:5 (imagem, ícone de vídeo ou
+ * carrossel no canto, começo da legenda e data), com setas e bolinhas.
+ *
+ * O que fica de fora de propósito:
+ * - curtidas e seguidores (Provimento 205/2021: nada de número como
+ *   argumento de autoridade);
+ * - vídeo tocando aqui: todo card é um link e abre o post no Instagram;
+ * - qualquer script, iframe ou imagem da Meta. As imagens vêm do nosso
+ *   domínio (ver src/lib/instagram.ts), então a seção não grava cookie de
+ *   terceiro e não depende do consentimento.
+ *
+ * Carrossel: rolagem horizontal nativa com scroll-snap (arrastar no
+ * celular e Tab no teclado funcionam sem nada a mais). O JavaScript só
+ * acrescenta setas e bolinhas; sem ele, a fileira continua rolável. Não
+ * anda sozinho.
+ *
+ * Sem nenhum post (lista curada vazia e sem API), não renderiza nada.
+ *
+ * Uso: <FeedInstagram lang={lang} />  (props opcionais abaixo).
+ */
+import { feedInstagram } from '../lib/instagram';
+import type { Idioma } from '../lib/i18n';
+
+interface Props {
+  lang?: Idioma;
+  /** Título (aceita <strong> para o peso misto dos títulos do site). */
+  titulo?: string;
+  /** Texto curto embaixo do título. */
+  texto?: string;
+  /** Quantos posts no máximo (padrão 8). */
+  limite?: number;
+  /** id do título, se a página tiver mais de uma faixa destas. */
+  id?: string;
+}
+
+const TEXTOS = {
+  pt: {
+    rotulo: 'Acompanhe',
+    titulo: 'Conteúdos no <strong>Instagram</strong>',
+    texto:
+      'Explicações curtas sobre direito digital, contratos e patrimônio, em imagem e vídeo. Para acompanhar um assunto, siga o perfil.',
+    botao: 'Ver no Instagram',
+    novaAba: '(abre em nova aba)',
+    lista: 'Publicações recentes no Instagram',
+    tipo: { imagem: 'Imagem', video: 'Vídeo', carrossel: 'Carrossel de imagens' },
+    semLegenda: 'Publicação no Instagram',
+    anterior: 'Publicações anteriores',
+    proximo: 'Próximas publicações',
+    irPara: 'Ir para a publicação',
+    locale: 'pt-BR',
+  },
+  en: {
+    rotulo: 'Follow along',
+    titulo: 'On <strong>Instagram</strong>',
+    texto:
+      'Short explanations on digital law, contracts and estate planning, in images and video. Posts are in Portuguese.',
+    botao: 'View on Instagram',
+    novaAba: '(opens in a new tab)',
+    lista: 'Recent Instagram posts',
+    tipo: { imagem: 'Image', video: 'Video', carrossel: 'Image carousel' },
+    semLegenda: 'Instagram post',
+    anterior: 'Previous posts',
+    proximo: 'Next posts',
+    irPara: 'Go to post',
+    locale: 'en-US',
+  },
+} as const;
+
+const { lang = 'pt', limite = 8, id = 'feed-instagram-titulo' } = Astro.props;
+const tx = TEXTOS[lang];
+const titulo = Astro.props.titulo ?? tx.titulo;
+const texto = Astro.props.texto ?? tx.texto;
+
+const { posts: todos, perfil } = await feedInstagram();
+const posts = todos.slice(0, limite);
+
+const formatoData = new Intl.DateTimeFormat(tx.locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Sao_Paulo' });
+/* "2026-11-06" sozinho seria lido como meia-noite UTC (dia anterior em
+   Brasília): meio-dia evita o salto. */
+const quando = (data: string) => new Date(data.length === 10 ? `${data}T12:00:00-03:00` : data);
+---
+
+{posts.length > 0 && (
+  <section class="insta" aria-labelledby={id}>
+    <div class="container insta-env">
+      <div class="insta-texto">
+        <p class="insta-rotulo">{tx.rotulo}</p>
+        <h2 id={id} set:html={titulo} />
+        <p class="insta-apoio">{texto}</p>
+        <a class="botao" href={perfil.url} target="_blank" rel="noopener noreferrer">
+          {tx.botao}<span class="sr"> {tx.novaAba}</span>
+        </a>
+        <p class="insta-arroba">{perfil.arroba}</p>
+      </div>
+
+      <div class="insta-carrossel" data-carrossel-insta data-ir-para={tx.irPara}>
+        <ul class="insta-trilho" role="list" aria-label={tx.lista} style={`--qtd: ${posts.length}`}>
+          {posts.map((p) => (
+            <li class="insta-item">
+              <a class="insta-cartao" href={p.link} target="_blank" rel="noopener noreferrer">
+                {p.tipo !== 'imagem' && <span class="sr">{tx.tipo[p.tipo]}: </span>}
+                <span class="insta-midia">
+                  <img src={p.imagem} alt={p.alt ?? ''} width="640" height="800" loading="lazy" decoding="async" />
+                  {p.tipo !== 'imagem' && (
+                    <span class="insta-tipo" title={tx.tipo[p.tipo]}>
+                      {p.tipo === 'video' ? (
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="cheio" d="M8.5 5.8v12.4L18.2 12z" /></svg>
+                      ) : (
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7.5" width="12" height="13" rx="1.5" /><path d="M8 7.5V5a1.5 1.5 0 0 1 1.5-1.5H19A1.5 1.5 0 0 1 20.5 5v11a1.5 1.5 0 0 1-1.5 1.5h-3.5" /></svg>
+                      )}
+                    </span>
+                  )}
+                </span>
+                <span class="insta-legenda">{p.legenda || tx.semLegenda}</span>
+                {p.data && <time class="insta-data" datetime={p.data}>{formatoData.format(quando(p.data))}</time>}
+                <span class="sr"> {tx.novaAba}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div class="insta-controles" hidden>
+          <button class="insta-seta" type="button" data-anterior aria-label={tx.anterior}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+          </button>
+          <div class="insta-pontos"></div>
+          <button class="insta-seta" type="button" data-proximo aria-label={tx.proximo}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<script>
+  for (const raiz of document.querySelectorAll<HTMLElement>('[data-carrossel-insta]')) {
+    const trilho = raiz.querySelector<HTMLElement>('.insta-trilho');
+    const controles = raiz.querySelector<HTMLElement>('.insta-controles');
+    const pontos = raiz.querySelector<HTMLElement>('.insta-pontos');
+    const anterior = raiz.querySelector<HTMLButtonElement>('[data-anterior]');
+    const proximo = raiz.querySelector<HTMLButtonElement>('[data-proximo]');
+    if (!trilho || !controles || !pontos || !anterior || !proximo) continue;
+    const itens = [...trilho.querySelectorAll<HTMLElement>('.insta-item')];
+    const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const irPara = raiz.dataset.irPara ?? '';
+
+    /* Paradas: onde a fileira pode encostar. Uma por card, até o ponto em
+       que o último card já aparece inteiro (dali em diante não rola mais). */
+    let paradas: number[] = [];
+    let indices: number[] = [];
+
+    const atual = () => {
+      const x = trilho.scrollLeft;
+      let melhor = 0;
+      paradas.forEach((p, i) => {
+        if (Math.abs(p - x) < Math.abs(paradas[melhor] - x)) melhor = i;
+      });
+      return melhor;
+    };
+
+    const marcar = () => {
+      const i = atual();
+      pontos.querySelectorAll('button').forEach((b, n) => {
+        if (n === i) b.setAttribute('aria-current', 'true');
+        else b.removeAttribute('aria-current');
+      });
+      // aria-disabled em vez de disabled: o foco não some do botão no fim.
+      anterior.setAttribute('aria-disabled', String(i === 0));
+      proximo.setAttribute('aria-disabled', String(i === paradas.length - 1));
+    };
+
+    const ir = (i: number) => {
+      const alvo = Math.max(0, Math.min(paradas.length - 1, i));
+      trilho.scrollTo({ left: paradas[alvo], behavior: reduzido ? 'auto' : 'smooth' });
+    };
+
+    const calcular = () => {
+      const maximo = trilho.scrollWidth - trilho.clientWidth;
+      if (maximo <= 2) {
+        controles.hidden = true;
+        raiz.removeAttribute('data-pronto');
+        return;
+      }
+      const base = itens[0].offsetLeft;
+      paradas = [];
+      indices = [];
+      for (const [n, item] of itens.entries()) {
+        const x = Math.min(item.offsetLeft - base, maximo);
+        if (paradas.length && x - paradas[paradas.length - 1] < 2) break;
+        paradas.push(x);
+        indices.push(n);
+        if (x >= maximo) break;
+      }
+      pontos.replaceChildren(
+        ...paradas.map((_, i) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'insta-ponto';
+          b.setAttribute('aria-label', `${irPara} ${indices[i] + 1}`);
+          b.addEventListener('click', () => ir(i));
+          return b;
+        }),
+      );
+      controles.hidden = false;
+      raiz.setAttribute('data-pronto', '');
+      marcar();
+    };
+
+    anterior.addEventListener('click', () => ir(atual() - 1));
+    proximo.addEventListener('click', () => ir(atual() + 1));
+    controles.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') ir(atual() - 1);
+      if (e.key === 'ArrowRight') ir(atual() + 1);
+    });
+
+    let quadro = 0;
+    trilho.addEventListener('scroll', () => {
+      cancelAnimationFrame(quadro);
+      quadro = requestAnimationFrame(marcar);
+    }, { passive: true });
+
+    new ResizeObserver(calcular).observe(trilho);
+    calcular();
+  }
+</script>
+
+<style>
+  /* Cinza claro: na home ela vem entre Publicações (branco) e Perguntas
+     (branco), alternando o ritmo. O creme saiu em 07/11/2026. */
+  .insta { background: var(--fundo-cinza); padding: 80px 0; overflow: hidden; }
+
+  .insta-env {
+    display: grid;
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    gap: 56px;
+    align-items: center;
+  }
+
+  .insta-rotulo {
+    font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--azul-claro); margin: 0 0 10px;
+  }
+  .insta h2 { font-size: 34px; font-weight: 300; margin: 0 0 14px; }
+  .insta h2 :global(strong) { font-weight: 700; }
+  .insta-apoio { color: var(--texto-suave); margin: 0 0 26px; }
+  .insta-arroba { font-size: 14px; color: var(--texto-suave); margin: 12px 0 0; }
+
+  /* ---------- Fileira de cards ---------- */
+  .insta-carrossel { min-width: 0; }
+  .insta-trilho {
+    --gap: 20px;
+    --visiveis: 3;
+    position: relative; /* referência do offsetLeft dos cards no script */
+    display: grid;
+    grid-auto-flow: column;
+    /* Com menos posts do que cabem, os cards crescem e ocupam a largura
+       (nada de coluna vazia no fim da fileira). */
+    --colunas: min(var(--visiveis), var(--qtd, 99));
+    grid-auto-columns: calc((100% - (var(--colunas) - 1) * var(--gap)) / var(--colunas));
+    gap: var(--gap);
+    list-style: none;
+    /* Respiro para o contorno de foco não ser cortado pela rolagem; a
+       margem negativa devolve o alinhamento com a coluna. */
+    margin: 0 -6px;
+    padding: 6px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 6px;
+  }
+  /* Com setas e bolinhas na tela, a barra de rolagem sai. */
+  [data-pronto] .insta-trilho { scrollbar-width: none; }
+  [data-pronto] .insta-trilho::-webkit-scrollbar { display: none; }
+
+  .insta-item { scroll-snap-align: start; min-width: 0; }
+
+  .insta-cartao {
+    display: flex; flex-direction: column; height: 100%;
+    color: var(--azul); text-decoration: none;
+  }
+  .insta-midia {
+    position: relative; display: block; overflow: hidden;
+    aspect-ratio: 4 / 5; border-radius: 6px; background: #e8e6df;
+    box-shadow: 0 4px 18px rgba(11, 30, 63, .08);
+    margin-bottom: 14px;
+  }
+  .insta-midia img { width: 100%; height: 100%; object-fit: cover; }
+
+  .insta-tipo {
+    position: absolute; top: 10px; right: 10px;
+    display: grid; place-items: center;
+    width: 30px; height: 30px; border-radius: 4px;
+    background: rgba(11, 30, 63, .72); color: #f8f7f2;
+  }
+  .insta-tipo svg {
+    width: 18px; height: 18px; fill: none; stroke: currentColor;
+    stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .insta-tipo .cheio { fill: currentColor; stroke: none; }
+
+  .insta-legenda {
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    font-size: 15px; line-height: 1.5; font-weight: 500;
+    transition: color .15s;
+  }
+  .insta-cartao:hover .insta-legenda { color: var(--azul-medio); text-decoration: underline; text-underline-offset: 3px; }
+  .insta-data { margin-top: 8px; font-size: 13px; color: var(--texto-suave); }
+
+  /* ---------- Setas e bolinhas (mesmo desenho do HeroSlides, no claro) ---------- */
+  /* Centralizado sob a faixa de cards (a coluna do carrossel). */
+  .insta-controles { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 26px; }
+  .insta-controles[hidden] { display: none; }
+  .insta-seta {
+    display: inline-grid; place-items: center;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: transparent; border: 1px solid rgba(11, 30, 63, .3); color: var(--azul);
+    cursor: pointer; transition: background-color .15s, border-color .15s, color .15s;
+  }
+  .insta-seta:hover { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .insta-seta[aria-disabled='true'] { opacity: .35; cursor: default; }
+  .insta-seta[aria-disabled='true']:hover { background: transparent; border-color: rgba(11, 30, 63, .3); color: var(--azul); }
+  .insta-seta svg {
+    width: 18px; height: 18px; fill: none; stroke: currentColor;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .insta-pontos { display: flex; flex-wrap: wrap; }
+  /* 24px de área de toque; a bolinha desenhada tem 8px. */
+  .insta-pontos :global(.insta-ponto) {
+    display: grid; place-items: center;
+    width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer;
+  }
+  .insta-pontos :global(.insta-ponto)::after {
+    content: ''; width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(11, 30, 63, .22); transition: background-color .15s;
+  }
+  .insta-pontos :global(.insta-ponto:hover)::after { background: var(--azul-claro); }
+  .insta-pontos :global(.insta-ponto[aria-current])::after { background: var(--azul); }
+
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .insta-legenda, .insta-seta, .insta-pontos :global(.insta-ponto)::after { transition: none; }
+  }
+
+  @media (max-width: 1080px) {
+    .insta-env { grid-template-columns: minmax(0, 280px) minmax(0, 1fr); gap: 40px; }
+    .insta-trilho { --visiveis: 2.4; }
+  }
+  @media (max-width: 900px) {
+    .insta { padding: 64px 0; }
+    .insta-env { grid-template-columns: 1fr; gap: 32px; }
+    .insta-texto { max-width: 620px; }
+    .insta-trilho { --visiveis: 3; }
+  }
+  @media (max-width: 680px) {
+    .insta h2 { font-size: 28px; }
+    /* Um card e meio: o pedaço do próximo mostra que a fileira continua. */
+    .insta-trilho { --visiveis: 1.45; --gap: 16px; }
+    .insta-controles { margin-top: 20px; }
+  }
+</style>
