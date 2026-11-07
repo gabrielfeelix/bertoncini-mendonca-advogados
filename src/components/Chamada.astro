@@ -1,5 +1,10 @@
 ---
-/** Faixa azul de chamada para contato, antes do rodapé. */
+/**
+ * Chamada para contato no fim das páginas internas. Entra DENTRO do rodapé
+ * (<Chamada slot="rodape" />, slot do Base), como a newsletter na home:
+ * fundo, luz e monograma são os do rodapé, e as duas partes leem como uma
+ * peça só, sem a emenda que cortava o degradê.
+ */
 import { t, rota, type Idioma } from '../lib/i18n';
 interface Props {
   titulo?: string;

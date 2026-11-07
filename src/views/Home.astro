@@ -108,7 +108,12 @@ const grupos = [
   <!-- Sobre nós, com os sócios dentro -->
   <section class="secao secao-cinza">
     <div class="container duas-colunas">
-      <img class="foto-escritorio" src="/media/hero/socios-1600.jpg" alt={h.fotoSocios} width="1600" height="900" loading="lazy" />
+      {/* Foto do escritório com a placa de latão (gerada no GPT em 07/11/2026,
+          com o logo aplicado), no lugar da foto dos sócios. */}
+      <picture class="sobre-foto">
+        <source srcset="/media/novas/escritorio-placa.webp" type="image/webp" />
+        <img class="foto-escritorio" src="/media/novas/escritorio-placa.jpg" alt={h.fotoEscritorio} width="1600" height="900" loading="lazy" />
+      </picture>
       <div>
         <p class="rotulo">{h.sobreRotulo}</p>
         <h2 class="titulo-bloco" set:html={h.sobreTitulo} />
@@ -313,6 +318,11 @@ const grupos = [
 
   /* ---------- Sobre nós ---------- */
   .foto-escritorio { border-radius: 14px; box-shadow: 0 24px 50px rgba(11, 30, 63, .16); }
+  /* A foto acompanha a altura do texto ao lado (do rótulo ao botão),
+     cortando as laterais; o enquadramento mantém a placa à vista. */
+  .duas-colunas:has(.sobre-foto) { align-items: stretch; }
+  .sobre-foto { display: block; height: 100%; }
+  .sobre-foto img { width: 100%; height: 100%; object-fit: cover; object-position: 94% center; }
   .titulo-bloco { font-size: 34px; font-weight: 300; }
   .titulo-bloco :global(strong) { font-weight: 700; }
   .socios-mini { list-style: none; padding: 0; margin: 22px 0 26px; display: flex; flex-wrap: wrap; gap: 14px 28px; }
@@ -384,6 +394,8 @@ const grupos = [
   @media (prefers-reduced-motion: reduce) {
     .painel img, .painel-mais, .abas button { transition: none; }
   }
+  /* Empilhado (mesmo ponto de .duas-colunas no v3.css): volta a 16:9. */
+  @media (max-width: 991px) { .sobre-foto img { height: auto; aspect-ratio: 16 / 9; } }
   @media (max-width: 900px) {
     .onde-grade { grid-template-columns: 1fr; gap: 40px; }
     .news-env { grid-template-columns: 1fr; gap: 24px; }

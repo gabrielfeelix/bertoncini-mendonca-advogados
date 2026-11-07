@@ -295,7 +295,8 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 }
 
 /* ---------- Faixa de chamada ---------- */
-.chamada { background: var(--azul); color: #fff; padding: 56px 0; }
+/* Mora dentro do rodapé (fundo dele); ver Chamada.astro. */
+.chamada { position: relative; z-index: 1; color: #fff; padding: 64px 0 52px; }
 .chamada .container { display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
 .chamada h2 { color: #fff; font-size: 30px; font-weight: 300; margin: 0 0 6px; }
 .chamada h2 strong { font-weight: 700; }
