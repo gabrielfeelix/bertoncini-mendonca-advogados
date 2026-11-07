@@ -103,19 +103,35 @@ export const site = {
 } as const;
 
 /**
- * Menu do cabeçalho. Cinco itens, na ordem decidida com o cliente: a
- * navbar em ilhas do protótipo foi revogada, esta é a navbar nova (barra
- * cheia fixa), com links para páginas reais em vez de âncoras.
+ * Menu do cabeçalho (v3). Ordem clássica de site institucional de
+ * escritório: Início, quem somos, o que fazemos, conteúdo, contato.
+ * `submenu: 'areas'` abre a lista das áreas, lida da coleção.
  */
 export const navegacao = [
-  /* `submenu: 'areas'` diz à navbar que este item abre o menu das áreas ao
-     passar o mouse. As áreas em si vêm da coleção, não daqui: a navbar as
-     lê para uma terceira área aparecer sozinha. */
-  { rotulo: 'Áreas de atuação', href: '/areas/', submenu: 'areas' },
+  { rotulo: 'Início', href: '/' },
   { rotulo: 'O escritório', href: '/escritorio/' },
+  { rotulo: 'Áreas de atuação', href: '/areas/', submenu: 'areas' },
   { rotulo: 'Blog', href: '/blog/' },
   { rotulo: 'Contato', href: '/contato/' },
 ] as const;
+
+/**
+ * Formação de cada sócio, como veio do briefing (q1.7a e q1.7b), palavra
+ * por palavra. Vai para os perfis em /escritorio/.
+ */
+export const formacao: Record<string, readonly string[]> = {
+  'Juscelino Bertoncini': [
+    'Bacharel em Direito pela Universidade Estadual de Maringá (UEM)',
+    'Especialista em Direito Empresarial pela PUC/RS',
+    'Especialista em Advocacia Consultiva pela Legale',
+    'Pós-graduando em Direito Imobiliário pela i9',
+  ],
+  'Beatriz Mendonça': [
+    'Bacharel em Direito pela Universidade Estadual de Maringá (UEM)',
+    'Especialista em Direito Processual Civil pela PUC/RS',
+    'Pós-graduanda em Direito Digital pela i9',
+  ],
+};
 
 /**
  * Colunas do rodapé.

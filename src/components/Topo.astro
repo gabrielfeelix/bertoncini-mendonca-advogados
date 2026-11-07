@@ -1,0 +1,144 @@
+---
+/**
+ * Cabeçalho da v3: topbar azul com contato + barra branca com logo e menu.
+ * É o cabeçalho padrão de tema WordPress corporativo. Fica fixo no topo
+ * (sticky), sem encolher, sem mudar de cor, sem animação.
+ *
+ * No celular o menu vira uma lista que abre por um botão. Sem JavaScript
+ * o botão some e a lista aparece aberta, então ninguém fica sem menu.
+ */
+import { site, navegacao } from '../lib/site';
+import { listarAreasConfirmadas } from '../lib/areas';
+
+interface Props {
+  paginaAtual?: string;
+}
+const { paginaAtual } = Astro.props;
+const areas = await listarAreasConfirmadas();
+const ativo = (href: string) =>
+  paginaAtual === href || (href !== '/' && paginaAtual?.startsWith(href)) ? 'page' : undefined;
+---
+
+<div class="topbar">
+  <div class="container">
+    <span>{site.cidade}/{site.estado} · {site.atendimentoRodape}</span>
+    <span class="topbar-contato">
+      <a href={`mailto:${site.email.valor}`}>{site.email.valor}</a>
+      <a href={site.redes.instagram.valor} rel="noopener" target="_blank">Instagram</a>
+    </span>
+  </div>
+</div>
+
+<header class="cabecalho">
+  <div class="container">
+    <a class="logo" href="/" aria-label={`${site.nome}, página inicial`}>
+      <img src="/media/marca/lockup-azul.png" alt={site.nome} width="779" height="298" />
+    </a>
+
+    <button class="abre-menu" type="button" aria-expanded="false" aria-controls="menu-principal" hidden>
+      <span class="hamburguer" aria-hidden="true"></span>
+      Menu
+    </button>
+
+    <nav id="menu-principal" class="menu" aria-label="Menu principal">
+      <ul>
+        {navegacao.map((item) => (
+          <li class={'submenu' in item ? 'tem-sub' : undefined}>
+            <a href={item.href} aria-current={ativo(item.href)}>{item.rotulo}</a>
+            {'submenu' in item && (
+              <ul class="sub">
+                {areas.map((area) => (
+                  <li><a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a></li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+      <a class="botao menu-botao" href="/contato/">Fale conosco</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const botao = document.querySelector<HTMLButtonElement>('.abre-menu');
+  const menu = document.getElementById('menu-principal');
+  if (botao && menu) {
+    botao.hidden = false;
+    document.documentElement.classList.add('com-js');
+    botao.addEventListener('click', () => {
+      const aberto = botao.getAttribute('aria-expanded') === 'true';
+      botao.setAttribute('aria-expanded', String(!aberto));
+      menu.classList.toggle('aberto', !aberto);
+    });
+  }
+</script>
+
+<style>
+  .topbar { background: var(--azul); color: rgba(255,255,255,.82); font-size: 13px; }
+  .topbar .container { display: flex; justify-content: space-between; gap: 16px; padding-top: 8px; padding-bottom: 8px; }
+  .topbar a { color: #fff; text-decoration: none; }
+  .topbar a:hover { text-decoration: underline; color: #fff; }
+  .topbar-contato { display: flex; gap: 22px; }
+
+  .cabecalho {
+    position: sticky; top: 0; z-index: 50;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(11, 30, 63, .08);
+  }
+  .cabecalho .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 84px; }
+  .logo img { height: 54px; width: auto; }
+
+  .menu { display: flex; align-items: center; gap: 28px; }
+  .menu > ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .menu > ul > li { position: relative; }
+  .menu > ul > li > a {
+    display: block; padding: 30px 12px;
+    color: var(--azul); font-weight: 500; font-size: 15px; text-decoration: none;
+    border-bottom: 3px solid transparent;
+  }
+  .menu > ul > li > a:hover { color: var(--azul-medio); }
+  .menu > ul > li > a[aria-current='page'] { border-bottom-color: var(--azul-medio); }
+  .tem-sub > a::after { content: ' ▾'; font-size: 11px; }
+
+  .sub {
+    display: none;
+    position: absolute; top: 100%; left: 0; min-width: 300px;
+    list-style: none; margin: 0; padding: 8px 0;
+    background: #fff; box-shadow: var(--sombra); border-top: 3px solid var(--azul-medio);
+  }
+  .tem-sub:hover .sub, .tem-sub:focus-within .sub { display: block; }
+  .sub a { display: block; padding: 10px 20px; color: var(--texto); text-decoration: none; font-size: 15px; }
+  .sub a:hover { background: var(--fundo-cinza); color: var(--azul-medio); }
+
+  .menu-botao { padding: 10px 20px; }
+
+  .abre-menu {
+    display: none; align-items: center; gap: 10px;
+    background: none; border: 1px solid var(--linha); border-radius: 4px;
+    padding: 9px 14px; font: 500 15px var(--fonte); color: var(--azul); cursor: pointer;
+  }
+  .hamburguer, .hamburguer::before, .hamburguer::after {
+    display: block; width: 18px; height: 2px; background: var(--azul); position: relative;
+  }
+  .hamburguer::before, .hamburguer::after { content: ''; position: absolute; left: 0; }
+  .hamburguer::before { top: -6px; }
+  .hamburguer::after { top: 6px; }
+
+  @media (max-width: 1080px) {
+    .topbar .container > span:first-child { display: none; }
+    .topbar .container { justify-content: flex-end; }
+    .cabecalho .container { flex-wrap: wrap; min-height: 72px; }
+    .logo img { height: 44px; }
+    .abre-menu:not([hidden]) { display: inline-flex; }
+    .menu { flex-basis: 100%; flex-direction: column; align-items: stretch; gap: 0; padding-bottom: 16px; }
+    :global(.com-js) .menu:not(.aberto) { display: none; }
+    .menu > ul { flex-direction: column; gap: 0; }
+    .menu > ul > li > a { padding: 13px 4px; border-bottom: 1px solid var(--linha); }
+    .menu > ul > li > a[aria-current='page'] { border-bottom-color: var(--linha); color: var(--azul-medio); }
+    .tem-sub > a::after { content: ''; }
+    .sub { display: block; position: static; box-shadow: none; border: 0; padding: 0 0 0 16px; min-width: 0; }
+    .sub a { padding: 10px 4px; border-bottom: 1px solid var(--linha); }
+    .menu-botao { margin-top: 16px; text-align: center; }
+  }
+</style>

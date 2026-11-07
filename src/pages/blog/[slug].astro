@@ -1,42 +1,17 @@
 ---
 /**
- * `/blog/[slug]/`: a página de um artigo.
- *
- * O conteúdo vem da coleção `artigos`, que o loader em
- * `src/lib/loader-supabase.ts` lê do Supabase no build. Esta página não sabe
- * de onde o artigo veio, e é assim de propósito: trocar a fonte não mexe
- * aqui.
- *
- * ── A segurança do corpo ────────────────────────────────────────────────
- * O corpo é markdown, e o loader passa ele por `neutralizaHtmlCru()` ANTES
- * de renderizar, porque markdown sozinho não impede HTML inline: um
- * `<img src=x onerror=...>` escrito no banco chegaria intacto ao HTML final.
- * Esta página consome o resultado já renderizado com `<Content />` e **não
- * reintroduz o problema**: não há `set:html` aqui, não há `innerHTML`, não
- * há nenhum caminho por onde uma string do banco vire marcação. Quem mexer
- * aqui depois: não troque `<Content />` por `set:html={artigo.rendered.html}`
- * achando que dá no mesmo; dá, hoje, mas é o primeiro passo para alguém
- * "melhorar" para uma string não renderizada.
- *
- * ── Por que o CSS do corpo está num arquivo, e não num `<style>` ────────
- * O HTML que sai do markdown não carrega o atributo `data-astro-cid-*` do
- * CSS escopado. Uma regra escopada para `.artigo-corpo p` não alcança o
- * `<p>` que veio do markdown. Por isso as regras do corpo moram em
- * `src/styles/artigo.css`, importado como folha global. O `<style>` no fim
- * deste arquivo cuida só do que esta página escreve com as próprias mãos.
- *
- * A página inteira é HTML estático: não depende de JavaScript em nada.
+ * Artigo do blog (v3): banner com o título, texto com barra lateral
+ * (outros textos, áreas, contato), padrão de post de tema WordPress.
  */
 import type { GetStaticPaths } from 'astro';
 import { render } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '~/layouts/Base.astro';
-import CartaoTexto from '~/components/CartaoTexto.astro';
-import Newsletter from '~/components/Newsletter.astro';
-import Contato from '~/components/Contato.astro';
+import BannerPagina from '~/components/BannerPagina.astro';
+import Chamada from '~/components/Chamada.astro';
+import { listarAreasConfirmadas } from '~/lib/areas';
 import { listarArtigos, dataLegivel, NOME_DO_BLOG } from '~/lib/artigos';
 import { site } from '~/lib/site';
-import '~/styles/artigo.css';
 
 export const getStaticPaths = (async () => {
   const artigos = await listarArtigos();
@@ -69,175 +44,84 @@ const comNome = `${tituloBase} | ${site.nome}`;
 const comCurto = `${tituloBase} | ${site.nomeCurto}`;
 const titulo = comNome.length <= 70 ? comNome : comCurto.length <= 70 ? comCurto : tituloBase;
 const descricao = d.seoDescricao ?? d.resumo;
+const areas = await listarAreasConfirmadas();
 ---
 
 <Base titulo={titulo} descricao={descricao} paginaAtual="/blog/">
-  <article class="artigo">
-    <nav class="artigo-trilha" aria-label="Trilha de navegação">
-      <a href="/blog/">{NOME_DO_BLOG}</a>
-      <span aria-hidden="true">/</span>
-      <span aria-current="page">{d.titulo}</span>
-    </nav>
+  <BannerPagina
+    titulo={d.titulo}
+    migalhas={[{ rotulo: NOME_DO_BLOG, href: '/blog/' }, { rotulo: d.categoria }]}
+  />
 
-    <p><span class="artigo-classe">{d.categoria}</span></p>
+  <section class="secao">
+    <div class="container com-lateral">
+      <article>
+        <p class="meta">
+          <span class="rotulo">{d.categoria}</span>
+          <span>
+            <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
+            {d.tempoLeitura && <> · {d.tempoLeitura} min de leitura</>}
+            {d.autor && <> · {d.autor}</>}
+            {d.atualizadoEm && (
+              <> · Atualizado em <time datetime={d.atualizadoEm.toISOString()}>{dataLegivel(d.atualizadoEm)}</time></>
+            )}
+          </span>
+        </p>
 
-    <h1 class="artigo-titulo">{d.titulo}</h1>
+        {d.capa && d.capaLargura && d.capaAltura && (
+          <Image
+            class="capa"
+            src={d.capa}
+            alt={d.capaAlt ?? ''}
+            width={d.capaLargura}
+            height={d.capaAltura}
+            widths={[480, 800, 1200]}
+            sizes="(min-width: 1100px) 780px, 100vw"
+            loading="eager"
+          />
+        )}
+        {d.capa && d.capaCredito && <p class="credito">{d.capaCredito}</p>}
 
-    <p class="artigo-resumo">{d.resumo}</p>
-
-    <p class="artigo-pe">
-      <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
-      {
-        d.tempoLeitura && (
-          <>
-            <span class="divisa" aria-hidden="true" />
-            <span>{d.tempoLeitura} min de leitura</span>
-          </>
-        )
-      }
-      {
-        d.autor && (
-          <>
-            <span class="divisa" aria-hidden="true" />
-            <span>{d.autor}</span>
-          </>
-        )
-      }
-      {
-        d.atualizadoEm && (
-          <>
-            <span class="divisa" aria-hidden="true" />
-            <span>
-              Atualizado em{' '}
-              <time datetime={d.atualizadoEm.toISOString()}>{dataLegivel(d.atualizadoEm)}</time>
-            </span>
-          </>
-        )
-      }
-    </p>
-
-    {
-      /* A capa só entra com largura e altura: o <Image> remoto as exige, e é
-         para isso que a Tarefa 10 as gravou no banco. O schema já garante
-         que capa sem dimensão não passa da validação, então este `&&` é
-         cinto e suspensório. `eager`, porque é a imagem do topo. */
-      d.capa && d.capaLargura && d.capaAltura && (
-        <Image
-          class="artigo-capa revela-solta"
-          src={d.capa}
-          alt={d.capaAlt ?? ''}
-          width={d.capaLargura}
-          height={d.capaAltura}
-          widths={[480, 800, 1200]}
-          sizes="(min-width: 1100px) 900px, 100vw"
-          loading="eager"
-        />
-      )
-    }
-    {/* O crédito é obrigação de licença (CC BY e CC BY-SA), não cortesia:
-        precisa aparecer onde a imagem é publicada. Sai só quando existe —
-        capa CC0 não recebe linha nenhuma. Procedência completa em
-        public/media/capas/CREDITOS.md. */}
-    {d.capa && d.capaCredito && <p class="artigo-credito">{d.capaCredito}</p>}
-
-    {/* O corpo renderizado do markdown, já com o HTML cru neutralizado pelo
-        loader. Nada de set:html aqui. */}
-    <div class="artigo-corpo">
-      <Content />
-    </div>
-
-    {/* Texto do escritório, palavra por palavra (briefing q9.3). */}
-    <p class="ressalva">{site.avisoInformativo}</p>
-  </article>
-
-  {
-    relacionados.length > 0 && (
-      <section class="mais" aria-labelledby="mais-titulo">
-        <div class="env">
-          <h2 class="rotulo" id="mais-titulo">
-            Outros textos
-          </h2>
-          <div class="banca">
-            {relacionados.map((item) => (
-              <CartaoTexto artigo={item} nivel={3} />
-            ))}
-          </div>
-          <p class="volta">
-            <a href="/blog/">Ver todo o blog</a>
-          </p>
+        <div class="texto">
+          <p class="resumo">{d.resumo}</p>
+          <Content />
         </div>
-      </section>
-    )
-  }
 
-  <Newsletter id="artigo" />
-  <Contato />
+        <p class="aviso">{site.avisoInformativo}</p>
+      </article>
+
+      <aside class="lateral">
+        {relacionados.length > 0 && (
+          <div class="widget">
+            <h2>Outros textos</h2>
+            <ul>
+              {relacionados.map((item) => <li><a href={`/blog/${item.id}/`}>{item.data.titulo}</a></li>)}
+            </ul>
+          </div>
+        )}
+        <div class="widget">
+          <h2>Áreas de atuação</h2>
+          <ul>
+            {areas.map((a) => <li><a href={`/areas/${a.data.slug}/`}>{a.data.nome}</a></li>)}
+          </ul>
+        </div>
+        <div class="widget widget-azul">
+          <h2>Fale conosco</h2>
+          <p>Tem uma dúvida sobre o seu caso? Escreva para o escritório.</p>
+          <a class="botao botao-claro" href="/contato/">Enviar mensagem</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <Chamada />
 </Base>
 
 <style>
-  /* A ressalva fecha o corpo. É exigência de prudência, não de layout: um
-     texto informativo publicado por escritório precisa dizer que é
-     informativo. */
-  .ressalva {
-    margin-top: clamp(36px, 4.5vw, 56px);
-    padding-top: 22px;
-    border-top: 1px solid var(--linha);
-    font-size: 16.5px;
-    line-height: 1.6;
-    color: var(--secundario);
-  }
-
-  .mais {
-    border-top: 1px solid var(--linha);
-    padding-block: clamp(40px, 5.5vw, 80px);
-  }
-  .rotulo {
-    font-family: var(--sans);
-    font-weight: 400;
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--secundario);
-    margin-bottom: clamp(20px, 2.6vw, 30px);
-  }
-  .banca {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(22px, 2.4vw, 34px);
-  }
-  @media (max-width: 1080px) {
-    .banca {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  @media (max-width: 620px) {
-    .banca {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .volta {
-    margin-top: clamp(26px, 3vw, 38px);
-  }
-  .volta a {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 20px;
-    border: 1px solid var(--linha);
-    border-radius: 999px;
-    font-size: 16.5px;
-    text-decoration: none;
-  }
-  .volta a:hover {
-    border-color: var(--tinta);
-    background: var(--linha);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .mais * {
-      transition: none !important;
-      animation: none !important;
-    }
-  }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; font-size: 14px; color: var(--texto-suave); }
+  .meta .rotulo { margin: 0; }
+  :global(.capa) { width: 100%; height: auto; border-radius: 6px; margin: 8px 0 6px; }
+  .credito { font-size: 13px; color: var(--texto-suave); }
+  .resumo { font-size: 20px; color: var(--azul); font-weight: 500; }
+  .aviso { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--linha); font-size: 14px; color: var(--texto-suave); }
 </style>

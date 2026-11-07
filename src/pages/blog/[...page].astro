@@ -1,43 +1,14 @@
 ---
 /**
- * `/blog/` e `/blog/2/`, `/blog/3/`...: a lista do blog.
- *
- * O blog se chama **Blog** em toda a interface — decisão do cliente,
- * "tudo BLOG, sempre, textos nunca". Ele teve nome próprio ("Em português
- * claro") e o nome foi revogado: nome de seção inventado obriga o leitor a
- * descobrir o que a seção é, e "Blog" ele já sabe.
- *
- * ── Por que uma rota `[...page]` e não `index.astro` ────────────────────
- * O `paginate()` do Astro precisa de um parâmetro de caminho para numerar as
- * páginas, e ele exige que o parâmetro se chame exatamente `page` — é o
- * único nome em inglês do projeto, e é obrigação da ferramenta, não escolha.
- * Com um parâmetro comum (`[page].astro`) a primeira página sairia
- * em `/blog/1/`, e `/blog/` teria de ser uma segunda página duplicada,
- * com o custo de SEO que conteúdo duplicado traz. Com o parâmetro rest, o
- * Astro entrega `undefined` na primeira página, que vira `/blog/`, e as
- * seguintes viram `/blog/2/`. Uma rota, uma página por conteúdo.
- *
- * ── O destaque ──────────────────────────────────────────────────────────
- * O artigo mais recente aparece em evidência no topo da PRIMEIRA página, e
- * não entra na grade abaixo. Nas páginas seguintes não há destaque: quem
- * chegou na página 3 já passou pelo mais recente.
- *
- * ── Quando não há artigo nenhum ─────────────────────────────────────────
- * Enquanto o Supabase não tem credencial no ambiente, o loader devolve zero
- * artigo e esta página precisa continuar de pé. Ela mostra uma frase
- * explicando que ainda não há texto publicado e oferece a newsletter, que é o
- * que faz sentido para quem chegou. Não é um erro: é o estado normal do site
- * enquanto o CMS não entra no ar.
- *
- * A página inteira é HTML estático. Não há um comportamento aqui que dependa
- * de JavaScript: os cartões são `<a>`, a paginação são `<a>`.
+ * Lista do blog (v3): grade de cartões com paginação e barra lateral.
+ * Com zero artigos a rota continua existindo, porque o menu aponta para ela.
  */
 import type { GetStaticPaths } from 'astro';
 import Base from '~/layouts/Base.astro';
-import Marca from '~/components/Marca.astro';
-import CartaoTexto from '~/components/CartaoTexto.astro';
-import Newsletter from '~/components/Newsletter.astro';
-import Contato from '~/components/Contato.astro';
+import BannerPagina from '~/components/BannerPagina.astro';
+import CartaoArtigo from '~/components/CartaoArtigo.astro';
+import Chamada from '~/components/Chamada.astro';
+import { listarAreasConfirmadas } from '~/lib/areas';
 import { listarArtigos, POR_PAGINA, NOME_DO_BLOG } from '~/lib/artigos';
 
 export const getStaticPaths = (async ({ paginate }) => {
@@ -101,317 +72,65 @@ const descricao =
 
 /** Endereço de uma página da lista. A primeira é `/blog/`, sem número. */
 const enderecoDaPagina = (numero: number) => (numero === 1 ? '/blog/' : `/blog/${numero}/`);
+
+/* Na v3 não há destaque separado: o mais recente volta para o topo da grade. */
+const lista = primeira && destaque ? [destaque, ...page.data] : page.data;
+const areas = await listarAreasConfirmadas();
 ---
 
 <Base titulo={titulo} descricao={descricao} paginaAtual="/blog/">
-  <section class="abertura">
-    <div class="env">
-      <p class="etiqueta">Blog</p>
-      {/* Era "Em português claro", nome próprio da seção, com a etiqueta
-          "Textos" acima. O cliente reverteu os dois: "tudo BLOG, sempre,
-          textos nunca". O que o nome próprio dizia — que o texto é escrito
-          para quem não é da área — passou a ser dito pela frase de apoio
-          abaixo, que é onde ele de fato se explica. */}
-      <h1 class="display">Escrito para quem <em>não é</em> da área</h1>
-      <p class="texto">
-        O que escrevemos para quem não é da área. Um assunto por vez, sem citação
-        de artigo de lei que ninguém precisa decorar. Nenhum texto daqui
-        substitui a conversa sobre o seu caso.
-      </p>
-      {
-        !primeira && (
-          <p class="posicao">
-            Página {page.currentPage} de {page.lastPage}.
-          </p>
-        )
-      }
+  <BannerPagina html="<strong>Blog</strong>" migalhas={[{ rotulo: 'Blog' }]} />
+
+  <section class="secao">
+    <div class="container com-lateral">
+      <div>
+        {temArtigos ? (
+          <div class="grade grade-2">
+            {lista.map((artigo) => <CartaoArtigo artigo={artigo} />)}
+          </div>
+        ) : (
+          <p>Ainda não há publicações. Os primeiros textos estão sendo escritos.</p>
+        )}
+
+        {page.lastPage > 1 && (
+          <nav class="paginacao" aria-label="Páginas do blog">
+            {page.url.prev && <a href={page.url.prev}>← Anteriores</a>}
+            {Array.from({ length: page.lastPage }, (_, i) => i + 1).map((n) =>
+              n === page.currentPage ? (
+                <span aria-current="page">{n}</span>
+              ) : (
+                <a href={enderecoDaPagina(n)}>{n}</a>
+              ),
+            )}
+            {page.url.next && <a href={page.url.next}>Próximas →</a>}
+          </nav>
+        )}
+      </div>
+
+      <aside class="lateral">
+        <div class="widget">
+          <h2>Áreas de atuação</h2>
+          <ul>
+            {areas.map((a) => <li><a href={`/areas/${a.data.slug}/`}>{a.data.nome}</a></li>)}
+          </ul>
+        </div>
+        <div class="widget widget-azul">
+          <h2>Fale conosco</h2>
+          <p>Tem uma dúvida sobre o seu caso? Escreva para o escritório.</p>
+          <a class="botao botao-claro" href="/contato/">Enviar mensagem</a>
+        </div>
+      </aside>
     </div>
   </section>
 
-  {
-    !temArtigos && (
-      <section class="vazio">
-        <div class="env">
-          <div class="placa">
-            <Marca tipo="pauta" class="selo" />
-            <div>
-          <p class="frase">
-            Ainda não publicamos nenhum texto por aqui. Os primeiros entram assim que
-            estiverem escritos, e você pode receber cada um por e-mail.
-          </p>
-          <p class="atalho">
-            <a href="/areas/">Ver as áreas de atuação</a>
-          </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  {
-    primeira && destaque && (
-      <section class="evidencia" aria-labelledby="evidencia-titulo">
-        <div class="env">
-          <h2 class="rotulo" id="evidencia-titulo">
-            O mais recente
-          </h2>
-          <div class="unico">
-            <CartaoTexto
-              artigo={destaque}
-              nivel={3}
-              sizes="(min-width: 1080px) 640px, 92vw"
-            />
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  {
-    page.data.length > 0 && (
-      <section class="lista" aria-labelledby="lista-titulo">
-        <div class="env">
-          <h2 class="rotulo" id="lista-titulo">
-            {primeira ? 'Os outros textos' : 'Mais publicações'}
-          </h2>
-          <div class="banca">
-            {page.data.map((artigo) => (
-              <CartaoTexto artigo={artigo} nivel={3} />
-            ))}
-          </div>
-
-          {page.lastPage > 1 && (
-            <nav class="paginas" aria-label="Páginas da lista de textos">
-              {page.url.prev ? (
-                <a class="passo" href={page.url.prev} rel="prev">
-                  Anteriores
-                </a>
-              ) : (
-                <span class="passo mudo">Anteriores</span>
-              )}
-
-              <ol class="numeros">
-                {Array.from({ length: page.lastPage }, (_, i) => i + 1).map((numero) => (
-                  <li>
-                    <a
-                      href={enderecoDaPagina(numero)}
-                      aria-current={numero === page.currentPage ? 'page' : undefined}
-                      aria-label={`Página ${numero}`}
-                    >
-                      {numero}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-
-              {page.url.next ? (
-                <a class="passo" href={page.url.next} rel="next">
-                  Próximos
-                </a>
-              ) : (
-                <span class="passo mudo">Próximos</span>
-              )}
-            </nav>
-          )}
-        </div>
-      </section>
-    )
-  }
-
-  <Newsletter id="textos" />
-  <Contato />
+  <Chamada />
 </Base>
 
 <style>
-  .abertura {
-    padding-block: clamp(40px, 7vw, 96px) clamp(30px, 4.5vw, 64px);
+  .paginacao { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 40px; }
+  .paginacao a, .paginacao span {
+    display: inline-block; min-width: 40px; padding: 8px 12px; text-align: center;
+    border: 1px solid var(--linha); border-radius: 4px; text-decoration: none;
   }
-  .etiqueta {
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--secundario);
-    margin-bottom: 18px;
-  }
-  .abertura h1 {
-    font-size: clamp(38px, 6.4vw, 82px);
-    max-width: 14ch;
-  }
-  .abertura h1 em {
-    font-style: italic;
-  }
-  .abertura .texto {
-    margin-top: clamp(20px, 2.6vw, 30px);
-    max-width: 58ch;
-    font-size: 18px;
-    color: var(--secundario);
-  }
-  .posicao {
-    margin-top: 16px;
-    font-size: 16px;
-    color: var(--secundario);
-  }
-
-  /* ── A lista sem nenhum artigo ── */
-  .vazio {
-    padding-block: clamp(24px, 3vw, 40px) clamp(48px, 6vw, 88px);
-  }
-  /*
-    O estado vazio era uma frase solta e um botão, perdidos numa página
-    larga: parecia página quebrada, não pauta em aberto. Vira placa, com
-    a marca da pilha de folhas ao lado — a mesma gramática das outras
-    páginas do redesenho.
-  */
-  .vazio .placa {
-    display: flex;
-    align-items: center;
-    gap: clamp(24px, 4vw, 56px);
-    background: var(--papel);
-    border-radius: clamp(16px, 2vw, 26px);
-    padding: clamp(28px, 4vw, 56px);
-    /* Sem limite, a placa atravessava a tela inteira enquanto o texto
-       ocupava metade dela, e sobrava um campo de papel vazio à direita. */
-    max-width: 920px;
-  }
-  .vazio :global(.selo) {
-    width: clamp(96px, 11vw, 150px);
-    flex: none;
-  }
-  @media (max-width: 700px) {
-    .vazio .placa {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 22px;
-    }
-    .vazio :global(.selo) {
-      width: 84px;
-    }
-  }
-  .vazio .frase {
-    max-width: 46ch;
-    font-size: clamp(20px, 2vw, 25px);
-    line-height: 1.55;
-    margin: 0;
-  }
-  .vazio .atalho {
-    margin-top: 24px;
-  }
-  .vazio .atalho a {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 20px;
-    border: 1px solid var(--linha);
-    border-radius: 999px;
-    font-size: 16.5px;
-    text-decoration: none;
-  }
-  .vazio .atalho a {
-    background: var(--branco);
-  }
-  .vazio .atalho a:hover {
-    border-color: var(--tinta);
-    background: var(--linha);
-  }
-
-  .rotulo {
-    font-family: var(--sans);
-    font-weight: 400;
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--secundario);
-    margin-bottom: clamp(20px, 2.6vw, 30px);
-  }
-
-  .evidencia {
-    padding-block: clamp(16px, 2vw, 28px) clamp(34px, 4.5vw, 64px);
-  }
-  /* O destaque é o mesmo cartão, numa coluna mais larga: metade da grade em
-     tela grande, largura cheia no telefone. A capa dele fica maior por
-     consequência da coluna, sem um segundo componente para manter. */
-  .unico {
-    max-width: min(660px, 100%);
-  }
-
-  .lista {
-    padding-block: clamp(20px, 3vw, 40px) clamp(48px, 6vw, 88px);
-    border-top: 1px solid var(--linha);
-  }
-  /* Protótipo, linha 296. */
-  .banca {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(22px, 2.4vw, 34px);
-  }
-  @media (max-width: 1080px) {
-    .banca {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  @media (max-width: 620px) {
-    .banca {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* ── Paginação ── */
-  .paginas {
-    margin-top: clamp(34px, 4.5vw, 60px);
-    padding-top: clamp(24px, 3vw, 34px);
-    border-top: 1px solid var(--linha);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-  }
-  .numeros {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .paginas a,
-  .paginas .passo {
-    /* 44px nas DUAS direções, medido com Playwright na revisão. */
-    min-height: 44px;
-    min-width: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 18px;
-    border: 1px solid var(--linha);
-    border-radius: 999px;
-    font-size: 16.5px;
-    text-decoration: none;
-  }
-  .paginas a:hover {
-    border-color: var(--tinta);
-    background: var(--linha);
-  }
-  .numeros a[aria-current='page'] {
-    background: var(--tinta);
-    border-color: var(--tinta);
-    color: #fff;
-  }
-  /* O passo sem destino continua ocupando o lugar, para a fileira não pular
-     entre uma página e outra. É um <span>, e não um <a> desligado: link sem
-     destino é um alvo que o teclado alcança e que não leva a lugar nenhum. */
-  .paginas .passo.mudo {
-    color: var(--secundario);
-    border-style: dashed;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .abertura *,
-    .lista *,
-    .vazio * {
-      transition: none !important;
-      animation: none !important;
-    }
-  }
+  .paginacao span { background: var(--azul); border-color: var(--azul); color: #fff; }
 </style>

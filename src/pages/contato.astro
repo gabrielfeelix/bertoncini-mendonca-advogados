@@ -1,390 +1,173 @@
 ---
 /**
- * /contato/ — o caminho de conversão do site.
+ * Contato (v3): formulário à esquerda, dados do escritório à direita.
  *
- * Três formas de falar com o escritório, na ordem em que o cliente pediu:
- * o WhatsApp (canal principal), o formulário e os dados diretos.
- *
- * O FORMULÁRIO FUNCIONA SEM JAVASCRIPT. É um `<form method="post">` de
- * verdade, apontando para `/api/contato`, que responde 303 de volta para cá
- * com `?envio=ok|erro` quando o pedido não veio de um `fetch`. A mensagem de
- * resultado é renderizada no servidor a partir desse parâmetro, então ela
- * existe na primeira pintura, sem depender de script nenhum. O script no fim
- * do arquivo só evita que a pessoa perca a página.
- *
- * O que NÃO está escrito aqui, deliberadamente:
- *
- * - Nenhum prazo de resposta. O protótipo promete "resposta em até um dia
- *   útil" e marca esse prazo como placeholder a confirmar com os sócios
- *   (linha 674). Enquanto não for confirmado, prometer prazo é inventar
- *   dado. A página diz que a mensagem é lida por um dos sócios, o que é
- *   verdade sem prazo.
- * - Nada de "consulta gratuita", "avaliação sem compromisso", "fale agora"
- *   ou qualquer variação. O Provimento 205/2021 da OAB proíbe oferta de
- *   gratuidade, urgência e captação. Um formulário de contato é justamente
- *   onde essas frases costumam entrar sozinhas.
- * - Nenhuma antecipação de análise do caso. O aviso abaixo do botão diz o
- *   contrário: a mensagem não cria relação de patrocínio.
- *
- * Endereço: o escritório ainda não forneceu um endereço de atendimento
- * presencial. A página diz a cidade e a forma de atendimento, que são os
- * fatos que existem, e marca a linha do endereço como placeholder. Inventar
- * uma rua seria pior do que admitir que ela falta.
+ * O formulário é o mesmo das versões anteriores, ligado a /api/contato:
+ * funciona sem JavaScript (POST normal, volta por 303 com ?envio-contato=)
+ * e, com JavaScript, envia sem sair da página. Por isso a página é
+ * renderizada a cada pedido (prerender = false): a mensagem de resultado
+ * precisa existir no HTML de quem volta do 303.
  */
 import Base from '~/layouts/Base.astro';
-import Newsletter from '~/components/Newsletter.astro';
+import BannerPagina from '~/components/BannerPagina.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
-import Zap from '../components/Zap.astro';
-import AvisoGolpe from '~/components/AvisoGolpe.astro';
 import { listarAreasConfirmadas } from '~/lib/areas';
 
-/*
-  Esta página é renderizada a cada pedido, e não pré-gerada no build.
-  A razão é o `?envio=` abaixo: quem envia o formulário SEM JavaScript volta
-  para cá por um 303 com esse parâmetro, e um HTML pré-gerado no build
-  serviria sempre a mesma página, com a mensagem de resultado vazia. Ou seja,
-  a pessoa preencheria, enviaria, voltaria e não veria confirmação nenhuma.
-  Com `prerender = false` a mensagem é montada no servidor, no pedido, e
-  existe na primeira pintura.
-*/
 export const prerender = false;
 
-/* Volta de quem enviou sem JavaScript. A rota redireciona para cá com
-   `?envio-contato=` e, no erro, `?motivo-contato=`. O parâmetro é nomeado por
-   formulário de propósito: esta página pode um dia conter também a
-   newsletter, e um `?envio=` genérico faria as duas seções anunciarem o
-   resultado uma da outra. Lido no servidor para que a mensagem apareça mesmo
-   com o script desligado. */
 const envio = Astro.url.searchParams.get('envio-contato');
 const motivo = Astro.url.searchParams.get('motivo-contato');
 
-/* O texto de cada erro mora aqui, não na resposta da API: assim a página
-   sem JavaScript consegue renderizá-lo, e a API não precisa devolver texto
-   de interface num redirecionamento. */
 const ERROS: Record<string, string> = {
   faltando: 'Faltou o nome ou a mensagem. Preencha os dois campos e envie de novo.',
   email: 'O e-mail informado não parece completo. Confira e envie de novo.',
   limite: 'Recebemos vários envios seguidos deste aparelho. Aguarde alguns minutos e tente de novo.',
-  envio: 'Não foi possível enviar a mensagem agora. Tente de novo em instantes, ou use o WhatsApp.',
+  envio: 'Não foi possível enviar a mensagem agora. Tente de novo em instantes.',
   formato: 'O formulário não chegou completo. Recarregue a página e tente de novo.',
 };
-
 const mensagemErro = ERROS[motivo ?? ''] ?? ERROS.envio;
 
-/*
-  Campo a que o erro se refere. Serve para dois fins:
+const valores = { nome: '', email: '', telefone: '', assunto: '', perfil: '', conheceu: '', mensagem: '' };
 
-  - `aria-invalid` e `aria-describedby` no campo certo, para quem usa leitor
-    de tela saber DE QUAL campo a mensagem fala, em vez de ouvir "confira o
-    e-mail informado" solto;
-  - o foco inicial, logo abaixo.
-
-  `faltando` pode ser nome ou mensagem. Apontamos o primeiro que voltou vazio.
-*/
-const valores = {
-  nome: '', email: '', telefone: '', assunto: '', perfil: '', conheceu: '', mensagem: '',
-};
-
-/* A lista de assuntos. Antes era texto livre porque as áreas ainda estavam
-   sendo definidas; o briefing de 23/09 fechou as duas, e os sócios pediram
-   triagem já na entrada (q2.7). "Outro assunto" e "Ainda não sei" existem
-   para ninguém forçar o caso numa caixa errada. */
-const areasConfirmadas = await listarAreasConfirmadas();
-const ASSUNTOS = [
-  ...areasConfirmadas.map((a) => a.data.nome),
-  'Outro assunto',
-  'Ainda não sei',
-];
-
-/* De onde a pessoa veio. Os sócios pediram para separar indicação de
-   Instagram, Google e YouTube (q2.7): é o dado que diz qual canal traz
-   cliente, e só quem escreve sabe responder. */
+const areas = await listarAreasConfirmadas();
+const ASSUNTOS = [...areas.map((a) => a.data.nome), 'Outro assunto', 'Ainda não sei'];
 const ORIGENS = ['Indicação de alguém', 'Instagram', 'Google', 'YouTube', 'LinkedIn', 'Outro'];
 
-/* A página da área manda `?assunto=<slug>`: quem veio de lá chega com o
-   assunto já escolhido. */
-const slugDoAssunto = Astro.url.searchParams.get('assunto');
-const areaDoLink = areasConfirmadas.find((a) => a.data.slug === slugDoAssunto);
+/* A página da área manda ?assunto=<slug>: quem vem de lá chega com o assunto escolhido. */
+const areaDoLink = areas.find((a) => a.data.slug === Astro.url.searchParams.get('assunto'));
 if (areaDoLink) valores.assunto = areaDoLink.data.nome;
 
-/*
-  IMPORTANTE 6: sem JavaScript, um 303 devolve a página do zero e o navegador
-  não tem como repreencher nada. Sem isto, quem erra o e-mail redigita a
-  mensagem inteira, num campo de até 5000 caracteres. Então a rota devolve o
-  que a pessoa escreveu e cada campo volta preenchido.
-
-  Só acontece no caminho de erro, e os valores vêm da própria pessoa, no
-  mesmo pedido. O Astro escapa o atributo `value` na renderização, então o
-  conteúdo não vira marcação.
-*/
+/* Sem JavaScript, quem erra volta com o que digitou (a API devolve em v-<campo>). */
 if (envio === 'erro') {
   for (const campo of Object.keys(valores) as (keyof typeof valores)[]) {
     valores[campo] = Astro.url.searchParams.get(`v-${campo}`) ?? '';
   }
 }
-
-/* O servidor avisa quando teve de cortar algum campo para caber na URL da
-   volta. Sem JavaScript é a única forma de a pessoa saber que o que ela
-   relê na tela não é tudo o que escreveu. */
 const houveCorte = envio === 'erro' && Astro.url.searchParams.get('corte-contato') === '1';
-
 const campoComErro =
   motivo === 'email' ? 'email' : motivo === 'faltando' ? (valores.nome ? 'mensagem' : 'nome') : null;
+const erroEm = (campo: string) => (campoComErro === campo ? { 'aria-invalid': 'true', 'aria-describedby': 'resultado-contato' } : {});
 ---
 
 <Base
-  titulo="Contato | Bertoncini & Mendonça Advogados"
-  descricao="Fale com o escritório Bertoncini & Mendonça. Formulário, WhatsApp, telefone e e-mail. Atendimento online para todo o país e presencial em Maringá, PR."
+  titulo={`Contato | ${site.nome}`}
+  descricao="Fale com Bertoncini & Mendonça Advogados. Atendimento online para todo o país e presencial em Maringá/PR."
   paginaAtual="/contato/"
 >
-  {/* Redesenho de 21/10/2026, a partir da página "Contact" de
-      marketinglab.framer.ai: título e apoio lado a lado, formulário com
-      imagem ao lado, canais em cartões embaixo. O formulário, a validação e
-      as iscas são os mesmos de antes. */}
-  <section class="abertura">
-    <div class="env">
-      <h1>Conte o que está acontecendo.</h1>
-      <p class="linha-fina">
-        Escreva com as suas palavras, sem termo técnico e sem organizar a história antes. Quem lê é
-        um dos sócios, e a primeira conversa começa de onde você parou.
-      </p>
-    </div>
-  </section>
+  <BannerPagina html="Fale <strong>Conosco</strong>" foto="/media/novas/contato-lateral.jpg" migalhas={[{ rotulo: 'Contato' }]} />
 
-  <section class="corpo" id="formulario">
-    <div class="env">
-      <div class="coluna-forma">
-        <h2>Escreva por aqui</h2>
+  <section class="secao">
+    <div class="container com-lateral">
+      <div>
+        <h2>Envie sua mensagem</h2>
+        <p>Preencha o formulário. Um dos sócios lê e responde pelo e-mail que você informar.</p>
 
         <p
           id="resultado-contato"
-          class:list={['resultado', { visto: envio === 'ok' || envio === 'erro', falhou: envio === 'erro' }]}
+          class:list={['resultado', { falhou: envio === 'erro' }]}
           role="status"
           aria-live="polite"
           tabindex="-1"
+          hidden={envio !== 'ok' && envio !== 'erro'}
         >
-          {envio === 'ok'
-            ? 'Recebemos a sua mensagem. A resposta vai para o e-mail que você informou.'
-            : envio === 'erro'
-              ? mensagemErro
-              : ''}
+          {envio === 'ok' ? 'Recebemos a sua mensagem. A resposta vai para o e-mail que você informou.' : envio === 'erro' ? mensagemErro : ''}
         </p>
-
         {houveCorte && (
-          <p class="aviso-corte" role="status">
-            <strong>Atenção:</strong> o seu relato era longo demais para voltar inteiro
-            nesta tela e aparece cortado abaixo. Confira o texto antes de enviar de novo.
-          </p>
+          <p class="resultado falhou"><strong>Atenção:</strong> o seu relato era longo demais para voltar inteiro e aparece cortado abaixo. Confira antes de enviar de novo.</p>
         )}
 
-        <form class="forma" method="post" action="/api/contato">
-          <div class="par-campos">
-            <div class="campo">
-              <label for="nome">Seu nome</label>
-              <input
-                id="nome"
-                name="nome"
-                type="text"
-                required
-                autocomplete="name"
-                maxlength="120"
-                value={valores.nome}
-                aria-invalid={campoComErro === 'nome' ? 'true' : undefined}
-                aria-describedby={campoComErro === 'nome' ? 'resultado-contato' : undefined}
-              />
+        <form class="form" action="/api/contato" method="post">
+          <div class="linha-2">
+            <div>
+              <label for="nome">Nome *</label>
+              <input id="nome" name="nome" type="text" autocomplete="name" required maxlength="120" value={valores.nome} {...erroEm('nome')} />
             </div>
-
-            <div class="campo">
-              <label for="telefone">Telefone <span class="opcional">(opcional)</span></label>
-              <input
-                id="telefone"
-                name="telefone"
-                type="tel"
-                autocomplete="tel"
-                maxlength="40"
-                value={valores.telefone}
-              />
+            <div>
+              <label for="telefone">Telefone</label>
+              <input id="telefone" name="telefone" type="tel" autocomplete="tel" maxlength="40" value={valores.telefone} />
             </div>
           </div>
-
-          <div class="campo">
-            <label for="email">Seu e-mail</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              autocomplete="email"
-              maxlength="254"
-              value={valores.email}
-              aria-invalid={campoComErro === 'email' ? 'true' : undefined}
-              aria-describedby={campoComErro === 'email' ? 'ajuda-email resultado-contato' : 'ajuda-email'}
-            />
-            <p class="ajuda" id="ajuda-email">É por aqui que respondemos.</p>
+          <div>
+            <label for="email">E-mail *</label>
+            <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" value={valores.email} {...erroEm('email')} />
           </div>
-
-          {/* Pessoa física ou empresa: os sócios atendem os dois, com empresa
-              na frente (q4.5), e a conversa muda conforme quem escreve. */}
-          <fieldset class="campo escolha">
-            <legend>Quem está escrevendo <span class="opcional">(opcional)</span></legend>
-            <div class="opcoes">
-              {['Pessoa física', 'Empresa'].map((opcao) => (
-                <label class="opcao">
-                  <input type="radio" name="perfil" value={opcao} checked={valores.perfil === opcao} />
-                  <span>{opcao}</span>
-                </label>
-              ))}
+          <div class="linha-2">
+            <div>
+              <label for="assunto">Assunto</label>
+              <select id="assunto" name="assunto">
+                <option value="">Selecione</option>
+                {ASSUNTOS.map((a) => <option value={a} selected={valores.assunto === a}>{a}</option>)}
+              </select>
             </div>
-          </fieldset>
-
-          <div class="campo">
-            <label for="assunto">Sobre o que é <span class="opcional">(opcional)</span></label>
-            <select id="assunto" name="assunto">
-              <option value="" selected={!valores.assunto}>Escolha um assunto</option>
-              {ASSUNTOS.map((assunto) => (
-                <option value={assunto} selected={valores.assunto === assunto}>{assunto}</option>
-              ))}
-            </select>
+            <div>
+              <label for="perfil">Quem está escrevendo</label>
+              <select id="perfil" name="perfil">
+                <option value="">Selecione</option>
+                {['Pessoa física', 'Empresa'].map((o) => <option value={o} selected={valores.perfil === o}>{o}</option>)}
+              </select>
+            </div>
           </div>
-
-          <div class="campo">
-            <label for="mensagem">O que está acontecendo</label>
-            <textarea
-              id="mensagem"
-              name="mensagem"
-              required
-              rows="7"
-              maxlength="5000"
-              aria-invalid={campoComErro === 'mensagem' ? 'true' : undefined}
-              aria-describedby={campoComErro === 'mensagem' ? 'ajuda-mensagem resultado-contato' : 'ajuda-mensagem'}
-            >{valores.mensagem}</textarea>
-            <p class="ajuda" id="ajuda-mensagem">
-              Algumas linhas bastam: o que aconteceu, desde quando e o que você gostaria de resolver.
-            </p>
+          <div>
+            <label for="mensagem">Mensagem *</label>
+            <textarea id="mensagem" name="mensagem" required maxlength="5000" {...erroEm('mensagem')}>{valores.mensagem}</textarea>
           </div>
-
-          <div class="campo">
-            <label for="conheceu">Como conheceu o escritório <span class="opcional">(opcional)</span></label>
+          <div>
+            <label for="conheceu">Como conheceu o escritório</label>
             <select id="conheceu" name="conheceu">
-              <option value="" selected={!valores.conheceu}>Escolha uma opção</option>
-              {ORIGENS.map((origem) => (
-                <option value={origem} selected={valores.conheceu === origem}>{origem}</option>
-              ))}
+              <option value="">Selecione</option>
+              {ORIGENS.map((o) => <option value={o} selected={valores.conheceu === o}>{o}</option>)}
             </select>
           </div>
 
-          <div class="iscas" aria-hidden="true">
-            {CAMPOS_ISCA.map((campo) => (
-              <input type="text" name={campo} tabindex="-1" autocomplete="off" />
-            ))}
+          <div class="isca" aria-hidden="true">
+            {CAMPOS_ISCA.map((campo) => <input type="text" name={campo} tabindex="-1" autocomplete="off" />)}
           </div>
 
-          <button type="submit" class="botao enviar">Enviar mensagem</button>
-
-          <p class="aviso-legal">
-            Enviar esta mensagem não estabelece relação de patrocínio nem substitui
-            uma consulta. O que você escrever é tratado como descreve a
-            <a href="/politica-de-privacidade/">política de privacidade</a>.
+          <div><button type="submit" class="botao">Enviar mensagem</button></div>
+          <p class="nota">
+            Enviar esta mensagem não estabelece relação de patrocínio nem substitui uma consulta. Os dados
+            são tratados como descreve a <a href="/politica-de-privacidade/">política de privacidade</a>.
           </p>
         </form>
       </div>
 
-      <aside class="coluna-imagem" aria-label="Quem responde">
-        <figure>
-          <picture>
-            <source type="image/avif" srcset="/media/novas/contato-lateral.avif" />
-            <source type="image/webp" srcset="/media/novas/contato-lateral.webp" />
-            <img src="/media/novas/contato-lateral.jpg" alt="" width="1100" height="1375" loading="lazy" decoding="async" />
-          </picture>
-          <figcaption>
-            <span class="avatares" aria-hidden="true">
-              <img src="/media/socios/juscelino-560.webp" alt="" width="40" height="40" loading="lazy" />
-              <img src="/media/socios/beatriz-560.webp" alt="" width="40" height="40" loading="lazy" style="object-position:50% 20%" />
-            </span>
-            <span>
-              <strong>Quem lê é um dos sócios.</strong>
-              {site.horario}. Fora do horário, a mensagem fica registrada.
-            </span>
-          </figcaption>
-        </figure>
+      <aside class="lateral">
+        <div class="widget">
+          <h2>Contato</h2>
+          <dl class="dados">
+            <dt>E-mail</dt>
+            <dd><a href={`mailto:${site.email.valor}`}>{site.email.valor}</a></dd>
+            <dt>Telefone</dt>
+            <dd><a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a></dd>
+            <dt>WhatsApp</dt>
+            <dd><a href={site.whatsapp.valor} rel="noopener" target="_blank">Enviar mensagem</a></dd>
+            <dt>Instagram</dt>
+            <dd><a href={site.redes.instagram.valor} rel="noopener" target="_blank">{site.redes.instagramArroba}</a></dd>
+            <dt>Horário</dt>
+            <dd>{site.horario}</dd>
+            <dt>Atendimento</dt>
+            <dd>{site.atendimentoRodape} e presencial em {site.cidade}/{site.estado}</dd>
+          </dl>
+        </div>
+        <div class="widget">
+          <h2>Dados do escritório</h2>
+          <dl class="dados">
+            <dt>Razão social</dt>
+            <dd>{site.nomeSociedade}</dd>
+            <dt>CNPJ</dt>
+            <dd>{site.registro.cnpj.valor}</dd>
+            <dt>Registro</dt>
+            <dd>{site.registro.oabSociedade.valor}</dd>
+          </dl>
+        </div>
       </aside>
     </div>
   </section>
-
-  <section class="canais" aria-labelledby="canais-titulo">
-    <div class="env">
-      <header>
-        <h2 id="canais-titulo">Se preferir, por outro caminho</h2>
-        <p>{site.atendimento}. Presencial em Maringá, com hora marcada: o endereço é combinado na confirmação da reunião.</p>
-      </header>
-      <ul class="cartoes-canais">
-        <li>
-          <a href={site.whatsapp.valor} target="_blank" rel="noopener" data-placeholder={site.whatsapp.placeholder ? '1' : undefined}>
-            <span class="icone zap-icone" aria-hidden="true"><Zap tamanho={20} /></span>
-            <strong>WhatsApp</strong>
-            <span>O caminho mais rápido</span>
-          </a>
-        </li>
-        <li>
-          <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefone.placeholder ? '1' : undefined}>
-            <span class="icone" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" /></svg></span>
-            <strong>{site.telefone.valor}</strong>
-            <span>Telefone</span>
-          </a>
-        </li>
-        <li>
-          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>
-            <span class="icone" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></span>
-            <strong>{site.email.valor}</strong>
-            <span>E-mail</span>
-          </a>
-        </li>
-        <li>
-          <a href={site.redes.instagram.valor} target="_blank" rel="noopener">
-            <span class="icone" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" /></svg></span>
-            <strong>{site.redes.instagramArroba}</strong>
-            <span>Instagram</span>
-          </a>
-        </li>
-      </ul>
-      <p class="registro-linha">
-        {site.nomeSociedade}
-        <span aria-hidden="true"> · </span>
-        <span data-placeholder={site.registro.oabSociedade.placeholder ? '1' : undefined}>{site.registro.oabSociedade.valor}</span>
-        <span aria-hidden="true"> · </span>
-        <span data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>CNPJ {site.registro.cnpj.valor}</span>
-        <span aria-hidden="true"> · </span>
-        {site.socios.map((s) => `${s.nome}, ${s.oab.valor}`).join(' · ')}
-      </p>
-    </div>
-  </section>
-
-  {/* Pedido do escritório (briefing q9.3): dizer por onde falamos, para
-      ninguém pagar golpista em nosso nome. */}
-  <section class="golpe-secao">
-    <div class="env">
-      <AvisoGolpe />
-    </div>
-  </section>
-
-  {/* A newsletter vive aqui, e não numa página de rascunho: é a página onde
-      quem já decidiu falar conosco está, e é uma das poucas renderizadas a
-      cada pedido, o que a seção precisa para confirmar a inscrição de quem
-      está sem JavaScript. O caminho `/contato/` está em `VOLTAS_PERMITIDAS`,
-      em `src/pages/api/newsletter.ts`, e as duas seções leem parâmetros
-      diferentes (`envio-contato` e `envio-newsletter`), então uma não
-      anuncia o resultado da outra. */}
-  <Newsletter />
 </Base>
 
 <script>
-  /*
-    Melhoria progressiva, e só isso. Sem este script o formulário envia por
-    POST normal, a rota responde 303 com `?envio=` e a página renderiza a
-    mensagem no servidor. Com ele, a pessoa não perde a página nem o que
-    digitou quando dá erro.
-  */
+  /* Melhoria progressiva: com JS o envio acontece sem sair da página. */
   const forma = document.querySelector<HTMLFormElement>('form[action="/api/contato"]');
   const resultado = document.getElementById('resultado-contato');
   const botao = forma?.querySelector<HTMLButtonElement>('button[type="submit"]');
@@ -393,10 +176,9 @@ const campoComErro =
     forma.addEventListener('submit', async (evento) => {
       evento.preventDefault();
       botao.disabled = true;
+      resultado.hidden = false;
       resultado.classList.remove('falhou');
-      resultado.classList.add('visto');
       resultado.textContent = 'Enviando a mensagem.';
-
       try {
         const resposta = await fetch('/api/contato', {
           method: 'POST',
@@ -404,23 +186,18 @@ const campoComErro =
           headers: { accept: 'application/json' },
         });
         const dados = (await resposta.json().catch(() => ({}))) as { erro?: string };
-
         if (resposta.ok) {
           forma.reset();
-          resultado.textContent =
-            'Recebemos a sua mensagem. A resposta vai para o e-mail que você informou.';
+          resultado.textContent = 'Recebemos a sua mensagem. A resposta vai para o e-mail que você informou.';
         } else {
           resultado.classList.add('falhou');
-          resultado.textContent =
-            dados.erro ?? 'Não foi possível enviar a mensagem agora. Tente de novo em instantes.';
+          resultado.textContent = dados.erro ?? 'Não foi possível enviar a mensagem agora. Tente de novo em instantes.';
         }
       } catch {
         resultado.classList.add('falhou');
-        resultado.textContent = 'Sem conexão no momento. Tente de novo, ou use o WhatsApp.';
+        resultado.textContent = 'Sem conexão no momento. Tente de novo em instantes.';
       } finally {
         botao.disabled = false;
-        /* Move o foco para a mensagem: quem navega por teclado ou leitor de
-           tela estava no botão e precisa saber o que aconteceu. */
         resultado.focus();
       }
     });
@@ -428,615 +205,9 @@ const campoComErro =
 </script>
 
 <style>
-  .abertura {
-    padding-block: clamp(56px, 7vw, 104px) clamp(28px, 4vw, 48px);
-  }
-  .chapeu {
-    font-size: 16px;
-    color: var(--secundario);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
-  .abertura h1 {
-    font-size: clamp(36px, 6vw, 82px);
-    max-width: 14ch;
-  }
-  .linha-fina {
-    margin-top: 24px;
-    max-width: 52ch;
-    font-size: 19px;
-    color: var(--secundario);
-  }
-
-
-  .abertura :global(.env) {
-    position: relative;
-  }
-  .abertura :global(.selo) {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: clamp(150px, 16vw, 230px);
-  }
-  /* Abaixo de 1000px a marca encostaria no título: some, e a abertura
-     volta a ser só texto, que é como ela já funcionava. */
-  @media (max-width: 1000px) {
-    .abertura :global(.selo) {
-      display: none;
-    }
-  }
-
-  .corpo {
-    padding-block: 0 clamp(48px, 6vw, 88px);
-    scroll-margin-top: 100px;
-  }
-  .golpe-secao {
-    padding-block: 0 clamp(64px, 8vw, 120px);
-  }
-  .par-campos {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 22px;
-  }
-  @media (max-width: 620px) {
-    .par-campos {
-      grid-template-columns: 1fr;
-    }
-  }
-  .escolha {
-    border: 0;
-    margin: 0;
-    padding: 0;
-    min-width: 0;
-  }
-  .escolha legend {
-    padding: 0;
-    margin-bottom: 8px;
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--tinta);
-  }
-  .opcoes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .opcao {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 52px;
-    padding: 0 20px 0 16px;
-    border-radius: 999px;
-    border: 1px solid var(--secundario);
-    background: #fff;
-    cursor: pointer;
-    font-size: 17px !important;
-    font-weight: 400 !important;
-  }
-  /* Especificidade maior que `.campo :is(input, textarea)`, que dá
-     largura cheia e 52px de altura aos campos de texto. */
-  .campo .opcao input {
-    flex: none;
-    width: 20px;
-    height: 20px;
-    min-height: 0;
-    padding: 0;
-    margin: 0;
-    accent-color: var(--tinta);
-  }
-  .opcao:has(input:checked) {
-    border-color: var(--tinta);
-    box-shadow: inset 0 0 0 1px var(--tinta);
-  }
-  .campo select {
-    font: 400 18px/1.5 var(--sans);
-    color: var(--tinta);
-    background: #fff;
-    border: 1px solid var(--secundario);
-    border-radius: 10px;
-    padding: 12px 44px 12px 16px;
-    min-height: 52px;
-    width: 100%;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 10 10' fill='none'%3E%3Cpath d='M2 3.5 5 6.5l3-3' stroke='%230B1E3F' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-  }
-  .campo select:focus-visible {
-    outline: 2px solid var(--imperial);
-    outline-offset: 2px;
-  }
-  .canais-apoio {
-    font-size: 17px;
-    color: var(--secundario);
-    margin: -12px 0 20px;
-  }
-  .coluna-dados .botao {
-    margin-bottom: 20px;
-  }
-  .corpo :global(.env) {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: clamp(24px, 3vw, 44px);
-    align-items: start;
-  }
-
-  /*
-    As duas colunas viram placas (decisão 1), em vez de conteúdo solto
-    sobre o branco da página: a forma sobre papel, que é o material de
-    componente do projeto, e os dados sobre branco com contorno. Assim a
-    página para de ser uma folha só e passa a ter as duas peças que ela
-    de fato tem — escrever e ligar.
-  */
-  .coluna-forma,
-  .coluna-dados {
-    border-radius: clamp(16px, 2vw, 26px);
-    padding: clamp(24px, 3.2vw, 48px);
-  }
-  .coluna-forma {
-    background: var(--papel);
-  }
-  .coluna-dados {
-    background: var(--branco);
-    border: 1px solid var(--linha);
-    /* Os dados são mais curtos que o formulário e sobrava um vão grande
-       embaixo deles. Grudando no topo, a placa acompanha quem rola
-       preenchendo o formulário — que é exatamente quando alguém pode
-       decidir ligar em vez de escrever. */
-    position: sticky;
-    top: calc(var(--reservaBarra, 88px) + 16px);
-  }
-  /* Sticky só faz sentido com as duas colunas lado a lado. */
-  @media (max-width: 900px) {
-    .coluna-dados {
-      position: static;
-    }
-  }
-  /* Campo sobre papel precisa de fundo branco para o contorno do input
-     não sumir dentro da placa. */
-  .coluna-forma :global(input),
-  .coluna-forma :global(textarea) {
-    background: var(--branco);
-  }
-  @media (max-width: 900px) {
-    .corpo :global(.env) {
-      grid-template-columns: 1fr;
-      gap: 48px;
-    }
-  }
-  .corpo h2 {
-    font-family: var(--serif);
-    font-weight: 200;
-    font-size: clamp(28px, 3.6vw, 44px);
-    letter-spacing: -0.03em;
-    line-height: 1.08;
-    margin-bottom: 28px;
-  }
-
-  /* Mensagem de resultado. Fora de um envio ela não ocupa espaço nenhum, e
-     por isso `display:none`: um parágrafo vazio com `role="status"` já é
-     anunciado corretamente quando ganha texto. */
-  .resultado {
-    display: none;
-    margin-bottom: 24px;
-    padding: 16px 18px;
-    border-radius: 12px;
-    border: 1px solid var(--linha);
-    background: #fff;
-    font-size: 17px;
-    line-height: 1.5;
-  }
-  .resultado.visto {
-    display: block;
-  }
-  /* O erro se distingue por texto, não só por cor: a mensagem descreve o
-     que houve, e o prefixo abaixo reforça sem ser a única pista. */
-  .resultado.falhou {
-    border-color: var(--imperial);
-    color: var(--imperial);
-    font-weight: 500;
-  }
-  .resultado.falhou::before {
-    content: "Atenção: ";
-    font-weight: 600;
-  }
-
-  .aviso-corte {
-    margin-bottom: 20px;
-    padding: 16px 18px;
-    border: 1px solid var(--imperial);
-    border-radius: 12px;
-    color: var(--imperial);
-    font-size: 17px;
-    line-height: 1.5;
-    max-width: 620px;
-  }
-
-  .forma {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    max-width: 620px;
-  }
-  .campo {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  /* Rótulo visível e associado por `for`. Nunca só placeholder: o
-     placeholder some ao digitar, e quem volta ao campo depois de uma
-     interrupção perde a referência do que estava preenchendo. */
-  .campo label {
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--tinta);
-  }
-  .campo .opcional {
-    font-weight: 400;
-    color: var(--secundario);
-  }
-  .campo :is(input, textarea) {
-    font: 400 18px/1.5 var(--sans);
-    color: var(--tinta);
-    background: #fff;
-    border: 1px solid var(--secundario);
-    border-radius: 10px;
-    /* 14px de padding sobre 18px/1.5 dá 55px de altura: acima dos 44px
-       exigidos, sem depender só do `min-height`. */
-    padding: 14px 16px;
-    min-height: 52px;
-    width: 100%;
-  }
-  .campo textarea {
-    min-height: 168px;
-    resize: vertical;
-  }
-  .campo :is(input, textarea):focus-visible {
-    outline: 2px solid var(--imperial);
-    outline-offset: 2px;
-    border-color: var(--tinta);
-  }
-  .ajuda {
-    font-size: 15px;
-    color: var(--secundario);
-  }
-
-  .iscas {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  .enviar {
-    align-self: flex-start;
-    justify-content: center;
-    padding: 16px 28px;
-    min-height: 52px;
-    font: 500 17px/1 var(--sans);
-    cursor: pointer;
-  }
-  .enviar[disabled] {
-    opacity: 0.6;
-    cursor: progress;
-  }
-
-  .aviso-legal {
-    font-size: 15px;
-    line-height: 1.55;
-    color: var(--secundario);
-    max-width: 52ch;
-  }
-  /* Mesmo tratamento de `src/styles/politica.css`: o alvo de 44px vale
-     também para um link no meio de um parágrafo. `inline-flex` dá a altura
-     sem tirar o link do fluxo da linha, e o `margin-block` negativo impede
-     que o espaçamento entre as linhas do parágrafo aumente. */
-  .aviso-legal a {
-    color: var(--apoio);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    display: inline-flex;
-    align-items: center;
-    flex-wrap: wrap;
-    min-height: 44px;
-    margin-block: -11px;
-    vertical-align: middle;
-  }
-
-  .dados {
-    border-top: 1px solid var(--linha);
-    margin: 0;
-  }
-  .dado {
-    display: grid;
-    grid-template-columns: 120px 1fr;
-    gap: 12px 16px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--linha);
-    font-size: 17px;
-  }
-  @media (max-width: 420px) {
-    .dado {
-      grid-template-columns: 1fr;
-      gap: 4px;
-    }
-  }
-  .dado dt {
-    color: var(--secundario);
-    font-size: 16px;
-    /* Alinha o rótulo com a primeira linha do valor, que tem 44px de alvo. */
-    padding-top: 10px;
-  }
-  .dado dd {
-    margin: 0;
-  }
-  .dado a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    text-decoration: none;
-    border-bottom: 1px solid var(--linha);
-  }
-  .dado a:hover {
-    border-color: var(--tinta);
-  }
-  .dado .falta {
-    display: inline-block;
-    padding-top: 10px;
-    color: var(--imperial);
-  }
-
-  .registro {
-    margin-top: 28px;
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--secundario);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .abertura, .abertura *,
-    .corpo, .corpo * {
-      transition: none !important;
-      animation: none !important;
-    }
-  }
-</style>
-
-<style>
-  /* ── Redesenho de 21/10/2026: sobrepõe o que vem acima ──────────── */
-  /* A página já reserva 88px para a navbar: o recuo aqui é só o respiro. */
-  .abertura {
-    padding-block: clamp(48px, 6vw, 88px) clamp(36px, 4vw, 56px);
-    background: none;
-  }
-  .abertura :global(.env) {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: clamp(24px, 5vw, 80px);
-  }
-  .abertura h1 {
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: clamp(40px, 5.4vw, 78px);
-    line-height: 1;
-    letter-spacing: -0.04em;
-    color: var(--tinta);
-    max-width: 12ch;
-  }
-  .abertura .linha-fina {
-    max-width: 40ch;
-    margin: 0;
-    text-align: right;
-    font-size: 17px;
-    color: var(--secundario);
-  }
-
-  .corpo :global(.env) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(24px, 3vw, 44px);
-    align-items: stretch;
-  }
-  .corpo h2 {
-    font-family: var(--sans);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-  /* `:not([type='radio'])`: sem ele a pílula pegava os radios de "Quem
-     está escrevendo" e cortava o círculo deles. */
-  .campo :is(input:not([type='radio']), textarea),
-  .campo select {
-    border: 0;
-    border-radius: 14px;
-    background: var(--papel);
-    box-shadow: inset 0 0 0 1px var(--linha);
-    transition: box-shadow 0.25s, background-color 0.25s;
-  }
-  .campo :is(input:not([type='radio']), textarea):hover,
-  .campo select:hover {
-    box-shadow: inset 0 0 0 1px #c9d1da;
-  }
-  .campo :is(input:not([type='radio']), textarea):focus-visible,
-  .campo select:focus-visible {
-    background: var(--branco);
-    box-shadow: inset 0 0 0 2px var(--tinta);
-    outline: none;
-  }
-  .enviar {
-    width: 100%;
-    justify-content: center;
-    min-height: 54px;
-  }
-
-  .coluna-imagem figure {
-    position: sticky;
-    top: 110px;
-    margin: 0;
-    height: min(760px, calc(100vh - 140px));
-    border-radius: 24px;
-    overflow: hidden;
-  }
-  .coluna-imagem picture {
-    display: contents;
-  }
-  .coluna-imagem figure picture > img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .coluna-imagem figure:hover picture > img {
-    transform: scale(1.04);
-  }
-  .coluna-imagem figcaption {
-    position: absolute;
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
-    border-radius: 18px;
-    background: rgba(11, 30, 63, 0.62);
-    backdrop-filter: blur(14px);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
-    color: rgba(255, 255, 255, 0.86);
-    font-size: 15px;
-    line-height: 1.4;
-  }
-  .coluna-imagem strong {
-    display: block;
-    color: #fff;
-    font-weight: 600;
-  }
-  .avatares {
-    display: flex;
-    flex: none;
-  }
-  .avatares img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 0 0 2px var(--tinta);
-  }
-  .avatares img + img {
-    margin-left: -12px;
-  }
-
-  .canais {
-    padding-block: clamp(72px, 9vw, 130px);
-  }
-  .canais header {
-    text-align: center;
-    display: grid;
-    justify-items: center;
-    gap: 14px;
-    margin-bottom: clamp(32px, 4vw, 52px);
-  }
-  .canais h2 {
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: clamp(32px, 4vw, 56px);
-    line-height: 1.04;
-    letter-spacing: -0.035em;
-    color: var(--tinta);
-  }
-  .canais header p {
-    max-width: 54ch;
-    font-size: 17px;
-    color: var(--secundario);
-  }
-  .cartoes-canais {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-  }
-  .cartoes-canais a {
-    height: 100%;
-    display: grid;
-    justify-items: center;
-    align-content: start;
-    gap: 6px;
-    padding: 28px 18px;
-    border-radius: 20px;
-    background: var(--papel);
-    box-shadow: inset 0 0 0 1px var(--linha);
-    text-align: center;
-    text-decoration: none;
-    color: var(--tinta);
-    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s;
-  }
-  .cartoes-canais a:hover {
-    transform: translateY(-4px);
-    box-shadow: inset 0 0 0 1px #c9d1da, 0 24px 40px -24px rgba(11, 30, 63, 0.35);
-  }
-  .cartoes-canais .icone {
-    width: 48px;
-    height: 48px;
-    display: grid;
-    place-items: center;
-    margin-bottom: 14px;
-    border-radius: 14px;
-    background: var(--tinta);
-    color: #fff;
-  }
-  .cartoes-canais .zap-icone {
-    background: var(--whats);
-  }
-  .cartoes-canais strong {
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: 18px;
-    overflow-wrap: anywhere;
-  }
-  .cartoes-canais span:last-child {
-    font-size: 15px;
-    color: var(--secundario);
-  }
-  .registro-linha {
-    margin-top: 28px;
-    text-align: center;
-    font-size: 14px;
-    color: var(--secundario);
-  }
-
-  @media (max-width: 900px) {
-    .abertura :global(.env) {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .abertura .linha-fina {
-      text-align: left;
-    }
-    .corpo :global(.env) {
-      grid-template-columns: 1fr;
-    }
-    .coluna-imagem figure {
-      position: relative;
-      top: auto;
-      height: 420px;
-    }
-    .cartoes-canais {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  /* E-mail e Instagram são longos: em duas colunas estreitas quebravam no
-     meio da palavra. */
-  @media (max-width: 480px) {
-    .cartoes-canais {
-      grid-template-columns: 1fr;
-    }
-  }
+  .dados { margin: 0; font-size: 15px; }
+  .dados dt { font-weight: 700; color: var(--azul); margin-top: 12px; }
+  .dados dt:first-child { margin-top: 0; }
+  .dados dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+  .resultado { margin-bottom: 18px; }
 </style>

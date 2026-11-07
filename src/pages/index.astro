@@ -1,148 +1,145 @@
 ---
 /**
- * A home (Tarefa 6).
- *
- * Monta as seções migradas na Tarefa 4, na ordem do protótipo aprovado
- * (`prototipo/index.html`): entrada, hero, declaração, áreas, sócios,
- * faixa, método, newsletter, perguntas, contato.
- *
- * O que esta página decide, e as seções não:
- *
- * 1. **O conteúdo real.** As áreas vêm da coleção `areas`, não das
- *    constantes de `Areas.astro`: a home não pode discordar de `/areas/`
- *    sobre o que o escritório faz. Foi assim que Família e Compliance
- *    sobreviveram tanto tempo depois do briefing.
- *
- * 2. **Os links de saída.** Cada seção ganha um "saiba mais" apontando para
- *    a página interna correspondente (`SaibaMais.astro`). As seções são
- *    reusadas em `/areas/` e `/escritorio/`, onde esse link apontaria para a
- *    própria página — por isso ele mora aqui, e não dentro delas.
- *
- * A OAB aparece com rótulo e em 19px (ver `Socios.astro`): o protótipo a
- * trazia em 14px, o menor corpo do site, na página mais vista. O Provimento
- * 205/2021 exige exibi-la, e o levantamento que originou o projeto mostrou
- * que nenhum dos 44 escritórios a exibe. Era a tese do projeto no menor tipo
- * da página.
+ * Home da v3. Ordem de site institucional de escritório, sem efeito:
+ * banner → áreas de atuação → o escritório → sócios → publicações → chamada.
  */
 import Base from '~/layouts/Base.astro';
-import Entrada from '~/components/Entrada.astro';
-import Hero from '~/components/Hero.astro';
-import Declaracao from '~/components/Declaracao.astro';
-import Servicos from '~/components/Servicos.astro';
-import SociosPilha from '~/components/SociosPilha.astro';
-import Metodo from '~/components/Metodo.astro';
-import Newsletter from '~/components/Newsletter.astro';
-import Perguntas from '~/components/Perguntas.astro';
-import AvisoCookies from '~/components/AvisoCookies.astro';
-import BlogHome from '~/components/BlogHome.astro';
-import Situacoes from '~/components/Situacoes.astro';
-import { listarAreas } from '~/lib/areas';
+import Chamada from '~/components/Chamada.astro';
+import IconeArea from '~/components/IconeArea.astro';
+import CartaoSocio from '~/components/CartaoSocio.astro';
+import CartaoArtigo from '~/components/CartaoArtigo.astro';
+import { site } from '~/lib/site';
+import { listarAreasConfirmadas, FOTO_DA_AREA } from '~/lib/areas';
 import { listarArtigos } from '~/lib/artigos';
 
-/* As áreas vêm da coleção, como em `/areas/`: as perguntas de
-   `Situacoes` apontam para as respostas na página de cada uma. */
-const areas = await listarAreas();
-
-/* "O que as pessoas nos perguntam": seis perguntas por área, escolhidas
-   entre as que o briefing listou (q7.4) e que já têm resposta no JSON da
-   área. Escolhidas pelo texto, e não pela posição, para que reordenar o
-   JSON não troque a pergunta da home em silêncio. */
-const perguntasEscolhidas: Record<string, string[]> = {
-  'planejamento-patrimonial-e-sucessorio': [
-    'Holding realmente protege o patrimônio?',
-    'Posso doar um imóvel e continuar morando nele?',
-    'Posso impedir que meu filho venda o imóvel que recebeu?',
-    'Preciso fazer testamento mesmo tendo filhos?',
-    'O inventário precisa ser feito na Justiça?',
-    'O que acontece com as minhas contas e arquivos digitais quando eu morrer?',
-  ],
-  'direito-digital': [
-    'Alguém criou um perfil falso com meu nome e minha foto. O que posso fazer?',
-    'Minha conta foi banida ou restringida. Dá para recuperar pela Justiça?',
-    'Recebi uma proposta de parceria com uma marca. O que verificar antes de aceitar?',
-    'Preciso registrar minha marca?',
-    'Posso colocar dados de clientes no ChatGPT?',
-    'A LGPD se aplica à minha empresa, mesmo sendo pequena?',
-  ],
-};
-const gruposDePerguntas = areas
-  .filter((area) => !area.data.aConfirmar && perguntasEscolhidas[area.data.slug])
-  .map((area) => ({
-    nome: area.data.nome,
-    slug: area.data.slug,
-    perguntas: perguntasEscolhidas[area.data.slug]
-      .map((texto) => ({ texto, indice: area.data.perguntas.findIndex((p) => p.pergunta === texto) }))
-      .filter((p) => p.indice >= 0),
-  }));
-
-/* Os três textos mais recentes: um em destaque e dois em cartão
-   (`BlogHome.astro`). Lista vazia não renderiza a seção. */
-const ultimosTextos = (await listarArtigos()).slice(0, 3);
-
-/* As perguntas da home são as gerais, sobre atendimento. As específicas de
-   cada matéria ficam na página da área. Duas foram reescritas depois do
-   briefing: eles atendem todo o país (q2_5), e ainda não têm escritório
-   físico (q2_6) — a home não pode sugerir sede nem limitar ao Paraná. */
-const perguntasDaHome = [
-  {
-    pergunta: 'A primeira conversa é cobrada?',
-    resposta:
-      'Depende do caso. Antes de marcar, dizemos se a conversa inicial é cobrada e qual o valor, para você decidir sem surpresa.',
-  },
-  {
-    pergunta: 'Como funciona do primeiro contato até o caso andar?',
-    resposta:
-      'Você escreve pelo formulário do site, pelo WhatsApp ou por e-mail contando o que aconteceu. Respondemos para marcar uma conversa, por vídeo ou presencial em Maringá. Nela você recebe as opções, os prazos e o custo. Se decidir seguir, assumimos o caso e informamos cada movimentação, inclusive quando a notícia é que nada mudou.',
-  },
-  {
-    pergunta: 'Vocês atendem empresas ou pessoas físicas?',
-    resposta:
-      'Os dois. A maior parte do trabalho é com empresas e empresários, e atendemos também pessoas e famílias nas duas áreas.',
-  },
-  {
-    pergunta: 'Vocês atendem fora de Maringá?',
-    resposta:
-      'Sim, em todo o país. O atendimento é online, por mensagem e por chamada de vídeo, e cobre todas as etapas. Quando um encontro presencial for necessário, combinamos em Maringá, com hora marcada.',
-  },
-  {
-    pergunta: 'E se o meu assunto não for de nenhuma das duas áreas?',
-    resposta:
-      'Escreva mesmo assim. Também atuamos em questões de direito imobiliário, tributário e cível. Se o caso não for para nós, dizemos isso na primeira conversa.',
-  },
-  {
-    pergunta: 'Quanto tempo demora um processo?',
-    resposta:
-      'Varia com a vara e com a complexidade. Você recebe uma estimativa realista, com a ressalva de que prazo de tribunal não depende de advogado.',
-  },
-];
+const areas = await listarAreasConfirmadas();
+const artigos = (await listarArtigos()).slice(0, 3);
 ---
 
 <Base
-  titulo="Bertoncini & Mendonça Advogados"
-  descricao="Advocacia com atuação em Planejamento Patrimonial e Sucessório e em Direito Digital. Online para todo o país, presencial em Maringá, PR."
+  titulo={`${site.nome} | Maringá/PR`}
+  descricao={site.descricao}
   paginaAtual="/"
-  heroSobreposto={true}
 >
-  <Entrada />
-  <Hero />
-  <Declaracao />
-  <Servicos />
+  <section class="hero">
+    <div class="container">
+      <p class="hero-rotulo">{site.nomeSociedade}</p>
+      <h1>Advocacia em <strong>Planejamento Patrimonial e Sucessório</strong> e em <strong>Direito Digital</strong></h1>
+      <p class="hero-texto">{site.atendimentoRodape} e presencial em {site.cidade}/{site.estado}.</p>
+      <div class="hero-botoes">
+        <a class="botao botao-claro" href="/escritorio/">Conheça o escritório</a>
+        <a class="botao" href="/contato/">Fale conosco</a>
+      </div>
+    </div>
+  </section>
 
-  <Metodo />
-  <SociosPilha />
+  <section class="secao">
+    <div class="container">
+      <div class="titulo-secao">
+        <h2>Áreas de <strong>Atuação</strong></h2>
+        <p>Conheça abaixo as áreas em que o escritório atua.</p>
+      </div>
+      <div class="grade grade-2">
+        {areas.map((area) => (
+          <article class="cartao">
+            <img class="cartao-foto" src={FOTO_DA_AREA[area.data.slug]} alt="" width="1600" height="900" loading="lazy" />
+            <div class="cartao-corpo">
+              <IconeArea slug={area.data.slug} />
+              <h3>{area.data.nome}</h3>
+              <p>{area.data.resumo}</p>
+              {area.data.publicoCurto && <p class="publico"><strong>Para quem:</strong> {area.data.publicoCurto}</p>}
+              <a class="ver-mais" href={`/areas/${area.data.slug}/`}>Ver mais →</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
 
-  {gruposDePerguntas.length > 0 && <Situacoes grupos={gruposDePerguntas} />}
+  <section class="secao secao-cinza">
+    <div class="container duas-colunas">
+      <img class="foto-escritorio" src="/media/hero/socios-1600.jpg" alt="Juscelino Bertoncini e Beatriz Mendonça, sócios do escritório." width="1600" height="900" loading="lazy" />
+      <div>
+        <p class="rotulo">O escritório</p>
+        <h2 class="titulo-bloco">Sobre <strong>nós</strong></h2>
+        <p>
+          Bertoncini &amp; Mendonça é um escritório de advocacia de {site.cidade}/{site.estado},
+          formado por dois sócios que trabalharam lado a lado por mais de quatro anos antes de
+          abrir a própria sociedade.
+        </p>
+        <p>
+          Juscelino trabalha na fase que antecede o processo: contratos, sociedades, imóveis e a
+          organização do patrimônio. Beatriz conduz os casos que precisam ir ao Judiciário e atende
+          quem trabalha na internet.
+        </p>
+        <p>{site.atendimentoRodape}, e presencial em {site.cidade}.</p>
+        <a class="botao botao-contorno" href="/escritorio/">Saiba mais</a>
+      </div>
+    </div>
+  </section>
 
-  {ultimosTextos.length > 0 && <BlogHome artigos={ultimosTextos} />}
+  <section class="secao">
+    <div class="container">
+      <div class="titulo-secao">
+        <h2>Nossos <strong>Sócios</strong></h2>
+      </div>
+      <div class="grade grade-2 socios">
+        {site.socios.map((socio, i) => <CartaoSocio socio={socio} genero={i === 1 ? 'a' : 'o'} />)}
+      </div>
+    </div>
+  </section>
 
-  <Newsletter />
+  {artigos.length > 0 && (
+    <section class="secao secao-cinza">
+      <div class="container">
+        <div class="titulo-secao">
+          <h2>Últimas <strong>Publicações</strong></h2>
+          <p>Textos do escritório sobre as dúvidas mais comuns em cada área.</p>
+        </div>
+        <div class="grade grade-3">
+          {artigos.map((artigo) => <CartaoArtigo artigo={artigo} />)}
+        </div>
+        <p class="ver-todas"><a class="botao botao-contorno" href="/blog/">Ver todas as publicações</a></p>
+      </div>
+    </section>
+  )}
 
-  <Perguntas perguntas={perguntasDaHome} />
-  {/* O bloco de contato ("Conte o que está acontecendo") saiu daqui a
-      pedido do cliente: a home fecha nas publicações e nas perguntas.
-      Continua nas OUTRAS seis páginas que o usam, e de propósito — lá ele
-      é fim de leitura: quem terminou de ler sobre uma área precisa de um
-      caminho para falar com o escritório, e cartão de blog não substitui
-      isso. Na home o caminho já existe no cabeçalho, no hero e no rodapé. */}
-  <AvisoCookies />
+  <Chamada />
 </Base>
+
+<style>
+  .hero {
+    position: relative;
+    background: var(--azul) url('/media/novas/escritorio-valores.jpg') center / cover no-repeat;
+    color: #fff;
+    padding: 120px 0 128px;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(11,30,63,.88) 0%, rgba(11,30,63,.7) 55%, rgba(11,30,63,.45) 100%);
+  }
+  .hero .container { position: relative; }
+  .hero-rotulo { font-size: 14px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.75); margin-bottom: 16px; }
+  .hero h1 { color: #fff; font-size: 46px; font-weight: 300; line-height: 1.2; max-width: 780px; margin-bottom: 18px; }
+  .hero h1 strong { font-weight: 700; }
+  .hero-texto { font-size: 19px; color: rgba(255,255,255,.88); margin-bottom: 32px; }
+  .hero-botoes { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .cartao-foto { width: 100%; aspect-ratio: 16 / 7; object-fit: cover; }
+  .publico { font-size: 15px; }
+  .publico strong { color: var(--azul); }
+
+  .foto-escritorio { border-radius: 6px; box-shadow: var(--sombra); }
+  .titulo-bloco { font-size: 34px; font-weight: 300; }
+  .titulo-bloco strong { font-weight: 700; }
+
+  .socios { max-width: 780px; margin: 0 auto; }
+  .ver-todas { text-align: center; margin: 40px 0 0; }
+
+  @media (max-width: 680px) {
+    .hero { padding: 72px 0 80px; }
+    .hero h1 { font-size: 31px; }
+    .hero-texto { font-size: 17px; }
+    .titulo-bloco { font-size: 28px; }
+  }
+</style>

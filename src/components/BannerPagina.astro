@@ -1,0 +1,34 @@
+---
+/**
+ * Banner do topo das páginas internas: foto escurecida, título centrado e
+ * migalhas de pão. Padrão de "page title" de tema WordPress.
+ * `titulo` é texto puro (pode vir do banco, no caso do blog). Os títulos
+ * fixos com peso misto ("Áreas de <strong>atuação</strong>") usam `html`.
+ */
+interface Props {
+  titulo?: string;
+  html?: string;
+  foto?: string;
+  migalhas?: { rotulo: string; href?: string }[];
+}
+const { titulo, html, foto = '/media/novas/escritorio-historia.jpg', migalhas = [] } = Astro.props;
+---
+
+<section class="banner-pagina" style={`background-image:url('${foto}')`}>
+  <div class="container">
+    {html ? <h1 set:html={html} /> : <h1>{titulo}</h1>}
+    {migalhas.length > 0 && (
+      <nav aria-label="Você está em">
+        <p class="migalhas">
+          <a href="/">Início</a>
+          {migalhas.map((m) => (
+            <>
+              {' / '}
+              {m.href ? <a href={m.href}>{m.rotulo}</a> : <span aria-current="page">{m.rotulo}</span>}
+            </>
+          ))}
+        </p>
+      </nav>
+    )}
+  </div>
+</section>

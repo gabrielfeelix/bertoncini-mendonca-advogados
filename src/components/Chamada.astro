@@ -1,0 +1,23 @@
+---
+/** Faixa azul de chamada para contato, antes do rodapé. */
+interface Props {
+  titulo?: string;
+  texto?: string;
+  href?: string;
+}
+const {
+  titulo = 'Precisa de <strong>orientação jurídica?</strong>',
+  texto = 'Conte o seu caso. Respondemos pelo e-mail que você informar.',
+  href = '/contato/',
+} = Astro.props;
+---
+
+<section class="chamada">
+  <div class="container">
+    <div>
+      <h2 set:html={titulo} />
+      <p>{texto}</p>
+    </div>
+    <a class="botao botao-claro" href={href}>Fale conosco</a>
+  </div>
+</section>

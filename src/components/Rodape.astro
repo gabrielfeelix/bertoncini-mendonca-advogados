@@ -1,307 +1,84 @@
 ---
 /**
- * Rodapé.
- *
- * ── O que estava errado ─────────────────────────────────────────────────
- *
- * O cliente reprovou o rodapé inteiro, e os defeitos eram quatro, todos
- * de estrutura:
- *
- * 1. **A logo não funcionava.** Era um PNG de 180px numa grade
- *    `auto 1fr` ao lado do bloco de registro: a marca ficava encostada à
- *    esquerda, o registro colado nela, e a metade direita da faixa vazia.
- *    "Está pra esquerda e na direita parece que falta alguma coisa."
- * 2. **Os rótulos das colunas.** "Navegar", "Falar", "Onde", "Legal" —
- *    três são verbo ou advérbio onde a convenção brasileira usa
- *    substantivo, e "Legal" colide com o coloquial ("que legal"). Ver a
- *    nota em `src/lib/site.ts`, que guarda o levantamento.
- * 3. **Quatro colunas de conteúdo desigual.** A de navegação espelhava o
- *    menu do cabeçalho item a item (caminho nenhum a mais), e a coluna
- *    "Legal" tinha dois links de política — nenhum escritório brasileiro
- *    dos seis levantados usa coluna para política, e ninguém navega para
- *    uma coluna chamada Legal.
- * 4. **Nenhuma hierarquia.** Uma grade só, do logo ao copyright, então
- *    tudo pesava igual e a altura virava despejo em vez de organização.
- *
- * ── A estrutura nova: três faixas e dois filetes ────────────────────────
- *
- * É o padrão comum a Lefosse, Velloza, Demarest e BMA, e o que resolve o
- * (4): o rodapé não é uma grade, são faixas empilhadas, separadas por
- * filete, com o vão entre faixas muito maior que o vão entre linhas de uma
- * mesma coluna (~3:1). O filete é o que faz a altura parecer deliberada.
- *
- *   A — identidade.  Marca à esquerda; à DIREITA, a frase de posição e o
- *       horário. É o que corrige o (1): o lado direito da faixa se enche
- *       de conteúdo com peso, não de espaço. Lefosse põe a frase, o
- *       Frederighi põe o horário — aqui vão os dois, porque são os dois
- *       fatos que o escritório já tem confirmados.
- *   B — as colunas.  Três, não quatro: Institucional, Áreas de atuação e
- *       Contato (com o endereço no corpo dela). Coluna que é só endereço é
- *       coluna fraca; três largas leem melhor que quatro estreitas.
- *   C — a assinatura.  A barra com copyright, registro da OAB e as
- *       políticas como links soltos.
- *
- * O nome do escritório em corpo grande, que fechava a página entre as
- * colunas e a barra legal, saiu a pedido do cliente.
- *
- * ── O registro da OAB ───────────────────────────────────────────────────
- *
- * Vai na barra de baixo, colado ao copyright, no menor corpo da página —
- * é onde Galvão & Silva e Daniel Frederighi o põem, e a construção formal
- * é "Sociedade de Advogados inscrita na OAB/...". Continua sendo exigência
- * do Provimento 205/2021 e continua obrigatório com valor placeholder.
- *
- * "Site por Gabriel Felix" fica onde estava: o cliente gostou.
+ * Rodapé da v3: faixa azul chapada em quatro colunas (marca, institucional,
+ * áreas, contato) e barra inferior com registro da sociedade e políticas.
+ * O registro (OAB da sociedade, CNPJ) é exigência do Provimento 205/2021.
  */
 import { site, rodape } from '../lib/site';
-import Zap from './Zap.astro';
-import AvisoGolpe from './AvisoGolpe.astro';
 import { listarAreasConfirmadas } from '../lib/areas';
 
-const ano = new Date().getFullYear();
-
-/* As áreas vêm da coleção, não de uma lista escrita à mão: uma terceira
-   área entra no rodapé sozinha, e nenhuma sai do ar quando é removida. */
 const areas = await listarAreasConfirmadas();
+const ano = new Date().getFullYear();
 ---
 
-{/* Rodapé compacto (redesenho de 21/10/2026). Tinha 1033px de altura para
-    três colunas de links e uma assinatura: o pedido do cliente foi um
-    quarto disso. Tudo o que o Provimento 205/2021 e o briefing exigem
-    continua aqui (OAB da sociedade e dos sócios, CNPJ, aviso do golpe,
-    ressalva informativa); o que saiu foi o espaço entre as coisas. */}
-<footer class="rodape" id="rodape">
-  <div class="grao" style="filter:url(#grao)"></div>
-  <div class="env">
-    <div class="topo">
-      <div class="marca-bloco">
-        <a class="marca-pe" href="/" aria-label={`${site.nome} — início`}>
-          <img src="/media/marca/lockup-branco.png" alt="" width="779" height="298" loading="lazy" />
-        </a>
-        <p class="onde">{site.cidade}, {site.estado} · {site.atendimento}</p>
-        <p class="hora"><span class="ponto" aria-hidden="true"></span>{site.horario}</p>
-      </div>
-
-      <nav class="colunas" aria-label="Rodapé">
-        <div class="coluna">
-          <h2>Institucional</h2>
-          {rodape.institucional.map((item) => <a href={item.href}>{item.rotulo}</a>)}
-        </div>
-        <div class="coluna">
-          <h2>Áreas</h2>
-          {areas.map((area) => <a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a>)}
-        </div>
-        <div class="coluna">
-          <h2>Contato</h2>
-          <a class="zap-link" href={site.whatsapp.valor} target="_blank" rel="noopener" data-placeholder={site.whatsapp.placeholder ? '1' : undefined}>
-            <Zap tamanho={14} class="glifo" />WhatsApp
-          </a>
-          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
-          <a href={`tel:${site.telefoneE164.valor}`} data-placeholder={site.telefoneE164.placeholder ? '1' : undefined}>{site.telefone.valor}</a>
-          <a href={site.redes.instagram.valor} target="_blank" rel="noopener" aria-label={`Instagram ${site.redes.instagramArroba}`}>Instagram</a>
-        </div>
-      </nav>
+<footer class="rodape">
+  <div class="container colunas">
+    <div>
+      <img class="rodape-logo" src="/media/marca/lockup-branco.png" alt={site.nome} width="779" height="298" />
+      <p>{site.atendimentoRodape} e presencial em {site.cidade}/{site.estado}.</p>
+      <a class="rede" href={site.redes.instagram.valor} rel="noopener" target="_blank">{site.redes.instagramArroba}</a>
     </div>
 
-    <div class="golpe">
-      <AvisoGolpe variante="curto" escuro={true} />
+    <div>
+      <h2>Institucional</h2>
+      <ul>
+        <li><a href="/">Início</a></li>
+        {rodape.institucional.map((item) => <li><a href={item.href}>{item.rotulo}</a></li>)}
+      </ul>
     </div>
 
-    <div class="base">
-      <div class="registro">
-        <p>
-          © {ano} {site.nomeCurto}
-          <span class="sep" aria-hidden="true"> · </span>
-          <span data-placeholder="1">Sociedade inscrita na {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}</span>
-          <span class="sep" aria-hidden="true"> · </span>
-          {site.socios.map((socio, indice) => (
-            <>
-              {socio.nome}, {socio.oab.valor}
-              {indice < site.socios.length - 1 ? <span class="sep" aria-hidden="true"> · </span> : ''}
-            </>
-          ))}
-        </p>
-        <p class="ressalva">{site.avisoInformativo}</p>
-        <p class="aviso-placeholder">Registro da sociedade e CNPJ são placeholder. Entram os reais antes de publicar.</p>
-      </div>
-      <p class="miudos">
-        {rodape.legal.map((item) => (
-          <a href={item.href}>{item.rotulo}</a>
-        ))}
-        <a class="credito" href="https://gabrielfelix-ux.4yu.com.br" rel="noopener">Site por Gabriel Felix</a>
+    <div>
+      <h2>Áreas de atuação</h2>
+      <ul>
+        {areas.map((area) => <li><a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a></li>)}
+      </ul>
+    </div>
+
+    <div>
+      <h2>Contato</h2>
+      <ul class="contato">
+        <li><a href={`mailto:${site.email.valor}`}>{site.email.valor}</a></li>
+        <li><a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a></li>
+        <li>{site.horario}</li>
+        <li>{site.cidade}/{site.estado}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="barra">
+    <div class="container">
+      <p>
+        © {ano} {site.nomeSociedade} · {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}
       </p>
+      <p class="politicas">
+        {rodape.legal.map((item) => <a href={item.href}>{item.rotulo}</a>)}
+      </p>
+    </div>
+    <div class="container">
+      <p class="aviso">{site.avisoInformativo}</p>
     </div>
   </div>
 </footer>
 
 <style>
-  .rodape {
-    position: relative;
-    overflow: hidden;
-    background: var(--tinta);
-    color: #fff;
-    padding-block: clamp(36px, 3.6vw, 48px) 20px;
-  }
-  .rodape .grao {
-    position: absolute;
-    inset: 0;
-    opacity: 0.26;
-    mix-blend-mode: overlay;
-    background: #8aa0bc;
-    pointer-events: none;
-  }
-  .rodape .env {
-    position: relative;
-  }
-
-  .topo {
-    display: grid;
-    grid-template-columns: minmax(200px, 1fr) 3fr;
-    gap: clamp(28px, 4vw, 64px);
-    align-items: start;
-  }
-  .marca-pe img {
-    display: block;
-    width: 168px;
-    height: auto;
-  }
-  .onde {
-    margin-top: 16px;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.8);
-  }
-  .hora {
-    margin-top: 6px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.7);
-  }
-  .ponto {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--whats);
-  }
+  .rodape { background: var(--azul); color: rgba(255,255,255,.8); font-size: 15px; }
   .colunas {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
+    display: grid; grid-template-columns: 1.3fr 1fr 1.2fr 1.1fr; gap: 40px;
+    padding-top: 60px; padding-bottom: 48px;
   }
-  .coluna {
-    display: grid;
-    align-content: start;
-    gap: 6px;
-  }
-  .coluna h2 {
-    margin-bottom: 4px;
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
-  }
-  .coluna a,
-  .coluna p {
-    font-size: 14.5px;
-    line-height: 1.4;
-    color: #fff;
-    text-decoration: none;
-  }
-  .coluna p {
-    color: rgba(255, 255, 255, 0.8);
-  }
-  .coluna a {
-    justify-self: start;
-    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-    transition: background-size 0.35s cubic-bezier(0.65, 0, 0.35, 1), color 0.25s;
-  }
-  .coluna a:hover {
-    background-size: 100% 1px;
-  }
-  .zap-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .zap-link :global(.glifo) {
-    color: var(--whats);
-    flex: none;
-  }
+  .rodape-logo { width: 200px; height: auto; margin-bottom: 18px; }
+  .rodape h2 { color: #fff; font-size: 16px; margin-bottom: 16px; }
+  .rodape ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .rodape a { color: rgba(255,255,255,.88); text-decoration: none; }
+  .rodape a:hover { color: #fff; text-decoration: underline; }
+  .rede { font-weight: 500; }
 
-  .golpe {
-    margin-top: 24px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-  }
-  .golpe :global(.golpe-curto) {
-    font-size: 14px;
-    line-height: 1.5;
-    max-width: none;
-    margin: 0;
-    padding: 0;
-  }
-  .golpe :global(.golpe-curto a) {
-    display: inline;
-    min-height: 0;
-    padding: 0;
-  }
+  .barra { background: #071530; font-size: 13px; padding: 18px 0; }
+  .barra .container { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
+  .barra p { margin: 0; }
+  .politicas { display: flex; gap: 20px; }
+  .aviso { margin-top: 10px !important; color: rgba(255,255,255,.6); }
 
-  .base {
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 24px;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.6);
-  }
-  .registro {
-    display: grid;
-    gap: 4px;
-    max-width: 90ch;
-  }
-  .ressalva {
-    color: rgba(255, 255, 255, 0.5);
-  }
-  .aviso-placeholder {
-    color: #f3b4bd;
-  }
-  .miudos {
-    flex: none;
-    display: flex;
-    gap: 16px;
-  }
-  .miudos a {
-    color: rgba(255, 255, 255, 0.75);
-    text-decoration: none;
-  }
-  .miudos a:hover {
-    color: #fff;
-  }
-
-  @media (max-width: 960px) {
-    .topo {
-      grid-template-columns: 1fr;
-    }
-    .colunas {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      row-gap: 28px;
-    }
-    .base {
-      flex-direction: column;
-    }
-    .miudos {
-      flex-wrap: wrap;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .coluna a {
-      transition: none;
-    }
-  }
+  @media (max-width: 900px) { .colunas { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .colunas { grid-template-columns: 1fr; gap: 32px; } }
 </style>

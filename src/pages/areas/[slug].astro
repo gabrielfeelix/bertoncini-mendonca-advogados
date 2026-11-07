@@ -1,904 +1,145 @@
 ---
 /**
- * `/areas/[slug]/`: uma página por área confirmada, gerada do conteúdo da
- * coleção `areas`.
- *
- * Só as áreas confirmadas entram no `getStaticPaths`. A terceira e a
- * quarta aparecem em `/areas/` marcadas "a confirmar" e sem link, então
- * nenhum link do site aponta para uma rota que não existe.
- *
- * A FORMA. A versão anterior era um zigue-zague de "cenas": parágrafo de
- * um lado, ícone genérico do outro, sete vezes, com o mesmo peso. O
- * cliente leu como "nada com nada". As páginas de área que funcionam
- * (Macfarlanes, Farrer, Cooley, Mattos Filho, Arauz) têm a mesma
- * estrutura, e é a que esta segue:
- *
- * 1. capa com o nome e a tese da área (o `resumo`) e a ação;
- * 2. o texto como documento: índice fixo à esquerda, seções numeradas
- *    à direita, em coluna de leitura. O índice é o que dá a quem chega a
- *    visão do que a área cobre sem precisar de uma lista duplicada;
- * 3. quem atende, com rosto e OAB — o "key contact" do Farrer;
- * 4. onde e como começa, em placa, com a segunda chamada.
- *
- * O texto não muda uma palavra: só o invólucro. A página funciona sem
- * JavaScript; o script do fim só marca no índice a seção que está na
- * tela.
+ * Página de uma área (v3). Layout de página de tema WordPress: banner com
+ * o nome, coluna de conteúdo (texto, "o que fazemos", perguntas) e barra
+ * lateral com as áreas, o sócio responsável e uma caixa de contato.
+ * O texto é o `corpo` da área, sem alteração.
  */
 import type { GetStaticPaths } from 'astro';
 import Base from '~/layouts/Base.astro';
-import Perguntas from '~/components/Perguntas.astro';
-import Zap from '~/components/Zap.astro';
-import Contato from '~/components/Contato.astro';
-import { listarAreas, listarAreasConfirmadas, whatsappDaArea } from '~/lib/areas';
+import BannerPagina from '~/components/BannerPagina.astro';
+import Chamada from '~/components/Chamada.astro';
 import { site } from '~/lib/site';
+import {
+  listarAreasConfirmadas,
+  assuntosDaArea,
+  socioDaArea,
+  FOTO_DA_AREA,
+  type Area,
+} from '~/lib/areas';
 
 export const getStaticPaths = (async () => {
   const areas = await listarAreasConfirmadas();
   return areas.map((area) => ({ params: { slug: area.data.slug }, props: { area } }));
 }) satisfies GetStaticPaths;
 
+interface Props {
+  area: Area;
+}
 const { area } = Astro.props;
-const dados = area.data;
-
-const outras = (await listarAreasConfirmadas()).filter((item) => item.data.slug !== dados.slug);
-const pendentes = (await listarAreas()).filter((item) => item.data.aConfirmar);
-
-const mensagem = dados.mensagemWhatsapp ?? 'Olá, gostaria de falar sobre um caso.';
-const linkWhatsapp = whatsappDaArea(mensagem);
-/* O formulário é o canal principal (briefing q7.5). O link leva o slug e
-   /contato/ chega com o assunto já escolhido. */
-const linkFormulario = `/contato/?assunto=${dados.slug}#formulario`;
-const aConfirmar = new Set(dados.corpoAConfirmar);
-
-/* O mapa é por slug e não por índice: acrescentar uma terceira área não
-   pode deslocar a marca das duas que existem. */
-const marcaDaCapa: Record<string, 'sucessao' | 'rede'> = {
-  'planejamento-patrimonial-e-sucessorio': 'sucessao',
-  'direito-digital': 'rede',
-};
-const marcaCapa = marcaDaCapa[dados.slug];
-
-/* O corpo em três papéis, lidos de `cenas` (ver o schema):
-   - antes da primeira cena: a abertura;
-   - cena só com rubrica: seção numerada, com entrada no índice;
-   - cena com foto: a placa "Onde atendemos";
-   - depois das cenas, sem cena: o fecho, que diz como o trabalho começa. */
-const cenaPorIndice = new Map(dados.cenas.map((c) => [c.indice, c]));
-const primeiraCena = Math.min(...dados.cenas.map((c) => c.indice));
-
-type Paragrafo = { texto: string; placeholder: boolean };
-const abertura: Paragrafo[] = [];
-const fecho: Paragrafo[] = [];
-const secoes: (Paragrafo & { id: string; rubrica: string })[] = [];
-let onde: (Paragrafo & { rubrica: string; foto: string; fotoAlt: string }) | undefined;
-
-const ids = new Set<string>();
-const idDe = (rubrica: string) => {
-  const base = rubrica
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-  let id = base;
-  for (let n = 2; ids.has(id); n++) id = `${base}-${n}`;
-  ids.add(id);
-  return id;
-};
-
-dados.corpo.forEach((texto, indice) => {
-  const paragrafo = { texto, placeholder: aConfirmar.has(indice) };
-  const cena = cenaPorIndice.get(indice);
-  if (!cena) {
-    (indice < primeiraCena ? abertura : fecho).push(paragrafo);
-  } else if (cena.foto && cena.fotoAlt && !onde) {
-    onde = { ...paragrafo, rubrica: cena.rubrica, foto: cena.foto, fotoAlt: cena.fotoAlt };
-  } else {
-    secoes.push({ ...paragrafo, id: idDe(cena.rubrica), rubrica: cena.rubrica });
-  }
-});
-
-/* Quem atende: o sócio cuja área é esta. A divisão está em `site.socios`. */
-const socio = site.socios.find((s) => s.area === dados.slug);
-const numero = (n: number) => String(n + 1).padStart(2, '0');
-
-/* Fotos da série própria (docs/PROMPTS-IMAGENS.md). A da outra área é a
-   do banner do fim. Área nova cai na padrão até ganhar a sua. */
-const FOTO_DA_AREA: Record<string, string> = {
-  'planejamento-patrimonial-e-sucessorio': '/media/novas/area-familia',
-  'direito-digital': '/media/novas/area-presenca',
-};
-const fotoDe = (slug: string) => FOTO_DA_AREA[slug] ?? '/media/novas/area-contratos';
-const assuntos = dados.assuntos.map((a) => (typeof a === 'string' ? a : a.nome));
-
-/* A abertura da página: uma frase só, direta, com um destaque entre
-   asteriscos. O texto longo de abertura do JSON continua sendo do cliente,
-   mas na página ele ninguém lia (eram 60 palavras em 40px). Área sem frase
-   aqui cai no resumo. */
-const LEAD_DA_AREA: Record<string, string> = {
-  'planejamento-patrimonial-e-sucessorio':
-    'Decidir em vida o destino do *patrimônio*, para que ele não vire inventário demorado, imposto a mais ou briga de família.',
-  'direito-digital':
-    'As regras do que você faz na *internet*: os dados que coleta, o que publica, os contratos que assina e os danos que sofre.',
-};
-const lead = (LEAD_DA_AREA[dados.slug] ?? dados.resumo).split(/(\*[^*]+\*)/).filter(Boolean);
+const d = area.data;
+const todas = await listarAreasConfirmadas();
+const socio = socioDaArea(d.slug);
+const assuntos = assuntosDaArea(d.assuntos);
+const aConfirmar = new Set(d.corpoAConfirmar);
 ---
 
-<Base
-  titulo={`${dados.nome} | ${site.nomeCurto}`}
-  descricao={`${dados.resumo} Atuação em ${site.cidade}, ${site.estado}.`}
-  paginaAtual="/areas/"
-  heroSobreposto={true}
->
-  {/* Versão cinematográfica (26/10/2026), com o repertório da home e de O
-      escritório: capa em painel azul com grão, abertura que se acende,
-      "para quem" em painel (padrão green-volt), os assuntos num trilho
-      horizontal preso à rolagem, quem atende em cartão de foto inteira, onde
-      atendemos sobre a foto de Maringá e a outra área em banner. Movimento
-      em scripts/cinema.ts; sem ele, tudo é documento comum. */}
-  <article class="area-pagina">
-    <section class="capa">
-      <span class="grao" style="filter:url(#grao)" aria-hidden="true"></span>
-      <div class="env capa-grade">
-        <div class="capa-texto">
-          <nav class="trilha" aria-label="Você está em">
-            <a href="/areas/">Áreas de atuação</a><span aria-hidden="true"> / </span><span aria-current="page">{dados.nome}</span>
-          </nav>
-          <h1 class="capa-nome" data-sobe>{dados.nome}</h1>
-          <p class="capa-resumo" data-sobe>{dados.resumo}</p>
-          <div class="capa-acoes" data-sobe>
-            <a class="botao claro" href={linkFormulario}>
-              Contar o seu caso
-              <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
-            </a>
-            <a class="botao zap vidro" href={linkWhatsapp} target="_blank" rel="noopener">
-              WhatsApp
-              <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
-            </a>
-          </div>
-        </div>
-        <figure class="capa-foto" data-sobe>
-          <picture>
-            <source type="image/avif" srcset={`${fotoDe(dados.slug)}.avif`} />
-            <source type="image/webp" srcset={`${fotoDe(dados.slug)}.webp`} />
-            <img src={`${fotoDe(dados.slug)}.jpg`} alt="" width="900" height="1125" />
-          </picture>
-        </figure>
-      </div>
-      <div class="capa-letreiro" aria-label="Assuntos da área">
-        <div class="trilho">
-          {[0, 1].map((copia) => (
-            <ul aria-hidden={copia === 1 ? 'true' : undefined}>{assuntos.map((a) => <li>{a}</li>)}</ul>
-          ))}
-        </div>
-      </div>
-    </section>
+<Base titulo={`${d.nome} | ${site.nome}`} descricao={d.resumo} paginaAtual="/areas/">
+  <BannerPagina
+    titulo={d.nome}
+    foto={FOTO_DA_AREA[d.slug]}
+    migalhas={[{ rotulo: 'Áreas de atuação', href: '/areas/' }, { rotulo: d.nome }]}
+  />
 
-    <section class="abertura">
-      <div class="env">
-        <p class="lead" data-acende-leve>
-          {lead.map((parte) => (parte.startsWith('*') ? <em>{parte.slice(1, -1)}</em> : parte))}
-        </p>
-      </div>
-    </section>
+  <section class="secao">
+    <div class="container com-lateral">
+      <article class="texto">
+        <p class="lead">{d.resumo}</p>
+        {d.corpo.map((paragrafo, i) => (
+          <p data-placeholder={aConfirmar.has(i) ? '1' : undefined}>{paragrafo}</p>
+        ))}
 
-    {dados.publicos.length > 0 && (
-      <section class="publicos" aria-labelledby="publicos-titulo">
-        <div class="env">
-          <div class="painel-publicos">
-            <header>
-              <p class="chave">{'{ 01 }'}</p>
-              <h2 id="publicos-titulo">Para quem é</h2>
-            </header>
-            <ul class="cartoes-publicos" style={`--n:${dados.publicos.length}`}>
-              {dados.publicos.map((p, i) => (
-                <li data-sobe>
-                  <span class="pilula-vidro">{numero(i)}</span>
-                  <h3>{p.titulo}</h3>
-                  <p>{p.texto}</p>
-                </li>
-              ))}
+        {d.publicos.length > 0 && (
+          <>
+            <h2>Para quem</h2>
+            <ul class="publicos">
+              {d.publicos.map((p) => <li><strong>{p.titulo}.</strong> {p.texto}</li>)}
             </ul>
-          </div>
-        </div>
-      </section>
-    )}
+          </>
+        )}
 
-    {secoes.length > 0 && (
-      <section class="abrange" data-trilho style={`--n:${secoes.length}`} aria-labelledby="abrange-titulo">
-        <div class="abrange-palco">
-          <div class="env abrange-cab">
-            <p class="chave">{'{ 02 }'}</p>
-            <h2 id="abrange-titulo">O que a área <em>abrange.</em></h2>
-            <div class="progresso" aria-hidden="true"><span data-progresso></span></div>
-          </div>
-          <div class="abrange-janela">
-            <ol class="abrange-faixa" data-faixa>
-              {secoes.map((secao, n) => (
-                <li class="assunto" id={secao.id}>
-                  <span class="assunto-num">{numero(n)}</span>
-                  <h3>{secao.rubrica}</h3>
-                  <p data-placeholder={secao.placeholder ? '1' : undefined}>{secao.texto}</p>
-                </li>
+        <h2>O que fazemos</h2>
+        <table class="tabela-assuntos">
+          <tbody>
+            {assuntos.map((a) => (
+              <tr>
+                <th scope="row">{a.nome}</th>
+                <td>{a.faz ?? ''}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {d.perguntas.length > 0 && (
+          <>
+            <h2>Perguntas frequentes</h2>
+            <div class="faq">
+              {d.perguntas.map((p) => (
+                <details>
+                  <summary>{p.pergunta}</summary>
+                  <p>{p.resposta}</p>
+                </details>
               ))}
-            </ol>
-          </div>
-        </div>
-      </section>
-    )}
-
-    {socio && (
-      <section class="quem" id="quem-atende" aria-labelledby="quem-titulo">
-        <div class="env">
-          <div class="quem-cartao" data-sobe>
-            <picture class="quem-foto">
-              <source type="image/avif" srcset={`${socio.retrato}-840.avif`} />
-              <source type="image/webp" srcset={`${socio.retrato}-840.webp`} />
-              <img src={`${socio.retrato}-840.jpg`} alt={`Retrato de ${socio.nome}`} width="840" height="1050" loading="lazy" decoding="async" />
-            </picture>
-            <div class="quem-texto">
-              <h2 id="quem-titulo" class="chave claro">Quem atende</h2>
-              <p class="quem-nome">{socio.nome}</p>
-              <p class="quem-oab" data-placeholder={socio.oab.placeholder ? '1' : undefined}><span>Inscrição na Ordem</span> {socio.oab.valor}</p>
-              <p class="quem-linha">{socio.linha}</p>
-              <a class="botao claro" href={`/escritorio/#socio-${socio.nome.split(' ')[0].toLowerCase()}`}>
-                Formação e perfil
-                <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
-              </a>
             </div>
+          </>
+        )}
+
+        <p class="aviso">{site.avisoInformativo}</p>
+      </article>
+
+      <aside class="lateral">
+        <div class="widget">
+          <h2>Áreas de atuação</h2>
+          <ul>
+            {todas.map((a) => (
+              <li>
+                <a href={`/areas/${a.data.slug}/`} aria-current={a.data.slug === d.slug ? 'page' : undefined}>
+                  {a.data.nome}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {socio && (
+          <div class="widget socio">
+            <h2>Responsável</h2>
+            <img src={`${socio.retrato}-560.jpg`} alt={`Retrato de ${socio.nome}.`} width="560" height="840" loading="lazy" />
+            <p class="socio-nome"><a href={`/escritorio/#${socio.nome.split(' ')[0].toLowerCase()}`}>{socio.nome}</a></p>
+            <p class="socio-oab">{socio.oab.valor}</p>
           </div>
+        )}
+
+        <div class="widget widget-azul">
+          <h2>Fale conosco</h2>
+          <p>Conte o seu caso. Respondemos pelo e-mail que você informar.</p>
+          <a class="botao botao-claro" href={`/contato/?assunto=${d.slug}`}>Enviar mensagem</a>
         </div>
-      </section>
-    )}
+      </aside>
+    </div>
+  </section>
 
-    <section class="onde" id="onde-atendemos" aria-labelledby="onde-titulo">
-      <picture class="onde-fundo" aria-hidden="true">
-        <source type="image/avif" srcset="/media/novas/contato-lateral.avif" />
-        <source type="image/webp" srcset="/media/novas/contato-lateral.webp" />
-        <img src="/media/novas/contato-lateral.jpg" alt="" width="1100" height="1375" loading="lazy" />
-      </picture>
-      <div class="env onde-corpo">
-        <div class="onde-texto" data-sobe>
-          {onde ? (
-            <>
-              <h2 id="onde-titulo">{onde.rubrica}</h2>
-              <p data-placeholder={onde.placeholder ? '1' : undefined}>{onde.texto}</p>
-              <h3>Como o trabalho começa</h3>
-            </>
-          ) : (
-            <h2 id="onde-titulo">Como o trabalho começa</h2>
-          )}
-          {fecho.map((p) => <p data-placeholder={p.placeholder ? '1' : undefined}>{p.texto}</p>)}
-          <div class="capa-acoes">
-            <a class="botao claro" href={linkFormulario}>
-              Contar o seu caso
-              <span class="disco" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /></svg></span>
-            </a>
-            <a class="botao zap vidro" href={linkWhatsapp} target="_blank" rel="noopener">
-              WhatsApp
-              <span class="disco" aria-hidden="true"><Zap tamanho={15} /></span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {dados.perguntas.length > 0 && (
-      <div id="perguntas" class="ancora-perguntas">
-        <Perguntas titulo={`Perguntas frequentes sobre ${dados.nome.toLowerCase()}`} perguntas={dados.perguntas} />
-      </div>
-    )}
-
-    {(outras.length > 0 || pendentes.length > 0) && (
-      <section class="outras" aria-labelledby="outras-titulo">
-        <div class="env">
-          <h2 id="outras-titulo" class="chave">Conheça também</h2>
-          {outras.map((item) => (
-            <a class="banner" href={`/areas/${item.data.slug}/`}>
-              <picture aria-hidden="true">
-                <source type="image/avif" srcset={`${fotoDe(item.data.slug)}.avif`} />
-                <source type="image/webp" srcset={`${fotoDe(item.data.slug)}.webp`} />
-                <img src={`${fotoDe(item.data.slug)}.jpg`} alt="" width="900" height="1125" loading="lazy" />
-              </picture>
-              <span class="banner-texto">
-                <span class="banner-nome">{item.data.nome}</span>
-                <span class="banner-resumo">{item.data.resumo}</span>
-              </span>
-              <span class="banner-seta" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 14 14" fill="none"><path d="M2.5 11.5 11.5 2.5M5 2.5h6.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg></span>
-            </a>
-          ))}
-          {pendentes.map((item) => (
-            <p class="vago">{item.data.nome}: a confirmar com os sócios.</p>
-          ))}
-          <p class="todas"><a href="/areas/">Ver todas as áreas</a></p>
-        </div>
-      </section>
-    )}
-  </article>
-
-  <Contato />
+  <Chamada />
 </Base>
 
-<script>
-  import { ligaCinema } from '~/scripts/cinema';
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.documentElement.classList.add('movimento-area');
-    void ligaCinema();
-  }
-</script>
-
 <style>
-  .area-pagina {
-    --destaque: #2a62ad;
-    --gelo: #eaf0f6;
-    overflow-x: clip;
-  }
-  .pilula {
-    display: inline-block;
-    align-self: start;
-    padding: 7px 16px;
-    border-radius: 999px;
-    background: var(--gelo);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--tinta);
-  }
-  .chave {
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--secundario);
-  }
-  .chave.claro {
-    color: rgba(255, 255, 255, 0.65);
-  }
-  .grao {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    clip-path: inset(0);
-    background: #8aa0bc;
-    mix-blend-mode: overlay;
-    opacity: 0.4;
-    pointer-events: none;
-  }
-  .botao.claro {
-    background: #fff;
-    color: var(--tinta);
-  }
-  .botao.claro:hover {
-    background: var(--papel);
-  }
+  .lead { font-size: 20px; color: var(--azul); font-weight: 500; }
+  .publicos li { margin-bottom: 8px; }
+  .tabela-assuntos { width: 100%; border-collapse: collapse; font-size: 16px; margin-bottom: 1em; }
+  .tabela-assuntos th, .tabela-assuntos td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--linha); }
+  .tabela-assuntos th { width: 36%; color: var(--azul); font-weight: 500; }
+  .tabela-assuntos tr:nth-child(odd) { background: var(--fundo-cinza); }
+  .aviso { margin-top: 32px; font-size: 14px; color: var(--texto-suave); }
 
-  /* ── capa ────────────────────────────────────────────────────────── */
-  .capa {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    min-height: 100vh;
-    display: grid;
-    grid-template-rows: 1fr auto;
-    color: #fff;
-    background: linear-gradient(125deg, #1f4c88 0%, #163a6d 38%, #0e2a52 72%, var(--tinta) 100%);
-  }
-  .capa-grade {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: clamp(32px, 5vw, 96px);
-    align-items: center;
-    padding-block: clamp(120px, 15vh, 170px) clamp(36px, 6vh, 64px);
-  }
-  .trilha {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.65);
-  }
-  .trilha a {
-    color: inherit;
-  }
-  .capa-nome {
-    margin-top: 22px;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(44px, 6vw, 96px);
-    line-height: 0.94;
-    letter-spacing: -0.03em;
-  }
-  .capa-resumo {
-    margin-top: 24px;
-    max-width: 38ch;
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(22px, 2.1vw, 30px);
-    line-height: 1.3;
-    color: rgba(255, 255, 255, 0.9);
-  }
-  .capa-acoes {
-    margin-top: 32px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .capa-foto {
-    margin: 0;
-    justify-self: center;
-    aspect-ratio: 4 / 5;
-    max-height: 68vh;
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6);
-  }
-  .capa-foto img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .capa-letreiro {
-    overflow: hidden;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    padding-block: 18px;
-  }
-  .capa-letreiro .trilho {
-    display: flex;
-    width: max-content;
-    animation: corre 60s linear infinite;
-  }
-  .capa-letreiro ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-  }
-  .capa-letreiro li {
-    padding-inline: 26px;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(18px, 1.8vw, 26px);
-    white-space: nowrap;
-    color: rgba(255, 255, 255, 0.3);
-  }
-  .capa-letreiro li::after {
-    content: '/';
-    margin-left: 52px;
-  }
-  @keyframes corre {
-    to {
-      transform: translateX(-50%);
-    }
-  }
+  .socio img { border-radius: 4px; aspect-ratio: 1; object-fit: cover; object-position: 50% 18%; margin-bottom: 14px; }
+  .socio-nome { margin: 0; font-weight: 700; }
+  .socio-nome a { color: var(--azul); text-decoration: none; }
+  .socio-nome a:hover { text-decoration: underline; }
+  .socio-oab { margin: 0; font-size: 14px; color: var(--texto-suave); }
 
-  /* ── abertura ────────────────────────────────────────────────────── */
-  .abertura {
-    padding-block: clamp(72px, 9vw, 130px);
-  }
-  .lead {
-    max-width: 30ch;
-    margin: 0 auto;
-    text-align: center;
-    font-family: var(--sans);
-    font-weight: 500;
-    font-size: clamp(24px, 2.6vw, 38px);
-    line-height: 1.22;
-    letter-spacing: -0.025em;
-    color: var(--tinta);
-    text-wrap: balance;
-  }
-  .lead :global(.palavra) {
-    display: inline-block;
-  }
-  .lead em {
-    font-style: normal;
-    color: var(--destaque);
-  }
-
-  /* ── para quem (painel green-volt) ───────────────────────────────── */
-  .painel-publicos {
-    position: relative;
-    padding: clamp(32px, 4vw, 64px);
-    border-radius: 22px;
-    background: linear-gradient(135deg, #163a6d, var(--tinta));
-    color: #fff;
-  }
-  .painel-publicos .chave {
-    color: rgba(255, 255, 255, 0.6);
-  }
-  .painel-publicos h2 {
-    margin-top: 10px;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(32px, 4vw, 58px);
-    letter-spacing: -0.025em;
-  }
-  .cartoes-publicos {
-    list-style: none;
-    margin: clamp(28px, 4vw, 48px) 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    gap: 14px;
-  }
-  .cartoes-publicos li {
-    padding: 22px 22px 26px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-    transition: background-color 0.3s;
-  }
-  .cartoes-publicos li:hover {
-    background: rgba(255, 255, 255, 0.13);
-  }
-  .pilula-vidro {
-    display: inline-block;
-    padding: 4px 11px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.14);
-    font-size: 12px;
-  }
-  .cartoes-publicos h3 {
-    margin-top: 18px;
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: 20px;
-    letter-spacing: -0.01em;
-  }
-  .cartoes-publicos p {
-    margin-top: 10px;
-    font-size: 15px;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.78);
-  }
-
-  /* ── o que abrange: trilho horizontal ────────────────────────────── */
-  .abrange {
-    margin-top: clamp(90px, 11vw, 160px);
-  }
-  .abrange-cab {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: end;
-    gap: 12px 32px;
-  }
-  .abrange-cab .chave {
-    grid-column: 1 / -1;
-  }
-  .abrange-cab h2 {
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(34px, 4.6vw, 66px);
-    line-height: 0.98;
-    letter-spacing: -0.03em;
-    color: var(--tinta);
-  }
-  .abrange-cab h2 em {
-    font-style: normal;
-    color: var(--destaque);
-  }
-  .progresso {
-    width: clamp(120px, 18vw, 260px);
-    height: 3px;
-    margin-bottom: 14px;
-    border-radius: 3px;
-    background: var(--linha);
-    overflow: hidden;
-  }
-  .progresso span {
-    display: block;
-    height: 100%;
-    background: var(--destaque);
-    transform-origin: 0 50%;
-  }
-  .abrange-janela {
-    margin-top: clamp(28px, 4vh, 48px);
-    padding-inline: var(--gutter);
-  }
-  .abrange-faixa {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 18px;
-  }
-  .assunto {
-    scroll-margin-top: 120px;
-    padding: clamp(24px, 2.6vw, 36px);
-    border-radius: 20px;
-    background: var(--papel);
-    box-shadow: inset 0 0 0 1px var(--linha);
-  }
-  .assunto-num {
-    font-family: var(--sans);
-    font-weight: 800;
-    font-size: clamp(56px, 6vw, 92px);
-    line-height: 1;
-    letter-spacing: -0.05em;
-    color: transparent;
-    -webkit-text-stroke: 1.5px var(--destaque);
-  }
-  .assunto h3 {
-    margin-top: 18px;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(22px, 2vw, 28px);
-    letter-spacing: -0.015em;
-    color: var(--tinta);
-  }
-  .assunto p {
-    margin-top: 14px;
-    font-size: 17px;
-    line-height: 1.6;
-    color: var(--secundario);
-  }
-  /* Com movimento, em tela larga: o palco gruda e a faixa anda de lado. */
-  @media (min-width: 901px) {
-    :global(html.movimento-area) .abrange {
-      height: calc(var(--n) * 55vh + 100vh);
-    }
-    /* `minmax(0, 1fr)`: sem ele a faixa larga estica o palco inteiro, a
-       janela fica do tamanho da faixa e a distância a percorrer dá zero. */
-    :global(html.movimento-area) .abrange-palco {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      align-content: center;
-      overflow: hidden;
-    }
-    :global(html.movimento-area) .abrange-janela {
-      min-width: 0;
-    }
-    :global(html.movimento-area) .abrange-faixa {
-      display: flex;
-      width: max-content;
-      align-items: stretch;
-    }
-    :global(html.movimento-area) .assunto {
-      width: min(520px, 38vw);
-    }
-  }
-
-  /* ── quem atende ─────────────────────────────────────────────────── */
-  .quem {
-    padding-block: clamp(90px, 11vw, 160px) clamp(56px, 7vw, 100px);
-  }
-  .quem-cartao {
-    position: relative;
-    isolation: isolate;
-    min-height: min(620px, 80vh);
-    display: grid;
-    align-items: end;
-    border-radius: 24px;
-    overflow: hidden;
-    background: var(--tinta);
-    color: #fff;
-  }
-  .quem-foto {
-    position: absolute;
-    inset: 0 0 0 auto;
-    width: 55%;
-    z-index: -2;
-  }
-  .quem-foto img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 22%;
-    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .quem-cartao:hover .quem-foto img {
-    transform: scale(1.04);
-  }
-  /* Vinheta preta, só de contraste: a foto não é tingida. */
-  .quem-cartao::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: linear-gradient(90deg, var(--tinta) 0%, var(--tinta) 42%, rgba(11, 30, 63, 0) 70%);
-  }
-  .quem-texto {
-    max-width: 560px;
-    padding: clamp(28px, 4vw, 60px);
-  }
-  .quem-nome {
-    margin-top: 14px;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(36px, 4.4vw, 64px);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-  }
-  .quem-oab {
-    margin-top: 14px;
-    font-size: 19px;
-  }
-  .quem-oab span {
-    margin-right: 6px;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.65);
-  }
-  .quem-linha {
-    margin: 18px 0 28px;
-    font-size: 17px;
-    line-height: 1.55;
-    color: rgba(255, 255, 255, 0.82);
-  }
-
-  /* ── onde atendemos ──────────────────────────────────────────────── */
-  .onde {
-    position: relative;
-    isolation: isolate;
-    min-height: 100vh;
-    display: grid;
-    align-items: center;
-    color: #fff;
-    overflow: hidden;
-  }
-  .onde-fundo,
-  .onde-fundo img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -2;
-  }
-  .onde::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: linear-gradient(90deg, rgba(2, 6, 14, 0.85) 0%, rgba(2, 6, 14, 0.55) 50%, rgba(2, 6, 14, 0.15) 100%);
-  }
-  .onde-corpo {
-    width: 100%;
-    padding-block: clamp(80px, 10vw, 140px);
-  }
-  .onde-texto {
-    max-width: 560px;
-  }
-  .onde h2 {
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(34px, 4.4vw, 62px);
-    line-height: 0.98;
-    letter-spacing: -0.03em;
-  }
-  .onde h3 {
-    margin-top: 34px;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(20px, 1.8vw, 26px);
-  }
-  .onde p {
-    margin-top: 14px;
-    font-size: 17px;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  /* ── conheça também ──────────────────────────────────────────────── */
-  .outras {
-    padding-block: clamp(70px, 9vw, 130px);
-  }
-  .banner {
-    position: relative;
-    isolation: isolate;
-    margin-top: 18px;
-    min-height: 380px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: end;
-    gap: 24px;
-    padding: clamp(28px, 4vw, 56px);
-    border-radius: 24px;
-    overflow: hidden;
-    color: #fff;
-    text-decoration: none;
-    background: var(--tinta);
-  }
-  .banner picture,
-  .banner img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -2;
-    transition: transform 1.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .banner:hover img {
-    transform: scale(1.05);
-  }
-  .banner::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: linear-gradient(0deg, rgba(2, 6, 14, 0.85) 0%, rgba(2, 6, 14, 0.25) 70%);
-  }
-  .banner-nome {
-    display: block;
-    font-family: var(--sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: clamp(34px, 5vw, 76px);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-  }
-  .banner-resumo {
-    display: block;
-    margin-top: 14px;
-    max-width: 46ch;
-    font-size: 17px;
-    color: rgba(255, 255, 255, 0.85);
-  }
-  .banner-seta {
-    width: 64px;
-    height: 64px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: #fff;
-    color: var(--tinta);
-    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .banner:hover .banner-seta {
-    transform: rotate(45deg);
-  }
-  .vago {
-    margin-top: 14px;
-    color: var(--secundario);
-  }
-  .todas {
-    margin-top: 22px;
-    font-size: 16px;
-  }
-  .todas a {
-    color: var(--tinta);
-  }
-
-  @media (max-width: 900px) {
-    .capa-grade {
-      grid-template-columns: 1fr;
-    }
-    .capa-foto {
-      order: -1;
-      width: 100%;
-      aspect-ratio: 16 / 11;
-    }
-    .cartoes-publicos {
-      grid-template-columns: 1fr;
-    }
-    .quem-foto {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 4 / 3;
-    }
-    .quem-cartao::after {
-      background: linear-gradient(0deg, var(--tinta) 30%, rgba(11, 30, 63, 0) 60%);
-    }
-    .banner {
-      grid-template-columns: 1fr;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .capa-letreiro .trilho {
-      animation: none;
-    }
-    .capa-letreiro {
-      overflow-x: auto;
-    }
+  @media (max-width: 680px) {
+    .tabela-assuntos th, .tabela-assuntos td { display: block; width: auto; }
+    .tabela-assuntos th { padding-bottom: 2px; }
+    .tabela-assuntos td { padding-top: 0; }
   }
 </style>

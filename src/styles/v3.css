@@ -1,0 +1,203 @@
+/*
+  V3 — site institucional "com cara de WordPress".
+
+  Pedido dos sócios (07/11/2026): reprovaram a v1 e a v2 e pediram um site
+  na linha do Martinelli Advogados — institucional, direto ao ponto, sem
+  efeito, sem animação, sem "tecnologia". A referência é o padrão dos temas
+  corporativos de WordPress (Elementor/Astra): topbar com contato, cabeçalho
+  branco com menu, banner com foto e título, seções centradas com título
+  em peso misto, grade de cartões brancos, faixa de chamada e rodapé em cor
+  chapada com colunas.
+
+  Regras desta folha:
+  - Nenhuma transição além de cor no hover. Nada se move na rolagem.
+  - Uma família só (Roboto), três pesos: 300, 400/500, 700.
+  - Coluna de 1170px, a medida do Bootstrap que a maioria desses temas usa.
+*/
+
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 300; font-display: swap;
+  src: url('/fonts/roboto-300.woff2') format('woff2'); }
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('/fonts/roboto-400.woff2') format('woff2'); }
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 500; font-display: swap;
+  src: url('/fonts/roboto-500.woff2') format('woff2'); }
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 700; font-display: swap;
+  src: url('/fonts/roboto-700.woff2') format('woff2'); }
+
+:root {
+  --azul: #0b1e3f;          /* azul da marca: rodapé, topbar, títulos */
+  --azul-medio: #004369;    /* links e hover dos botões */
+  --azul-claro: #517493;
+  --vinho: #9b1c2e;         /* só em detalhe: filete, rótulo */
+  --texto: #333;
+  --texto-suave: #5f6670;
+  --fundo-cinza: #f4f6f8;
+  --linha: #e3e6ea;
+  --sombra: 0 4px 18px rgba(11, 30, 63, 0.08);
+  --fonte: 'Roboto', -apple-system, 'Segoe UI', Arial, sans-serif;
+  --coluna: 1170px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--fonte);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--texto);
+  background: #fff;
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--azul-medio); }
+a:hover { color: var(--azul); }
+h1, h2, h3, h4 { color: var(--azul); line-height: 1.25; margin: 0 0 0.6em; font-weight: 700; }
+p { margin: 0 0 1em; }
+ul { margin: 0 0 1em; padding-left: 1.2em; }
+
+:focus-visible { outline: 3px solid var(--azul-claro); outline-offset: 2px; }
+
+.pular {
+  position: absolute; left: 12px; top: -60px; z-index: 100;
+  background: var(--azul); color: #fff; padding: 10px 16px;
+}
+.pular:focus { top: 12px; }
+
+.container { width: 100%; max-width: calc(var(--coluna) + 40px); margin: 0 auto; padding: 0 20px; }
+
+/* ---------- Botões ---------- */
+.botao {
+  display: inline-block;
+  padding: 12px 26px;
+  border: 2px solid var(--azul);
+  border-radius: 4px;
+  background: var(--azul);
+  color: #fff;
+  font: 500 15px/1.2 var(--fonte);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .15s, color .15s, border-color .15s;
+}
+.botao:hover { background: var(--azul-medio); border-color: var(--azul-medio); color: #fff; }
+.botao-contorno { background: transparent; color: var(--azul); }
+.botao-contorno:hover { background: var(--azul); border-color: var(--azul); color: #fff; }
+.botao-claro { background: transparent; border-color: #fff; color: #fff; }
+.botao-claro:hover { background: #fff; border-color: #fff; color: var(--azul); }
+
+/* ---------- Seções ---------- */
+.secao { padding: 72px 0; }
+.secao-cinza { background: var(--fundo-cinza); }
+.titulo-secao { text-align: center; margin-bottom: 44px; }
+.titulo-secao h2 { font-size: 34px; font-weight: 300; margin-bottom: 10px; }
+.titulo-secao h2 strong { font-weight: 700; }
+.titulo-secao p { color: var(--texto-suave); margin: 0 auto; max-width: 620px; }
+
+/* ---------- Banner da página interna ---------- */
+.banner-pagina {
+  position: relative;
+  background: var(--azul) center / cover no-repeat;
+  color: #fff;
+  padding: 72px 0 64px;
+  text-align: center;
+}
+.banner-pagina::before { content: ''; position: absolute; inset: 0; background: rgba(11, 30, 63, 0.72); }
+.banner-pagina .container { position: relative; }
+.banner-pagina h1 { color: #fff; font-size: 40px; font-weight: 300; margin: 0 0 8px; }
+.banner-pagina h1 strong { font-weight: 700; }
+.migalhas { font-size: 14px; color: rgba(255,255,255,.8); margin: 0; }
+.migalhas a { color: #fff; text-decoration: none; }
+.migalhas a:hover { text-decoration: underline; color: #fff; }
+
+/* ---------- Cartões ---------- */
+.grade { display: grid; gap: 30px; }
+.grade-2 { grid-template-columns: repeat(2, 1fr); }
+.grade-3 { grid-template-columns: repeat(3, 1fr); }
+.cartao {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: var(--sombra);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.cartao-corpo { padding: 28px 28px 30px; display: flex; flex-direction: column; flex: 1; }
+.cartao-corpo h3 { font-size: 21px; margin-bottom: 10px; }
+.cartao-corpo p { color: var(--texto-suave); }
+.cartao-corpo .ver-mais { margin-top: auto; font-weight: 500; text-decoration: none; }
+.cartao-corpo .ver-mais:hover { text-decoration: underline; }
+.icone-area { width: 52px; height: 52px; color: var(--azul-medio); margin-bottom: 18px; }
+.rotulo { font-size: 13px; font-weight: 500; color: var(--vinho); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+
+/* ---------- Duas colunas (texto + imagem / conteúdo + barra lateral) ---------- */
+.duas-colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+.com-lateral { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 48px; align-items: start; }
+
+/* ---------- Barra lateral (os "widgets" do WordPress) ---------- */
+.lateral { display: grid; gap: 28px; }
+.widget { background: var(--fundo-cinza); border-radius: 6px; padding: 26px; }
+.widget h2 { font-size: 18px; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 2px solid var(--linha); }
+.widget ul { list-style: none; padding: 0; margin: 0; }
+.widget li + li { border-top: 1px solid var(--linha); }
+.widget li a { display: block; padding: 9px 0; text-decoration: none; color: var(--texto); }
+.widget li a:hover, .widget li a[aria-current='page'] { color: var(--azul-medio); }
+.widget li a[aria-current='page'] { font-weight: 700; }
+.widget-azul { background: var(--azul); color: rgba(255,255,255,.88); }
+.widget-azul h2 { color: #fff; border-color: rgba(255,255,255,.18); }
+
+/* ---------- Texto corrido (área, artigo) ---------- */
+.texto { font-size: 17px; }
+.texto h2 { font-size: 26px; margin-top: 1.6em; }
+.texto h3 { font-size: 20px; margin-top: 1.4em; }
+.texto img { border-radius: 6px; margin: 1.5em 0; }
+.texto blockquote { margin: 1.5em 0; padding: 4px 0 4px 20px; border-left: 4px solid var(--azul-medio); color: var(--texto-suave); }
+
+/* ---------- Perguntas frequentes ---------- */
+.faq details { border: 1px solid var(--linha); border-radius: 4px; background: #fff; }
+.faq details + details { margin-top: 10px; }
+.faq summary { cursor: pointer; padding: 16px 20px; font-weight: 500; color: var(--azul); list-style-position: outside; }
+.faq summary:hover { color: var(--azul-medio); }
+.faq details > p { padding: 0 20px 18px; margin: 0; }
+
+/* ---------- Faixa de chamada ---------- */
+.chamada { background: var(--azul); color: #fff; padding: 56px 0; }
+.chamada .container { display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+.chamada h2 { color: #fff; font-size: 30px; font-weight: 300; margin: 0 0 6px; }
+.chamada h2 strong { font-weight: 700; }
+.chamada p { margin: 0; color: rgba(255,255,255,.8); }
+
+/* ---------- Formulário ---------- */
+.form { display: grid; gap: 18px; }
+.form .linha-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.form label { display: block; font-weight: 500; font-size: 15px; margin-bottom: 6px; color: var(--azul); }
+.form input, .form select, .form textarea {
+  width: 100%;
+  font: 16px/1.5 var(--fonte);
+  color: var(--texto);
+  padding: 11px 14px;
+  border: 1px solid #cfd5dc;
+  border-radius: 4px;
+  background: #fff;
+}
+.form input:focus, .form select:focus, .form textarea:focus { border-color: var(--azul-medio); outline: 2px solid rgba(0,67,105,.2); }
+.form textarea { min-height: 150px; resize: vertical; }
+.form .isca { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form .nota { font-size: 14px; color: var(--texto-suave); margin: 0; }
+.resultado { padding: 14px 18px; border-radius: 4px; background: #e8f3ec; color: #1d5b33; margin: 0; }
+.resultado.falhou { background: #fbeaec; color: #8a1c2b; }
+.resultado[hidden] { display: none; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 991px) {
+  .grade-3 { grid-template-columns: repeat(2, 1fr); }
+  .com-lateral { grid-template-columns: 1fr; }
+  .duas-colunas { grid-template-columns: 1fr; gap: 36px; }
+}
+@media (max-width: 680px) {
+  .secao { padding: 52px 0; }
+  .grade-2, .grade-3 { grid-template-columns: 1fr; }
+  .titulo-secao h2 { font-size: 28px; }
+  .banner-pagina { padding: 52px 0 46px; }
+  .banner-pagina h1 { font-size: 30px; }
+  .chamada h2 { font-size: 25px; }
+  .form .linha-2 { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,38 @@
+---
+/**
+ * Cartão de artigo do blog: capa, categoria, título, data, resumo e
+ * "Continuar lendo". O cartão de "post" padrão de tema WordPress.
+ */
+import type { Artigo } from '../lib/artigos';
+import { dataLegivel } from '../lib/artigos';
+
+interface Props {
+  artigo: Artigo;
+}
+const { artigo } = Astro.props;
+const d = artigo.data;
+const href = `/blog/${artigo.id}/`;
+---
+
+<article class="cartao cartao-artigo">
+  {d.capa && (
+    <a href={href} tabindex="-1" aria-hidden="true">
+      <img src={d.capa} alt="" width={d.capaLargura ?? 1600} height={d.capaAltura ?? 1200} loading="lazy" />
+    </a>
+  )}
+  <div class="cartao-corpo">
+    {d.categoria && <p class="rotulo">{d.categoria}</p>}
+    <h3><a href={href}>{d.titulo}</a></h3>
+    <p class="data"><time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time></p>
+    <p>{d.resumo}</p>
+    <a class="ver-mais" href={href}>Continuar lendo →</a>
+  </div>
+</article>
+
+<style>
+  .cartao-artigo img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .cartao-artigo h3 { font-size: 19px; }
+  .cartao-artigo h3 a { color: var(--azul); text-decoration: none; }
+  .cartao-artigo h3 a:hover { color: var(--azul-medio); text-decoration: underline; }
+  .data { font-size: 14px; margin-bottom: 10px; }
+</style>
