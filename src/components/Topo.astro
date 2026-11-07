@@ -59,7 +59,12 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
   <header class="cabecalho">
     <div class="container">
       <a class="logo" href={rota(lang, '/')} aria-label={`${site.nome}, ${tx.topo.inicioAria}`}>
-        <img src="/media/marca/lockup-creme.svg" alt={site.nome} width="550" height="196" />
+        {/* Tela comum: versão com o traço um pouco mais grosso (o logo é fino
+            e, com 60px, cada linha fica com ~1px e serrilha). Retina: o original. */}
+        <picture>
+          <source media="(min-resolution: 2dppx)" srcset="/media/marca/lockup-creme.svg" />
+          <img src="/media/marca/lockup-creme-tela.svg" alt={site.nome} width="550" height="196" />
+        </picture>
       </a>
 
       <button class="abre-menu" type="button" aria-expanded="false" aria-controls="menu-principal" hidden>
@@ -149,7 +154,8 @@ const outro = alternativa ?? (lang === 'pt' ? '/en/' : '/');
 
   /* ---------- Barra principal ---------- */
   .cabecalho .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: var(--altura-barra); }
-  .logo img { height: 60px; width: auto; }
+  .logo picture { display: block; }
+  .logo img { display: block; height: 60px; width: auto; }
 
   .menu { display: flex; align-items: center; gap: 28px; }
   .menu > ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }

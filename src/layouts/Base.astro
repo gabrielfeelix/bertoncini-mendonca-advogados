@@ -2,7 +2,8 @@
 /**
  * Layout base da v3: <head> com SEO, cabeçalho, conteúdo, chamada opcional
  * e rodapé. Sem camada de movimento, sem rolagem suave, sem GSAP: a v3 é
- * um site institucional estático, como um tema WordPress corporativo.
+ * um site institucional estático, como um tema WordPress corporativo. A
+ * única animação de abertura é a cortina de entrada da v1 (Entrada.astro).
  */
 import '../styles/tokens.css';
 import '../styles/v3.css';
@@ -10,6 +11,7 @@ import Topo from '../components/Topo.astro';
 import Rodape from '../components/Rodape.astro';
 import AvisoCookies from '../components/AvisoCookies.astro';
 import Acessibilidade from '../components/Acessibilidade.astro';
+import Entrada from '../components/Entrada.astro';
 import { site } from '../lib/site';
 import { t, type Idioma } from '../lib/i18n';
 
@@ -98,8 +100,16 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <!-- Marca que há JavaScript antes da primeira pintura: o cabeçalho só
-         fica transparente sobre a foto quando o script de rolagem existe. -->
-    <script is:inline>document.documentElement.classList.add('com-js');</script>
+         fica transparente sobre a foto quando o script de rolagem existe.
+         A cortina de entrada (Entrada.astro) só passa na primeira página da
+         sessão; nas seguintes, `entrada-vista` a esconde antes de pintar. -->
+    <script is:inline>
+      document.documentElement.classList.add('com-js');
+      try {
+        if (sessionStorage.getItem('bm-entrada') === '1') document.documentElement.classList.add('entrada-vista');
+        else sessionStorage.setItem('bm-entrada', '1');
+      } catch (e) {}
+    </script>
     <!-- Preferências de acessibilidade salvas (Acessibilidade.astro), aplicadas
          antes da primeira pintura para a página não "piscar". -->
     <script is:inline>
@@ -114,6 +124,7 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <link rel="preload" href="/fonts/roboto-700.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
+    <Entrada />
     <a class="pular" href="#conteudo">Pular para o conteúdo</a>
     <Topo paginaAtual={paginaAtual} sobreposto={sobreposto} lang={lang} alternativa={alternativa} />
     <main id="conteudo" tabindex="-1" class:list={{ reserva: !sobreposto }}>

@@ -21,7 +21,10 @@ const ano = new Date().getFullYear();
 <footer class="rodape">
   <div class="container colunas">
     <div>
-      <img class="rodape-logo" src="/media/marca/lockup-creme.svg" alt={site.nome} width="550" height="196" />
+      <picture>
+        <source media="(min-resolution: 2dppx)" srcset="/media/marca/lockup-creme.svg" />
+        <img class="rodape-logo" src="/media/marca/lockup-creme-tela.svg" alt={site.nome} width="550" height="196" />
+      </picture>
       <p>{tx.atendimento} {tx.presencialEm} {site.cidade}/{site.estado}.</p>
       <ul class="redes" aria-label={tx.rodape.redesAria}>
         <li><a href={site.redes.instagram.valor} rel="noopener" target="_blank" aria-label={`Instagram ${site.redes.instagramArroba}`}><Icone nome="instagram" tamanho={20} /></a></li>
@@ -84,7 +87,7 @@ const ano = new Date().getFullYear();
     display: grid; grid-template-columns: 1.15fr .8fr 1.15fr 1.45fr; gap: 40px;
     padding-top: 60px; padding-bottom: 48px;
   }
-  .rodape-logo { width: 200px; height: auto; margin-bottom: 18px; }
+  .rodape-logo { display: block; width: 200px; height: auto; margin-bottom: 18px; }
   .rodape h2 { color: #fff; font-size: 16px; margin-bottom: 16px; }
   .rodape ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
   .rodape a { color: rgba(255,255,255,.88); text-decoration: none; }
