@@ -1,0 +1,146 @@
+---
+/**
+ * "Como podemos ajudar?": formulário curto num cartão escuro com foto, para
+ * o fim dos artigos (padrão do blog do Martinelli).
+ *
+ * Mesma rota (/api/contato), mesmas iscas e mesmo envio sem sair da página
+ * do formulário completo de /contato/. Sem JavaScript, a API devolve a
+ * pessoa para /contato/, onde o resultado aparece. `assuntoPadrao` chega
+ * já escolhido (ex.: a categoria do artigo, quando é uma das áreas).
+ */
+import { CAMPOS_ISCA } from '../lib/antispam';
+import { areasDoIdioma } from '../lib/areas';
+import { t } from '../lib/i18n';
+
+interface Props {
+  assuntoPadrao?: string;
+}
+const { assuntoPadrao = '' } = Astro.props;
+const c = t('pt').contato;
+const areas = await areasDoIdioma('pt');
+const ASSUNTOS = [...areas.map((a) => a.data.nome), c.outroAssunto, c.naoSei];
+const escolhido = ASSUNTOS.find((a) => a.toLowerCase() === assuntoPadrao.toLowerCase()) ?? '';
+---
+
+<section class="ajuda" aria-labelledby="ajuda-titulo">
+  <div class="ajuda-cartao">
+    <h2 id="ajuda-titulo">Como podemos <strong>ajudar?</strong></h2>
+    <p class="ajuda-apoio">Preencha o formulário. Um dos sócios lê e responde pelo e-mail que você informar.</p>
+
+    <form class="ajuda-form" action="/api/contato" method="post" data-erros={JSON.stringify(c.erros)}>
+      <input type="hidden" name="idioma" value="pt" />
+      <div class="dupla">
+        <label><span class="sr">{c.nome}</span><input name="nome" type="text" autocomplete="name" required maxlength="120" placeholder={`${c.nome} *`} /></label>
+        <label><span class="sr">{c.email}</span><input name="email" type="email" autocomplete="email" required maxlength="254" placeholder={`${c.email} *`} /></label>
+      </div>
+      <div class="dupla">
+        <label><span class="sr">{c.telefone}</span><input name="telefone" type="tel" autocomplete="tel" maxlength="40" placeholder={c.telefone} /></label>
+        <label>
+          <span class="sr">{c.assunto}</span>
+          <select name="assunto">
+            <option value="">{c.assunto}</option>
+            {ASSUNTOS.map((a) => <option value={a} selected={a === escolhido}>{a}</option>)}
+          </select>
+        </label>
+      </div>
+      <label><span class="sr">{c.mensagem}</span><textarea name="mensagem" required maxlength="5000" placeholder="Conte o seu caso *"></textarea></label>
+
+      <div class="isca" aria-hidden="true">
+        {CAMPOS_ISCA.map((campo) => <input type="text" name={campo} tabindex="-1" autocomplete="off" />)}
+      </div>
+
+      <button type="submit" class="botao">Enviar</button>
+      <p class="ajuda-resultado" role="status" aria-live="polite" hidden></p>
+      <p class="ajuda-nota">
+        Enviar não estabelece relação de patrocínio nem substitui uma consulta. Veja a
+        <a href="/politica-de-privacidade/">política de privacidade</a>.
+      </p>
+    </form>
+  </div>
+</section>
+
+<script>
+  for (const forma of document.querySelectorAll<HTMLFormElement>('.ajuda-form')) {
+    const resultado = forma.querySelector<HTMLElement>('.ajuda-resultado');
+    const botao = forma.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const erros = JSON.parse(forma.dataset.erros ?? '{}') as Record<string, string>;
+    if (!resultado || !botao) continue;
+    forma.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      botao.disabled = true;
+      resultado.hidden = false;
+      resultado.classList.remove('falhou');
+      resultado.textContent = 'Enviando a mensagem.';
+      try {
+        const resposta = await fetch('/api/contato', {
+          method: 'POST',
+          body: new FormData(forma),
+          headers: { accept: 'application/json' },
+        });
+        const dados = (await resposta.json().catch(() => ({}))) as { codigo?: string };
+        if (resposta.ok) {
+          forma.reset();
+          resultado.textContent = 'Recebemos a sua mensagem. A resposta vai para o e-mail que você informou.';
+        } else {
+          resultado.classList.add('falhou');
+          resultado.textContent = erros[dados.codigo ?? ''] ?? erros.envio;
+        }
+      } catch {
+        resultado.classList.add('falhou');
+        resultado.textContent = 'Sem conexão no momento. Tente de novo em instantes.';
+      } finally {
+        botao.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .ajuda { padding: 24px 0 80px; }
+  .ajuda-cartao {
+    position: relative; overflow: hidden; isolation: isolate;
+    max-width: 1040px; margin: 0 auto;
+    padding: 64px clamp(20px, 7vw, 120px) 56px;
+    border-radius: 20px;
+    background: #0b1e3f url('/media/novas/contato-lateral.jpg') center / cover no-repeat;
+    color: #fff; text-align: center;
+    box-shadow: 0 24px 60px rgba(11, 30, 63, .22);
+  }
+  .ajuda-cartao::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(32deg, rgba(0, 67, 105, .8) 0%, rgba(0, 67, 105, 0) 55%),
+      linear-gradient(rgba(11, 30, 63, .78), rgba(11, 30, 63, .78));
+  }
+  .ajuda h2 { color: #fff; font-size: 44px; font-weight: 300; margin-bottom: 10px; }
+  .ajuda h2 strong { font-weight: 700; }
+  .ajuda-apoio { font-size: 18px; color: rgba(248, 247, 242, .88); margin-bottom: 30px; }
+
+  .ajuda-form { display: grid; gap: 14px; max-width: 760px; margin: 0 auto; text-align: left; }
+  .dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .ajuda-form input, .ajuda-form select, .ajuda-form textarea {
+    width: 100%; font: 16px/1.5 var(--fonte); color: var(--texto);
+    padding: 12px 20px; border: 1px solid transparent; border-radius: 26px; background: #fff;
+  }
+  .ajuda-form select { color: var(--texto-suave); }
+  .ajuda-form textarea { min-height: 130px; resize: vertical; border-radius: 22px; }
+  .ajuda-form input:focus, .ajuda-form select:focus, .ajuda-form textarea:focus { outline: 3px solid rgba(159, 180, 200, .7); outline-offset: 1px; }
+  .ajuda-form .botao {
+    justify-self: center; min-width: 200px; border-radius: 26px;
+    background: #f8f7f2; border-color: #f8f7f2; color: var(--azul); font-weight: 700;
+  }
+  .ajuda-form .botao:hover { background: #fff; border-color: #fff; color: var(--azul); }
+  .ajuda-resultado { text-align: center; margin: 0; padding: 10px 16px; border-radius: 8px; background: rgba(232, 243, 236, .95); color: #1d5b33; }
+  .ajuda-resultado.falhou { background: rgba(251, 234, 236, .95); color: #8a1c2b; }
+  .ajuda-nota { text-align: center; font-size: 13px; color: rgba(248, 247, 242, .7); margin: 4px 0 0; }
+  .ajuda-nota a { color: #fff; }
+  .isca { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (max-width: 680px) {
+    .ajuda-cartao { padding: 44px 18px 36px; border-radius: 14px; }
+    .ajuda h2 { font-size: 30px; }
+    .ajuda-apoio { font-size: 16px; }
+    .dupla { grid-template-columns: 1fr; }
+  }
+</style>

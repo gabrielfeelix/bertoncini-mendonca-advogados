@@ -1,15 +1,16 @@
 ---
 /**
- * Artigo do blog (v3): banner com o título, texto com barra lateral
- * (outros textos, áreas, contato), padrão de post de tema WordPress.
+ * Artigo do blog (v3), no formato do blog do Martinelli: cabeçalho em
+ * fundo branco (categoria, título, data, compartilhar), capa larga e
+ * arredondada, texto numa coluna de leitura, "Leia também" em cartões
+ * horizontais e o formulário curto "Como podemos ajudar?" no fim.
  */
 import type { GetStaticPaths } from 'astro';
 import { render } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '~/layouts/Base.astro';
-import BannerPagina from '~/components/BannerPagina.astro';
-import Chamada from '~/components/Chamada.astro';
-import { listarAreasConfirmadas } from '~/lib/areas';
+import FormRapido from '~/components/FormRapido.astro';
+import Icone from '~/components/Icone.astro';
 import { listarArtigos, dataLegivel, NOME_DO_BLOG } from '~/lib/artigos';
 import { site } from '~/lib/site';
 
@@ -44,84 +45,169 @@ const comNome = `${tituloBase} | ${site.nome}`;
 const comCurto = `${tituloBase} | ${site.nomeCurto}`;
 const titulo = comNome.length <= 70 ? comNome : comCurto.length <= 70 ? comCurto : tituloBase;
 const descricao = d.seoDescricao ?? d.resumo;
-const areas = await listarAreasConfirmadas();
+/* Compartilhar: endereço canônico do artigo, nunca o do ambiente local. */
+const urlArtigo = new URL(Astro.url.pathname, site.url).toString();
+const compartilhar = {
+  linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(urlArtigo)}`,
+  whatsapp: `https://wa.me/?text=${encodeURIComponent(`${d.titulo} ${urlArtigo}`)}`,
+};
+const leiaTambem = relacionados.slice(0, 2);
 ---
 
-<Base titulo={titulo} descricao={descricao} paginaAtual="/blog/">
-  <BannerPagina
-    titulo={d.titulo}
-    migalhas={[{ rotulo: NOME_DO_BLOG, href: '/blog/' }, { rotulo: d.categoria }]}
-  />
+<Base titulo={titulo} descricao={descricao} paginaAtual="/blog/" sobreposto={false}>
+  <article class="artigo">
+    <header class="cabeca">
+      <p class="trilha">
+        <a href="/blog/">{NOME_DO_BLOG}</a>
+        <span aria-hidden="true">/</span>
+        <span>{d.categoria}</span>
+      </p>
+      <h1>{d.titulo}</h1>
+      <p class="resumo">{d.resumo}</p>
 
-  <section class="secao">
-    <div class="container com-lateral">
-      <article>
+      <div class="meta-linha">
         <p class="meta">
-          <span class="rotulo">{d.categoria}</span>
-          <span>
-            <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
-            {d.tempoLeitura && <> · {d.tempoLeitura} min de leitura</>}
-            {d.autor && <> · {d.autor}</>}
-            {d.atualizadoEm && (
-              <> · Atualizado em <time datetime={d.atualizadoEm.toISOString()}>{dataLegivel(d.atualizadoEm)}</time></>
-            )}
-          </span>
+          <time datetime={d.publicadoEm.toISOString()}>{dataLegivel(d.publicadoEm)}</time>
+          {d.tempoLeitura && <span>{d.tempoLeitura} min de leitura</span>}
+          {d.autor && <span>{d.autor}</span>}
+          {d.atualizadoEm && (
+            <span>Atualizado em <time datetime={d.atualizadoEm.toISOString()}>{dataLegivel(d.atualizadoEm)}</time></span>
+          )}
         </p>
-
-        {d.capa && d.capaLargura && d.capaAltura && (
-          <Image
-            class="capa"
-            src={d.capa}
-            alt={d.capaAlt ?? ''}
-            width={d.capaLargura}
-            height={d.capaAltura}
-            widths={[480, 800, 1200]}
-            sizes="(min-width: 1100px) 780px, 100vw"
-            loading="eager"
-          />
-        )}
-        {d.capa && d.capaCredito && <p class="credito">{d.capaCredito}</p>}
-
-        <div class="texto">
-          <p class="resumo">{d.resumo}</p>
-          <Content />
+        <div class="compartilhar">
+          <span class="compartilhar-rotulo">Compartilhar:</span>
+          <a href={compartilhar.linkedin} target="_blank" rel="noopener" aria-label="Compartilhar no LinkedIn"><Icone nome="linkedin" tamanho={18} /></a>
+          <a href={compartilhar.whatsapp} target="_blank" rel="noopener" aria-label="Compartilhar no WhatsApp"><Icone nome="whatsapp" tamanho={18} /></a>
+          <button type="button" class="copiar" data-url={urlArtigo} aria-label="Copiar o link do artigo"><Icone nome="link" tamanho={18} /></button>
+          <span class="copiado" role="status" aria-live="polite"></span>
         </div>
+      </div>
+    </header>
 
-        <p class="aviso">{site.avisoInformativo}</p>
-      </article>
+    {d.capa && d.capaLargura && d.capaAltura && (
+      <figure class="capa-env">
+        <Image
+          class="capa"
+          src={d.capa}
+          alt={d.capaAlt ?? ''}
+          width={d.capaLargura}
+          height={d.capaAltura}
+          widths={[640, 1040, 1600]}
+          sizes="(min-width: 1100px) 1040px, 100vw"
+          loading="eager"
+        />
+        {d.capaCredito && <figcaption>{d.capaCredito}</figcaption>}
+      </figure>
+    )}
 
-      <aside class="lateral">
-        {relacionados.length > 0 && (
-          <div class="widget">
-            <h2>Outros textos</h2>
-            <ul>
-              {relacionados.map((item) => <li><a href={`/blog/${item.id}/`}>{item.data.titulo}</a></li>)}
-            </ul>
-          </div>
-        )}
-        <div class="widget">
-          <h2>Áreas de atuação</h2>
-          <ul>
-            {areas.map((a) => <li><a href={`/areas/${a.data.slug}/`}>{a.data.nome}</a></li>)}
-          </ul>
-        </div>
-        <div class="widget widget-azul">
-          <h2>Fale conosco</h2>
-          <p>Tem uma dúvida sobre o seu caso? Escreva para o escritório.</p>
-          <a class="botao botao-claro" href="/contato/">Enviar mensagem</a>
-        </div>
-      </aside>
+    <div class="texto corpo">
+      <Content />
+      <p class="aviso">{site.avisoInformativo}</p>
     </div>
-  </section>
+  </article>
 
-  <Chamada />
+  {leiaTambem.length > 0 && (
+    <section class="relacionados" aria-labelledby="leia-tambem">
+      <div class="largo">
+        <h2 id="leia-tambem">Leia <strong>também</strong></h2>
+        <div class="rel-grade">
+          {leiaTambem.map((item) => (
+            <article class="rel">
+              {item.data.capa && (
+                <a class="rel-foto" href={`/blog/${item.id}/`} tabindex="-1" aria-hidden="true">
+                  <img src={item.data.capa} alt="" width={item.data.capaLargura ?? 1600} height={item.data.capaAltura ?? 1200} loading="lazy" />
+                </a>
+              )}
+              <div>
+                <p class="rel-categoria">{item.data.categoria}</p>
+                <h3><a href={`/blog/${item.id}/`}>{item.data.titulo}</a></h3>
+                <p class="rel-resumo">{item.data.resumo}</p>
+                <a class="rel-mais" href={`/blog/${item.id}/`}>Continuar lendo <span aria-hidden="true">→</span></a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <FormRapido assuntoPadrao={d.categoria} />
 </Base>
 
+<script>
+  for (const botao of document.querySelectorAll<HTMLButtonElement>('.copiar')) {
+    const aviso = botao.parentElement?.querySelector<HTMLElement>('.copiado');
+    botao.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(botao.dataset.url ?? location.href);
+        if (aviso) aviso.textContent = 'Link copiado';
+      } catch {
+        if (aviso) aviso.textContent = 'Não foi possível copiar';
+      }
+      window.setTimeout(() => { if (aviso) aviso.textContent = ''; }, 2500);
+    });
+  }
+</script>
+
 <style>
-  .meta { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; font-size: 14px; color: var(--texto-suave); }
-  .meta .rotulo { margin: 0; }
-  :global(.capa) { width: 100%; height: auto; border-radius: 6px; margin: 8px 0 6px; }
-  .credito { font-size: 13px; color: var(--texto-suave); }
-  .resumo { font-size: 20px; color: var(--azul); font-weight: 500; }
-  .aviso { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--linha); font-size: 14px; color: var(--texto-suave); }
+  .artigo { padding: 56px 20px 24px; }
+  .cabeca, .corpo { max-width: 780px; margin: 0 auto; }
+  .trilha { font-size: 15px; color: var(--azul-claro); margin-bottom: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .trilha a { color: var(--azul-medio); text-decoration: none; font-weight: 500; }
+  .trilha a:hover { text-decoration: underline; }
+  .cabeca h1 { font-size: 44px; line-height: 1.15; letter-spacing: -.01em; margin-bottom: 16px; }
+  .resumo { font-size: 20px; line-height: 1.55; color: var(--texto-suave); margin-bottom: 26px; }
+
+  .meta-linha {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px 24px; flex-wrap: wrap;
+    padding: 16px 0; border-top: 1px solid var(--linha); border-bottom: 1px solid var(--linha);
+  }
+  .meta { margin: 0; font-size: 15px; color: var(--texto-suave); display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .meta time:first-child { color: var(--azul-medio); font-weight: 500; }
+  .compartilhar { display: flex; align-items: center; gap: 8px; position: relative; }
+  .compartilhar-rotulo { font-size: 15px; font-weight: 700; color: var(--azul); margin-right: 4px; }
+  .compartilhar a, .copiar {
+    display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--azul); color: #fff; border: 0; cursor: pointer;
+    transition: background-color .15s ease;
+  }
+  .compartilhar a:hover, .copiar:hover { background: var(--azul-medio); color: #fff; }
+  .copiado { position: absolute; right: 0; top: calc(100% + 6px); font-size: 13px; color: var(--azul-medio); white-space: nowrap; }
+
+  .capa-env { max-width: 1040px; margin: 40px auto 8px; }
+  .capa-env :global(.capa) { width: 100%; height: auto; border-radius: 16px; display: block; }
+  .capa-env figcaption { font-size: 13px; color: var(--texto-suave); margin-top: 8px; }
+
+  .corpo { padding-top: 32px; }
+  .aviso { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--linha); font-size: 14px; color: var(--texto-suave); }
+
+  /* ---------- Leia também ---------- */
+  .relacionados { padding: 40px 20px 32px; }
+  .largo { max-width: 1040px; margin: 0 auto; }
+  .relacionados h2 { font-size: 34px; font-weight: 300; margin-bottom: 28px; }
+  .relacionados h2 strong { font-weight: 700; }
+  .rel-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .rel { display: grid; grid-template-columns: 180px 1fr; gap: 22px; align-items: start; }
+  .rel-foto img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; }
+  .rel-categoria { font-size: 13px; color: var(--azul-claro); margin: 2px 0 6px; }
+  .rel h3 { font-size: 19px; line-height: 1.3; margin-bottom: 8px; }
+  .rel h3 a { color: var(--azul); text-decoration: none; }
+  .rel h3 a:hover { color: var(--azul-medio); text-decoration: underline; }
+  .rel-resumo {
+    font-size: 15px; color: var(--texto-suave); margin-bottom: 10px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .rel-mais { font-size: 15px; font-weight: 500; text-decoration: none; }
+  .rel-mais:hover { text-decoration: underline; }
+
+  @media (max-width: 860px) {
+    .rel-grade { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 680px) {
+    .artigo { padding-top: 36px; }
+    .cabeca h1 { font-size: 31px; }
+    .resumo { font-size: 18px; }
+    .rel { grid-template-columns: 110px 1fr; gap: 16px; }
+    .relacionados h2 { font-size: 28px; }
+  }
 </style>
