@@ -53,6 +53,12 @@ if (envio === 'erro') {
     valores[campo] = Astro.url.searchParams.get(`v-${campo}`) ?? '';
   }
 }
+/* Mapa ?assunto= → opção, para o navegador marcar o assunto quando a página
+   chega pré-gerada (prévia em /v3), onde o servidor não lê a URL. */
+const mapaAssuntos = Object.fromEntries([
+  ...areas.map((a) => [a.slugPt, a.data.nome]),
+  ...outras.map((o) => [o.chave, o.nome]),
+]);
 const houveCorte = envio === 'erro' && Astro.url.searchParams.get('corte-contato') === '1';
 const campoComErro =
   motivo === 'email' ? 'email' : motivo === 'faltando' ? (valores.nome ? 'mensagem' : 'nome') : null;
@@ -116,7 +122,7 @@ const erroEm = (campo: string) =>
           <div class="linha-2">
             <div>
               <label for="assunto">{c.assunto}</label>
-              <select id="assunto" name="assunto" data-seletor>
+              <select id="assunto" name="assunto" data-seletor data-mapa={JSON.stringify(mapaAssuntos)}>
                 <option value="">{c.selecione}</option>
                 {ASSUNTOS.map((a) => <option value={a} selected={valores.assunto === a}>{a}</option>)}
               </select>
@@ -199,6 +205,20 @@ const erroEm = (campo: string) =>
     </div>
   </section>
 </Base>
+
+<script>
+  /* Assunto vindo do link (?assunto=): se o servidor não marcou (página
+     pré-gerada), marca aqui e avisa o seletor próprio pelo evento change. */
+  const campoAssunto = document.querySelector<HTMLSelectElement>('select[name="assunto"][data-mapa]');
+  const pedido = new URLSearchParams(location.search).get('assunto');
+  if (campoAssunto && pedido && !campoAssunto.value) {
+    const mapa = JSON.parse(campoAssunto.dataset.mapa ?? '{}') as Record<string, string>;
+    if (mapa[pedido]) {
+      campoAssunto.value = mapa[pedido];
+      campoAssunto.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+</script>
 
 <script>
   /* Melhoria progressiva: com JS o envio acontece sem sair da página. */
