@@ -190,6 +190,17 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 .widget li a { display: block; padding: 9px 0; text-decoration: none; color: var(--texto); }
 .widget li a:hover, .widget li a[aria-current='page'] { color: var(--azul-medio); }
 .widget li a[aria-current='page'] { font-weight: 700; }
+/* Setinha antes de cada item das listas laterais (áreas, "também
+   atuamos em"). As listas com ícone próprio (contato, quem atende) não. */
+.widget ul:not(.pessoas):not(.canais) > li { position: relative; padding-left: 22px; }
+.widget ul:not(.pessoas):not(.canais) > li::before {
+  content: ''; position: absolute; left: 2px; top: 22px; /* centro da 1ª linha */
+  width: 7px; height: 7px; margin-top: -4px;
+  border-top: 2px solid var(--azul-claro); border-right: 2px solid var(--azul-claro);
+  transform: rotate(45deg); transition: transform .15s ease, border-color .15s ease;
+}
+.widget ul:not(.pessoas):not(.canais) > li:hover::before { border-color: var(--azul-medio); transform: translateX(3px) rotate(45deg); }
+.widget ul:not(.pessoas):not(.canais) > li:has(a[aria-current='page'])::before { border-color: var(--azul-medio); }
 .widget-azul { background: var(--azul); color: rgba(255,255,255,.88); }
 .widget-azul h2 { color: #fff; border-color: rgba(255,255,255,.18); }
 
@@ -201,11 +212,68 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 .texto blockquote { margin: 1.5em 0; padding: 4px 0 4px 20px; border-left: 4px solid var(--azul-medio); color: var(--texto-suave); }
 
 /* ---------- Perguntas frequentes ---------- */
-.faq details { border: 1px solid var(--linha); border-radius: 4px; background: #fff; }
-.faq details + details { margin-top: 10px; }
-.faq summary { cursor: pointer; padding: 16px 20px; font-weight: 500; color: var(--azul); list-style-position: outside; }
-.faq summary:hover { color: var(--azul-medio); }
-.faq details > p { padding: 0 20px 18px; margin: 0; }
+/*
+  Cartões arredondados; o "+" num círculo à direita vira "−" ao abrir. O
+  aberto ganha fundo branco, sombra e filete azul à esquerda. Nos
+  navegadores que já animam <details> (interpolate-size), a resposta
+  desliza; nos outros, abre na hora, sem quebrar nada.
+*/
+:root { interpolate-size: allow-keywords; }
+.faq { display: grid; gap: 12px; }
+.faq details {
+  position: relative;
+  background: var(--fundo-cinza);
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  transition: background-color .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.faq details::before {
+  content: ''; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px;
+  border-radius: 0 3px 3px 0; background: var(--azul-medio);
+  opacity: 0; transition: opacity .2s ease;
+}
+.faq details:hover { border-color: #cfd6de; }
+.faq details[open] { background: #fff; border-color: var(--linha); box-shadow: 0 10px 30px rgba(11, 30, 63, .08); }
+.faq details[open]::before { opacity: 1; }
+.faq summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  padding: 20px 22px 20px 24px;
+  cursor: pointer; list-style: none;
+  font-weight: 500; font-size: 17px; line-height: 1.4; color: var(--azul);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: ''; flex: none;
+  width: 30px; height: 30px; border-radius: 50%;
+  background:
+    linear-gradient(currentColor, currentColor) center / 12px 2px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 2px 12px no-repeat,
+    #fff;
+  box-shadow: inset 0 0 0 1px var(--linha);
+  color: var(--azul-medio);
+  transition: transform .25s ease, background-color .2s ease;
+}
+.faq details[open] summary::after {
+  transform: rotate(180deg);
+  background:
+    linear-gradient(#fff, #fff) center / 12px 2px no-repeat,
+    var(--azul);
+  box-shadow: none;
+}
+.faq summary:focus-visible { outline: 3px solid var(--azul-claro); outline-offset: 2px; border-radius: 10px; }
+.faq details::details-content {
+  block-size: 0; overflow: hidden;
+  transition: block-size .28s ease, content-visibility .28s allow-discrete;
+}
+.faq details[open]::details-content { block-size: auto; }
+.faq details > p { padding: 0 64px 22px 24px; margin: 0; color: var(--texto); line-height: 1.75; }
+@media (prefers-reduced-motion: reduce) {
+  .faq details, .faq details::before, .faq summary::after, .faq details::details-content { transition: none; }
+}
+@media (max-width: 680px) {
+  .faq summary { font-size: 16px; padding: 18px 16px 18px 18px; }
+  .faq details > p { padding: 0 18px 20px; }
+}
 
 /* ---------- Faixa de chamada ---------- */
 .chamada { background: var(--azul); color: #fff; padding: 56px 0; }

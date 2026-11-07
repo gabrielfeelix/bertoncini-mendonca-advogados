@@ -105,13 +105,19 @@ const escritorio = rota(lang, '/escritorio/');
 
         <div class="widget socio">
           <h2>{ar.quemAtende}</h2>
-          <img src="/media/hero/socios-1600.jpg" alt={tx.home.fotoSocios} width="1600" height="900" loading="lazy" />
-          {site.socios.map((s) => (
-            <p class="socio-nome">
-              <a href={`${escritorio}#${s.nome.split(' ')[0].toLowerCase()}`}>{s.nome}</a>{' '}
-              <span class="socio-oab">· {s.oab.valor}</span>
-            </p>
-          ))}
+          <ul class="pessoas">
+            {site.socios.map((s, i) => (
+              <li>
+                <a href={`${escritorio}#${s.nome.split(' ')[0].toLowerCase()}`}>
+                  <img src={`${s.retrato}-560.jpg`} alt="" width="560" height="840" loading="lazy" />
+                  <span>
+                    <strong>{s.nome}</strong>
+                    <span class="socio-cargo">{tx.socio[i === 1 ? 'a' : 'o']} · {s.oab.valor}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div class="widget">
@@ -146,11 +152,22 @@ const escritorio = rota(lang, '/escritorio/');
   .aviso { margin-top: 32px; font-size: 14px; color: var(--texto-suave); }
 
   .simples li { padding: 8px 0; }
-  .socio img { border-radius: 4px; aspect-ratio: 16 / 10; object-fit: cover; margin-bottom: 14px; }
-  .socio-nome { margin: 0 0 4px; font-weight: 700; }
-  .socio-nome a { color: var(--azul); text-decoration: none; }
-  .socio-nome a:hover { text-decoration: underline; }
-  .socio-oab { font-size: 14px; font-weight: 400; color: var(--texto-suave); }
+  /* Um item por sócio: foto redonda à esquerda, nome e OAB à direita. */
+  .pessoas { display: grid; gap: 6px; }
+  .pessoas li + li { border-top: 1px solid var(--linha); }
+  .pessoas a {
+    display: flex !important; align-items: center; gap: 14px;
+    padding: 10px 0 !important; text-decoration: none;
+  }
+  .pessoas img {
+    width: 56px; height: 56px; flex: none; border-radius: 50%;
+    object-fit: cover; object-position: 50% 18%;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--linha);
+  }
+  .pessoas span { display: grid; gap: 1px; }
+  .pessoas strong { color: var(--azul); font-size: 16px; line-height: 1.3; }
+  .pessoas a:hover strong { color: var(--azul-medio); text-decoration: underline; }
+  .socio-cargo { font-size: 13px; color: var(--texto-suave); }
 
   @media (max-width: 680px) {
     .servicos ul { grid-template-columns: 1fr; }
