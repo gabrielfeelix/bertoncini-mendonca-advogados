@@ -88,7 +88,6 @@ const artigos = lang === 'pt' ? (await listarArtigos()).slice(0, 3) : [];
       <div class="container">
         <div class="titulo-secao">
           <h2>Últimas <strong>Publicações</strong></h2>
-          <p>Textos do escritório sobre as dúvidas mais comuns em cada área.</p>
         </div>
         <div class="grade grade-3">
           {artigos.map((artigo) => <CartaoArtigo artigo={artigo} />)}
