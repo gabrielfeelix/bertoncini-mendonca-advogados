@@ -63,7 +63,13 @@ const perfis = site.socios.map((socio, i) => ({
         </p>
         <p>{tx.atendimento}, {tx.presencialEm} {site.cidade}/{site.estado}.</p>
       </div>
-      <img class="foto" src="/media/novas/escritorio-historia.jpg" alt="" width="1600" height="900" loading="lazy" />
+      {/* Painel da marca, como a pasta do manual de identidade: azul-noite,
+          monograma grande quase transparente e o logo em creme. Fica até
+          chegar uma foto própria do escritório. */}
+      <div class="painel-marca" aria-hidden="true">
+        <img class="pm-mono" src="/media/marca/monograma-creme.svg" alt="" width="254" height="276" />
+        <img class="pm-logo" src="/media/marca/lockup-creme.svg" alt="" width="550" height="196" />
+      </div>
     </div>
   </section>
 
@@ -114,7 +120,17 @@ const perfis = site.socios.map((socio, i) => ({
 
 <style>
   .titulo-bloco { font-size: 30px; }
-  .foto { border-radius: 6px; box-shadow: var(--sombra); }
+  .painel-marca {
+    position: relative; overflow: hidden;
+    display: grid; place-items: center;
+    aspect-ratio: 16 / 11; border-radius: 14px;
+    background:
+      radial-gradient(120% 90% at 100% 100%, rgba(81, 116, 147, .35) 0%, rgba(81, 116, 147, 0) 60%),
+      linear-gradient(135deg, #0b1e3f 0%, #0f2a4f 55%, #004369 100%);
+    box-shadow: 0 24px 50px rgba(11, 30, 63, .18);
+  }
+  .pm-mono { position: absolute; right: -8%; top: 50%; height: 150%; width: auto; transform: translateY(-50%); opacity: .08; }
+  .pm-logo { position: relative; width: 58%; height: auto; }
   .missao { font-size: 19px; color: var(--texto) !important; max-width: 760px !important; }
 
   .perfis { display: grid; gap: 48px; max-width: 980px; margin: 0 auto; }
