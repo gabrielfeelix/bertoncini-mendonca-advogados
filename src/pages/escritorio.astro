@@ -2,8 +2,8 @@
 /**
  * O escritório (v3): quem somos, missão e valores, e o perfil dos sócios.
  * Missão e valores são texto dos sócios (briefing q3.1 e q3.2); formação
- * vem do briefing (q1.7a e q1.7b); a história, de q1.3, sem nomes de
- * lugar de trabalho.
+ * vem do briefing (q1.7a e q1.7b). Sem história e sem números, e sem
+ * dividir os sócios por área: pedidos do retorno de 06/11/2026.
  */
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
@@ -35,7 +35,6 @@ const perfis = [
     bio: 'Especialista em Direito Processual Civil e pós-graduanda em Direito Digital. Tem experiência em processos judiciais estratégicos e conduz os casos que precisam ir ao Judiciário. Atende quem trabalha e ganha dinheiro na internet.',
   },
 ];
-const nomeDaArea = (slug: string) => areas.find((a) => a.data.slug === slug);
 ---
 
 <Base
@@ -51,14 +50,15 @@ const nomeDaArea = (slug: string) => areas.find((a) => a.data.slug === slug);
         <p class="rotulo">Quem somos</p>
         <h2 class="titulo-bloco">{site.nome}</h2>
         <p>
-          Os sócios estudaram Direito na Universidade Estadual de Maringá, entraram no curso no
-          mesmo ano e trabalharam lado a lado por mais de quatro anos, de estagiários a advogados,
-          cada um firmando a própria área.
+          Escritório de advocacia de {site.cidade}/{site.estado}. Os sócios, Juscelino Bertoncini e
+          Beatriz Mendonça, atuam juntos nas duas áreas do escritório:
+          {areas.map((a, i) => (
+            <>{i > 0 && ' e '}<a href={`/areas/${a.data.slug}/`}>{a.data.nome}</a></>
+          ))}.
         </p>
         <p>
-          A sociedade junta as duas frentes. Juscelino trabalha antes do processo: contratos,
-          sociedades, imóveis e a organização do patrimônio. Beatriz atua quando o processo existe
-          e atende quem trabalha na internet.
+          Também atuamos em {site.outrasAreas.slice(0, -1).join(', ').toLowerCase()} e{' '}
+          {site.outrasAreas.at(-1)?.toLowerCase()}.
         </p>
         <p>{site.atendimentoRodape}, e presencial em {site.cidade}/{site.estado}.</p>
       </div>
@@ -92,7 +92,6 @@ const nomeDaArea = (slug: string) => areas.find((a) => a.data.slug === slug);
       </div>
       <div class="perfis">
         {perfis.map((p) => {
-          const area = nomeDaArea(p.socio.area);
           return (
             <article class="perfil" id={p.ancora}>
               <img src={`${p.socio.retrato}-840.jpg`} alt={`Retrato de ${p.socio.nome}.`} width="840" height="1260" loading="lazy" />
@@ -101,9 +100,6 @@ const nomeDaArea = (slug: string) => areas.find((a) => a.data.slug === slug);
                 <h3>{p.socio.nome}</h3>
                 <p class="oab">{p.socio.oab.valor}</p>
                 <p>{p.bio}</p>
-                {area && (
-                  <p><strong>Área:</strong> <a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a></p>
-                )}
                 <h4>Formação</h4>
                 <ul>{(formacao[p.socio.nome] ?? []).map((item) => <li>{item}</li>)}</ul>
               </div>

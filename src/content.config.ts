@@ -58,6 +58,11 @@ const areas = defineCollection({
       ]),
     ),
     /**
+     * Serviços da área, como o escritório os nomeia (retorno de
+     * 06/11/2026). Só nomes; ordem = ordem de exibição.
+     */
+    servicos: z.array(z.string().min(1)).default([]),
+    /**
      * Para quem é a área, numa frase. Vai para o bloco da área na home.
      * Vem do briefing (q4.1): a descrição do cliente de cada sócio.
      */

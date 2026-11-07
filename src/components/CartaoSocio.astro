@@ -1,10 +1,10 @@
 ---
 /**
  * Cartão de sócio, no formato da página "Profissionais" de escritório
- * grande: foto, cargo, nome, OAB e área. Sem efeito de hover na foto.
+ * grande: foto, cargo, nome e OAB. Sem área individual: os sócios atuam
+ * juntos nas duas áreas (retorno de 06/11/2026). Sem efeito de hover na foto.
  */
 import { site } from '../lib/site';
-import { listarAreasConfirmadas } from '../lib/areas';
 
 interface Props {
   socio: (typeof site.socios)[number];
@@ -14,7 +14,6 @@ interface Props {
   href?: string;
 }
 const { socio, genero, href = `/escritorio/#${socio.nome.split(' ')[0].toLowerCase()}` } = Astro.props;
-const area = (await listarAreasConfirmadas()).find((a) => a.data.slug === socio.area);
 ---
 
 <article class="cartao cartao-socio">
@@ -23,7 +22,6 @@ const area = (await listarAreasConfirmadas()).find((a) => a.data.slug === socio.
     <p class="rotulo">Sóci{genero}</p>
     <h3><a href={href}>{socio.nome}</a></h3>
     <p class="oab">{socio.oab.valor}</p>
-    {area && <p class="area"><a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a></p>}
   </div>
 </article>
 
@@ -32,5 +30,4 @@ const area = (await listarAreasConfirmadas()).find((a) => a.data.slug === socio.
   .cartao-socio h3 a { color: var(--azul); text-decoration: none; }
   .cartao-socio h3 a:hover { color: var(--azul-medio); text-decoration: underline; }
   .oab { margin: 0 0 4px; font-size: 15px; }
-  .area { margin: 0; font-size: 15px; }
 </style>

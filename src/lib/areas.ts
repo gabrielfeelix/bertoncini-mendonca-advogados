@@ -59,8 +59,3 @@ export const FOTO_DA_AREA: Record<string, string> = {
   'planejamento-patrimonial-e-sucessorio': '/media/novas/area-familia.jpg',
   'direito-digital': '/media/novas/area-dados.jpg',
 };
-
-/** Sócio responsável pela área, lido de `site.socios`. */
-export function socioDaArea(slug: string) {
-  return site.socios.find((s) => s.area === slug);
-}

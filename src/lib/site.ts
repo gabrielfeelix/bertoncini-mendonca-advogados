@@ -1,16 +1,10 @@
 /**
  * Dados canônicos do site. Fonte única para SEO, cabeçalho e rodapé.
  *
- * A OAB de cada sócio, o domínio e o Instagram vieram do briefing de
- * 23/09/2026 e são reais. ATENÇÃO: telefone, e-mail, CNPJ e registro da
- * sociedade AINDA NÃO EXISTEM. Os valores abaixo são exatamente os
- * placeholders do protótipo aprovado (`prototipo/index.html`) e cada um
- * está marcado com `placeholder: true` para a Tarefa 15 conseguir
- * inventariá-los antes da publicação. Nunca substituir por um dado
- * inventado — só pelo dado real, quando o escritório fornecer.
- *
- * O domínio `bertoncinimendonca.adv.br` também é placeholder; já está
- * marcado como tal em `astro.config.mjs`.
+ * Todos reais: OAB dos sócios, domínio e Instagram vieram do briefing de
+ * 23/09/2026; telefone/WhatsApp, e-mail, CNPJ e registro da sociedade, do
+ * retorno do escritório de 06/11/2026. Só a imagem de Open Graph continua
+ * marcada `placeholder: true`. Nunca substituir por dado inventado.
  */
 
 /** Um campo de contato que pode ainda não ter valor definitivo. */
@@ -46,22 +40,22 @@ export const site = {
   // presencialmente em Maringá.
   atendimentoRodape: 'Atendimento online para todo o país',
 
-  // Placeholders do protótipo (`(44) 0000 0000`, `contato@exemplo.adv.br`).
-  telefone: { valor: '(44) 0000 0000', placeholder: true } satisfies CampoPlaceholder,
-  telefoneE164: { valor: '+5544000000000', placeholder: true } satisfies CampoPlaceholder,
+  // Confirmados pelo escritório no retorno de 06/11/2026 (docs/RETORNO-2026-11-06.md, branch v2).
+  telefone: { valor: '(44) 98815-7540', placeholder: false } satisfies CampoPlaceholder,
+  telefoneE164: { valor: '+5544988157540', placeholder: false } satisfies CampoPlaceholder,
   whatsapp: {
-    valor: 'https://wa.me/5544000000000?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20sobre%20um%20caso.',
-    placeholder: true,
+    valor: 'https://wa.me/5544988157540?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20sobre%20um%20caso.',
+    placeholder: false,
   } satisfies CampoPlaceholder,
-  email: { valor: 'contato@exemplo.adv.br', placeholder: true } satisfies CampoPlaceholder,
+  email: { valor: 'contato@bertoncinimendonca.adv.br', placeholder: false } satisfies CampoPlaceholder,
 
   horario: 'Segunda a sexta, 9h às 18h',
 
   // Registro da sociedade: exigência do Provimento 205/2021 da OAB.
-  // Placeholders do protótipo, marcados para a Tarefa 15 substituir.
+  // Confirmados no retorno de 06/11/2026.
   registro: {
-    oabSociedade: { valor: 'OAB/PR nº 0.000', placeholder: true } satisfies CampoPlaceholder,
-    cnpj: { valor: '00.000.000/0001-00', placeholder: true } satisfies CampoPlaceholder,
+    oabSociedade: { valor: 'OAB/PR nº 24.788', placeholder: false } satisfies CampoPlaceholder,
+    cnpj: { valor: '69.076.965/0001-64', placeholder: false } satisfies CampoPlaceholder,
   },
 
   /* `area` e `linha` alimentam o bloco "Quem atende" da página de cada
@@ -95,6 +89,18 @@ export const site = {
     } satisfies CampoPlaceholder,
     instagramArroba: '@bertoncinimendonca.adv',
   },
+
+  /* Áreas em que o escritório também atua, fora das duas com página
+     própria (retorno de 06/11/2026): ninguém deve concluir que o
+     escritório só faz Planejamento Patrimonial e Direito Digital. */
+  outrasAreas: [
+    'Contratos',
+    'Direito societário',
+    'Direito imobiliário',
+    'Assessoria jurídica empresarial',
+    'Compliance e governança',
+    'Direito civil',
+  ],
 
   /* Os dois avisos que o escritório pediu como obrigatórios (briefing q9.3).
      O primeiro é o texto deles, palavra por palavra. */

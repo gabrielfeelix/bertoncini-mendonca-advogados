@@ -23,6 +23,7 @@ const ativo = (href: string) =>
   <div class="container">
     <span>{site.cidade}/{site.estado} · {site.atendimentoRodape}</span>
     <span class="topbar-contato">
+      <a href={site.whatsapp.valor} rel="noopener" target="_blank">WhatsApp {site.telefone.valor}</a>
       <a href={`mailto:${site.email.valor}`}>{site.email.valor}</a>
       <a href={site.redes.instagram.valor} rel="noopener" target="_blank">Instagram</a>
     </span>
@@ -127,6 +128,7 @@ const ativo = (href: string) =>
 
   @media (max-width: 1080px) {
     .topbar .container > span:first-child { display: none; }
+    .topbar-contato { gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
     .topbar .container { justify-content: flex-end; }
     .cabecalho .container { flex-wrap: wrap; min-height: 72px; }
     .logo img { height: 44px; }

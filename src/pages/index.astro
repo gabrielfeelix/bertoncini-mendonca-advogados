@@ -53,6 +53,10 @@ const artigos = (await listarArtigos()).slice(0, 3);
           </article>
         ))}
       </div>
+      <div class="outras">
+        <h3>Também atuamos em</h3>
+        <ul>{site.outrasAreas.map((a) => <li>{a}</li>)}</ul>
+      </div>
     </div>
   </section>
 
@@ -63,14 +67,12 @@ const artigos = (await listarArtigos()).slice(0, 3);
         <p class="rotulo">O escritório</p>
         <h2 class="titulo-bloco">Sobre <strong>nós</strong></h2>
         <p>
-          Bertoncini &amp; Mendonça é um escritório de advocacia de {site.cidade}/{site.estado},
-          formado por dois sócios que trabalharam lado a lado por mais de quatro anos antes de
-          abrir a própria sociedade.
+          Bertoncini &amp; Mendonça é um escritório de advocacia de {site.cidade}/{site.estado}. Os
+          sócios, Juscelino Bertoncini e Beatriz Mendonça, atuam juntos nas duas áreas do escritório.
         </p>
         <p>
-          Juscelino trabalha na fase que antecede o processo: contratos, sociedades, imóveis e a
-          organização do patrimônio. Beatriz conduz os casos que precisam ir ao Judiciário e atende
-          quem trabalha na internet.
+          Nossa missão é ajudar pessoas, famílias e empresas a construir, proteger e transmitir o seu
+          patrimônio com segurança, planejamento e tranquilidade.
         </p>
         <p>{site.atendimentoRodape}, e presencial em {site.cidade}.</p>
         <a class="botao botao-contorno" href="/escritorio/">Saiba mais</a>
@@ -132,6 +134,11 @@ const artigos = (await listarArtigos()).slice(0, 3);
   .foto-escritorio { border-radius: 6px; box-shadow: var(--sombra); }
   .titulo-bloco { font-size: 34px; font-weight: 300; }
   .titulo-bloco strong { font-weight: 700; }
+
+  .outras { margin-top: 30px; padding: 24px 28px; background: var(--fundo-cinza); border-radius: 6px; display: flex; align-items: center; gap: 12px 28px; flex-wrap: wrap; }
+  .outras h3 { font-size: 17px; margin: 0; }
+  .outras ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 10px; }
+  .outras li { background: #fff; border: 1px solid var(--linha); border-radius: 4px; padding: 4px 12px; font-size: 15px; }
 
   .socios { max-width: 780px; margin: 0 auto; }
   .ver-todas { text-align: center; margin: 40px 0 0; }

@@ -13,7 +13,6 @@ import { site } from '~/lib/site';
 import {
   listarAreasConfirmadas,
   assuntosDaArea,
-  socioDaArea,
   FOTO_DA_AREA,
   type Area,
 } from '~/lib/areas';
@@ -29,7 +28,6 @@ interface Props {
 const { area } = Astro.props;
 const d = area.data;
 const todas = await listarAreasConfirmadas();
-const socio = socioDaArea(d.slug);
 const assuntos = assuntosDaArea(d.assuntos);
 const aConfirmar = new Set(d.corpoAConfirmar);
 ---
@@ -45,6 +43,14 @@ const aConfirmar = new Set(d.corpoAConfirmar);
     <div class="container com-lateral">
       <article class="texto">
         <p class="lead">{d.resumo}</p>
+
+        {d.servicos.length > 0 && (
+          <div class="servicos">
+            <h2>Serviços</h2>
+            <ul>{d.servicos.map((s) => <li>{s}</li>)}</ul>
+          </div>
+        )}
+
         {d.corpo.map((paragrafo, i) => (
           <p data-placeholder={aConfirmar.has(i) ? '1' : undefined}>{paragrafo}</p>
         ))}
@@ -101,14 +107,18 @@ const aConfirmar = new Set(d.corpoAConfirmar);
           </ul>
         </div>
 
-        {socio && (
-          <div class="widget socio">
-            <h2>Responsável</h2>
-            <img src={`${socio.retrato}-560.jpg`} alt={`Retrato de ${socio.nome}.`} width="560" height="840" loading="lazy" />
-            <p class="socio-nome"><a href={`/escritorio/#${socio.nome.split(' ')[0].toLowerCase()}`}>{socio.nome}</a></p>
-            <p class="socio-oab">{socio.oab.valor}</p>
-          </div>
-        )}
+        <div class="widget socio">
+          <h2>Quem atende</h2>
+          <img src="/media/hero/socios-1600.jpg" alt="Juscelino Bertoncini e Beatriz Mendonça." width="1600" height="900" loading="lazy" />
+          {site.socios.map((s) => (
+            <p class="socio-nome"><a href={`/escritorio/#${s.nome.split(' ')[0].toLowerCase()}`}>{s.nome}</a> <span class="socio-oab">· {s.oab.valor}</span></p>
+          ))}
+        </div>
+
+        <div class="widget">
+          <h2>Também atuamos em</h2>
+          <ul class="simples">{site.outrasAreas.map((a) => <li>{a}</li>)}</ul>
+        </div>
 
         <div class="widget widget-azul">
           <h2>Fale conosco</h2>
@@ -131,13 +141,20 @@ const aConfirmar = new Set(d.corpoAConfirmar);
   .tabela-assuntos tr:nth-child(odd) { background: var(--fundo-cinza); }
   .aviso { margin-top: 32px; font-size: 14px; color: var(--texto-suave); }
 
-  .socio img { border-radius: 4px; aspect-ratio: 1; object-fit: cover; object-position: 50% 18%; margin-bottom: 14px; }
-  .socio-nome { margin: 0; font-weight: 700; }
+  .servicos { background: var(--fundo-cinza); border-radius: 6px; padding: 24px 28px; margin: 28px 0 32px; }
+  .servicos h2 { margin-top: 0; font-size: 22px; }
+  .servicos ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+  .servicos li { position: relative; padding-left: 26px; }
+  .servicos li::before { content: '✓'; position: absolute; left: 0; color: var(--azul-medio); font-weight: 700; }
+  .simples li { padding: 8px 0; }
+  .socio img { border-radius: 4px; aspect-ratio: 16 / 10; object-fit: cover; margin-bottom: 14px; }
+  .socio-nome { margin: 0 0 4px; font-weight: 700; }
   .socio-nome a { color: var(--azul); text-decoration: none; }
   .socio-nome a:hover { text-decoration: underline; }
   .socio-oab { margin: 0; font-size: 14px; color: var(--texto-suave); }
 
   @media (max-width: 680px) {
+    .servicos ul { grid-template-columns: 1fr; }
     .tabela-assuntos th, .tabela-assuntos td { display: block; width: auto; }
     .tabela-assuntos th { padding-bottom: 2px; }
     .tabela-assuntos td { padding-top: 0; }

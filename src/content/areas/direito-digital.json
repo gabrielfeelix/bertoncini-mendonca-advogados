@@ -2,6 +2,14 @@
   "nome": "Direito Digital",
   "slug": "direito-digital",
   "resumo": "Para quem vive e trabalha na internet: contratos, marca, dados pessoais e o que fazer quando algo dá errado.",
+  "servicos": [
+    "Registro de marca",
+    "Recuperação de contas em redes sociais",
+    "Alvará judicial para publicidade envolvendo menores",
+    "Elaboração e revisão de contratos para negócios digitais",
+    "Contratos de publicidade e coprodução",
+    "Assessoria jurídica para influenciadores e empresas digitais"
+  ],
   "assuntos": [
     {
       "nome": "Criadores de conteúdo",

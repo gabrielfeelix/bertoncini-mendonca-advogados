@@ -37,8 +37,8 @@ const ano = new Date().getFullYear();
     <div>
       <h2>Contato</h2>
       <ul class="contato">
+        <li><a href={site.whatsapp.valor} rel="noopener" target="_blank">WhatsApp {site.telefone.valor}</a></li>
         <li><a href={`mailto:${site.email.valor}`}>{site.email.valor}</a></li>
-        <li><a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a></li>
         <li>{site.horario}</li>
         <li>{site.cidade}/{site.estado}</li>
       </ul>
@@ -48,7 +48,7 @@ const ano = new Date().getFullYear();
   <div class="barra">
     <div class="container">
       <p>
-        © {ano} {site.nomeSociedade} · {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}
+        © {ano} {site.nomeSociedade} · Sociedade inscrita na {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}
       </p>
       <p class="politicas">
         {rodape.legal.map((item) => <a href={item.href}>{item.rotulo}</a>)}

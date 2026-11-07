@@ -139,27 +139,17 @@ const erroEm = (campo: string) =>
           <dl class="dados">
             <dt>E-mail</dt>
             <dd><a href={`mailto:${site.email.valor}`}>{site.email.valor}</a></dd>
-            <dt>Telefone</dt>
-            <dd><a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a></dd>
-            <dt>WhatsApp</dt>
-            <dd><a href={site.whatsapp.valor} rel="noopener" target="_blank">Enviar mensagem</a></dd>
+            <dt>Telefone e WhatsApp</dt>
+            <dd>
+              <a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a><br />
+              <a href={site.whatsapp.valor} rel="noopener" target="_blank">Conversar pelo WhatsApp</a>
+            </dd>
             <dt>Instagram</dt>
             <dd><a href={site.redes.instagram.valor} rel="noopener" target="_blank">{site.redes.instagramArroba}</a></dd>
             <dt>Horário</dt>
             <dd>{site.horario}</dd>
             <dt>Atendimento</dt>
             <dd>{site.atendimentoRodape} e presencial em {site.cidade}/{site.estado}</dd>
-          </dl>
-        </div>
-        <div class="widget">
-          <h2>Dados do escritório</h2>
-          <dl class="dados">
-            <dt>Razão social</dt>
-            <dd>{site.nomeSociedade}</dd>
-            <dt>CNPJ</dt>
-            <dd>{site.registro.cnpj.valor}</dd>
-            <dt>Registro</dt>
-            <dd>{site.registro.oabSociedade.valor}</dd>
           </dl>
         </div>
       </aside>
