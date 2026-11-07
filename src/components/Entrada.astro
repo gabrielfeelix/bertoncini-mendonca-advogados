@@ -26,7 +26,7 @@ const monograma = monogramaBruto
 
 <div class="entrada" aria-hidden="true">
   <svg class="entrada-filtro" width="0" height="0" focusable="false">
-    <filter id="ent-grao">
+    <filter id="ent-grao" x="0" y="0" width="100%" height="100%">
       <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" />
       <feColorMatrix type="saturate" values="0" />
     </filter>
@@ -34,6 +34,14 @@ const monograma = monogramaBruto
   <div class="entrada-grao"></div>
   <div class="entrada-mono" set:html={monograma} />
 </div>
+<script is:inline>
+  /* Terminada a subida, a cortina sai da página. O CSS já a deixa fora da
+     tela e invisível; isto garante que nenhum navegador a pinte depois. */
+  (function () {
+    var e = document.querySelector('.entrada');
+    if (e) e.addEventListener('animationend', function (ev) { if (ev.target === e) e.remove(); });
+  })();
+</script>
 
 <style>
   .entrada { display: none; }
@@ -46,10 +54,12 @@ const monograma = monogramaBruto
     position: fixed;
     inset: 0;
     z-index: 1000;
+    overflow: hidden; /* o filtro do grão desenha além da borda: sem isto,
+                         uma faixa clara ficava no topo depois da subida */
     background: var(--azul);
     animation: entrada-sobe 0.7s cubic-bezier(0.76, 0, 0.24, 1) 0.8s forwards;
   }
-  .entrada-filtro { position: absolute; }
+  .entrada-filtro { position: absolute; width: 0; height: 0; }
   .entrada-grao {
     position: absolute;
     inset: 0;
