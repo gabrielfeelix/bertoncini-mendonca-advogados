@@ -14,6 +14,7 @@
  * (a categoria do artigo, quando é uma das áreas).
  */
 import Icone from './Icone.astro';
+import Seletor from './Seletor.astro';
 import { CAMPOS_ISCA } from '../lib/antispam';
 import { areasDoIdioma } from '../lib/areas';
 import { site } from '../lib/site';
@@ -67,7 +68,7 @@ const escolhido = ASSUNTOS.find((a) => a.toLowerCase() === assuntoPadrao.toLower
         </div>
         <div>
           <label for="fr-assunto">{c.assunto}</label>
-          <select id="fr-assunto" name="assunto">
+          <select id="fr-assunto" name="assunto" data-seletor>
             <option value="">{c.selecione}</option>
             {ASSUNTOS.map((a) => <option value={a} selected={a === escolhido}>{a}</option>)}
           </select>
@@ -82,6 +83,7 @@ const escolhido = ASSUNTOS.find((a) => a.toLowerCase() === assuntoPadrao.toLower
         {CAMPOS_ISCA.map((campo) => <input type="text" name={campo} tabindex="-1" autocomplete="off" />)}
       </div>
 
+      <Seletor />
       <div class="envio">
         <button type="submit" class="botao">Enviar mensagem</button>
         <p class="nota">

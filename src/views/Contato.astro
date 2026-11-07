@@ -15,6 +15,7 @@
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
 import Icone from '~/components/Icone.astro';
+import Seletor from '~/components/Seletor.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
 import { areasDoIdioma } from '~/lib/areas';
@@ -109,14 +110,14 @@ const erroEm = (campo: string) =>
           <div class="linha-2">
             <div>
               <label for="assunto">{c.assunto}</label>
-              <select id="assunto" name="assunto">
+              <select id="assunto" name="assunto" data-seletor>
                 <option value="">{c.selecione}</option>
                 {ASSUNTOS.map((a) => <option value={a} selected={valores.assunto === a}>{a}</option>)}
               </select>
             </div>
             <div>
               <label for="perfil">{c.perfil}</label>
-              <select id="perfil" name="perfil">
+              <select id="perfil" name="perfil" data-seletor>
                 <option value="">{c.selecione}</option>
                 {c.perfis.map((o) => <option value={o} selected={valores.perfil === o}>{o}</option>)}
               </select>
@@ -128,7 +129,7 @@ const erroEm = (campo: string) =>
           </div>
           <div>
             <label for="conheceu">{c.conheceu}</label>
-            <select id="conheceu" name="conheceu">
+            <select id="conheceu" name="conheceu" data-seletor>
               <option value="">{c.selecione}</option>
               {c.origens.map((o) => <option value={o} selected={valores.conheceu === o}>{o}</option>)}
             </select>
@@ -138,6 +139,7 @@ const erroEm = (campo: string) =>
             {CAMPOS_ISCA.map((campo) => <input type="text" name={campo} tabindex="-1" autocomplete="off" />)}
           </div>
 
+          <Seletor />
           <div><button type="submit" class="botao">{c.enviar}</button></div>
           <p class="nota">
             {c.nota} <a href={rota(lang, '/politica-de-privacidade/')}>{c.notaLink}</a>.
