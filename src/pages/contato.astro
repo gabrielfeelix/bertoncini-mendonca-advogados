@@ -6,7 +6,10 @@
  */
 import Contato from '~/views/Contato.astro';
 
-export const prerender = false;
+/* Na prévia montada dentro de /v3 do site publicado (tools/montar-versao.mjs)
+   não há função de servidor desta versão: lá a página é pré-gerada, e o
+   envio continua indo para /api/contato da raiz. */
+export const prerender = import.meta.env.PREVIA_ESTATICA === '1';
 ---
 
 <Contato lang="pt" />
