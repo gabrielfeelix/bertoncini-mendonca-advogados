@@ -1,0 +1,161 @@
+---
+/**
+ * Página de uma área (v3), nos dois idiomas. Layout de página de tema
+ * WordPress: banner com o nome, coluna de conteúdo (resumo, serviços,
+ * texto, para quem, o que fazemos, perguntas) e barra lateral (áreas,
+ * quem atende, também atuamos em, contato). O texto é o da área, sem
+ * alteração; o inglês vem de src/content/areas-en.
+ */
+import Base from '~/layouts/Base.astro';
+import BannerPagina from '~/components/BannerPagina.astro';
+import Chamada from '~/components/Chamada.astro';
+import { site } from '~/lib/site';
+import { areasDoIdioma, assuntosDaArea, FOTO_DA_AREA, type AreaNoIdioma } from '~/lib/areas';
+import { t, rota, type Idioma } from '~/lib/i18n';
+
+interface Props {
+  lang: Idioma;
+  area: AreaNoIdioma;
+  /** Endereço da mesma área no outro idioma. */
+  alternativa: string;
+}
+const { lang, area, alternativa } = Astro.props;
+const tx = t(lang);
+const ar = tx.areas;
+const d = area.data;
+const todas = await areasDoIdioma(lang);
+const assuntos = assuntosDaArea(d.assuntos);
+const aConfirmar = new Set(d.corpoAConfirmar);
+const escritorio = rota(lang, '/escritorio/');
+---
+
+<Base titulo={`${d.nome} | ${site.nome}`} descricao={d.resumo} paginaAtual="/areas/" lang={lang} alternativa={alternativa}>
+  <BannerPagina
+    titulo={d.nome}
+    foto={FOTO_DA_AREA[area.slugPt]}
+    migalhas={[{ rotulo: ar.migalha, href: rota(lang, '/areas/') }, { rotulo: d.nome }]}
+    lang={lang}
+  />
+
+  <section class="secao">
+    <div class="container com-lateral">
+      <article class="texto">
+        <p class="lead">{d.resumo}</p>
+
+        {d.servicos.length > 0 && (
+          <div class="servicos">
+            <h2>{ar.servicos}</h2>
+            <ul>{d.servicos.map((s) => <li>{s}</li>)}</ul>
+          </div>
+        )}
+
+        {d.corpo.map((paragrafo, i) => (
+          <p data-placeholder={aConfirmar.has(i) ? '1' : undefined}>{paragrafo}</p>
+        ))}
+
+        {d.publicos.length > 0 && (
+          <>
+            <h2>{ar.paraQuem}</h2>
+            <ul class="publicos">
+              {d.publicos.map((p) => <li><strong>{p.titulo}.</strong> {p.texto}</li>)}
+            </ul>
+          </>
+        )}
+
+        <h2>{ar.oQueFazemos}</h2>
+        <table class="tabela-assuntos">
+          <tbody>
+            {assuntos.map((a) => (
+              <tr>
+                <th scope="row">{a.nome}</th>
+                <td>{a.faz ?? ''}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {d.perguntas.length > 0 && (
+          <>
+            <h2>{ar.perguntas}</h2>
+            <div class="faq">
+              {d.perguntas.map((p) => (
+                <details>
+                  <summary>{p.pergunta}</summary>
+                  <p>{p.resposta}</p>
+                </details>
+              ))}
+            </div>
+          </>
+        )}
+
+        <p class="aviso">{tx.aviso}</p>
+      </article>
+
+      <aside class="lateral">
+        <div class="widget">
+          <h2>{ar.listaAreas}</h2>
+          <ul>
+            {todas.map((a) => (
+              <li>
+                <a href={a.href} aria-current={a.slugPt === area.slugPt ? 'page' : undefined}>{a.data.nome}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="widget socio">
+          <h2>{ar.quemAtende}</h2>
+          <img src="/media/hero/socios-1600.jpg" alt={tx.home.fotoSocios} width="1600" height="900" loading="lazy" />
+          {site.socios.map((s) => (
+            <p class="socio-nome">
+              <a href={`${escritorio}#${s.nome.split(' ')[0].toLowerCase()}`}>{s.nome}</a>{' '}
+              <span class="socio-oab">· {s.oab.valor}</span>
+            </p>
+          ))}
+        </div>
+
+        <div class="widget">
+          <h2>{ar.tambem}</h2>
+          <ul class="simples">{tx.outrasAreas.map((a) => <li>{a}</li>)}</ul>
+        </div>
+
+        <div class="widget widget-azul">
+          <h2>{ar.faleTitulo}</h2>
+          <p>{ar.faleTexto}</p>
+          <a class="botao botao-claro" href={`${rota(lang, '/contato/')}?assunto=${area.slugPt}`}>{ar.enviar}</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <Chamada lang={lang} />
+</Base>
+
+<style>
+  .lead { font-size: 20px; color: var(--azul); font-weight: 500; }
+  .servicos { background: var(--fundo-cinza); border-radius: 6px; padding: 24px 28px; margin: 28px 0 32px; }
+  .servicos h2 { margin-top: 0; font-size: 22px; }
+  .servicos ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+  .servicos li { position: relative; padding-left: 26px; }
+  .servicos li::before { content: '✓'; position: absolute; left: 0; color: var(--azul-medio); font-weight: 700; }
+  .publicos li { margin-bottom: 8px; }
+  .tabela-assuntos { width: 100%; border-collapse: collapse; font-size: 16px; margin-bottom: 1em; }
+  .tabela-assuntos th, .tabela-assuntos td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--linha); }
+  .tabela-assuntos th { width: 36%; color: var(--azul); font-weight: 500; }
+  .tabela-assuntos tr:nth-child(odd) { background: var(--fundo-cinza); }
+  .aviso { margin-top: 32px; font-size: 14px; color: var(--texto-suave); }
+
+  .simples li { padding: 8px 0; }
+  .socio img { border-radius: 4px; aspect-ratio: 16 / 10; object-fit: cover; margin-bottom: 14px; }
+  .socio-nome { margin: 0 0 4px; font-weight: 700; }
+  .socio-nome a { color: var(--azul); text-decoration: none; }
+  .socio-nome a:hover { text-decoration: underline; }
+  .socio-oab { font-size: 14px; font-weight: 400; color: var(--texto-suave); }
+
+  @media (max-width: 680px) {
+    .servicos ul { grid-template-columns: 1fr; }
+    .tabela-assuntos th, .tabela-assuntos td { display: block; width: auto; }
+    .tabela-assuntos th { padding-bottom: 2px; }
+    .tabela-assuntos td { padding-top: 0; }
+  }
+</style>

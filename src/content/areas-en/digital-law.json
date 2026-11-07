@@ -1,0 +1,127 @@
+{
+  "nome": "Digital Law",
+  "slug": "digital-law",
+  "slugPt": "direito-digital",
+  "resumo": "For people who live and work online: contracts, trademarks, personal data, and what to do when something goes wrong.",
+  "servicos": [
+    "Trademark registration",
+    "Recovery of social media accounts",
+    "Court authorization for advertising involving minors",
+    "Drafting and review of contracts for digital businesses",
+    "Advertising and co-production contracts",
+    "Legal counsel for influencers and digital businesses"
+  ],
+  "assuntos": [
+    {
+      "nome": "Content creators",
+      "faz": "Contracts with brands, banned accounts, copied content, and court authorization for a child's participation."
+    },
+    {
+      "nome": "Data protection and the LGPD",
+      "faz": "Map what the company collects today, define the legal basis, and answer data subject requests within the deadline."
+    },
+    {
+      "nome": "Intellectual property",
+      "faz": "Register the trademark with INPI (Brazil's patent and trademark office) and define by contract who owns what was created."
+    },
+    {
+      "nome": "Electronic contracts and e-commerce",
+      "faz": "Terms of use that describe the actual business, and proof that the other party agreed."
+    },
+    {
+      "nome": "Cybercrime",
+      "faz": "Preserve the evidence first — it is the step most often lost to delay — and then remove and identify."
+    },
+    {
+      "nome": "Social media and the internet",
+      "faz": "Misuse of image, fake profiles, and offensive content: removal and accountability."
+    },
+    {
+      "nome": "Artificial intelligence",
+      "faz": "Which data feeds the system, who owns the output, and who is liable for errors."
+    },
+    {
+      "nome": "Digital compliance",
+      "faz": "Written policies with a routine for applying them, an incident response plan, and periodic review."
+    }
+  ],
+  "corpo": [
+    "Digital law is the set of rules that applies to what companies and people do through the internet: the data they collect, the content they publish, the contracts they sign without paper, and the harm they suffer or cause in an electronic environment.",
+    "For those who work with content, the profile is a source of income, and the legal problems are specific to it: advertising and partnership contracts with brands, an account deactivated or restricted by the platform, content copied by someone else, misuse of the trademark and, when a child appears in advertising content, the court authorization that is usually required for the child's participation. Each case has its own path, out of court or in court, and the first step is usually to gather evidence of what happened.",
+    "Law 13,709/2018, the LGPD (Brazil's General Data Protection Law), requires a legal basis for each processing of personal data, clear information to the data subject, records of processing operations, and responses to requests for access, correction, and deletion. Compliance starts with a mapping: what the company collects today, why it collects it, with whom it shares it, and how long it keeps it. Without this inventory there is no way to define a legal basis, write an honest privacy notice, or respond to a data subject within the deadline.",
+    "Intellectual property, in the digital environment, is what protects a business's trademark, software, text, images, and visual identity. Registering the trademark with INPI, defining by contract who owns what was created, and responding to misuse are measures that are worth more before the problem than after it.",
+    "Electronic contracts and e-commerce involve terms of use, a privacy policy, delivery and return rules, and proof that the other party actually agreed. Terms of use copied from another website usually do not describe what that business really does, and it is precisely in that mismatch that they stop protecting it.",
+    "Cybercrime, misuse of image, fake profiles, and offensive content on social media have their own paths: preservation of evidence, a removal request, identification of the person responsible and, where appropriate, holding them liable. Preserving evidence is the step most often lost to delay, and it is the one that supports all the others.",
+    "The use of artificial intelligence raises questions that are already legal ones today: which data feeds the system, who owns the generated output, what the client is told, and who is liable for an error. Regulation is still being developed in Brazil, and existing obligations come mainly from the LGPD and the general rules on liability.",
+    "Digital compliance turns all of this into a routine: written policies, access controls, a security incident response plan, and periodic review. A document filed away without a routine for applying it has no effect at all, either practical or legal.",
+    "We serve clients throughout Brazil online, and in person in Maringá.",
+    "The work begins with an assessment of what already exists. Much is usually in use without being written down, and the first deliverable is a clear view of what the company does today."
+  ],
+  "perguntas": [
+    {
+      "pergunta": "Someone created a fake profile with my name and photo. What can I do?",
+      "resposta": "First, keep the evidence: the profile link and dated screenshots and, when the case calls for it, a notarial record of facts (ata notarial). Then report it to the platform. If the profile is not taken down, or if it is necessary to find out who is behind it, the Marco Civil da Internet (Brazil's Internet Civil Framework) allows you to ask the courts for its removal and for the access data of the person responsible."
+    },
+    {
+      "pergunta": "My account was banned or restricted. Can I get it back through the courts?",
+      "resposta": "Often, yes. When the platform deactivates the account without explaining why or without giving a chance to respond, and the internal appeal does not resolve it, it is possible to ask the courts to restore it, sometimes on an urgent basis. The outcome depends on the case and on the terms of use; the review starts with the account's history and the messages exchanged with the platform."
+    },
+    {
+      "pergunta": "I received a partnership offer from a brand. What should I check before accepting?",
+      "resposta": "What exactly you will deliver and by when; for how long and on which channels the brand may use your image and your content; whether there is exclusivity; how and when payment is made; and what happens if either party wants to end it early. It is also worth checking how the post must be identified as advertising."
+    },
+    {
+      "pergunta": "Does the LGPD apply to my company, even if it is small?",
+      "resposta": "Yes. The LGPD has no threshold based on size or revenue: it covers anyone who processes personal data, and that includes customer records, résumés received, email lists, and camera footage. What changes with size is the proportion of the measures, not whether the obligation exists. The ANPD (the national data protection authority) has issued simplified rules for small processing agents."
+    },
+    {
+      "pergunta": "Where does LGPD compliance begin?",
+      "resposta": "With mapping: which personal data the company collects, for what purpose, with whom it shares it, and how long it keeps it. Without this inventory there is no way to define a legal basis, write a privacy notice, or respond to a data subject's request."
+    },
+    {
+      "pergunta": "I had a data breach. What do I need to do?",
+      "resposta": "Contain the incident, record what happened, and assess the risk to data subjects. If there is relevant risk, the LGPD requires notice to the ANPD and to the affected data subjects within a reasonable time. Documentation of what was done, and when, is often decisive in the authority's assessment."
+    },
+    {
+      "pergunta": "Do I need to register my trademark?",
+      "resposta": "Registration with INPI is what guarantees exclusive use of the trademark throughout Brazil within the registered class. Without it, prolonged use alone creates much weaker protection, and there is a real risk that a third party registers first and demands that you stop using your own name."
+    },
+    {
+      "pergunta": "Can I use text generated by artificial intelligence in a contract?",
+      "resposta": "As a starting point, yes; as a final version, no. Generated text does not know the specific case, often reproduces clauses that are incompatible with each other, and sometimes cites rules that do not exist or have been repealed. Review by a lawyer is what turns the draft into a document that holds up."
+    },
+    {
+      "pergunta": "Can I put client data into ChatGPT?",
+      "resposta": "With care. Entering personal data into an artificial intelligence tool is data processing under the LGPD: it requires a legal basis, information to the data subject, and attention to what the provider does with what it receives. The safest path is usually to anonymize first, use enterprise versions with a data processing agreement, and have an internal rule on what may be entered."
+    },
+    {
+      "pergunta": "Does my company need a data protection officer (DPO)?",
+      "resposta": "Under the LGPD, the general rule is yes. The ANPD has exempted small processing agents from this appointment, provided they maintain a communication channel with data subjects. Even when exempt, the company needs to know who is internally responsible for requests and incidents."
+    },
+    {
+      "pergunta": "Who owns content created by artificial intelligence?",
+      "resposta": "There is still no settled answer in Brazil. The Copyright Law (Lei de Direitos Autorais) protects works created by people, and content generated without significant human creative contribution has uncertain protection. In work done with AI, what defines ownership in practice is the contract between whoever commissioned it and whoever produced it, together with the terms of the tool used."
+    }
+  ],
+  "ordem": 2,
+  "mensagemWhatsapp": "Hello, I need guidance on digital law.",
+  "publicoCurto": "Content creators, digital product creators, e-commerce businesses, agencies, and companies that depend on the internet.",
+  "publicos": [
+    {
+      "titulo": "Content creators and digital product creators",
+      "texto": "Advertising and partnership contracts, trademark registration, banned or restricted accounts, copied content, and court authorization for a child's participation in advertising."
+    },
+    {
+      "titulo": "E-commerce businesses and companies",
+      "texto": "Terms of use, privacy policy, LGPD compliance, and use of artificial intelligence in customer service and operations."
+    },
+    {
+      "titulo": "Agencies and management firms",
+      "texto": "Contracts with clients and with creators, rights over what is produced, and liability for what is published."
+    },
+    {
+      "titulo": "Individuals",
+      "texto": "Fake profiles, hacked accounts, photos posted without permission, and offensive content online."
+    }
+  ]
+}

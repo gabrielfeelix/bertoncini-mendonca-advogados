@@ -1,0 +1,71 @@
+---
+/** Lista das áreas de atuação (v3), nos dois idiomas: banner + cartões. */
+import Base from '~/layouts/Base.astro';
+import BannerPagina from '~/components/BannerPagina.astro';
+import Chamada from '~/components/Chamada.astro';
+import IconeArea from '~/components/IconeArea.astro';
+import { areasDoIdioma, assuntosDaArea } from '~/lib/areas';
+import { t, type Idioma } from '~/lib/i18n';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const tx = t(lang);
+const ar = tx.areas;
+const areas = await areasDoIdioma(lang);
+---
+
+<Base
+  titulo={ar.titulo}
+  descricao={ar.descricao}
+  paginaAtual="/areas/"
+  lang={lang}
+  alternativa={lang === 'pt' ? '/en/practice-areas/' : '/areas/'}
+>
+  <BannerPagina html={ar.banner} migalhas={[{ rotulo: ar.migalha }]} lang={lang} />
+
+  <section class="secao">
+    <div class="container">
+      <div class="grade grade-2">
+        {areas.map((area) => {
+          const lista = area.data.servicos.length > 0 ? area.data.servicos : assuntosDaArea(area.data.assuntos).map((a) => a.nome);
+          return (
+            <article class="cartao">
+              <div class="cartao-corpo">
+                <IconeArea slug={area.slugPt} />
+                <h2 class="nome"><a href={area.href}>{area.data.nome}</a></h2>
+                <p>{area.data.resumo}</p>
+                <ul class="assuntos">
+                  {lista.map((item) => <li>{item}</li>)}
+                </ul>
+                <a class="botao botao-contorno" href={area.href}>{ar.verMais}</a>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <div class="outras">
+        <h2>{ar.tambem}</h2>
+        <ul>{tx.outrasAreas.map((a) => <li>{a}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <Chamada lang={lang} />
+</Base>
+
+<style>
+  .nome { font-size: 24px; }
+  .nome a { color: var(--azul); text-decoration: none; }
+  .nome a:hover { color: var(--azul-medio); text-decoration: underline; }
+  .assuntos { columns: 2; column-gap: 24px; padding-left: 1.1em; margin-bottom: 18px; }
+  .assuntos li { break-inside: avoid; margin-bottom: 4px; }
+  .cartao-corpo .botao { align-self: flex-start; margin-top: auto; }
+  .outras { margin-top: 40px; padding: 28px 32px; background: var(--fundo-cinza); border-radius: 6px; }
+  .outras h2 { font-size: 22px; margin-bottom: 14px; }
+  .outras ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .outras li { background: #fff; border: 1px solid var(--linha); border-radius: 4px; padding: 6px 14px; }
+  @media (max-width: 480px) { .assuntos { columns: 1; } }
+</style>

@@ -4,58 +4,53 @@
  * áreas, contato) e barra inferior com registro da sociedade e políticas.
  * O registro (OAB da sociedade, CNPJ) é exigência do Provimento 205/2021.
  */
-import { site, rodape } from '../lib/site';
-import { listarAreasConfirmadas } from '../lib/areas';
+import { site } from '../lib/site';
+import { areasDoIdioma } from '../lib/areas';
+import { t, rota, type Idioma } from '../lib/i18n';
+import Icone from './Icone.astro';
 
-const areas = await listarAreasConfirmadas();
+interface Props {
+  lang?: Idioma;
+}
+const { lang = 'pt' } = Astro.props;
+const tx = t(lang);
+const areas = await areasDoIdioma(lang);
 const ano = new Date().getFullYear();
 ---
 
 <footer class="rodape">
   <div class="container colunas">
     <div>
-      <img class="rodape-logo" src="/media/marca/lockup-branco.png" alt={site.nome} width="779" height="298" />
-      <p>{site.atendimentoRodape} e presencial em {site.cidade}/{site.estado}.</p>
-      <ul class="redes" aria-label="Redes e canais">
-        <li>
-          <a href={site.redes.instagram.valor} rel="noopener" target="_blank" aria-label={`Instagram ${site.redes.instagramArroba}`}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1" class="cheio" /></svg>
-          </a>
-        </li>
-        <li>
-          <a href={site.whatsapp.valor} rel="noopener" target="_blank" aria-label={`WhatsApp ${site.telefone.valor}`}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.2-4A8 8 0 1 1 8.4 19z" /><path d="M9 8.6c0 3 2.5 6 5.6 6.4l1.2-1.4-1.9-.9-.8.9c-1-.4-2.1-1.4-2.6-2.6l.9-.8-.8-1.9L9.4 8" /></svg>
-          </a>
-        </li>
-        <li>
-          <a href={`mailto:${site.email.valor}`} aria-label={`E-mail ${site.email.valor}`}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2" /><path d="M4 7l8 6 8-6" /></svg>
-          </a>
-        </li>
+      <img class="rodape-logo" src="/media/marca/lockup-creme.svg" alt={site.nome} width="550" height="196" />
+      <p>{tx.atendimento} {tx.presencialEm} {site.cidade}/{site.estado}.</p>
+      <ul class="redes" aria-label={tx.rodape.redesAria}>
+        <li><a href={site.redes.instagram.valor} rel="noopener" target="_blank" aria-label={`Instagram ${site.redes.instagramArroba}`}><Icone nome="instagram" tamanho={20} /></a></li>
+        <li><a href={site.whatsapp.valor} rel="noopener" target="_blank" aria-label={`WhatsApp ${site.telefone.valor}`}><Icone nome="whatsapp" tamanho={20} /></a></li>
+        <li><a href={`mailto:${site.email.valor}`} aria-label={`E-mail ${site.email.valor}`}><Icone nome="email" tamanho={20} /></a></li>
       </ul>
     </div>
 
     <div>
-      <h2>Institucional</h2>
+      <h2>{tx.rodape.institucional}</h2>
       <ul>
-        <li><a href="/">Início</a></li>
-        {rodape.institucional.map((item) => <li><a href={item.href}>{item.rotulo}</a></li>)}
+        <li><a href={rota(lang, '/')}>{tx.rodape.inicio}</a></li>
+        {tx.rodape.links.map((item) => <li><a href={rota(lang, item.chave)}>{item.rotulo}</a></li>)}
       </ul>
     </div>
 
     <div>
-      <h2>Áreas de atuação</h2>
+      <h2>{tx.rodape.areas}</h2>
       <ul>
-        {areas.map((area) => <li><a href={`/areas/${area.data.slug}/`}>{area.data.nome}</a></li>)}
+        {areas.map((area) => <li><a href={area.href}>{area.data.nome}</a></li>)}
       </ul>
     </div>
 
     <div>
-      <h2>Contato</h2>
+      <h2>{tx.rodape.contato}</h2>
       <ul class="contato">
-        <li><a href={site.whatsapp.valor} rel="noopener" target="_blank">WhatsApp {site.telefone.valor}</a></li>
-        <li><a href={`mailto:${site.email.valor}`}>{site.email.valor}</a></li>
-        <li>{site.horario}</li>
+        <li><a class="com-icone" href={site.whatsapp.valor} rel="noopener" target="_blank"><Icone nome="whatsapp" /><span>WhatsApp {site.telefone.valor}</span></a></li>
+        <li><a class="com-icone" href={`mailto:${site.email.valor}`}><Icone nome="email" /><span>{site.email.valor}</span></a></li>
+        <li>{tx.horario}</li>
         <li>{site.cidade}/{site.estado}</li>
       </ul>
     </div>
@@ -64,14 +59,14 @@ const ano = new Date().getFullYear();
   <div class="barra">
     <div class="container">
       <p>
-        © {ano} {site.nomeSociedade} · Sociedade inscrita na {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}
+        © {ano} {site.nomeSociedade} · {tx.rodape.inscrita} {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}
       </p>
       <p class="politicas">
-        {rodape.legal.map((item) => <a href={item.href}>{item.rotulo}</a>)}
+        {tx.rodape.politicas.map((item) => <a href={rota(lang, item.chave)}>{item.rotulo}</a>)}
       </p>
     </div>
     <div class="container">
-      <p class="aviso">{site.avisoInformativo}</p>
+      <p class="aviso">{tx.aviso}</p>
     </div>
   </div>
 </footer>
@@ -79,7 +74,7 @@ const ano = new Date().getFullYear();
 <style>
   .rodape { background: var(--azul); color: rgba(255,255,255,.8); font-size: 15px; }
   .colunas {
-    display: grid; grid-template-columns: 1.3fr 1fr 1.2fr 1.1fr; gap: 40px;
+    display: grid; grid-template-columns: 1.15fr .8fr 1.15fr 1.45fr; gap: 40px;
     padding-top: 60px; padding-bottom: 48px;
   }
   .rodape-logo { width: 200px; height: auto; margin-bottom: 18px; }
@@ -95,8 +90,11 @@ const ano = new Date().getFullYear();
     background: #fff; color: var(--azul); transition: background-color .15s, color .15s;
   }
   .redes a:hover { background: var(--azul-claro); color: #fff; text-decoration: none; }
-  .redes svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .redes .cheio { fill: currentColor; stroke: none; }
+  /* Ícone sempre colado ao texto; se o endereço não couber, quebra o
+     texto, nunca separa o ícone dele. */
+  .com-icone { display: inline-flex; align-items: baseline; gap: 8px; }
+  .com-icone :global(.icone) { position: relative; top: 2px; }
+  .com-icone span { overflow-wrap: anywhere; }
 
   .barra { background: #071530; font-size: 13px; padding: 18px 0; }
   .barra .container { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }

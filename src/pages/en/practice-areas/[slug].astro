@@ -1,0 +1,25 @@
+---
+/**
+ * Página de uma área, em inglês. Conteúdo em src/views/Area.astro; texto
+ * em src/content/areas-en. `alternativa` é a mesma área em português.
+ */
+import type { GetStaticPaths } from 'astro';
+import Area from '~/views/Area.astro';
+import { areasDoIdioma, type AreaNoIdioma } from '~/lib/areas';
+
+export const getStaticPaths = (async () => {
+  const en = await areasDoIdioma('en');
+  return en.map((area) => ({
+    params: { slug: area.data.slug },
+    props: { area, alternativa: `/areas/${area.slugPt}/` },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  area: AreaNoIdioma;
+  alternativa: string;
+}
+const { area, alternativa } = Astro.props;
+---
+
+<Area lang="en" area={area} alternativa={alternativa} />

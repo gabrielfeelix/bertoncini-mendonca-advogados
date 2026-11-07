@@ -20,7 +20,12 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   /* Robô que preencheu campo-isca recebe sucesso e nada acontece. Devolver
      erro só ensinaria o robô a tentar de novo sem a isca. */
-  if (caiuNaIsca(dados)) return responde(request, { ok: true }, 200, DE_VOLTA, 'contato');
+  /* Quem escreveu pela versão em inglês volta para ela (caminho sem JS). Só
+     dois destinos fixos: o campo não vira redirecionamento aberto. */
+  const idioma = dados.get('idioma') === 'en' ? 'en' : 'pt';
+  const deVolta = idioma === 'en' ? '/en/contact/' : DE_VOLTA;
+
+  if (caiuNaIsca(dados)) return responde(request, { ok: true }, 200, deVolta, 'contato');
 
   const contato = {
     nome: texto(dados, 'nome', 120),
@@ -30,14 +35,15 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     perfil: texto(dados, 'perfil', 40),
     conheceu: texto(dados, 'conheceu', 60),
     mensagem: texto(dados, 'mensagem', 5000),
-  };
+    idioma,
+  } as const;
 
   if (!contato.nome || !contato.mensagem) {
     return responde(
       request,
       { ok: false, erro: 'Informe seu nome e escreva a mensagem.', codigo: 'faltando' },
       422,
-      DE_VOLTA,
+      deVolta,
       'contato',
       contato,
     );
@@ -47,7 +53,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       request,
       { ok: false, erro: 'Confira o e-mail informado.', codigo: 'email' },
       422,
-      DE_VOLTA,
+      deVolta,
       'contato',
       contato,
     );
@@ -62,7 +68,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       request,
       { ok: false, erro: 'Muitos envios seguidos deste aparelho. Tente novamente em alguns minutos.', codigo: 'limite' },
       429,
-      DE_VOLTA,
+      deVolta,
       'contato',
       contato,
     );
@@ -88,7 +94,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       request,
       { ok: false, erro: 'Não foi possível enviar a mensagem agora. Tente novamente em instantes.', codigo: 'envio' },
       500,
-      DE_VOLTA,
+      deVolta,
       'contato',
       contato,
     );
@@ -107,7 +113,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       request,
       { ok: false, erro: 'Não foi possível enviar agora. Tente novamente em instantes.', codigo: 'envio' },
       502,
-      DE_VOLTA,
+      deVolta,
       'contato',
     );
   }
@@ -129,5 +135,5 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     }
   }
 
-  return responde(request, { ok: true }, 200, DE_VOLTA, 'contato');
+  return responde(request, { ok: true }, 200, deVolta, 'contato');
 };

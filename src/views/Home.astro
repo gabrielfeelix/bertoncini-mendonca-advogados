@@ -1,0 +1,124 @@
+---
+/**
+ * Home (v3), nos dois idiomas. Ordem de site institucional de escritório:
+ * capa em slides → áreas de atuação → o escritório → sócios →
+ * publicações (só em português, o blog não tem versão em inglês) → chamada.
+ */
+import Base from '~/layouts/Base.astro';
+import Chamada from '~/components/Chamada.astro';
+import HeroSlides from '~/components/HeroSlides.astro';
+import IconeArea from '~/components/IconeArea.astro';
+import CartaoSocio from '~/components/CartaoSocio.astro';
+import CartaoArtigo from '~/components/CartaoArtigo.astro';
+import { site } from '~/lib/site';
+import { areasDoIdioma, FOTO_DA_AREA } from '~/lib/areas';
+import { listarArtigos } from '~/lib/artigos';
+import { t, rota, type Idioma } from '~/lib/i18n';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const tx = t(lang);
+const areas = await areasDoIdioma(lang);
+const artigos = lang === 'pt' ? (await listarArtigos()).slice(0, 3) : [];
+---
+
+<Base
+  titulo={tx.home.titulo}
+  descricao={tx.descricao}
+  paginaAtual="/"
+  lang={lang}
+  alternativa={lang === 'pt' ? '/en/' : '/'}
+>
+  <HeroSlides lang={lang} />
+
+  <section class="secao">
+    <div class="container">
+      <div class="titulo-secao">
+        <h2 set:html={tx.home.areasTitulo} />
+        <p>{tx.home.areasApoio}</p>
+      </div>
+      <div class="grade grade-2">
+        {areas.map((area) => (
+          <article class="cartao">
+            <img class="cartao-foto" src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="900" loading="lazy" />
+            <div class="cartao-corpo">
+              <IconeArea slug={area.slugPt} />
+              <h3>{area.data.nome}</h3>
+              <p>{area.data.resumo}</p>
+              {area.data.publicoCurto && <p class="publico"><strong>{tx.home.paraQuem}</strong> {area.data.publicoCurto}</p>}
+              <a class="ver-mais" href={area.href}>{tx.home.verMais}</a>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div class="outras">
+        <h3>{tx.home.tambem}</h3>
+        <ul>{tx.outrasAreas.map((a) => <li>{a}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao secao-cinza">
+    <div class="container duas-colunas">
+      <img class="foto-escritorio" src="/media/hero/socios-1600.jpg" alt={tx.home.fotoSocios} width="1600" height="900" loading="lazy" />
+      <div>
+        <p class="rotulo">{tx.home.sobreRotulo}</p>
+        <h2 class="titulo-bloco" set:html={tx.home.sobreTitulo} />
+        {tx.home.sobre.map((p) => <p>{p}</p>)}
+        <a class="botao botao-contorno" href={rota(lang, '/escritorio/')}>{tx.home.saibaMais}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao">
+    <div class="container">
+      <div class="titulo-secao">
+        <h2 set:html={tx.home.sociosTitulo} />
+      </div>
+      <div class="grade grade-2 socios">
+        {site.socios.map((socio, i) => <CartaoSocio socio={socio} genero={i === 1 ? 'a' : 'o'} lang={lang} />)}
+      </div>
+    </div>
+  </section>
+
+  {artigos.length > 0 && (
+    <section class="secao secao-cinza">
+      <div class="container">
+        <div class="titulo-secao">
+          <h2>Últimas <strong>Publicações</strong></h2>
+          <p>Textos do escritório sobre as dúvidas mais comuns em cada área.</p>
+        </div>
+        <div class="grade grade-3">
+          {artigos.map((artigo) => <CartaoArtigo artigo={artigo} />)}
+        </div>
+        <p class="ver-todas"><a class="botao botao-contorno" href="/blog/">Ver todas as publicações</a></p>
+      </div>
+    </section>
+  )}
+
+  <Chamada lang={lang} />
+</Base>
+
+<style>
+  .cartao-foto { width: 100%; aspect-ratio: 16 / 7; object-fit: cover; }
+  .publico { font-size: 15px; }
+  .publico strong { color: var(--azul); }
+
+  .outras { margin-top: 30px; padding: 24px 28px; background: var(--fundo-cinza); border-radius: 6px; display: flex; align-items: center; gap: 12px 28px; flex-wrap: wrap; }
+  .outras h3 { font-size: 17px; margin: 0; }
+  .outras ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 10px; }
+  .outras li { background: #fff; border: 1px solid var(--linha); border-radius: 4px; padding: 4px 12px; font-size: 15px; }
+
+  .foto-escritorio { border-radius: 6px; box-shadow: var(--sombra); }
+  .titulo-bloco { font-size: 34px; font-weight: 300; }
+  .titulo-bloco :global(strong) { font-weight: 700; }
+
+  .socios { max-width: 780px; margin: 0 auto; }
+  .ver-todas { text-align: center; margin: 40px 0 0; }
+
+  @media (max-width: 680px) {
+    .titulo-bloco { font-size: 28px; }
+  }
+</style>

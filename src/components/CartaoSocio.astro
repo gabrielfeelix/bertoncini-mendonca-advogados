@@ -5,6 +5,7 @@
  * juntos nas duas áreas (retorno de 06/11/2026). Sem efeito de hover na foto.
  */
 import { site } from '../lib/site';
+import { t, rota, type Idioma } from '../lib/i18n';
 
 interface Props {
   socio: (typeof site.socios)[number];
@@ -12,14 +13,17 @@ interface Props {
   genero: 'o' | 'a';
   /** Âncora do perfil completo em /escritorio/. */
   href?: string;
+  lang?: Idioma;
 }
-const { socio, genero, href = `/escritorio/#${socio.nome.split(' ')[0].toLowerCase()}` } = Astro.props;
+const { socio, genero, lang = 'pt' } = Astro.props;
+const tx = t(lang);
+const href = Astro.props.href ?? `${rota(lang, '/escritorio/')}#${socio.nome.split(' ')[0].toLowerCase()}`;
 ---
 
 <article class="cartao cartao-socio">
-  <img src={`${socio.retrato}-560.jpg`} alt={`Retrato de ${socio.nome}.`} width="560" height="840" loading="lazy" />
+  <img src={`${socio.retrato}-560.jpg`} alt={`${tx.socio.retrato} ${socio.nome}.`} width="560" height="840" loading="lazy" />
   <div class="cartao-corpo">
-    <p class="rotulo">Sóci{genero}</p>
+    <p class="rotulo">{tx.socio[genero]}</p>
     <h3><a href={href}>{socio.nome}</a></h3>
     <p class="oab">{socio.oab.valor}</p>
   </div>

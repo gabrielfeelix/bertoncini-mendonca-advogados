@@ -1,0 +1,133 @@
+---
+/**
+ * O escritório (v3), nos dois idiomas: quem somos, missão e valores, e o
+ * perfil dos sócios. Missão e valores são texto dos sócios (briefing q3.1
+ * e q3.2); formação, do briefing (q1.7a e q1.7b). Sem história e sem
+ * números, e sem dividir os sócios por área (retorno de 06/11/2026).
+ */
+import Base from '~/layouts/Base.astro';
+import BannerPagina from '~/components/BannerPagina.astro';
+import Chamada from '~/components/Chamada.astro';
+import { site } from '~/lib/site';
+import { areasDoIdioma } from '~/lib/areas';
+import { t, type Idioma } from '~/lib/i18n';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const tx = t(lang);
+const e = tx.escritorio;
+const areas = await areasDoIdioma(lang);
+const outras = tx.outrasAreas;
+
+const perfis = site.socios.map((socio, i) => ({
+  socio,
+  ancora: socio.nome.split(' ')[0].toLowerCase(),
+  cargo: tx.socio[i === 1 ? 'a' : 'o'],
+  bio: e.bios[i],
+  formacao: e.formacoes[i],
+}));
+---
+
+<Base
+  titulo={e.titulo}
+  descricao={e.descricao}
+  paginaAtual="/escritorio/"
+  lang={lang}
+  alternativa={lang === 'pt' ? '/en/firm/' : '/escritorio/'}
+>
+  <BannerPagina
+    html={e.banner}
+    apoio={e.missao}
+    foto="/media/hero/socios-1600.jpg"
+    posicao="50% 12%"
+    alto
+    migalhas={[{ rotulo: e.migalha }]}
+    lang={lang}
+  />
+
+  <section class="secao">
+    <div class="container duas-colunas">
+      <div>
+        <p class="rotulo">{e.rotulo}</p>
+        <h2 class="titulo-bloco">{site.nome}</h2>
+        <p>
+          {e.intro}{' '}
+          {areas.map((a, i) => (
+            <>{i > 0 && ` ${e.e} `}<a href={a.href}>{a.data.nome}</a></>
+          ))}.
+        </p>
+        <p>
+          {e.tambem} {outras.slice(0, -1).join(', ').toLowerCase()} {e.e} {outras.at(-1)?.toLowerCase()}.
+        </p>
+        <p>{tx.atendimento}, {tx.presencialEm} {site.cidade}/{site.estado}.</p>
+      </div>
+      <img class="foto" src="/media/novas/escritorio-historia.jpg" alt="" width="1600" height="900" loading="lazy" />
+    </div>
+  </section>
+
+  <section class="secao secao-cinza">
+    <div class="container">
+      <div class="titulo-secao">
+        <h2 set:html={e.missaoTitulo} />
+        <p class="missao">{e.missao}</p>
+      </div>
+      <div class="grade grade-3">
+        {e.valores.map((v) => (
+          <div class="cartao">
+            <div class="cartao-corpo">
+              <h3>{v.nome}</h3>
+              <p>{v.texto}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="secao">
+    <div class="container">
+      <div class="titulo-secao">
+        <h2 set:html={e.sociosTitulo} />
+      </div>
+      <div class="perfis">
+        {perfis.map((p) => (
+          <article class="perfil" id={p.ancora}>
+            <img src={`${p.socio.retrato}-840.jpg`} alt={`${tx.socio.retrato} ${p.socio.nome}.`} width="840" height="1260" loading="lazy" />
+            <div>
+              <p class="rotulo">{p.cargo}</p>
+              <h3>{p.socio.nome}</h3>
+              <p class="oab">{p.socio.oab.valor}</p>
+              <p>{p.bio}</p>
+              <h4>{e.formacao}</h4>
+              <ul>{p.formacao.map((item) => <li>{item}</li>)}</ul>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Chamada lang={lang} />
+</Base>
+
+<style>
+  .titulo-bloco { font-size: 30px; }
+  .foto { border-radius: 6px; box-shadow: var(--sombra); }
+  .missao { font-size: 19px; color: var(--texto) !important; max-width: 760px !important; }
+
+  .perfis { display: grid; gap: 48px; max-width: 980px; margin: 0 auto; }
+  .perfil { display: grid; grid-template-columns: 300px 1fr; gap: 40px; align-items: start; scroll-margin-top: calc(var(--altura-barra) + 24px); }
+  .perfil + .perfil { padding-top: 48px; border-top: 1px solid var(--linha); }
+  .perfil img { border-radius: 6px; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 20%; box-shadow: var(--sombra); }
+  .perfil h3 { font-size: 26px; margin-bottom: 4px; }
+  .perfil h4 { font-size: 16px; margin: 22px 0 8px; }
+  .oab { color: var(--texto-suave); }
+
+  @media (max-width: 680px) {
+    .perfil { grid-template-columns: 1fr; gap: 24px; }
+    .perfil img { max-width: 320px; }
+    .titulo-bloco { font-size: 26px; }
+  }
+</style>

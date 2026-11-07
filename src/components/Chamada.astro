@@ -1,15 +1,15 @@
 ---
 /** Faixa azul de chamada para contato, antes do rodapé. */
+import { t, rota, type Idioma } from '../lib/i18n';
 interface Props {
   titulo?: string;
   texto?: string;
   href?: string;
+  lang?: Idioma;
 }
-const {
-  titulo = 'Precisa de <strong>orientação jurídica?</strong>',
-  texto = 'Conte o seu caso. Respondemos pelo e-mail que você informar.',
-  href = '/contato/',
-} = Astro.props;
+const { lang = 'pt' } = Astro.props;
+const tx = t(lang);
+const { titulo = tx.chamada.titulo, texto = tx.chamada.texto, href = rota(lang, '/contato/') } = Astro.props;
 ---
 
 <section class="chamada">
@@ -18,6 +18,6 @@ const {
       <h2 set:html={titulo} />
       <p>{texto}</p>
     </div>
-    <a class="botao botao-claro" href={href}>Fale conosco</a>
+    <a class="botao botao-claro" href={href}>{tx.chamada.botao}</a>
   </div>
 </section>

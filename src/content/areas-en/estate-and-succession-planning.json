@@ -1,0 +1,127 @@
+{
+  "nome": "Estate and Succession Planning",
+  "slug": "estate-and-succession-planning",
+  "slugPt": "planejamento-patrimonial-e-sucessorio",
+  "resumo": "Organizing during your lifetime what, left unorganized, becomes probate (inventário) and a dispute among heirs.",
+  "servicos": [
+    "Estate planning",
+    "Asset review",
+    "Asset and family holding companies",
+    "Gifts",
+    "Gift with reserved usufruct",
+    "Wills",
+    "Probate",
+    "Public deeds",
+    "Partners' agreements",
+    "Corporate acts"
+  ],
+  "assuntos": [
+    {
+      "nome": "Family holding company",
+      "faz": "Run the numbers first: the cost of setting it up and maintaining it, against what it actually saves."
+    },
+    {
+      "nome": "Family business and partners' agreement",
+      "faz": "Put in writing who manages and how heirs come in, while everyone is in agreement."
+    },
+    {
+      "nome": "Probate and estate division",
+      "faz": "Open and conduct it, at a notary's office when the heirs agree, in court when they do not."
+    },
+    {
+      "nome": "Wills and gifts",
+      "faz": "Put the transfer in writing while respecting the forced share (legítima) reserved to compulsory heirs, which no will can set aside."
+    },
+    {
+      "nome": "Buying property",
+      "faz": "Review the property registration record (matrícula), certificates, and sellers before signing, while there is still room to negotiate."
+    },
+    {
+      "nome": "Contracts",
+      "faz": "The instruments that link assets, partners, and family — prenuptial agreements and marital property regimes included."
+    },
+    {
+      "nome": "Real estate law",
+      "faz": "Transfer, usufruct, and regularization of the properties that are part of the estate division."
+    },
+    {
+      "nome": "Corporate and tax",
+      "faz": "Measure the ITCMD (the state tax on inheritance and gifts) of each path before choosing, not when there is no longer a choice."
+    }
+  ],
+  "corpo": [
+    "Estate and succession planning means deciding during your lifetime where your assets will go, instead of leaving the law and the courts to decide later. It is a preventive area: almost everything it addresses would later become a lengthy probate, a higher tax than necessary, or a dispute between members of the same family.",
+    "It brings together matters that are usually handled separately and that, in practice, are the same problem seen from different angles: civil and succession law, real estate, tax, corporate law, and the contracts that tie it all together.",
+    "Probate (inventário) is the procedure that transfers the assets of a deceased person to the heirs. When all heirs are adults with full legal capacity and in agreement, it can be done at a notary's office, by public deed, which is considerably faster. If there is a minor or legally incapacitated heir, or disagreement among the heirs, the route is through the courts.",
+    "For a long time, the existence of a will necessarily sent probate to the courts. CNJ (National Council of Justice) Provision 149/2023 and CNJ Resolution 571/2024 opened possibilities for out-of-court probate even when there is a will or an incapacitated interested party, subject to specific conditions and, in general, an opinion from the Public Prosecutor's Office (Ministério Público). This is a point where the rule changed recently and where it is worth examining the specific case before assuming the court route.",
+    "Before that, there is what can be done during your lifetime. A gift with reserved usufruct, a will, a prenuptial agreement, a change of marital property regime, and setting up a family holding company are tools to organize the transfer, define who manages what, and reduce the chance of litigation. Each has its own cost, tax effect, and legal limit: the forced share of compulsory heirs, for example, cannot be set aside by a will.",
+    "ITCMD, the state tax on inheritance and gifts, is usually the factor that defines the timing and form of the transfer. Planning does not mean not paying tax: it means knowing the cost of each path before choosing, rather than discovering it when there is no longer a choice.",
+    "In a family business, succession is also a corporate matter. The partners' agreement, the rules for heirs joining the company, and the definition of who manages afterward keep the death or departure of a partner from paralyzing the business. These are clauses written while everyone is in agreement, before any conflict.",
+    "When buying property, the review comes before signing: an up-to-date property registration record, certificates on the property and on the sellers, condominium fee and IPTU (municipal property tax) debts, and the sellers' standing before the courts. This check, real estate due diligence, shows the risk of the transaction while it is still possible to negotiate or walk away.",
+    "We serve clients throughout Brazil online, and in person in Maringá.",
+    "The work begins with understanding what exists: which assets, in whose name, with what debts, and which people are involved. We explain the options, what each one requires, and what it costs, before starting. No result is promised, because no lawyer alone decides the outcome of a case."
+  ],
+  "perguntas": [
+    {
+      "pergunta": "Does probate have to go through the courts?",
+      "resposta": "Not always. When all heirs are adults with full legal capacity and in agreement, probate can be done at a notary's office, by public deed. If there is a minor or incapacitated heir, or disagreement, the route is through the courts. When there was a will, the general rule was also the court route, but CNJ Provision 149/2023 and CNJ Resolution 571/2024 now allow the out-of-court route in specific situations. It is worth examining the case before assuming."
+    },
+    {
+      "pergunta": "Can I leave my assets to whomever I want in a will?",
+      "resposta": "Only in part. If there are compulsory heirs — descendants, ascendants, and spouse —, half of the estate is the forced share and belongs to them by law. The will freely disposes of the other half. With no compulsory heirs, there is complete freedom."
+    },
+    {
+      "pergunta": "Is it worth setting up a family holding company?",
+      "resposta": "It depends on the assets and the goal. A holding company can make administration easier, organize succession and, in some cases, reduce the tax cost of the transfer. But it has setup and maintenance costs, and the tax savings are not automatic: they depend on the type of asset, the activity, and the state's legislation. It is a calculation made beforehand, not a standard solution."
+    },
+    {
+      "pergunta": "Does giving away my assets during my lifetime avoid probate?",
+      "resposta": "It can, if the gift covers all the assets and is made with due care. ITCMD is levied on the gift at the time it is made, the gift must respect the limit of the forced share, and it is usually accompanied by a reserved usufruct, so that the donor continues to use the asset and receive its income for life."
+    },
+    {
+      "pergunta": "How long does probate take?",
+      "resposta": "Out-of-court probate, with documents in order and agreement among the heirs, is usually resolved in a few months. Court probate depends on the judicial district, the complexity of the estate, and whether or not there is a dispute, and it can take years. The law provides that probate be opened within two months of the death, and delay usually results in a fine on the ITCMD."
+    },
+    {
+      "pergunta": "Does a holding company really protect assets?",
+      "resposta": "It organizes, but it does not shield. A holding company changes the ownership of the assets and makes administration and succession easier, but it does not serve to hide assets from creditors: a transaction made to defraud an existing debt can be undone by the courts. The protection it offers comes from organization, from well-drafted articles of association, and from clear rules among the heirs."
+    },
+    {
+      "pergunta": "Can I give away a property and keep living in it?",
+      "resposta": "Yes. A gift with reserved usufruct transfers ownership and keeps with the donor the right to use the property and receive the rent for life. When the usufructuary dies, the usufruct ends and full ownership remains with the person who received the gift, without probate for that asset."
+    },
+    {
+      "pergunta": "Can I prevent my child from selling the property they received?",
+      "resposta": "In some cases. In gifts and wills, it is possible to include clauses of inalienability, unseizability, and non-communicability. On the compulsory heirs' forced share, however, a will can only impose these restrictions by stating just cause. The clause also restricts the person who receives the asset, so the decision depends on the family's goal."
+    },
+    {
+      "pergunta": "Does a prenuptial agreement really protect assets?",
+      "resposta": "It defines the marital property regime and, with it, what belongs to each spouse and what is shared in a divorce. It must be made by public deed before the marriage. On its own, it does not remove all effects on inheritance: depending on the regime, the spouse remains an heir. It works best combined with the rest of the planning."
+    },
+    {
+      "pergunta": "Do I need a will even if I have children?",
+      "resposta": "It is not mandatory, but it is usually useful. With children, half of the estate is their forced share; the other half can go to whomever you choose, including one of the children. A will can also specify which asset goes to whom within each person's share and can appoint a guardian for a minor child."
+    },
+    {
+      "pergunta": "What happens to my digital accounts and files when I die?",
+      "resposta": "There is still no specific law on digital inheritance in Brazil. What has economic value, such as crypto assets, balances on platforms, and copyrights, is included in probate. Personal accounts follow each platform's rules and court decisions on a case-by-case basis. That is why it is worth putting in writing what should happen to each account and who may access it."
+    }
+  ],
+  "ordem": 1,
+  "mensagemWhatsapp": "Hello, I need guidance on estate and succession planning.",
+  "publicoCurto": "Business owners and families with assets to organize, divide, or protect.",
+  "publicos": [
+    {
+      "titulo": "Business owners",
+      "texto": "Who want to separate personal assets from company assets, organize succession in the business, and know the tax cost of each path before choosing."
+    },
+    {
+      "titulo": "Families",
+      "texto": "Who want to decide during their lifetime how assets will be divided, and reduce the chance of disputes among heirs and the time and cost of probate."
+    },
+    {
+      "titulo": "People buying or regularizing property",
+      "texto": "Who need to review documents and risks before signing, or to put an irregular property in order."
+    }
+  ]
+}

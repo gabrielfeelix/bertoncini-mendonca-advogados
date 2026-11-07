@@ -51,7 +51,7 @@ export function responde(
   const querJson = (request.headers.get('accept') ?? '').includes('application/json');
 
   if (querJson) {
-    return new Response(JSON.stringify({ ok: resultado.ok, erro: resultado.erro }), {
+    return new Response(JSON.stringify({ ok: resultado.ok, erro: resultado.erro, codigo: resultado.codigo }), {
       status,
       headers: { 'content-type': 'application/json; charset=utf-8' },
     });

@@ -1,4 +1,5 @@
 ---
+import { t, rota, type Idioma } from '../lib/i18n';
 /**
  * Banner do topo das páginas internas: foto escurecida, título centrado e
  * migalhas de pão. Padrão de "page title" de tema WordPress.
@@ -10,17 +11,42 @@ interface Props {
   html?: string;
   foto?: string;
   migalhas?: { rotulo: string; href?: string }[];
+  lang?: Idioma;
+  /** Capa alta, como a da home, com o título à esquerda (ex.: O escritório). */
+  alto?: boolean;
+  /** Enquadramento da foto (CSS background-position). */
+  posicao?: string;
+  /** Linha de apoio sob o título, só na capa alta. */
+  apoio?: string;
 }
-const { titulo, html, foto = '/media/novas/escritorio-historia.jpg', migalhas = [] } = Astro.props;
+const {
+  titulo,
+  html,
+  foto = '/media/novas/escritorio-historia.jpg',
+  migalhas = [],
+  lang = 'pt',
+  alto = false,
+  posicao = 'center',
+  apoio,
+} = Astro.props;
+const tx = t(lang);
 ---
 
-<section class="banner-pagina" style={`background-image:url('${foto}')`}>
+<section
+  class:list={['banner-pagina', { 'banner-alto': alto }]}
+  style={alto ? undefined : `background-image:url('${foto}');background-position:${posicao}`}
+>
+  {/* Na capa alta a foto é uma imagem à direita que começa ABAIXO do
+      cabeçalho, para rosto nenhum ficar atrás do menu, e se funde no azul
+      pela esquerda (mask-image). */}
+  {alto && <img class="banner-foto" src={foto} alt="" style={`object-position:${posicao}`} />}
   <div class="container">
     {html ? <h1 set:html={html} /> : <h1>{titulo}</h1>}
+    {alto && apoio && <p class="banner-apoio">{apoio}</p>}
     {migalhas.length > 0 && (
-      <nav aria-label="Você está em">
+      <nav aria-label={tx.migalhas.aria}>
         <p class="migalhas">
-          <a href="/">Início</a>
+          <a href={rota(lang, '/')}>{tx.migalhas.inicio}</a>
           {migalhas.map((m) => (
             <>
               {' / '}

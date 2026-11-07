@@ -26,7 +26,7 @@ export const CAMPOS_ISCA = [
  * perdida em produção.
  */
 export const CAMPOS_REAIS = [
-  'nome', 'email', 'telefone', 'assunto', 'mensagem', 'origem',
+  'nome', 'email', 'telefone', 'assunto', 'mensagem', 'origem', 'idioma',
 ] as const;
 
 const colisao = CAMPOS_ISCA.filter((isca) => (CAMPOS_REAIS as readonly string[]).includes(isca));

@@ -1,0 +1,244 @@
+---
+/**
+ * Contato (v3), nos dois idiomas: formulário à esquerda, canais à direita.
+ *
+ * O formulário é o de sempre, ligado a /api/contato. Funciona sem
+ * JavaScript (POST normal, volta por 303 com ?envio-contato=) e, com
+ * JavaScript, envia sem sair da página. O campo oculto `idioma` faz a API
+ * devolver quem está sem JS para a página do idioma certo; com JS, a
+ * mensagem de erro vem do `codigo` da resposta, traduzida aqui.
+ *
+ * As páginas que usam esta view são renderizadas a cada pedido
+ * (prerender = false), porque a mensagem de resultado precisa existir no
+ * HTML de quem volta do 303.
+ */
+import Base from '~/layouts/Base.astro';
+import BannerPagina from '~/components/BannerPagina.astro';
+import Icone from '~/components/Icone.astro';
+import { CAMPOS_ISCA } from '~/lib/antispam';
+import { site } from '~/lib/site';
+import { areasDoIdioma } from '~/lib/areas';
+import { t, rota, type Idioma } from '~/lib/i18n';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const tx = t(lang);
+const c = tx.contato;
+
+const envio = Astro.url.searchParams.get('envio-contato');
+const motivo = Astro.url.searchParams.get('motivo-contato');
+const mensagemErro = c.erros[motivo ?? ''] ?? c.erros.envio;
+
+const valores = { nome: '', email: '', telefone: '', assunto: '', perfil: '', conheceu: '', mensagem: '' };
+
+const areas = await areasDoIdioma(lang);
+const ASSUNTOS = [...areas.map((a) => a.data.nome), c.outroAssunto, c.naoSei];
+
+/* A página da área manda ?assunto=<slug em português>: quem vem de lá chega com o assunto escolhido. */
+const areaDoLink = areas.find((a) => a.slugPt === Astro.url.searchParams.get('assunto'));
+if (areaDoLink) valores.assunto = areaDoLink.data.nome;
+
+/* Sem JavaScript, quem erra volta com o que digitou (a API devolve em v-<campo>). */
+if (envio === 'erro') {
+  for (const campo of Object.keys(valores) as (keyof typeof valores)[]) {
+    valores[campo] = Astro.url.searchParams.get(`v-${campo}`) ?? '';
+  }
+}
+const houveCorte = envio === 'erro' && Astro.url.searchParams.get('corte-contato') === '1';
+const campoComErro =
+  motivo === 'email' ? 'email' : motivo === 'faltando' ? (valores.nome ? 'mensagem' : 'nome') : null;
+const erroEm = (campo: string) =>
+  campoComErro === campo ? ({ 'aria-invalid': 'true', 'aria-describedby': 'resultado-contato' } as const) : {};
+---
+
+<Base
+  titulo={c.titulo}
+  descricao={c.descricao}
+  paginaAtual="/contato/"
+  lang={lang}
+  alternativa={lang === 'pt' ? '/en/contact/' : '/contato/'}
+>
+  <BannerPagina html={c.banner} foto="/media/novas/contato-lateral.jpg" migalhas={[{ rotulo: c.migalha }]} lang={lang} />
+
+  <section class="secao">
+    <div class="container com-lateral">
+      <div>
+        <h2>{c.h2}</h2>
+        <p>{c.apoio}</p>
+
+        <p
+          id="resultado-contato"
+          class:list={['resultado', { falhou: envio === 'erro' }]}
+          role="status"
+          aria-live="polite"
+          tabindex="-1"
+          hidden={envio !== 'ok' && envio !== 'erro'}
+        >
+          {envio === 'ok' ? c.ok : envio === 'erro' ? mensagemErro : ''}
+        </p>
+        {houveCorte && (
+          <p class="resultado falhou"><strong>{c.atencao}</strong> {c.corte}</p>
+        )}
+
+        <form
+          class="form"
+          action="/api/contato"
+          method="post"
+          data-ok={c.ok}
+          data-enviando={c.enviando}
+          data-sem-conexao={c.semConexao}
+          data-erros={JSON.stringify(c.erros)}
+        >
+          <input type="hidden" name="idioma" value={lang} />
+          <div class="linha-2">
+            <div>
+              <label for="nome">{c.nome} *</label>
+              <input id="nome" name="nome" type="text" autocomplete="name" required maxlength="120" value={valores.nome} {...erroEm('nome')} />
+            </div>
+            <div>
+              <label for="telefone">{c.telefone}</label>
+              <input id="telefone" name="telefone" type="tel" autocomplete="tel" maxlength="40" value={valores.telefone} />
+            </div>
+          </div>
+          <div>
+            <label for="email">{c.email} *</label>
+            <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" value={valores.email} {...erroEm('email')} />
+          </div>
+          <div class="linha-2">
+            <div>
+              <label for="assunto">{c.assunto}</label>
+              <select id="assunto" name="assunto">
+                <option value="">{c.selecione}</option>
+                {ASSUNTOS.map((a) => <option value={a} selected={valores.assunto === a}>{a}</option>)}
+              </select>
+            </div>
+            <div>
+              <label for="perfil">{c.perfil}</label>
+              <select id="perfil" name="perfil">
+                <option value="">{c.selecione}</option>
+                {c.perfis.map((o) => <option value={o} selected={valores.perfil === o}>{o}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="mensagem">{c.mensagem} *</label>
+            <textarea id="mensagem" name="mensagem" required maxlength="5000" {...erroEm('mensagem')}>{valores.mensagem}</textarea>
+          </div>
+          <div>
+            <label for="conheceu">{c.conheceu}</label>
+            <select id="conheceu" name="conheceu">
+              <option value="">{c.selecione}</option>
+              {c.origens.map((o) => <option value={o} selected={valores.conheceu === o}>{o}</option>)}
+            </select>
+          </div>
+
+          <div class="isca" aria-hidden="true">
+            {CAMPOS_ISCA.map((campo) => <input type="text" name={campo} tabindex="-1" autocomplete="off" />)}
+          </div>
+
+          <div><button type="submit" class="botao">{c.enviar}</button></div>
+          <p class="nota">
+            {c.nota} <a href={rota(lang, '/politica-de-privacidade/')}>{c.notaLink}</a>.
+          </p>
+        </form>
+      </div>
+
+      <aside class="lateral">
+        <div class="widget">
+          <h2>{c.canais}</h2>
+          <ul class="canais">
+            <li>
+              <span class="canal-icone"><Icone nome="whatsapp" tamanho={18} /></span>
+              <div>
+                <strong>{c.fone}</strong>
+                <a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a>
+                <a href={site.whatsapp.valor} rel="noopener" target="_blank">{c.whats}</a>
+              </div>
+            </li>
+            <li>
+              <span class="canal-icone"><Icone nome="email" tamanho={18} /></span>
+              <div>
+                <strong>{c.email}</strong>
+                <a href={`mailto:${site.email.valor}`} set:html={site.email.valor.replace('@', '@<wbr>')} />
+              </div>
+            </li>
+            <li>
+              <span class="canal-icone"><Icone nome="instagram" tamanho={18} /></span>
+              <div>
+                <strong>{c.instagram}</strong>
+                <a href={site.redes.instagram.valor} rel="noopener" target="_blank">{site.redes.instagramArroba}</a>
+              </div>
+            </li>
+          </ul>
+          <dl class="dados">
+            <dt>{c.horarioRotulo}</dt>
+            <dd>{tx.horario}</dd>
+            <dt>{c.atendimentoRotulo}</dt>
+            <dd>{tx.atendimento} {tx.presencialEm} {site.cidade}/{site.estado}</dd>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<script>
+  /* Melhoria progressiva: com JS o envio acontece sem sair da página. */
+  const forma = document.querySelector<HTMLFormElement>('form[action="/api/contato"]');
+  const resultado = document.getElementById('resultado-contato');
+  const botao = forma?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+  if (forma && resultado && botao) {
+    const textos = forma.dataset;
+    const erros = JSON.parse(textos.erros ?? '{}') as Record<string, string>;
+    forma.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      botao.disabled = true;
+      resultado.hidden = false;
+      resultado.classList.remove('falhou');
+      resultado.textContent = textos.enviando ?? '';
+      try {
+        const resposta = await fetch('/api/contato', {
+          method: 'POST',
+          body: new FormData(forma),
+          headers: { accept: 'application/json' },
+        });
+        const dados = (await resposta.json().catch(() => ({}))) as { codigo?: string };
+        if (resposta.ok) {
+          forma.reset();
+          resultado.textContent = textos.ok ?? '';
+        } else {
+          resultado.classList.add('falhou');
+          resultado.textContent = erros[dados.codigo ?? ''] ?? erros.envio;
+        }
+      } catch {
+        resultado.classList.add('falhou');
+        resultado.textContent = textos.semConexao ?? '';
+      } finally {
+        botao.disabled = false;
+        resultado.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .canais { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 16px; }
+  .canais li { display: flex; gap: 12px; align-items: flex-start; border: 0 !important; }
+  .canais div { display: grid; gap: 2px; font-size: 15px; }
+  .canais strong { color: var(--azul); }
+  .canais a { padding: 0 !important; color: var(--azul-medio) !important; overflow-wrap: break-word; }
+  .canais a:hover { text-decoration: underline; }
+  .canal-icone {
+    display: grid; place-items: center; flex: none;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--azul); color: #fff;
+  }
+  .dados { margin: 0; font-size: 15px; padding-top: 14px; border-top: 1px solid var(--linha); }
+  .dados dt { font-weight: 700; color: var(--azul); margin-top: 12px; }
+  .dados dt:first-child { margin-top: 0; }
+  .dados dd { margin: 2px 0 0; }
+  .resultado { margin-bottom: 18px; }
+</style>

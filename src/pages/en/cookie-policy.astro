@@ -1,0 +1,197 @@
+---
+/**
+ * /en/cookie-policy/ — versão em inglês de /politica-de-cookies/.
+ * Manter sincronizada com src/pages/politica-de-cookies.astro: qualquer
+ * mudança de conteúdo lá precisa ser feita aqui também.
+ */
+import Base from '~/layouts/Base.astro';
+import { site } from '~/lib/site';
+import '~/styles/politica.css';
+
+const secoes = [
+  { id: 'o-que-sao', rotulo: 'What cookies are' },
+  { id: 'o-que-usamos', rotulo: 'What this website uses today' },
+  { id: 'escolha', rotulo: 'The three choices in the notice' },
+  { id: 'terceiros', rotulo: 'Third-party content' },
+  { id: 'controle', rotulo: 'How to control them in your browser' },
+  { id: 'medicao', rotulo: 'If measurement is enabled' },
+  { id: 'falar', rotulo: 'Questions' },
+];
+---
+
+<Base
+  lang="en"
+  alternativa="/politica-de-cookies/"
+  sobreposto={false}
+  titulo="Cookie Policy | Bertoncini & Mendonça Advogados"
+  descricao="What cookies the Bertoncini & Mendonça Advogados website uses, what they are for, and how you control your choice."
+>
+  <article class="politica">
+    <div class="env">
+      <p class="chapeu">Legal document</p>
+      <h1>Cookie Policy</h1>
+      <p class="atualizado" data-placeholder="1">
+        <span class="marca-falta">To be defined</span>
+        Date of last update to be filled in when the firm approves the final text.
+      </p>
+
+      <div class="ressalva">
+        <p>
+          <strong>This text is still provisional.</strong> It accurately describes
+          what the website does today, but the final text will come from the
+          partners. The passages in red depend on a decision by the firm and are
+          marked as such.
+        </p>
+      </div>
+
+      <nav class="sumario" aria-label="Sections of this policy">
+        <h2>On this page</h2>
+        <ol>
+          {secoes.map((secao) => (
+            <li><a href={`#${secao.id}`}>{secao.rotulo}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="texto">
+        <p>
+          Summary, for those who don't want to read the rest: this website does not
+          use advertising cookies, does not track your browsing, and does not sell
+          data. The only record it keeps in your browser is your own answer to the
+          cookie notice, so it doesn't ask again on every page.
+        </p>
+
+        <h2 id="o-que-sao">What cookies are</h2>
+        <p>
+          Cookies are small files that a website stores in your browser to remember
+          something from one page to the next: which language you chose, that you
+          have already answered a notice, or, in the case of tracking cookies, where
+          you have been.
+        </p>
+        <p>
+          Other technologies play the same role under a different name, such as
+          <code>localStorage</code>, <code>sessionStorage</code>, and tracking
+          pixels. When this page talks about cookies, it applies to all of them.
+        </p>
+
+        <h2 id="o-que-usamos">What this website uses today</h2>
+        <p>
+          <strong>No measurement cookies and no advertising cookies.</strong> All
+          that exists is what is needed to deliver the pages and to remember your
+          choice:
+        </p>
+        <div class="tabela">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Source</th>
+                <th scope="col">What it is for</th>
+                <th scope="col">Stores anything in your browser</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Your cookie choice</th>
+                <td>Remembering what you answered in the notice, so it doesn't ask again</td>
+                <td>
+                  Yes, if you answer the notice. A single record, named
+                  <code>consentimento</code>, stored on your device and never sent to
+                  anyone
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Vercel (hosting)</th>
+                <td>Delivering the pages and protecting the website against overload and attacks</td>
+                <td>No, during normal browsing</td>
+              </tr>
+              <tr>
+                <th scope="row">Contact form</th>
+                <td>Sending your message to the firm</td>
+                <td>No. The data goes out with the submission and nothing is kept in the browser</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The data you type into the form is handled as described in the
+          <a href="/en/privacy-policy/">privacy policy</a>.
+        </p>
+
+        <h2 id="escolha">The three choices in the notice</h2>
+        <p>
+          The notice that appears on your first visit offers three answers, and yours
+          is stored on your device:
+        </p>
+        <ul>
+          <li>
+            <strong>Accept all:</strong> also authorizes measurement cookies, if and
+            when they exist.
+          </li>
+          <li>
+            <strong>Necessary only:</strong> authorizes only what the website needs to
+            work.
+          </li>
+          <li>
+            <strong>Reject:</strong> refuses everything that is not necessary.
+          </li>
+        </ul>
+        <p>
+          Today all three have the same practical effect, because there are no
+          optional cookies on this website. We store the three separately on purpose:
+          on the day there is an intermediate category, your answer is already
+          recorded and you don't need to be asked again.
+        </p>
+        <p>
+          <strong>Refusing does not take away any feature of the website.</strong>
+          Everything remains readable and usable.
+        </p>
+        <p>
+          To change your answer, clear this website's data in your browser. The notice
+          will appear again on your next visit.
+        </p>
+
+        <h2 id="terceiros">Third-party content</h2>
+        <p>
+          The fonts and images are served by the website itself, not by external
+          services. This keeps other companies from learning about your visit.
+        </p>
+        <p>
+          When you click the link to our WhatsApp or our Instagram, you leave this
+          website and the cookie policy of those platforms applies, over which we have
+          no control. Until you click, they receive nothing from this website.
+        </p>
+
+        <h2 id="controle">How to control them in your browser</h2>
+        <p>
+          Every browser lets you block or clear cookies and data for any website,
+          usually under <em>Settings</em>, in the privacy and security section.
+          Blocking everything does not interfere with browsing this website: the
+          notice appears again, because your answer is precisely what stops being
+          stored.
+        </p>
+
+        <h2 id="medicao">If measurement is enabled</h2>
+        <p data-placeholder="1">
+          <span class="marca-falta">To be defined</span>
+          Whether the firm will measure visits to the website and with which tool. No
+          decision has been made, so this page names no tool, no cookie, and no
+          expiration period: that would be made-up information about something that
+          does not exist.
+        </p>
+        <p>What has already been decided about that day, should it come:</p>
+        <ul>
+          <li>this page is updated <strong>beforehand</strong>, with the name of each cookie, its purpose, and its expiration period, and the date at the top changes accordingly;</li>
+          <li>nothing loads before you accept, neither the script nor the cookie;</li>
+          <li>refusing still lets you use the entire website, without losing any feature.</li>
+        </ul>
+
+        <h2 id="falar">Questions</h2>
+        <p>
+          Any question about this policy can be sent to
+          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
+          or through the <a href="/en/contact/">contact page</a>.
+        </p>
+      </div>
+    </div>
+  </article>
+</Base>

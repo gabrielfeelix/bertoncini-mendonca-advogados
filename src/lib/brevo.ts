@@ -62,6 +62,8 @@ export interface Contato {
   /** Como a pessoa chegou ao escritório: indicação, Instagram, Google etc. (q2.7). */
   conheceu: string;
   mensagem: string;
+  /** Versão do site de onde veio a mensagem. 'en' = página /en/contact/. */
+  idioma?: 'pt' | 'en';
 }
 
 /** Encaminha a mensagem do formulário para a caixa do escritório. */
@@ -78,6 +80,9 @@ export function enviaEmailDeContato(
     ['Assunto', dados.assunto || 'não informado'],
     ['Quem escreve', dados.perfil || 'não informado'],
     ['Como conheceu', dados.conheceu || 'não informado'],
+    ...(dados.idioma === 'en'
+      ? ([['Idioma do site', 'inglês (a pessoa escreveu pela versão em inglês)']] as [string, string][])
+      : []),
   ];
 
   return chama('/smtp/email', chave, {
@@ -150,6 +155,7 @@ export function confirmaRecebimento(
   dados: Contato,
 ) {
   const primeiroNome = dados.nome.split(' ')[0] ?? dados.nome;
+  if (dados.idioma === 'en') return confirmaRecebimentoEmIngles(chave, remetente, dados, primeiroNome);
   const corpo = [
     `Prezado(a) ${primeiroNome},`,
     '',
@@ -180,6 +186,45 @@ export function confirmaRecebimento(
       `<p style="margin:0;white-space:pre-wrap;padding-left:12px;border-left:2px solid #E3E6EA">${escapa(dados.mensagem)}</p>` +
       '</div>',
     tags: ['confirmacao-contato'],
+  });
+}
+
+/** Mesma confirmação, para quem escreveu pela versão em inglês do site. */
+function confirmaRecebimentoEmIngles(
+  chave: string,
+  remetente: { nome: string; email: string },
+  dados: Contato,
+  primeiroNome: string,
+) {
+  const corpo = [
+    `Dear ${primeiroNome},`,
+    '',
+    'We confirm that we have received your message. One of the partners will',
+    'read it and reply to the e-mail address you provided.',
+    '',
+    'This is an automatic acknowledgment of receipt only. It does not',
+    'constitute legal advice or create an attorney-client relationship.',
+    '',
+    'This is what we received:',
+    dados.mensagem,
+  ];
+
+  return chama('/smtp/email', chave, {
+    sender: { name: remetente.nome, email: remetente.email },
+    to: [{ email: dados.email, name: dados.nome }],
+    subject: 'We have received your message',
+    textContent: corpo.join('\n'),
+    htmlContent:
+      '<div style="font-family:Georgia,serif;font-size:15px;line-height:1.6;color:#0B1E3F">' +
+      `<p>Dear ${escapa(primeiroNome)},</p>` +
+      '<p>We confirm that we have received your message. One of the partners will ' +
+      'read it and reply to the e-mail address you provided.</p>' +
+      '<p style="color:#517493">This is an automatic acknowledgment of receipt only. ' +
+      'It does not constitute legal advice or create an attorney-client relationship.</p>' +
+      '<p style="color:#517493;margin-bottom:4px">This is what we received:</p>' +
+      `<p style="margin:0;white-space:pre-wrap;padding-left:12px;border-left:2px solid #E3E6EA">${escapa(dados.mensagem)}</p>` +
+      '</div>',
+    tags: ['confirmacao-contato', 'en'],
   });
 }
 

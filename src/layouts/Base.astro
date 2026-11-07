@@ -10,6 +10,7 @@ import Topo from '../components/Topo.astro';
 import Rodape from '../components/Rodape.astro';
 import AvisoCookies from '../components/AvisoCookies.astro';
 import { site } from '../lib/site';
+import { t, type Idioma } from '../lib/i18n';
 
 interface Props {
   /** Título da página (o layout não concatena sufixo). */
@@ -26,14 +27,24 @@ interface Props {
    * com texto (políticas) passam false e o conteúdo reserva o espaço.
    */
   sobreposto?: boolean;
+  /** Idioma da página. O inglês mora em /en/. */
+  lang?: Idioma;
+  /**
+   * Endereço desta mesma página no outro idioma. Vai para o seletor
+   * PT · EN e para as tags hreflang. Sem ele (blog), o seletor leva à
+   * home do outro idioma e não há hreflang.
+   */
+  alternativa?: string;
 }
 
-const { titulo, descricao, paginaAtual, noindex = false, sobreposto = true } = Astro.props;
+const { titulo, descricao, paginaAtual, noindex = false, sobreposto = true, lang = 'pt', alternativa } = Astro.props;
+const tx = t(lang);
+const urlAlternativa = alternativa ? new URL(alternativa, site.url).toString() : undefined;
 const urlCanonica = new URL(Astro.url.pathname, site.url);
 ---
 
 <!doctype html>
-<html lang="pt-BR">
+<html lang={tx.htmlLang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -41,6 +52,13 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <meta name="description" content={descricao} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={urlCanonica.toString()} />
+    {urlAlternativa && (
+      <>
+        <link rel="alternate" hreflang={tx.htmlLang} href={urlCanonica.toString()} />
+        <link rel="alternate" hreflang={lang === 'pt' ? 'en' : 'pt-BR'} href={urlAlternativa} />
+        <link rel="alternate" hreflang="x-default" href={lang === 'pt' ? urlCanonica.toString() : urlAlternativa} />
+      </>
+    )}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.nome} />
@@ -48,7 +66,7 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <meta property="og:description" content={descricao} />
     <meta property="og:url" content={urlCanonica.toString()} />
     <meta property="og:image" content={new URL(site.imagemPadrao.valor, site.url).toString()} />
-    <meta property="og:locale" content={site.locale} />
+    <meta property="og:locale" content={tx.locale} />
     <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -60,12 +78,12 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
   </head>
   <body>
     <a class="pular" href="#conteudo">Pular para o conteúdo</a>
-    <Topo paginaAtual={paginaAtual} sobreposto={sobreposto} />
+    <Topo paginaAtual={paginaAtual} sobreposto={sobreposto} lang={lang} alternativa={alternativa} />
     <main id="conteudo" tabindex="-1" class:list={{ reserva: !sobreposto }}>
       <slot />
     </main>
-    <Rodape />
-    <AvisoCookies />
+    <Rodape lang={lang} />
+    {tx.cookies ? <AvisoCookies {...tx.cookies} /> : <AvisoCookies />}
   </body>
   <style>
     .reserva { padding-top: var(--altura-topo); }

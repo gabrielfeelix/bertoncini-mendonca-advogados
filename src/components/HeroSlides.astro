@@ -15,15 +15,19 @@
  * troca sozinho e não faz fade. Sem JavaScript, fica só o primeiro slide.
  */
 import { site } from '../lib/site';
-import { listarAreasConfirmadas } from '../lib/areas';
+import { areasDoIdioma } from '../lib/areas';
+import { t, rota, type Idioma } from '../lib/i18n';
 
 interface Props {
   /** Tempo de cada slide, em milissegundos. */
   intervalo?: number;
+  lang?: Idioma;
 }
-const { intervalo = 7000 } = Astro.props;
+const { intervalo = 7000, lang = 'pt' } = Astro.props;
+const tx = t(lang);
+const contato = rota(lang, '/contato/');
 
-const areas = await listarAreasConfirmadas();
+const areas = await areasDoIdioma(lang);
 const FOTO: Record<string, string> = {
   'planejamento-patrimonial-e-sucessorio': '/media/novas/area-bens.jpg',
   'direito-digital': '/media/novas/area-presenca.jpg',
@@ -33,34 +37,34 @@ const slides = [
   {
     foto: '/media/novas/escritorio-valores.jpg',
     rotulo: site.nomeSociedade,
-    titulo: 'Advocacia em <strong>Planejamento Patrimonial e Sucessório</strong> e em <strong>Direito Digital</strong>',
-    texto: `${site.atendimentoRodape} e presencial em ${site.cidade}/${site.estado}.`,
+    titulo: tx.hero.titulo,
+    texto: `${tx.atendimento} ${tx.presencialEm} ${site.cidade}/${site.estado}.`,
     botoes: [
-      { rotulo: 'Conheça o escritório', href: '/escritorio/', claro: true },
-      { rotulo: 'Fale conosco', href: '/contato/' },
+      { rotulo: tx.hero.conhecaEscritorio, href: rota(lang, '/escritorio/'), claro: true },
+      { rotulo: tx.hero.faleConosco, href: contato },
     ],
   },
   ...areas.map((area) => ({
-    foto: FOTO[area.data.slug] ?? '/media/novas/escritorio-historia.jpg',
+    foto: FOTO[area.slugPt] ?? '/media/novas/escritorio-historia.jpg',
     rotulo: area.data.nome,
     titulo: area.data.resumo,
     texto: area.data.publicoCurto ?? '',
     botoes: [
-      { rotulo: 'Conheça a área', href: `/areas/${area.data.slug}/`, claro: true },
-      { rotulo: 'Fale conosco', href: `/contato/?assunto=${area.data.slug}` },
+      { rotulo: tx.hero.conhecaArea, href: area.href, claro: true },
+      { rotulo: tx.hero.faleConosco, href: `${contato}?assunto=${area.slugPt}` },
     ],
   })),
 ];
 ---
 
-<section class="hero" aria-roledescription="carrossel" aria-label="Destaques" data-intervalo={intervalo}>
+<section class="hero" aria-roledescription={lang === 'en' ? 'carousel' : 'carrossel'} aria-label={tx.hero.aria} data-intervalo={intervalo} data-pausar={tx.hero.pausar} data-retomar={tx.hero.retomar}>
   <div class="trilho">
     {slides.map((s, i) => (
       <div
         class="slide"
         role="group"
         aria-roledescription="slide"
-        aria-label={`${i + 1} de ${slides.length}`}
+        aria-label={tx.hero.slide(i + 1, slides.length)}
         data-ativo={i === 0 ? '' : undefined}
         inert={i !== 0}
       >
@@ -87,24 +91,24 @@ const slides = [
     ))}
   </div>
 
-  <img class="monograma" src="/media/marca/mono-branco.png" alt="" width="353" height="382" aria-hidden="true" />
+  <img class="monograma" src="/media/marca/monograma-creme.svg" alt="" width="254" height="276" aria-hidden="true" />
 
   <div class="controles" hidden>
     <div class="container">
-      <button class="seta" type="button" data-anterior aria-label="Slide anterior">
+      <button class="seta" type="button" data-anterior aria-label={tx.hero.anterior}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
       </button>
       <div class="pontos">
         {slides.map((_, i) => (
-          <button type="button" class="ponto" data-ir={i} aria-label={`Ir para o slide ${i + 1}`} aria-current={i === 0 ? 'true' : undefined}>
+          <button type="button" class="ponto" data-ir={i} aria-label={tx.hero.irPara(i + 1)} aria-current={i === 0 ? 'true' : undefined}>
             <span class="barra"></span>
           </button>
         ))}
       </div>
-      <button class="seta" type="button" data-proximo aria-label="Próximo slide">
+      <button class="seta" type="button" data-proximo aria-label={tx.hero.proximo}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
       </button>
-      <button class="pausa" type="button" data-pausa aria-label="Pausar a troca automática" aria-pressed="false">
+      <button class="pausa" type="button" data-pausa aria-label={tx.hero.pausar} aria-pressed="false">
         <svg class="i-pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg>
         <svg class="i-tocar" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z" /></svg>
       </button>
@@ -158,7 +162,7 @@ const slides = [
 
     const atualizarPausa = () => {
       pausa.setAttribute('aria-pressed', String(pausadoPeloUsuario));
-      pausa.setAttribute('aria-label', pausadoPeloUsuario ? 'Retomar a troca automática' : 'Pausar a troca automática');
+      pausa.setAttribute('aria-label', (pausadoPeloUsuario ? hero.dataset.retomar : hero.dataset.pausar) ?? '');
       hero.toggleAttribute('data-pausado', pausadoPeloUsuario);
     };
     pausa.addEventListener('click', () => {
@@ -284,7 +288,7 @@ const slides = [
   .rotulo-hero::before { content: ''; width: 36px; height: 1px; background: #517493; }
 
   .hero h1, .hero .h1 {
-    color: #fff; font-size: 48px; font-weight: 300; line-height: 1.18; letter-spacing: -.01em;
+    color: #fff; font-size: 54px; font-weight: 300; line-height: 1.15; letter-spacing: -.01em;
     max-width: 760px; margin: 0 0 20px;
   }
   .hero :global(strong) { font-weight: 700; }

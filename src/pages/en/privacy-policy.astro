@@ -1,0 +1,309 @@
+---
+/**
+ * /en/privacy-policy/ — versão em inglês de /politica-de-privacidade/.
+ * Manter sincronizada com src/pages/politica-de-privacidade.astro: qualquer
+ * mudança de conteúdo lá precisa ser feita aqui também.
+ */
+import Base from '~/layouts/Base.astro';
+import { site } from '~/lib/site';
+import '~/styles/politica.css';
+
+const secoes = [
+  { id: 'quem-trata', rotulo: 'Who processes your data' },
+  { id: 'dados', rotulo: 'What data we collect' },
+  { id: 'finalidade', rotulo: 'What we use it for' },
+  { id: 'base-legal', rotulo: 'On what legal basis' },
+  { id: 'sigilo', rotulo: 'Attorney confidentiality' },
+  { id: 'compartilhamento', rotulo: 'Who we share it with' },
+  { id: 'prazo', rotulo: 'How long we keep it' },
+  { id: 'direitos', rotulo: 'Your rights' },
+  { id: 'encarregado', rotulo: 'Data protection officer' },
+  { id: 'seguranca', rotulo: 'Security' },
+  { id: 'mudancas', rotulo: 'Changes to this policy' },
+  { id: 'falar', rotulo: 'How to reach us' },
+];
+---
+
+<Base
+  lang="en"
+  alternativa="/politica-de-privacidade/"
+  sobreposto={false}
+  titulo="Privacy Policy | Bertoncini & Mendonça Advogados"
+  descricao="How Bertoncini & Mendonça Advogados handles the personal data of people who use this website: what data is collected, for what purpose, on what legal basis, and what your rights are."
+>
+  <article class="politica">
+    <div class="env">
+      <p class="chapeu">Legal document</p>
+      <h1>Privacy Policy</h1>
+      <p class="atualizado" data-placeholder="1">
+        <span class="marca-falta">To be defined</span>
+        Date of last update to be filled in when the firm approves the final text.
+      </p>
+
+      <div class="ressalva">
+        <p>
+          <strong>This text is still provisional.</strong> It follows the structure
+          required by the LGPD (Brazil's General Data Protection Law, Law
+          13,709/2018) and describes what this website actually does. The passages
+          in red depend on a decision by the firm and are marked as such. The final
+          text will come from the partners.
+        </p>
+      </div>
+
+      <nav class="sumario" aria-label="Sections of this policy">
+        <h2>On this page</h2>
+        <ol>
+          {secoes.map((secao) => (
+            <li><a href={`#${secao.id}`}>{secao.rotulo}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="texto">
+        <p>
+          This policy explains what happens to your data when you use this website,
+          especially when you fill out the contact form or sign up for our article
+          mailing list. It describes how the website really works and was written to
+          be read.
+        </p>
+
+        <h2 id="quem-trata">Who processes your data</h2>
+        <p>
+          The data controller, as defined in Article 5, VI, of Law 13,709/2018, is the
+          law firm below. The controller is the party that decides what is collected
+          and for what purpose.
+        </p>
+        <ul>
+          <li>{site.nomeSociedade}</li>
+          <li data-placeholder={site.registro.oabSociedade.placeholder ? '1' : undefined}>
+            Registration with the OAB (the Brazilian Bar Association): {site.registro.oabSociedade.valor}
+          </li>
+          <li data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>
+            CNPJ (Brazilian company registration number) {site.registro.cnpj.valor}
+          </li>
+          <li data-placeholder={site.email.placeholder ? '1' : undefined}>
+            Email: {site.email.valor}
+          </li>
+          <li>{site.cidade}, {site.estado}</li>
+        </ul>
+        <p data-placeholder="1">
+          <span class="marca-falta">To be defined</span>
+          Full address of the main office to be filled in. The firm has not yet
+          provided the address for in-person meetings.
+        </p>
+
+        <h2 id="dados">What data we collect</h2>
+        <h3>Data you give us</h3>
+        <p>
+          These are the fields of the contact form, and only those. No other data is
+          requested anywhere else on the website:
+        </p>
+        <ul>
+          <li><strong>Name:</strong> so we know how to address you in our reply.</li>
+          <li><strong>Email:</strong> so we can reply.</li>
+          <li><strong>Phone:</strong> optional, if you prefer to be contacted by phone.</li>
+          <li><strong>Subject:</strong> optional, to give context before we read your message.</li>
+          <li><strong>Message:</strong> whatever you write.</li>
+        </ul>
+        <p>
+          If you sign up for our article mailing list, we collect <strong>only your
+          email address</strong>.
+        </p>
+        <p>
+          If you prefer to talk over WhatsApp, the conversation takes place inside the
+          app and is governed by the platform's privacy policy, over which we have no
+          control. Whatever you write to us there is handled by us with the same care
+          described here.
+        </p>
+
+        <h3>Data collected automatically</h3>
+        <p>
+          <strong>At this time, none.</strong> No analytics tool is enabled on this
+          website: no Google Analytics, no heat map, no social media pixel. The cookie
+          notice asks for your choice and stores your answer in your own browser, so it
+          doesn't ask again on every page, and that answer never leaves your device.
+        </p>
+        <p data-placeholder="1">
+          <span class="marca-falta">To be defined</span>
+          Whether the firm will measure visits to the website and, if so, with which
+          tool. Until that decision is made, this policy names no measurement tool,
+          because none is in use. On the day one is enabled, this passage and the
+          <a href="/en/cookie-policy/">cookie policy</a> must be updated first.
+        </p>
+        <p>
+          <strong>We do not ask for sensitive data</strong> in the form, as defined in
+          Article 5, II, of the LGPD. A message you send us may still contain sensitive
+          information by the very nature of the matter, and in that case it is handled
+          under the attorney confidentiality described below.
+        </p>
+
+        <h2 id="finalidade">What we use it for</h2>
+        <ul>
+          <li>Reading your message and replying.</li>
+          <li>Continuing the conversation about the matter you brought to us.</li>
+          <li>Sending the articles on our mailing list, if you asked for them.</li>
+          <li>Keeping the website running and protected against automated submissions.</li>
+        </ul>
+        <p>
+          <strong>We do not sell your data</strong>, we do not hand it over for
+          third-party advertising, and we do not use your email address for messages
+          you did not ask for.
+        </p>
+
+        <h2 id="base-legal">On what legal basis</h2>
+        <p>The LGPD requires a justification for each processing activity. Ours are:</p>
+        <ul>
+          <li>
+            <strong>Preliminary procedures related to a contract</strong>
+            (Article 7, V): when you write to us asking for guidance, processing your
+            data is what allows us to reply.
+          </li>
+          <li>
+            <strong>Consent</strong> (Article 7, I): for the article mailing list, which
+            is sent only to those who asked for it, and for any cookie that is not
+            necessary for the website to work.
+          </li>
+          <li>
+            <strong>Compliance with a legal or regulatory obligation</strong> (Article
+            7, II): for what the law and the rules of the OAB require us to record and
+            keep.
+          </li>
+          <li>
+            <strong>Regular exercise of rights</strong> (Article 7, VI): to keep a
+            record of what was discussed, should it become necessary in legal
+            proceedings.
+          </li>
+          <li>
+            <strong>Legitimate interest</strong> (Article 7, IX): to protect the website
+            against abuse, such as automated form submissions by bots.
+          </li>
+        </ul>
+
+        <h2 id="sigilo">Attorney confidentiality</h2>
+        <p>
+          What you tell us is protected by attorney confidentiality, a duty set out in
+          Article 34, VII, of the Brazilian Attorneys' Statute (Estatuto da Advocacia,
+          Law 8,906/1994) and in the OAB Code of Ethics and Discipline. This duty is
+          stricter than the LGPD and does not depend on your having hired the firm: it
+          applies from the very first message.
+        </p>
+        <p>
+          In practice, this means that the content of what you write is not discussed
+          outside the firm, is not used as an example, and does not appear in any of
+          our publications.
+        </p>
+
+        <h2 id="compartilhamento">Who we share it with</h2>
+        <p>
+          Only with those needed for the website to work. They are technology
+          providers, who process the data on our behalf and may not use it for their
+          own purposes:
+        </p>
+        <ul>
+          <li><strong>Vercel:</strong> hosts the website and delivers it to your browser.</li>
+          <li>
+            <strong>Brevo:</strong> sends the firm the message you wrote in the form,
+            sends you the confirmation of receipt, and manages the article mailing list.
+          </li>
+        </ul>
+        <p>
+          No advertising service receives data from this website, under any
+          circumstances.
+        </p>
+        <p>
+          The two providers above keep servers outside Brazil, which constitutes an
+          <strong>international transfer of data</strong> (Article 33 of the LGPD).
+        </p>
+        <p>
+          Other than that, we share data only when required by law or a court order,
+          and within the limits allowed by attorney confidentiality.
+        </p>
+
+        <h2 id="prazo">How long we keep it</h2>
+        <p data-placeholder="1">
+          <span class="marca-falta">To be defined</span>
+          The retention periods for each type of data are to be defined by the firm.
+          This decision combines statutes of limitations, the attorney's duty to keep
+          records, and the firm's internal policy, and it is not for whoever built the
+          website to settle. Until the periods are defined, this policy states no
+          figure.
+        </p>
+        <p>
+          What already applies, regardless of the period chosen: the email address on
+          the article mailing list is kept until you unsubscribe, and the link to do so
+          is in the footer of every message. Once the period for each piece of data has
+          passed, it is deleted or anonymized.
+        </p>
+
+        <h2 id="direitos">Your rights</h2>
+        <p>Article 18 of the LGPD ensures that you may, at any time, ask us to:</p>
+        <ul>
+          <li><strong>confirm</strong> whether we process your data and give you <strong>access</strong> to it;</li>
+          <li><strong>correct</strong> incomplete, inaccurate, or outdated data;</li>
+          <li><strong>anonymize, block, or delete</strong> data that is unnecessary or processed in breach of the law;</li>
+          <li><strong>port</strong> your data to another provider;</li>
+          <li><strong>delete</strong> data processed on the basis of your consent;</li>
+          <li><strong>tell you who</strong> we share your data with;</li>
+          <li><strong>withdraw your consent</strong>, without invalidating the processing carried out before;</li>
+          <li><strong>object</strong> to processing you consider improper.</li>
+        </ul>
+        <p>
+          Some of these requests are limited by the attorney's duty to keep records and
+          by attorney confidentiality. When that is the case, we explain what the limit
+          is and why it exists, instead of simply refusing.
+        </p>
+        <p data-placeholder="1">
+          <span class="marca-falta">To be defined</span>
+          Response time for data subject requests to be defined by the firm. The LGPD
+          sets a deadline only for requests for confirmation and access in simplified
+          form (fifteen days, Article 19, I). For the others, the deadline is whatever
+          the firm commits to, and it has not committed to one yet.
+        </p>
+
+        <h2 id="encarregado">Data protection officer</h2>
+        <p>
+          Article 41 of the LGPD requires the controller to appoint the person to
+          contact about data protection, and to make that appointment public.
+        </p>
+        <p data-placeholder="1">
+          <span class="marca-falta">To be defined</span>
+          Who the firm's data protection officer (encarregado) is and through which
+          channel they can be reached. The appointment is the partners' decision. Until
+          it is made, this policy names no one, because naming the wrong person is
+          worse than admitting that the appointment is pending.
+        </p>
+
+        <h2 id="seguranca">Security</h2>
+        <p>
+          The website is served entirely over an encrypted connection (HTTPS). The form
+          is protected against automated submissions and limits the number of
+          submissions per device. Access to the messages received is restricted to
+          people who work at the firm.
+        </p>
+        <p>
+          No system is immune to incidents. If one occurs that may pose a significant
+          risk to you, we will notify you and the ANPD (the Brazilian data protection
+          authority), as required by Article 48 of the LGPD.
+        </p>
+
+        <h2 id="mudancas">Changes to this policy</h2>
+        <p>
+          If the website starts doing something different with your data, this text
+          changes accordingly, and so does the date at the top of the page. Significant
+          changes are announced on the website itself.
+        </p>
+
+        <h2 id="falar">How to reach us</h2>
+        <p>
+          For any questions about privacy, or to exercise the rights above, write to
+          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>
+          or use the <a href="/en/contact/">contact page</a>.
+        </p>
+        <p>
+          You may also file a complaint directly with the
+          <a href="https://www.gov.br/anpd/" rel="noopener" target="_blank">ANPD</a>.
+        </p>
+      </div>
+    </div>
+  </article>
+</Base>

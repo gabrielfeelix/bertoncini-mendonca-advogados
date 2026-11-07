@@ -16,142 +16,155 @@ import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 import { artigosDoRepositorioOuSupabase } from './lib/loader-artigos';
 
+/** Campos de uma área. A versão em inglês (areas-en) usa os mesmos, mais `slugPt`. */
+const esquemaArea = z.object({
+  /** Nome da área, como aparece no título da página e no menu de áreas. */
+  nome: z.string().min(1),
+  /** Slug da URL: /areas/<slug>/. Só minúsculas, números e hífen. */
+  slug: z
+    .string()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'slug em minúsculas, separado por hífen'),
+  /** Frase curta de apoio. Vai para a meta description e para a lista. */
+  resumo: z.string().min(1),
+  /**
+   * Assuntos da área.
+   *
+   * Aceita duas formas. A string simples continua valendo (é o que as
+   * áreas usavam quando os assuntos eram pílulas). A forma com objeto
+   * acrescenta `faz`: uma frase curta dizendo o que o escritório faz
+   * naquele assunto.
+   *
+   * Por que `faz` existe: como pílula, o assunto era só palavra-chave
+   * solta — "Holding familiar", "LGPD" —, e o cliente reprovou o
+   * formato por soar a texto gerado. O que desfaz isso não é trocar a
+   * forma da pílula, é a etiqueta deixar de ser etiqueta e passar a
+   * dizer o serviço.
+   *
+   * REGRA: `faz` é sempre derivado do `corpo` desta mesma área, que veio
+   * do briefing e foi conferido contra o Provimento 205/2021. Não é
+   * texto novo, é a frase do corpo reduzida. Nada de promessa de
+   * resultado, prazo ou superlativo — é o que a OAB proíbe.
+   */
+  assuntos: z.array(
+    z.union([
+      z.string().min(1),
+      z.object({
+        /** Nome do assunto. */
+        nome: z.string().min(1),
+        /** O que o escritório faz nesse assunto. Uma frase. */
+        faz: z.string().min(1),
+      }),
+    ]),
+  ),
+  /**
+   * Serviços da área, como o escritório os nomeia (retorno de
+   * 06/11/2026). Só nomes; ordem = ordem de exibição.
+   */
+  servicos: z.array(z.string().min(1)).default([]),
+  /**
+   * Para quem é a área, numa frase. Vai para o bloco da área na home.
+   * Vem do briefing (q4.1): a descrição do cliente de cada sócio.
+   */
+  publicoCurto: z.string().min(1).optional(),
+  /**
+   * Para quem é a área, por grupo. A página da área abre com isto: quem
+   * chega precisa se reconhecer antes de ler o que a área abrange.
+   */
+  publicos: z
+    .array(z.object({ titulo: z.string().min(1), texto: z.string().min(1) }))
+    .default([]),
+  /** Texto da página, um item por parágrafo. */
+  corpo: z.array(z.string().min(1)),
+  /** Perguntas frequentes específicas da área. */
+  perguntas: z.array(
+    z.object({
+      pergunta: z.string().min(1),
+      resposta: z.string().min(1),
+    }),
+  ),
+  /** Ordem de exibição na lista de áreas. */
+  ordem: z.number().int().positive(),
+  /**
+   * true quando a área ainda não foi definida pelos sócios. Uma área
+   * assim não tem conteúdo próprio: aparece na lista marcada
+   * "a confirmar" e não ganha página.
+   */
+  aConfirmar: z.boolean().default(false),
+  /**
+   * Texto do WhatsApp já preenchido para esta área (sem codificar; a
+   * página codifica). Ausente nas áreas a confirmar.
+   */
+  mensagemWhatsapp: z.string().min(1).optional(),
+  /**
+   * Frases do corpo que ainda dependem de confirmação dos sócios,
+   * identificadas pelo índice no array `corpo`. A página marca esses
+   * parágrafos com data-placeholder="1".
+   */
+  corpoAConfirmar: z.array(z.number().int().nonnegative()).default([]),
+  /**
+   * Como cada parágrafo do `corpo` vira uma seção na página da área.
+   *
+   * Existe porque os parágrafos do corpo não são texto corrido: cada um
+   * é um bloco temático fechado, e o layout antigo jogava essa estrutura
+   * fora empilhando tudo numa coluna só. Aqui ela volta — SEM alterar
+   * uma palavra do texto, que veio do briefing e foi conferido contra o
+   * Provimento 205/2021.
+   *
+   * Por que um campo explícito e não derivar de `assuntos` por ordem:
+   * eles batem só até certo ponto. Em `direito-digital` o parágrafo 4
+   * funde "Crimes cibernéticos" com "Redes sociais e internet", e a
+   * partir dali cada rubrica cairia sobre o parágrafo errado — a de
+   * "Compliance digital" acabaria em cima do parágrafo de atendimento.
+   * As áreas também têm contagens diferentes (9 e 8 parágrafos), então
+   * não há ordem única que sirva às duas.
+   *
+   * A página lê três papéis daqui:
+   * - cena só com rubrica: uma seção numerada do corpo, e uma entrada
+   *   no índice lateral;
+   * - cena com foto: sai do corpo e vai para a placa "Onde atendemos";
+   * - parágrafo sem cena: abertura (os que vêm antes da primeira cena)
+   *   ou fecho (os que vêm depois), que não são temas.
+   *
+   * Não há mais ilustração por cena. Cada tema ganhava um ícone
+   * genérico (escudo, relógio, prancheta) que não dizia nada sobre o
+   * texto ao lado, e o cliente leu a página como "nada com nada".
+   */
+  cenas: z
+    .array(
+      z.object({
+        /** Índice do parágrafo em `corpo`. */
+        indice: z.number().int().nonnegative(),
+        /** Rubrica curta acima do parágrafo. Rótulo, nunca afirmação. */
+        rubrica: z.string().min(1),
+        /** Fotografia, para temas concretos. Caminho sem extensão em /media/areas/. */
+        foto: z.string().min(1).optional(),
+        /** Descrição da foto. Obrigatória quando há foto. */
+        fotoAlt: z.string().min(1).optional(),
+      })
+      /* Foto é tudo-ou-nada, como a capa do artigo mais abaixo: ou não há
+         foto, ou há caminho E descrição. Sem isto o schema aceitaria uma
+         cena com `foto` e sem `fotoAlt`, e a página emitiria uma imagem
+         sem texto alternativo — que é justamente o que o portão cobra. */
+      .refine((cena) => !cena.foto || !!cena.fotoAlt, {
+        message: 'cena com foto precisa de fotoAlt',
+      }),
+    )
+    .default([]),
+});
+
 const areas = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/areas' }),
-  schema: z.object({
-    /** Nome da área, como aparece no título da página e no menu de áreas. */
-    nome: z.string().min(1),
-    /** Slug da URL: /areas/<slug>/. Só minúsculas, números e hífen. */
-    slug: z
-      .string()
-      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'slug em minúsculas, separado por hífen'),
-    /** Frase curta de apoio. Vai para a meta description e para a lista. */
-    resumo: z.string().min(1),
-    /**
-     * Assuntos da área.
-     *
-     * Aceita duas formas. A string simples continua valendo (é o que as
-     * áreas usavam quando os assuntos eram pílulas). A forma com objeto
-     * acrescenta `faz`: uma frase curta dizendo o que o escritório faz
-     * naquele assunto.
-     *
-     * Por que `faz` existe: como pílula, o assunto era só palavra-chave
-     * solta — "Holding familiar", "LGPD" —, e o cliente reprovou o
-     * formato por soar a texto gerado. O que desfaz isso não é trocar a
-     * forma da pílula, é a etiqueta deixar de ser etiqueta e passar a
-     * dizer o serviço.
-     *
-     * REGRA: `faz` é sempre derivado do `corpo` desta mesma área, que veio
-     * do briefing e foi conferido contra o Provimento 205/2021. Não é
-     * texto novo, é a frase do corpo reduzida. Nada de promessa de
-     * resultado, prazo ou superlativo — é o que a OAB proíbe.
-     */
-    assuntos: z.array(
-      z.union([
-        z.string().min(1),
-        z.object({
-          /** Nome do assunto. */
-          nome: z.string().min(1),
-          /** O que o escritório faz nesse assunto. Uma frase. */
-          faz: z.string().min(1),
-        }),
-      ]),
-    ),
-    /**
-     * Serviços da área, como o escritório os nomeia (retorno de
-     * 06/11/2026). Só nomes; ordem = ordem de exibição.
-     */
-    servicos: z.array(z.string().min(1)).default([]),
-    /**
-     * Para quem é a área, numa frase. Vai para o bloco da área na home.
-     * Vem do briefing (q4.1): a descrição do cliente de cada sócio.
-     */
-    publicoCurto: z.string().min(1).optional(),
-    /**
-     * Para quem é a área, por grupo. A página da área abre com isto: quem
-     * chega precisa se reconhecer antes de ler o que a área abrange.
-     */
-    publicos: z
-      .array(z.object({ titulo: z.string().min(1), texto: z.string().min(1) }))
-      .default([]),
-    /** Texto da página, um item por parágrafo. */
-    corpo: z.array(z.string().min(1)),
-    /** Perguntas frequentes específicas da área. */
-    perguntas: z.array(
-      z.object({
-        pergunta: z.string().min(1),
-        resposta: z.string().min(1),
-      }),
-    ),
-    /** Ordem de exibição na lista de áreas. */
-    ordem: z.number().int().positive(),
-    /**
-     * true quando a área ainda não foi definida pelos sócios. Uma área
-     * assim não tem conteúdo próprio: aparece na lista marcada
-     * "a confirmar" e não ganha página.
-     */
-    aConfirmar: z.boolean().default(false),
-    /**
-     * Texto do WhatsApp já preenchido para esta área (sem codificar; a
-     * página codifica). Ausente nas áreas a confirmar.
-     */
-    mensagemWhatsapp: z.string().min(1).optional(),
-    /**
-     * Frases do corpo que ainda dependem de confirmação dos sócios,
-     * identificadas pelo índice no array `corpo`. A página marca esses
-     * parágrafos com data-placeholder="1".
-     */
-    corpoAConfirmar: z.array(z.number().int().nonnegative()).default([]),
-    /**
-     * Como cada parágrafo do `corpo` vira uma seção na página da área.
-     *
-     * Existe porque os parágrafos do corpo não são texto corrido: cada um
-     * é um bloco temático fechado, e o layout antigo jogava essa estrutura
-     * fora empilhando tudo numa coluna só. Aqui ela volta — SEM alterar
-     * uma palavra do texto, que veio do briefing e foi conferido contra o
-     * Provimento 205/2021.
-     *
-     * Por que um campo explícito e não derivar de `assuntos` por ordem:
-     * eles batem só até certo ponto. Em `direito-digital` o parágrafo 4
-     * funde "Crimes cibernéticos" com "Redes sociais e internet", e a
-     * partir dali cada rubrica cairia sobre o parágrafo errado — a de
-     * "Compliance digital" acabaria em cima do parágrafo de atendimento.
-     * As áreas também têm contagens diferentes (9 e 8 parágrafos), então
-     * não há ordem única que sirva às duas.
-     *
-     * A página lê três papéis daqui:
-     * - cena só com rubrica: uma seção numerada do corpo, e uma entrada
-     *   no índice lateral;
-     * - cena com foto: sai do corpo e vai para a placa "Onde atendemos";
-     * - parágrafo sem cena: abertura (os que vêm antes da primeira cena)
-     *   ou fecho (os que vêm depois), que não são temas.
-     *
-     * Não há mais ilustração por cena. Cada tema ganhava um ícone
-     * genérico (escudo, relógio, prancheta) que não dizia nada sobre o
-     * texto ao lado, e o cliente leu a página como "nada com nada".
-     */
-    cenas: z
-      .array(
-        z.object({
-          /** Índice do parágrafo em `corpo`. */
-          indice: z.number().int().nonnegative(),
-          /** Rubrica curta acima do parágrafo. Rótulo, nunca afirmação. */
-          rubrica: z.string().min(1),
-          /** Fotografia, para temas concretos. Caminho sem extensão em /media/areas/. */
-          foto: z.string().min(1).optional(),
-          /** Descrição da foto. Obrigatória quando há foto. */
-          fotoAlt: z.string().min(1).optional(),
-        })
-        /* Foto é tudo-ou-nada, como a capa do artigo mais abaixo: ou não há
-           foto, ou há caminho E descrição. Sem isto o schema aceitaria uma
-           cena com `foto` e sem `fotoAlt`, e a página emitiria uma imagem
-           sem texto alternativo — que é justamente o que o portão cobra. */
-        .refine((cena) => !cena.foto || !!cena.fotoAlt, {
-          message: 'cena com foto precisa de fotoAlt',
-        }),
-      )
-      .default([]),
-  }),
+  schema: esquemaArea,
+});
+
+/**
+ * Áreas em inglês (/en/practice-areas/<slug>/). Mesmo formato, com o
+ * texto traduzido e `slugPt` apontando para a página em português, que é
+ * de onde o seletor PT · EN tira o endereço equivalente.
+ */
+const areasEn = defineCollection({
+  loader: glob({ pattern: '**/*.json', base: './src/content/areas-en' }),
+  schema: esquemaArea.extend({ slugPt: z.string().min(1) }),
 });
 
 /**
@@ -238,4 +251,4 @@ const artigos = defineCollection({
   ),
 });
 
-export const collections = { areas, artigos };
+export const collections = { areas, areasEn, artigos };

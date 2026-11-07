@@ -59,3 +59,29 @@ export const FOTO_DA_AREA: Record<string, string> = {
   'planejamento-patrimonial-e-sucessorio': '/media/novas/area-familia.jpg',
   'direito-digital': '/media/novas/area-dados.jpg',
 };
+
+/**
+ * Área pronta para as views, nos dois idiomas. `slugPt` é a chave comum:
+ * foto, ícone e o endereço equivalente no outro idioma saem dele.
+ */
+export interface AreaNoIdioma {
+  data: Area['data'];
+  slugPt: string;
+  href: string;
+}
+
+/** Áreas confirmadas do idioma pedido, na ordem do campo `ordem`. */
+export async function areasDoIdioma(lang: 'pt' | 'en'): Promise<AreaNoIdioma[]> {
+  if (lang === 'pt') {
+    return (await listarAreasConfirmadas()).map((a) => ({
+      data: a.data,
+      slugPt: a.data.slug,
+      href: `/areas/${a.data.slug}/`,
+    }));
+  }
+  const lista = await getCollection('areasEn');
+  return lista
+    .filter((a) => !a.data.aConfirmar)
+    .sort((a, b) => a.data.ordem - b.data.ordem)
+    .map((a) => ({ data: a.data, slugPt: a.data.slugPt, href: `/en/practice-areas/${a.data.slug}/` }));
+}

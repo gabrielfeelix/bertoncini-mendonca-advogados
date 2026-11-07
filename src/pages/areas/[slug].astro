@@ -1,162 +1,25 @@
 ---
 /**
- * Página de uma área (v3). Layout de página de tema WordPress: banner com
- * o nome, coluna de conteúdo (texto, "o que fazemos", perguntas) e barra
- * lateral com as áreas, o sócio responsável e uma caixa de contato.
- * O texto é o `corpo` da área, sem alteração.
+ * Página de uma área, em português. Conteúdo em src/views/Area.astro.
+ * `alternativa` é a mesma área em inglês, achada pelo `slugPt`.
  */
 import type { GetStaticPaths } from 'astro';
-import Base from '~/layouts/Base.astro';
-import BannerPagina from '~/components/BannerPagina.astro';
-import Chamada from '~/components/Chamada.astro';
-import { site } from '~/lib/site';
-import {
-  listarAreasConfirmadas,
-  assuntosDaArea,
-  FOTO_DA_AREA,
-  type Area,
-} from '~/lib/areas';
+import Area from '~/views/Area.astro';
+import { areasDoIdioma, type AreaNoIdioma } from '~/lib/areas';
 
 export const getStaticPaths = (async () => {
-  const areas = await listarAreasConfirmadas();
-  return areas.map((area) => ({ params: { slug: area.data.slug }, props: { area } }));
+  const [pt, en] = await Promise.all([areasDoIdioma('pt'), areasDoIdioma('en')]);
+  return pt.map((area) => ({
+    params: { slug: area.data.slug },
+    props: { area, alternativa: en.find((e) => e.slugPt === area.slugPt)?.href ?? '/en/practice-areas/' },
+  }));
 }) satisfies GetStaticPaths;
 
 interface Props {
-  area: Area;
+  area: AreaNoIdioma;
+  alternativa: string;
 }
-const { area } = Astro.props;
-const d = area.data;
-const todas = await listarAreasConfirmadas();
-const assuntos = assuntosDaArea(d.assuntos);
-const aConfirmar = new Set(d.corpoAConfirmar);
+const { area, alternativa } = Astro.props;
 ---
 
-<Base titulo={`${d.nome} | ${site.nome}`} descricao={d.resumo} paginaAtual="/areas/">
-  <BannerPagina
-    titulo={d.nome}
-    foto={FOTO_DA_AREA[d.slug]}
-    migalhas={[{ rotulo: 'Áreas de atuação', href: '/areas/' }, { rotulo: d.nome }]}
-  />
-
-  <section class="secao">
-    <div class="container com-lateral">
-      <article class="texto">
-        <p class="lead">{d.resumo}</p>
-
-        {d.servicos.length > 0 && (
-          <div class="servicos">
-            <h2>Serviços</h2>
-            <ul>{d.servicos.map((s) => <li>{s}</li>)}</ul>
-          </div>
-        )}
-
-        {d.corpo.map((paragrafo, i) => (
-          <p data-placeholder={aConfirmar.has(i) ? '1' : undefined}>{paragrafo}</p>
-        ))}
-
-        {d.publicos.length > 0 && (
-          <>
-            <h2>Para quem</h2>
-            <ul class="publicos">
-              {d.publicos.map((p) => <li><strong>{p.titulo}.</strong> {p.texto}</li>)}
-            </ul>
-          </>
-        )}
-
-        <h2>O que fazemos</h2>
-        <table class="tabela-assuntos">
-          <tbody>
-            {assuntos.map((a) => (
-              <tr>
-                <th scope="row">{a.nome}</th>
-                <td>{a.faz ?? ''}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {d.perguntas.length > 0 && (
-          <>
-            <h2>Perguntas frequentes</h2>
-            <div class="faq">
-              {d.perguntas.map((p) => (
-                <details>
-                  <summary>{p.pergunta}</summary>
-                  <p>{p.resposta}</p>
-                </details>
-              ))}
-            </div>
-          </>
-        )}
-
-        <p class="aviso">{site.avisoInformativo}</p>
-      </article>
-
-      <aside class="lateral">
-        <div class="widget">
-          <h2>Áreas de atuação</h2>
-          <ul>
-            {todas.map((a) => (
-              <li>
-                <a href={`/areas/${a.data.slug}/`} aria-current={a.data.slug === d.slug ? 'page' : undefined}>
-                  {a.data.nome}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div class="widget socio">
-          <h2>Quem atende</h2>
-          <img src="/media/hero/socios-1600.jpg" alt="Juscelino Bertoncini e Beatriz Mendonça." width="1600" height="900" loading="lazy" />
-          {site.socios.map((s) => (
-            <p class="socio-nome"><a href={`/escritorio/#${s.nome.split(' ')[0].toLowerCase()}`}>{s.nome}</a> <span class="socio-oab">· {s.oab.valor}</span></p>
-          ))}
-        </div>
-
-        <div class="widget">
-          <h2>Também atuamos em</h2>
-          <ul class="simples">{site.outrasAreas.map((a) => <li>{a}</li>)}</ul>
-        </div>
-
-        <div class="widget widget-azul">
-          <h2>Fale conosco</h2>
-          <p>Conte o seu caso. Respondemos pelo e-mail que você informar.</p>
-          <a class="botao botao-claro" href={`/contato/?assunto=${d.slug}`}>Enviar mensagem</a>
-        </div>
-      </aside>
-    </div>
-  </section>
-
-  <Chamada />
-</Base>
-
-<style>
-  .lead { font-size: 20px; color: var(--azul); font-weight: 500; }
-  .publicos li { margin-bottom: 8px; }
-  .tabela-assuntos { width: 100%; border-collapse: collapse; font-size: 16px; margin-bottom: 1em; }
-  .tabela-assuntos th, .tabela-assuntos td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--linha); }
-  .tabela-assuntos th { width: 36%; color: var(--azul); font-weight: 500; }
-  .tabela-assuntos tr:nth-child(odd) { background: var(--fundo-cinza); }
-  .aviso { margin-top: 32px; font-size: 14px; color: var(--texto-suave); }
-
-  .servicos { background: var(--fundo-cinza); border-radius: 6px; padding: 24px 28px; margin: 28px 0 32px; }
-  .servicos h2 { margin-top: 0; font-size: 22px; }
-  .servicos ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
-  .servicos li { position: relative; padding-left: 26px; }
-  .servicos li::before { content: '✓'; position: absolute; left: 0; color: var(--azul-medio); font-weight: 700; }
-  .simples li { padding: 8px 0; }
-  .socio img { border-radius: 4px; aspect-ratio: 16 / 10; object-fit: cover; margin-bottom: 14px; }
-  .socio-nome { margin: 0 0 4px; font-weight: 700; }
-  .socio-nome a { color: var(--azul); text-decoration: none; }
-  .socio-nome a:hover { text-decoration: underline; }
-  .socio-oab { margin: 0; font-size: 14px; color: var(--texto-suave); }
-
-  @media (max-width: 680px) {
-    .servicos ul { grid-template-columns: 1fr; }
-    .tabela-assuntos th, .tabela-assuntos td { display: block; width: auto; }
-    .tabela-assuntos th { padding-bottom: 2px; }
-    .tabela-assuntos td { padding-top: 0; }
-  }
-</style>
+<Area lang="pt" area={area} alternativa={alternativa} />
