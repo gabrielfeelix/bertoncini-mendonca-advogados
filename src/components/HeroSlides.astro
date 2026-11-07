@@ -1,0 +1,342 @@
+---
+/**
+ * Capa da home em slides (v3).
+ *
+ * Três slides: o escritório e as duas áreas. Troca sozinho a cada
+ * `intervalo` ms, com crossfade; setas, bolinhas e arrastar no celular.
+ *
+ * Cor: só a paleta do manual de marca (marca/identidade-visual.pdf):
+ * #0B1E3F, #004369, #517493 sobre a foto, e o monograma BM como
+ * marca-d'água, como o manual faz na pasta e no papel timbrado.
+ *
+ * Acessibilidade (WCAG 2.2.2): conteúdo que se move sozinho por mais de
+ * 5s precisa de pausa. Há botão de pausar, e o carrossel para quando o
+ * mouse ou o foco do teclado está nele. Com `prefers-reduced-motion` não
+ * troca sozinho e não faz fade. Sem JavaScript, fica só o primeiro slide.
+ */
+import { site } from '../lib/site';
+import { listarAreasConfirmadas } from '../lib/areas';
+
+interface Props {
+  /** Tempo de cada slide, em milissegundos. */
+  intervalo?: number;
+}
+const { intervalo = 7000 } = Astro.props;
+
+const areas = await listarAreasConfirmadas();
+const FOTO: Record<string, string> = {
+  'planejamento-patrimonial-e-sucessorio': '/media/novas/area-bens.jpg',
+  'direito-digital': '/media/novas/area-presenca.jpg',
+};
+
+const slides = [
+  {
+    foto: '/media/novas/escritorio-valores.jpg',
+    rotulo: site.nomeSociedade,
+    titulo: 'Advocacia em <strong>Planejamento Patrimonial e Sucessório</strong> e em <strong>Direito Digital</strong>',
+    texto: `${site.atendimentoRodape} e presencial em ${site.cidade}/${site.estado}.`,
+    botoes: [
+      { rotulo: 'Conheça o escritório', href: '/escritorio/', claro: true },
+      { rotulo: 'Fale conosco', href: '/contato/' },
+    ],
+  },
+  ...areas.map((area) => ({
+    foto: FOTO[area.data.slug] ?? '/media/novas/escritorio-historia.jpg',
+    rotulo: area.data.nome,
+    titulo: area.data.resumo,
+    texto: area.data.publicoCurto ?? '',
+    botoes: [
+      { rotulo: 'Conheça a área', href: `/areas/${area.data.slug}/`, claro: true },
+      { rotulo: 'Fale conosco', href: `/contato/?assunto=${area.data.slug}` },
+    ],
+  })),
+];
+---
+
+<section class="hero" aria-roledescription="carrossel" aria-label="Destaques" data-intervalo={intervalo}>
+  <div class="trilho">
+    {slides.map((s, i) => (
+      <div
+        class="slide"
+        role="group"
+        aria-roledescription="slide"
+        aria-label={`${i + 1} de ${slides.length}`}
+        data-ativo={i === 0 ? '' : undefined}
+        inert={i !== 0}
+      >
+        <img
+          class="foto"
+          src={s.foto}
+          alt=""
+          width="1600"
+          height="900"
+          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchpriority={i === 0 ? 'high' : undefined}
+        />
+        <div class="container conteudo">
+          <p class="rotulo-hero">{s.rotulo}</p>
+          {i === 0 ? <h1 set:html={s.titulo} /> : <h2 class="h1" set:html={s.titulo} />}
+          {s.texto && <p class="texto">{s.texto}</p>}
+          <div class="botoes">
+            {s.botoes.map((b) => (
+              <a class:list={['botao', b.claro ? 'botao-claro' : 'botao-creme']} href={b.href}>{b.rotulo}</a>
+            ))}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <img class="monograma" src="/media/marca/mono-branco.png" alt="" width="353" height="382" aria-hidden="true" />
+
+  <div class="controles" hidden>
+    <div class="container">
+      <button class="seta" type="button" data-anterior aria-label="Slide anterior">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+      <div class="pontos">
+        {slides.map((_, i) => (
+          <button type="button" class="ponto" data-ir={i} aria-label={`Ir para o slide ${i + 1}`} aria-current={i === 0 ? 'true' : undefined}>
+            <span class="barra"></span>
+          </button>
+        ))}
+      </div>
+      <button class="seta" type="button" data-proximo aria-label="Próximo slide">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+      </button>
+      <button class="pausa" type="button" data-pausa aria-label="Pausar a troca automática" aria-pressed="false">
+        <svg class="i-pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg>
+        <svg class="i-tocar" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z" /></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+  for (const hero of document.querySelectorAll<HTMLElement>('.hero[data-intervalo]')) {
+    const slides = [...hero.querySelectorAll<HTMLElement>('.slide')];
+    const pontos = [...hero.querySelectorAll<HTMLButtonElement>('[data-ir]')];
+    const controles = hero.querySelector<HTMLElement>('.controles');
+    const pausa = hero.querySelector<HTMLButtonElement>('[data-pausa]');
+    if (slides.length < 2 || !controles || !pausa) continue;
+
+    const intervalo = Number(hero.dataset.intervalo) || 7000;
+    const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    hero.style.setProperty('--tempo', `${intervalo}ms`);
+    controles.hidden = false;
+
+    let atual = 0;
+    let relogio: number | undefined;
+    let pausadoPeloUsuario = reduzido;
+    let pausadoPorInteracao = false;
+
+    const mostrar = (n: number) => {
+      atual = (n + slides.length) % slides.length;
+      slides.forEach((s, i) => {
+        const ativo = i === atual;
+        s.toggleAttribute('data-ativo', ativo);
+        s.inert = !ativo;
+      });
+      pontos.forEach((p, i) => (i === atual ? p.setAttribute('aria-current', 'true') : p.removeAttribute('aria-current')));
+      agendar();
+    };
+
+    const agendar = () => {
+      window.clearTimeout(relogio);
+      const rodando = !pausadoPeloUsuario && !pausadoPorInteracao;
+      hero.toggleAttribute('data-rodando', false);
+      if (!rodando) return;
+      // Reinicia a barra de progresso do ponto ativo.
+      void hero.offsetWidth;
+      hero.toggleAttribute('data-rodando', true);
+      relogio = window.setTimeout(() => mostrar(atual + 1), intervalo);
+    };
+
+    hero.querySelector('[data-anterior]')?.addEventListener('click', () => mostrar(atual - 1));
+    hero.querySelector('[data-proximo]')?.addEventListener('click', () => mostrar(atual + 1));
+    pontos.forEach((p, i) => p.addEventListener('click', () => mostrar(i)));
+
+    const atualizarPausa = () => {
+      pausa.setAttribute('aria-pressed', String(pausadoPeloUsuario));
+      pausa.setAttribute('aria-label', pausadoPeloUsuario ? 'Retomar a troca automática' : 'Pausar a troca automática');
+      hero.toggleAttribute('data-pausado', pausadoPeloUsuario);
+    };
+    pausa.addEventListener('click', () => {
+      pausadoPeloUsuario = !pausadoPeloUsuario;
+      atualizarPausa();
+      agendar();
+    });
+    atualizarPausa();
+
+    // Para enquanto a pessoa está com o mouse ou o foco no carrossel.
+    const segurar = (sim: boolean) => {
+      pausadoPorInteracao = sim;
+      agendar();
+    };
+    hero.addEventListener('mouseenter', () => segurar(true));
+    hero.addEventListener('mouseleave', () => segurar(false));
+    hero.addEventListener('focusin', () => segurar(true));
+    hero.addEventListener('focusout', (e) => {
+      if (!hero.contains(e.relatedTarget as Node)) segurar(false);
+    });
+
+    // Setas do teclado quando o foco está nos controles.
+    controles.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') mostrar(atual - 1);
+      if (e.key === 'ArrowRight') mostrar(atual + 1);
+    });
+
+    // Arrastar no celular.
+    let inicioX = 0;
+    let inicioY = 0;
+    hero.addEventListener('touchstart', (e) => {
+      inicioX = e.touches[0].clientX;
+      inicioY = e.touches[0].clientY;
+    }, { passive: true });
+    hero.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - inicioX;
+      const dy = e.changedTouches[0].clientY - inicioY;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) mostrar(atual + (dx < 0 ? 1 : -1));
+    });
+
+    // Não roda com a aba em segundo plano.
+    document.addEventListener('visibilitychange', () => segurar(document.hidden));
+
+    agendar();
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: #0b1e3f;
+    color: #fff;
+    isolation: isolate;
+  }
+
+  /* Todos os slides na mesma célula: a altura é a do maior, sem saltos. */
+  .trilho { display: grid; }
+  .slide {
+    grid-area: 1 / 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 600px;
+    padding: 96px 0 132px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .9s ease, visibility 0s linear .9s;
+  }
+  .slide[data-ativo] {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity .9s ease, visibility 0s;
+  }
+
+  .foto {
+    position: absolute; inset: 0; z-index: -2;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+
+  /*
+    O degradê, em três camadas, só com a paleta da marca:
+    1. Diagonal do azul-noite (#0B1E3F) para o petróleo (#004369) e o
+       azul acinzentado (#517493): escurece o lado do texto e deixa a foto
+       respirar à direita.
+    2. Brilho radial em #517493 no canto inferior direito, que dá
+       profundidade sem virar "efeito".
+    3. Base escurecida, para os controles terem contraste.
+  */
+  .slide::before {
+    content: '';
+    position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(180deg, rgba(11, 30, 63, 0) 62%, rgba(11, 30, 63, .75) 100%),
+      radial-gradient(120% 90% at 100% 100%, rgba(81, 116, 147, .38) 0%, rgba(81, 116, 147, 0) 55%),
+      linear-gradient(105deg,
+        rgba(11, 30, 63, .96) 0%,
+        rgba(11, 30, 63, .9) 32%,
+        rgba(0, 67, 105, .62) 62%,
+        rgba(81, 116, 147, .28) 100%);
+  }
+
+  /* Monograma do manual, como marca-d'água à direita. */
+  .monograma {
+    position: absolute;
+    right: -2%;
+    top: 50%;
+    height: 132%;
+    width: auto;
+    transform: translateY(-50%);
+    opacity: .07;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .conteudo { position: relative; z-index: 1; }
+  .rotulo-hero {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-size: 13px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+    color: #d9d9d9; margin-bottom: 20px;
+  }
+  .rotulo-hero::before { content: ''; width: 36px; height: 1px; background: #517493; }
+
+  .hero h1, .hero .h1 {
+    color: #fff; font-size: 48px; font-weight: 300; line-height: 1.18; letter-spacing: -.01em;
+    max-width: 760px; margin: 0 0 20px;
+  }
+  .hero :global(strong) { font-weight: 700; }
+  .texto { font-size: 18px; color: rgba(248, 247, 242, .86); max-width: 620px; margin-bottom: 34px; }
+  .botoes { display: flex; gap: 14px; flex-wrap: wrap; }
+  /* Principal da capa: creme da marca (#F8F7F2) sobre o azul. */
+  .botao-creme { background: #f8f7f2; border-color: #f8f7f2; color: #0b1e3f; }
+  .botao-creme:hover { background: #fff; border-color: #fff; color: #0b1e3f; }
+
+  /* ---------- Controles ---------- */
+  .controles { position: absolute; left: 0; right: 0; bottom: 36px; z-index: 2; }
+  .controles .container { display: flex; align-items: center; gap: 14px; }
+  .controles button {
+    display: inline-grid; place-items: center;
+    background: transparent; border: 1px solid rgba(248, 247, 242, .35); color: #fff;
+    cursor: pointer; transition: background-color .15s, border-color .15s;
+  }
+  .controles button:hover { background: rgba(248, 247, 242, .12); border-color: rgba(248, 247, 242, .7); }
+  .controles svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .seta, .pausa { width: 42px; height: 42px; border-radius: 50%; }
+  .pausa { margin-left: auto; }
+  .i-tocar { display: none; fill: currentColor !important; }
+  .hero[data-pausado] .i-pausa { display: none; }
+  .hero[data-pausado] .i-tocar { display: block; }
+
+  .pontos { display: flex; gap: 10px; }
+  .controles .ponto { width: 56px; height: 24px; border: 0; padding: 0; background: none; }
+  .controles .ponto:hover { background: none; }
+  .ponto .barra {
+    position: relative; display: block; width: 100%; height: 3px; overflow: hidden;
+    background: rgba(248, 247, 242, .3); border-radius: 2px;
+  }
+  .ponto[aria-current] .barra::after {
+    content: ''; position: absolute; inset: 0; background: #f8f7f2;
+    transform-origin: left; transform: scaleX(1);
+  }
+  /* A barra do slide ativo enche no tempo do slide, enquanto ele roda. */
+  .hero[data-rodando] .ponto[aria-current] .barra::after { animation: enche var(--tempo, 7000ms) linear forwards; }
+  @keyframes enche { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .slide[data-ativo] { transition: none; }
+    .hero[data-rodando] .ponto[aria-current] .barra::after { animation: none; }
+  }
+
+  @media (max-width: 680px) {
+    .slide { min-height: 560px; padding: 64px 0 120px; }
+    .hero h1, .hero .h1 { font-size: 31px; }
+    .texto { font-size: 16px; }
+    .monograma { height: 90%; right: -30%; }
+    .pontos { gap: 6px; }
+    .controles .ponto { width: 34px; }
+    .seta, .pausa { width: 38px; height: 38px; }
+  }
+</style>

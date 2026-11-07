@@ -129,6 +129,9 @@ const ativo = (href: string) =>
   @media (max-width: 1080px) {
     .topbar .container > span:first-child { display: none; }
     .topbar-contato { gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+  }
+  @media (max-width: 560px) {
+    .topbar-contato a[href^='mailto:'] { display: none; }
     .topbar .container { justify-content: flex-end; }
     .cabecalho .container { flex-wrap: wrap; min-height: 72px; }
     .logo img { height: 44px; }

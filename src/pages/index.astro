@@ -1,10 +1,11 @@
 ---
 /**
  * Home da v3. Ordem de site institucional de escritório, sem efeito:
- * banner → áreas de atuação → o escritório → sócios → publicações → chamada.
+ * capa em slides → áreas de atuação → o escritório → sócios → publicações → chamada.
  */
 import Base from '~/layouts/Base.astro';
 import Chamada from '~/components/Chamada.astro';
+import HeroSlides from '~/components/HeroSlides.astro';
 import IconeArea from '~/components/IconeArea.astro';
 import CartaoSocio from '~/components/CartaoSocio.astro';
 import CartaoArtigo from '~/components/CartaoArtigo.astro';
@@ -21,17 +22,7 @@ const artigos = (await listarArtigos()).slice(0, 3);
   descricao={site.descricao}
   paginaAtual="/"
 >
-  <section class="hero">
-    <div class="container">
-      <p class="hero-rotulo">{site.nomeSociedade}</p>
-      <h1>Advocacia em <strong>Planejamento Patrimonial e Sucessório</strong> e em <strong>Direito Digital</strong></h1>
-      <p class="hero-texto">{site.atendimentoRodape} e presencial em {site.cidade}/{site.estado}.</p>
-      <div class="hero-botoes">
-        <a class="botao botao-claro" href="/escritorio/">Conheça o escritório</a>
-        <a class="botao" href="/contato/">Fale conosco</a>
-      </div>
-    </div>
-  </section>
+  <HeroSlides />
 
   <section class="secao">
     <div class="container">
@@ -110,23 +101,6 @@ const artigos = (await listarArtigos()).slice(0, 3);
 </Base>
 
 <style>
-  .hero {
-    position: relative;
-    background: var(--azul) url('/media/novas/escritorio-valores.jpg') center / cover no-repeat;
-    color: #fff;
-    padding: 120px 0 128px;
-  }
-  .hero::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(90deg, rgba(11,30,63,.88) 0%, rgba(11,30,63,.7) 55%, rgba(11,30,63,.45) 100%);
-  }
-  .hero .container { position: relative; }
-  .hero-rotulo { font-size: 14px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.75); margin-bottom: 16px; }
-  .hero h1 { color: #fff; font-size: 46px; font-weight: 300; line-height: 1.2; max-width: 780px; margin-bottom: 18px; }
-  .hero h1 strong { font-weight: 700; }
-  .hero-texto { font-size: 19px; color: rgba(255,255,255,.88); margin-bottom: 32px; }
-  .hero-botoes { display: flex; gap: 14px; flex-wrap: wrap; }
-
   .cartao-foto { width: 100%; aspect-ratio: 16 / 7; object-fit: cover; }
   .publico { font-size: 15px; }
   .publico strong { color: var(--azul); }
@@ -144,9 +118,6 @@ const artigos = (await listarArtigos()).slice(0, 3);
   .ver-todas { text-align: center; margin: 40px 0 0; }
 
   @media (max-width: 680px) {
-    .hero { padding: 72px 0 80px; }
-    .hero h1 { font-size: 31px; }
-    .hero-texto { font-size: 17px; }
     .titulo-bloco { font-size: 28px; }
   }
 </style>

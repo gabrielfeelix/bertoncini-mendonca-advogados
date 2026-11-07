@@ -27,8 +27,7 @@
 :root {
   --azul: #0b1e3f;          /* azul da marca: rodapé, topbar, títulos */
   --azul-medio: #004369;    /* links e hover dos botões */
-  --azul-claro: #517493;
-  --vinho: #9b1c2e;         /* só em detalhe: filete, rótulo */
+  --azul-claro: #517493;    /* rótulos e detalhes */
   --texto: #333;
   --texto-suave: #5f6670;
   --fundo-cinza: #f4f6f8;
@@ -126,7 +125,7 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 .cartao-corpo .ver-mais { margin-top: auto; font-weight: 500; text-decoration: none; }
 .cartao-corpo .ver-mais:hover { text-decoration: underline; }
 .icone-area { width: 52px; height: 52px; color: var(--azul-medio); margin-bottom: 18px; }
-.rotulo { font-size: 13px; font-weight: 500; color: var(--vinho); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.rotulo { font-size: 13px; font-weight: 500; color: var(--azul-claro); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
 
 /* ---------- Duas colunas (texto + imagem / conteúdo + barra lateral) ---------- */
 .duas-colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
