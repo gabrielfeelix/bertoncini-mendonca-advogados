@@ -11,7 +11,7 @@
 .politica h3 { font-size: 19px; margin-top: 1.4em; }
 .politica .atualizado { color: var(--texto-suave); font-size: 15px; }
 .politica .marca-falta { display: inline-block; background: #fbeaec; color: #8a1c2b; font-size: 13px; font-weight: 500; padding: 1px 8px; border-radius: 3px; }
-.politica .ressalva { background: var(--fundo-cinza); border-left: 4px solid var(--azul-claro); padding: 16px 20px; margin: 24px 0; border-radius: 0 4px 4px 0; }
+.politica .ressalva { background: var(--fundo-cinza); padding: 18px 22px; margin: 24px 0; border-radius: 8px; }
 .politica .ressalva p:last-child { margin: 0; }
 .politica .sumario { background: var(--fundo-cinza); border-radius: 6px; padding: 22px 26px; margin: 28px 0; }
 .politica .sumario h2 { font-size: 17px; margin: 0 0 10px; }

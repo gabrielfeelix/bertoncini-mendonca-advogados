@@ -214,7 +214,7 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 /* ---------- Perguntas frequentes ---------- */
 /*
   Cartões arredondados; o "+" num círculo à direita vira "−" ao abrir. O
-  aberto ganha fundo branco, sombra e filete azul à esquerda. Nos
+  aberto ganha fundo branco e sombra (sem filete lateral). Nos
   navegadores que já animam <details> (interpolate-size), a resposta
   desliza; nos outros, abre na hora, sem quebrar nada.
 */
@@ -227,14 +227,8 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
   border-radius: 10px;
   transition: background-color .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
-.faq details::before {
-  content: ''; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px;
-  border-radius: 0 3px 3px 0; background: var(--azul-medio);
-  opacity: 0; transition: opacity .2s ease;
-}
 .faq details:hover { border-color: #cfd6de; }
 .faq details[open] { background: #fff; border-color: var(--linha); box-shadow: 0 10px 30px rgba(11, 30, 63, .08); }
-.faq details[open]::before { opacity: 1; }
 .faq summary {
   display: flex; align-items: center; justify-content: space-between; gap: 20px;
   padding: 20px 22px 20px 24px;
@@ -268,7 +262,7 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 .faq details[open]::details-content { block-size: auto; }
 .faq details > p { padding: 0 64px 22px 24px; margin: 0; color: var(--texto); line-height: 1.75; }
 @media (prefers-reduced-motion: reduce) {
-  .faq details, .faq details::before, .faq summary::after, .faq details::details-content { transition: none; }
+  .faq details, .faq summary::after, .faq details::details-content { transition: none; }
 }
 @media (max-width: 680px) {
   .faq summary { font-size: 16px; padding: 18px 16px 18px 18px; }

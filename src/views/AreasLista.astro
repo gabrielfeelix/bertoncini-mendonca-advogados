@@ -3,7 +3,9 @@
  * Lista das áreas de atuação (v3), nos dois idiomas.
  *
  * Cada área é um bloco largo: foto de um lado, conteúdo do outro,
- * alternando o lado (zigue-zague). Serviços em duas colunas com marca de
+ * alternando o lado (zigue-zague). "Para quem" e "Serviços" usam o mesmo
+ * rótulo pequeno sobre texto comum: nada de caixa com filete lateral, que
+ * o cliente leu como cara de texto gerado por IA. Serviços em duas colunas com marca de
  * verificação; "Também atuamos em" fecha a página numa faixa cinza clara
  * (azul encostaria na faixa de chamada, que também é azul).
  * Sem numeração: os sócios pediram para não numerar o que não é
@@ -50,7 +52,10 @@ const contato = rota(lang, '/contato/');
               <h2><a href={area.href}>{area.data.nome}</a></h2>
               <p class="resumo">{area.data.resumo}</p>
               {area.data.publicoCurto && (
-                <p class="publico"><strong>{tx.home.paraQuem}</strong> {area.data.publicoCurto}</p>
+                <>
+                  <h3 class="rotulo">{ar.paraQuem}</h3>
+                  <p class="publico">{area.data.publicoCurto}</p>
+                </>
               )}
 
               <h3 class="rotulo">{ar.servicos}</h3>
@@ -124,13 +129,7 @@ const contato = rota(lang, '/contato/');
   .conteudo h2 a { color: var(--azul); text-decoration: none; }
   .conteudo h2 a:hover { color: var(--azul-medio); }
   .resumo { font-size: 19px; line-height: 1.6; color: var(--texto); margin-bottom: 18px; }
-  .publico {
-    font-size: 15px; color: var(--texto-suave);
-    padding: 12px 16px; border-left: 3px solid var(--azul-claro);
-    background: var(--fundo-cinza); border-radius: 0 6px 6px 0;
-    margin-bottom: 26px;
-  }
-  .publico strong { color: var(--azul); }
+  .publico { font-size: 16px; color: var(--texto-suave); margin-bottom: 24px; }
   .conteudo .rotulo { font-size: 13px; margin-bottom: 12px; }
 
   .servicos {
