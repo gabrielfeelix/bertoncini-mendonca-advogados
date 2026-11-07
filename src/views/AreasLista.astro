@@ -1,11 +1,20 @@
 ---
-/** Lista das áreas de atuação (v3), nos dois idiomas: banner + cartões. */
+/**
+ * Lista das áreas de atuação (v3), nos dois idiomas.
+ *
+ * Cada área é um bloco largo: foto de um lado, conteúdo do outro,
+ * alternando o lado (zigue-zague). Serviços em duas colunas com marca de
+ * verificação; "Também atuamos em" fecha a página numa faixa cinza clara
+ * (azul encostaria na faixa de chamada, que também é azul).
+ * Sem numeração: os sócios pediram para não numerar o que não é
+ * sequência (retorno de 06/11/2026).
+ */
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
 import Chamada from '~/components/Chamada.astro';
 import IconeArea from '~/components/IconeArea.astro';
-import { areasDoIdioma, assuntosDaArea } from '~/lib/areas';
-import { t, type Idioma } from '~/lib/i18n';
+import { areasDoIdioma, assuntosDaArea, FOTO_DA_AREA } from '~/lib/areas';
+import { t, rota, type Idioma } from '~/lib/i18n';
 
 interface Props {
   lang: Idioma;
@@ -14,6 +23,7 @@ const { lang } = Astro.props;
 const tx = t(lang);
 const ar = tx.areas;
 const areas = await areasDoIdioma(lang);
+const contato = rota(lang, '/contato/');
 ---
 
 <Base
@@ -25,31 +35,54 @@ const areas = await areasDoIdioma(lang);
 >
   <BannerPagina html={ar.banner} migalhas={[{ rotulo: ar.migalha }]} lang={lang} />
 
-  <section class="secao">
+  <section class="secao blocos">
     <div class="container">
-      <div class="grade grade-2">
-        {areas.map((area) => {
-          const lista = area.data.servicos.length > 0 ? area.data.servicos : assuntosDaArea(area.data.assuntos).map((a) => a.nome);
-          return (
-            <article class="cartao">
-              <div class="cartao-corpo">
-                <IconeArea slug={area.slugPt} />
-                <h2 class="nome"><a href={area.href}>{area.data.nome}</a></h2>
-                <p>{area.data.resumo}</p>
-                <ul class="assuntos">
-                  {lista.map((item) => <li>{item}</li>)}
-                </ul>
-                <a class="botao botao-contorno" href={area.href}>{ar.verMais}</a>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+      {areas.map((area, i) => {
+        const servicos = area.data.servicos.length > 0 ? area.data.servicos : assuntosDaArea(area.data.assuntos).map((a) => a.nome);
+        return (
+          <article class:list={['bloco', { invertido: i % 2 === 1 }]} id={area.slugPt}>
+            <a class="foto" href={area.href} tabindex="-1" aria-hidden="true">
+              <img src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="900" loading={i === 0 ? 'eager' : 'lazy'} />
+              <span class="selo"><IconeArea slug={area.slugPt} class="selo-icone" /></span>
+            </a>
 
-      <div class="outras">
+            <div class="conteudo">
+              <h2><a href={area.href}>{area.data.nome}</a></h2>
+              <p class="resumo">{area.data.resumo}</p>
+              {area.data.publicoCurto && (
+                <p class="publico"><strong>{tx.home.paraQuem}</strong> {area.data.publicoCurto}</p>
+              )}
+
+              <h3 class="rotulo">{ar.servicos}</h3>
+              <ul class="servicos">
+                {servicos.map((s) => (
+                  <li>
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" /><path d="M6 10.3l2.6 2.5L14 7.4" /></svg>
+                    {s}
+                  </li>
+                ))}
+              </ul>
+
+              <div class="acoes">
+                <a class="botao" href={area.href}>{ar.conhecaArea}</a>
+                <a class="link-seta" href={`${contato}?assunto=${area.slugPt}`}>{ar.faleConosco} <span aria-hidden="true">→</span></a>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="tambem">
+    <div class="container">
+      <div class="tambem-cabeca">
         <h2>{ar.tambem}</h2>
-        <ul>{tx.outrasAreas.map((a) => <li>{a}</li>)}</ul>
+        <p>{ar.tambemApoio}</p>
       </div>
+      <ul class="tambem-lista">
+        {tx.outrasAreas.map((a) => <li>{a}</li>)}
+      </ul>
     </div>
   </section>
 
@@ -57,15 +90,100 @@ const areas = await areasDoIdioma(lang);
 </Base>
 
 <style>
-  .nome { font-size: 24px; }
-  .nome a { color: var(--azul); text-decoration: none; }
-  .nome a:hover { color: var(--azul-medio); text-decoration: underline; }
-  .assuntos { columns: 2; column-gap: 24px; padding-left: 1.1em; margin-bottom: 18px; }
-  .assuntos li { break-inside: avoid; margin-bottom: 4px; }
-  .cartao-corpo .botao { align-self: flex-start; margin-top: auto; }
-  .outras { margin-top: 40px; padding: 28px 32px; background: var(--fundo-cinza); border-radius: 6px; }
-  .outras h2 { font-size: 22px; margin-bottom: 14px; }
-  .outras ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
-  .outras li { background: #fff; border: 1px solid var(--linha); border-radius: 4px; padding: 6px 14px; }
-  @media (max-width: 480px) { .assuntos { columns: 1; } }
+  .blocos { padding-bottom: 40px; }
+  .bloco {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 64px;
+    align-items: center;
+    padding: 24px 0 72px;
+    scroll-margin-top: calc(var(--altura-barra) + 24px);
+  }
+  .bloco + .bloco { padding-top: 72px; border-top: 1px solid var(--linha); }
+  .invertido .foto { order: 2; }
+
+  /* ---------- Foto com selo da área ---------- */
+  .foto { position: relative; display: block; border-radius: 14px; box-shadow: 0 24px 50px rgba(11, 30, 63, .16); }
+  .foto img { width: 100%; aspect-ratio: 5 / 4; object-fit: cover; border-radius: 14px; }
+  .foto::after {
+    content: ''; position: absolute; inset: 0; border-radius: 14px;
+    background: linear-gradient(32deg, rgba(0, 67, 105, .45) 0%, rgba(0, 67, 105, 0) 45%);
+  }
+  .selo {
+    position: absolute; left: 24px; bottom: -26px; z-index: 1;
+    display: grid; place-items: center;
+    width: 76px; height: 76px; border-radius: 50%;
+    background: #fff; color: var(--azul-medio);
+    box-shadow: 0 10px 24px rgba(11, 30, 63, .18);
+  }
+  .invertido .selo { left: auto; right: 24px; }
+  .selo :global(.selo-icone) { width: 40px; height: 40px; margin: 0; }
+
+  /* ---------- Conteúdo ---------- */
+  .conteudo h2 { font-size: 36px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 14px; }
+  .conteudo h2 a { color: var(--azul); text-decoration: none; }
+  .conteudo h2 a:hover { color: var(--azul-medio); }
+  .resumo { font-size: 19px; line-height: 1.6; color: var(--texto); margin-bottom: 18px; }
+  .publico {
+    font-size: 15px; color: var(--texto-suave);
+    padding: 12px 16px; border-left: 3px solid var(--azul-claro);
+    background: var(--fundo-cinza); border-radius: 0 6px 6px 0;
+    margin-bottom: 26px;
+  }
+  .publico strong { color: var(--azul); }
+  .conteudo .rotulo { font-size: 13px; margin-bottom: 12px; }
+
+  .servicos {
+    list-style: none; padding: 0; margin: 0 0 32px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px;
+  }
+  .servicos li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.45; }
+  .servicos svg { flex: none; width: 18px; height: 18px; margin-top: 1px; }
+  .servicos circle { fill: rgba(0, 67, 105, .1); }
+  .servicos path { fill: none; stroke: var(--azul-medio); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .acoes { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .link-seta { font-weight: 500; text-decoration: none; color: var(--azul-medio); }
+  .link-seta span { display: inline-block; transition: transform .15s ease; }
+  .link-seta:hover span { transform: translateX(4px); }
+
+  /* ---------- Também atuamos em: faixa cinza clara ---------- */
+  .tambem { background: var(--fundo-cinza); color: var(--texto-suave); padding: 72px 0; border-top: 1px solid var(--linha); }
+  .tambem .container { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 48px; align-items: start; }
+  .tambem h2 { color: var(--azul); font-size: 30px; font-weight: 300; margin-bottom: 10px; }
+  .tambem-cabeca p { margin: 0; }
+  .tambem-lista {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 32px;
+  }
+  .tambem-lista li {
+    position: relative; padding: 16px 0 16px 22px;
+    border-bottom: 1px solid var(--linha);
+    color: var(--azul); font-size: 16px;
+  }
+  .tambem-lista li::before {
+    content: ''; position: absolute; left: 2px; top: 29px; /* centro da 1ª linha */
+    width: 7px; height: 7px; margin-top: -4px;
+    border-top: 2px solid var(--azul-claro); border-right: 2px solid var(--azul-claro); transform: rotate(45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .link-seta span { transition: none; }
+  }
+  @media (max-width: 991px) {
+    .bloco { grid-template-columns: 1fr; gap: 48px; }
+    .invertido .foto { order: 0; }
+    .invertido .selo { right: auto; left: 24px; }
+    .tambem .container { grid-template-columns: 1fr; gap: 24px; }
+    .tambem-lista { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 680px) {
+    .bloco { padding-bottom: 56px; }
+    .bloco + .bloco { padding-top: 56px; }
+    .conteudo h2 { font-size: 28px; }
+    .resumo { font-size: 17px; }
+    .servicos { grid-template-columns: 1fr; }
+    .tambem { padding: 56px 0; }
+    .tambem-lista { grid-template-columns: 1fr; }
+  }
 </style>

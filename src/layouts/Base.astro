@@ -69,7 +69,10 @@ const urlCanonica = new URL(Astro.url.pathname, site.url);
     <meta property="og:locale" content={tx.locale} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Favicon BM (o mesmo da v2): .ico para navegadores antigos, PNG 32px e ícone do iPhone. -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <!-- Marca que há JavaScript antes da primeira pintura: o cabeçalho só
          fica transparente sobre a foto quando o script de rolagem existe. -->
     <script is:inline>document.documentElement.classList.add('com-js');</script>

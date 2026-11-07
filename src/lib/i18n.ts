@@ -170,6 +170,9 @@ const pt = {
     faleTexto: 'Conte o seu caso. Respondemos pelo e-mail que você informar.',
     enviar: 'Enviar mensagem',
     verMais: 'Ver mais',
+    conhecaArea: 'Conheça a área',
+    faleConosco: 'Fale conosco',
+    tambemApoio: 'Além das duas áreas acima, o escritório também atende em:',
   },
   contato: {
     titulo: `Contato | ${site.nome}`,
@@ -359,6 +362,9 @@ const en: Textos = {
     faleTexto: 'Tell us about your case. We reply to the e-mail address you provide.',
     enviar: 'Send a message',
     verMais: 'Learn more',
+    conhecaArea: 'About this area',
+    faleConosco: 'Contact us',
+    tambemApoio: 'Beyond the two areas above, the firm also practices in:',
   },
   contato: {
     titulo: `Contact | ${site.nome}`,
