@@ -74,8 +74,8 @@ export const ERROS: Record<string, string> = {
   'imagem-envio': 'Não consegui enviar a imagem. Tente de novo.',
   confirma: 'Confirme a exclusão antes de apagar.',
   nenhum: 'Nenhum texto foi marcado.',
-  gancho: 'O gancho de deploy não está configurado: o site não vai se atualizar sozinho.',
-  'gancho-falhou': 'A Vercel não aceitou o pedido de atualização do site. Tente de novo em instantes.',
+  gancho: 'A atualização automática do site não está configurada: o texto foi salvo, mas o site não se atualiza sozinho.',
+  'gancho-falhou': 'O pedido de atualização do site não foi aceito. Tente "Atualizar o site" em instantes.',
   salvar: 'Não consegui salvar. Tente de novo.',
   'senha-atual': 'A senha atual não confere.',
   'sem-chave': 'A chave de administração do Supabase (SUPABASE_SERVICE_ROLE_KEY) não está configurada neste ambiente.',
@@ -232,9 +232,29 @@ export async function enviaImagem(
  * "Atualizar o site" da lista tenta de novo.
  */
 export async function disparaRebuild(): Promise<'ok' | 'sem-gancho' | 'falhou'> {
+  /* Caminho principal (19/11/2026): o GitHub Actions do repositório do
+     escritório monta e publica o site (.github/workflows/publicar.yml). O
+     servidor só dispara o evento "publicar". */
+  const tokenGithub = env('GITHUB_TOKEN_PUBLICAR');
+  const repo = env('GITHUB_REPO_PUBLICAR') ?? 'bertoncinimendonca/site';
+  if (tokenGithub) {
+    try {
+      const r = await fetch(`https://api.github.com/repos/${repo}/dispatches`, {
+        method: 'POST',
+        headers: { authorization: `token ${tokenGithub}`, accept: 'application/vnd.github+json', 'user-agent': 'painel-bertoncini' },
+        body: JSON.stringify({ event_type: 'publicar' }),
+      });
+      if (r.ok) return 'ok';
+      console.error('[painel] GitHub recusou o disparo', r.status, await r.text());
+      return 'falhou';
+    } catch (erro) {
+      console.error('[painel] falha ao disparar a publicação no GitHub', erro);
+      return 'falhou';
+    }
+  }
   const gancho = env('VERCEL_DEPLOY_HOOK');
   if (!gancho) {
-    console.warn('[painel] VERCEL_DEPLOY_HOOK ausente: salvo no banco, mas o site não se atualiza sozinho.');
+    console.warn('[painel] sem GITHUB_TOKEN_PUBLICAR nem VERCEL_DEPLOY_HOOK: salvo no banco, mas o site não se atualiza sozinho.');
     return 'sem-gancho';
   }
   try {
