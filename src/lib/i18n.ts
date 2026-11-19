@@ -193,8 +193,6 @@ const pt = {
       { nome: 'Estratégia', texto: 'A melhor solução é a que faz sentido para o contexto de quem a recebe.' },
     ],
     atuacaoApoio: 'Os princípios que guiam cada atendimento, do primeiro contato ao fim do caso.',
-    recusaRotulo: 'O que não aceitamos',
-    recusa: 'Não atuamos em casos que favoreçam a propagação do machismo, do racismo ou da homofobia.',
     sociosTitulo: 'Nossos <strong>Sócios</strong>',
     formacao: 'Formação',
     bios: [
@@ -452,8 +450,6 @@ const en: Textos = {
       { nome: 'Strategy', texto: 'The best solution is the one that makes sense for the person receiving it.' },
     ],
     atuacaoApoio: 'The principles behind every engagement, from the first contact to the end of the case.',
-    recusaRotulo: 'What we do not accept',
-    recusa: 'We do not take on cases that promote sexism, racism or homophobia.',
     sociosTitulo: 'Our <strong>Partners</strong>',
     formacao: 'Education',
     bios: [
