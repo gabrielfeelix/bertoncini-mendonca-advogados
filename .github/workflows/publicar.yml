@@ -1,0 +1,44 @@
+# Publica o site na Vercel (projeto do time website-207d).
+#
+# Roda quando:
+# - alguém publica, despublica ou apaga um texto no painel (o servidor
+#   dispara o evento "publicar" pela API do GitHub);
+# - há push na branch v3;
+# - manualmente, em Actions → Publicar o site → Run workflow.
+#
+# O site lê os artigos do Supabase no build; por isso um texto novo só
+# aparece depois desta publicação (cerca de 2 a 3 minutos).
+name: Publicar o site
+
+on:
+  repository_dispatch:
+    types: [publicar]
+  push:
+    branches: [v3]
+  workflow_dispatch:
+
+concurrency:
+  group: publicar-site
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VERCEL_ORG_ID: team_SRcS318yByauj31I2WHha6R2
+      VERCEL_PROJECT_ID: prj_lh2iLhV18FpiBzVZBupPiaPUdBJa
+      PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+      PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx astro build
+      - name: Enviar para a Vercel
+        run: npx --yes vercel@latest deploy --prebuilt --prod --yes --token "${{ secrets.VERCEL_TOKEN }}"
