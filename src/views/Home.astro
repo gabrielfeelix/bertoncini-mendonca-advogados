@@ -245,19 +245,24 @@ const escritorio = rota(lang, '/escritorio/');
   .painel {
     position: relative; overflow: hidden; display: flex; align-items: flex-end;
     background: var(--azul); color: #f8f7f2;
+    /* Contexto próprio: foto e escurecimento ficam ATRÁS do texto com
+       z-index negativo, e o texto não precisa de posição. Assim o ::after
+       do link mede pelo card inteiro (antes media só o bloco de texto, e
+       só ele era clicável). */
+    isolation: isolate;
   }
   .painel img {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover;
     transition: transform .8s cubic-bezier(.2, .8, .2, 1);
   }
   /* Escurecimento de baixo para cima, na cor da marca. */
   .painel::before {
-    content: ''; position: absolute; inset: 0; z-index: 1;
+    content: ''; position: absolute; inset: 0; z-index: -1;
     background: linear-gradient(180deg, rgba(11, 30, 63, 0) 20%, rgba(11, 30, 63, .55) 55%, rgba(11, 30, 63, .94) 100%);
     transition: background-color .4s ease;
   }
   .painel:hover img, .painel:focus-within img { transform: scale(1.04); }
-  .painel-texto { position: relative; z-index: 2; padding: 28px; width: 100%; }
+  .painel-texto { padding: 28px; width: 100%; }
   .painel h3 { font-size: 26px; font-weight: 300; line-height: 1.15; letter-spacing: -.01em; margin: 0 0 10px; max-width: 18ch; }
   .painel h3 a { color: #fff; text-decoration: none; }
   /* O link do título cobre o bloco inteiro. */
@@ -366,10 +371,24 @@ const escritorio = rota(lang, '/escritorio/');
     .bento[data-variante="5"] .painel:is(:hover, :focus-within) img { transform: scale(1.03); }
     .bento[data-variante="5"] .painel-troca { display: grid; grid-template-columns: minmax(0, 1fr); }
     .bento[data-variante="5"] .painel-troca > * { grid-area: 1 / 1; align-self: end; }
-    .bento[data-variante="5"] .painel-mais { display: block; opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
-    .bento[data-variante="5"] .painel-resumo { display: block; transition: opacity .3s ease; }
-    .bento[data-variante="5"] .painel:is(:hover, :focus-within) .painel-mais { opacity: 1; visibility: visible; transition: opacity .35s ease .15s, visibility 0s; }
-    .bento[data-variante="5"] .painel:is(:hover, :focus-within) .painel-resumo { opacity: 0; }
+    /* Troca com subida: o resumo sai subindo e some; os serviços entram de
+       baixo, item por item (50 ms entre eles). Só transform e opacidade. */
+    .bento[data-variante="5"] .painel-resumo { display: block; transition: opacity .3s ease, transform .45s cubic-bezier(.4, 0, .2, 1); }
+    .bento[data-variante="5"] .painel:is(:hover, :focus-within) .painel-resumo { opacity: 0; transform: translateY(-10px); }
+    .bento[data-variante="5"] .painel-mais { display: block; visibility: hidden; transition: visibility 0s .35s; }
+    .bento[data-variante="5"] .painel:is(:hover, :focus-within) .painel-mais { visibility: visible; transition: visibility 0s; }
+    .bento[data-variante="5"] .painel-mais :is(.painel-rotulo, li) {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .bento[data-variante="5"] .painel:is(:hover, :focus-within) .painel-mais :is(.painel-rotulo, li) {
+      opacity: 1; transform: none;
+      transition: opacity .4s ease var(--atraso, .1s), transform .5s cubic-bezier(.16, 1, .3, 1) var(--atraso, .1s);
+    }
+    .bento[data-variante="5"] .painel-servicos li:nth-child(1) { --atraso: .15s; }
+    .bento[data-variante="5"] .painel-servicos li:nth-child(2) { --atraso: .2s; }
+    .bento[data-variante="5"] .painel-servicos li:nth-child(3) { --atraso: .25s; }
+    .bento[data-variante="5"] .painel-servicos li:nth-child(4) { --atraso: .3s; }
     /* Quatro serviços, uma coluna: a lista fica com altura parecida com a do
        resumo (as duas dividem o mesmo espaço), sem vão sob o título. Os
        demais estão na página da área. */
@@ -457,6 +476,7 @@ const escritorio = rota(lang, '/escritorio/');
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
   @media (prefers-reduced-motion: reduce) {
+    .bento .painel-resumo, .bento .painel-mais :is(.painel-rotulo, li) { transform: none !important; }
     .painel img, .painel-mais, .painel-resumo { transition: none; }
   }
   /* Empilhado (mesmo ponto de .duas-colunas no v3.css): volta a 16:9. */
