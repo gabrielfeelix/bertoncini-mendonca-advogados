@@ -54,7 +54,7 @@ export const site = {
   // Encarregado de dados (LGPD), da Política de Cookies dos sócios (18/11/2026).
   encarregado: { valor: 'dpo@bertoncinimendonca.adv.br', placeholder: false } satisfies CampoPlaceholder,
 
-  horario: 'Segunda a sexta, 9h às 18h',
+  horario: 'Segunda a sexta, 8h às 18h',
 
   // Registro da sociedade: exigência do Provimento 205/2021 da OAB.
   // Confirmados no retorno de 06/11/2026.

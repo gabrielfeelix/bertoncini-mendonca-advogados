@@ -305,7 +305,7 @@ const en: Textos = {
     'Law firm in Maringá, Paraná, practicing Estate and Succession Planning, Digital Law, Civil and Contract Law, Corporate Law and Real Estate Law. Online service throughout Brazil and in person in Maringá, Paraná.',
   atendimento: 'Online service throughout Brazil',
   presencialEm: 'and in person in',
-  horario: 'Monday to Friday, 9 a.m. to 6 p.m. (Brasília time)',
+  horario: 'Monday to Friday, 8 a.m. to 6 p.m. (Brasília time)',
   aviso:
     'The information on this website is for informational purposes only and does not replace a legal analysis of each individual situation.',
   nav: [
