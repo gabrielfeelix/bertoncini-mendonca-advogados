@@ -32,7 +32,9 @@ const areas = await areasDoIdioma(lang);
 
 const slides = [
   {
-    foto: '/media/novas/escritorio-sala.jpg',
+    /* 19/11/2026: os sócios pediram o fundo do rodapé (gradiente azul com o
+       monograma em marca d'água) no lugar da foto da sala. */
+    foto: null as string | null,
     rotulo: site.nome,
     titulo: tx.hero.institucionalTitulo,
     texto: tx.hero.institucionalTexto,
@@ -65,15 +67,19 @@ const slides = [
         data-ativo={i === 0 ? '' : undefined}
         inert={i !== 0}
       >
-        <img
-          class="foto"
-          src={s.foto}
-          alt=""
-          width="1600"
-          height="900"
-          loading={i === 0 ? 'eager' : 'lazy'}
-          fetchpriority={i === 0 ? 'high' : undefined}
-        />
+        {s.foto ? (
+          <img
+            class="foto"
+            src={s.foto}
+            alt=""
+            width="1600"
+            height="900"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : undefined}
+          />
+        ) : (
+          <span class="fundo-marca" aria-hidden="true"></span>
+        )}
         <div class="container conteudo">
           <p class="rotulo-hero">{s.rotulo}</p>
           {i === 0 ? <h1 set:html={s.titulo} /> : <h2 class="h1" set:html={s.titulo} />}
@@ -224,6 +230,21 @@ const slides = [
     transition: opacity .9s ease, visibility 0s;
   }
 
+  /* Fundo de marca (igual ao do rodapé): brilho petróleo, azul-noite e o
+     monograma grande em marca d'água. Sem véu por cima (ver :has abaixo). */
+  .fundo-marca {
+    position: absolute; inset: 0; z-index: -2; overflow: hidden;
+    background:
+      radial-gradient(1100px 640px at 88% 0%, rgba(0, 67, 105, .6), rgba(0, 67, 105, 0) 70%),
+      radial-gradient(800px 480px at 0% 100%, rgba(81, 116, 147, .18), rgba(81, 116, 147, 0) 70%),
+      #0B1E3F;
+  }
+  .fundo-marca::after {
+    content: ''; position: absolute; right: -4%; top: 50%; transform: translateY(-50%);
+    height: 125%; aspect-ratio: 254 / 276; opacity: .06;
+    background: url('/media/marca/monograma-creme.svg') center / contain no-repeat;
+  }
+  .slide:has(.fundo-marca)::before { display: none; }
   .foto {
     position: absolute; inset: 0; z-index: -2;
     width: 100%; height: 100%;

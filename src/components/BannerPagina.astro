@@ -29,6 +29,13 @@ interface Props {
    * prefers-reduced-motion não toca e fica a imagem.
    */
   video?: string;
+  /**
+   * Capa alta com a foto ocupando tudo (19/11/2026, O escritório): para foto
+   * que já vem escura do lado do texto. Entra com um zoom lento.
+   */
+  fotoCheia?: boolean;
+  /** Fundo de marca (gradiente e monograma do rodapé) no lugar da foto. */
+  marca?: boolean;
   /** Enquadramento da foto (CSS background-position). */
   posicao?: string;
   /** Rótulo pequeno acima do título, só na capa alta (ex.: "O escritório"
@@ -50,6 +57,8 @@ const {
   cheio = false,
   baixo = false,
   video,
+  marca = false,
+  fotoCheia = false,
   posicao = 'center',
   apoio,
   rotulo,
@@ -59,9 +68,10 @@ const tx = t(lang);
 ---
 
 <section
-  class:list={['banner-pagina', { 'banner-alto': alto, 'banner-cheio': cheio, 'banner-baixo': baixo }]}
-  style={alto ? undefined : `background-image:url('${foto}');background-position:${posicao}`}
+  class:list={['banner-pagina', { 'banner-alto': alto, 'banner-cheio': cheio, 'banner-baixo': baixo, 'banner-marca': marca, 'banner-foto-cheia': fotoCheia }]}
+  style={alto || marca ? undefined : `background-image:url('${foto}');background-position:${posicao}`}
 >
+  {marca && <span class="banner-arte" aria-hidden="true"></span>}
   {/* Na capa alta a foto é uma imagem à direita que começa ABAIXO do
       cabeçalho, para rosto nenhum ficar atrás do menu, e se funde no azul
       pela esquerda (mask-image). */}
@@ -71,7 +81,7 @@ const tx = t(lang);
       <source src={`${video}.mp4`} type="video/mp4" />
     </video>
   )}
-  {alto && <img class="banner-foto" src={foto} alt="" style={`--posicao:${posicao};--posicao-celular:${posicaoCelular ?? posicao}`} />}
+  {alto && !marca && <img class="banner-foto" src={foto} alt="" style={`--posicao:${posicao};--posicao-celular:${posicaoCelular ?? posicao}`} />}
   <div class="container">
     {(alto || cheio) && rotulo && <p class="banner-rotulo">{rotulo}</p>}
     {html ? <h1 set:html={html} /> : <h1>{titulo}</h1>}
