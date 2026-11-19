@@ -1,0 +1,161 @@
+{
+  "nome": "Direito Imobiliário",
+  "slug": "direito-imobiliario",
+  "resumo": "Análise, contratos e regularização para que o seu negócio imobiliário seja feito com tranquilidade.",
+  "servicos": [
+    "Due diligence imobiliária",
+    "Contratos de compra e venda",
+    "Compromisso de compra e venda",
+    "Contratos de locação residencial e comercial",
+    "Ação renovatória e revisional de aluguel",
+    "Despejo",
+    "Regularização de imóveis",
+    "Usucapião judicial e extrajudicial",
+    "Adjudicação compulsória",
+    "Questões condominiais",
+    "Escrituras públicas e registro"
+  ],
+  "assuntos": [
+    {
+      "nome": "Due diligence",
+      "faz": "Analisamos matrícula, certidões do imóvel e dos vendedores, débitos e processos antes da assinatura, enquanto ainda é possível negociar ou desistir."
+    },
+    {
+      "nome": "Compra e venda",
+      "faz": "Redigimos e revisamos contratos com regras claras sobre pagamento, prazos, multas e desistência."
+    },
+    {
+      "nome": "Locação",
+      "faz": "Elaboramos contratos residenciais e comerciais e atuamos em despejo, revisão de aluguel e renovação."
+    },
+    {
+      "nome": "Regularização",
+      "faz": "Colocamos em ordem a documentação do imóvel: averbação de construção, retificação de área e atualização da matrícula."
+    },
+    {
+      "nome": "Usucapião",
+      "faz": "Conduzimos o reconhecimento da propriedade pela posse, em cartório quando possível e na Justiça quando necessário."
+    },
+    {
+      "nome": "Adjudicação compulsória",
+      "faz": "Obtemos a escritura quando o imóvel foi pago e o vendedor não a outorga, inclusive diretamente em cartório."
+    },
+    {
+      "nome": "Condomínio",
+      "faz": "Orientamos condôminos e síndicos sobre cobranças, convenção, regimento interno e conflitos entre vizinhos."
+    },
+    {
+      "nome": "ITBI e custos da operação",
+      "faz": "Calculamos os tributos e as despesas de cartório antes do negócio, para que o custo total não seja uma surpresa."
+    }
+  ],
+  "corpo": [
+    "O Direito Imobiliário trata de tudo o que envolve a propriedade e o uso de imóveis: compra, venda, locação, registro e regularização. Para a maioria das pessoas, um imóvel é o maior investimento da vida. Por isso, é uma área em que a prevenção vale muito: quase sempre é mais simples e mais barato evitar o problema do que resolvê-lo depois.",
+    "No Brasil, a propriedade de um imóvel só se transfere com o registro da escritura na matrícula, no Cartório de Registro de Imóveis. Contrato particular, recibo ou procuração não tornam ninguém proprietário. Enquanto o registro não é feito, o imóvel continua em nome do vendedor e pode ser atingido por dívidas, penhoras e processos dele.",
+    "Antes de comprar, é preciso conferir a matrícula atualizada, as certidões do imóvel e dos vendedores, os débitos de IPTU e condomínio e a existência de processos contra quem vende. Essa verificação, chamada due diligence imobiliária, mostra o risco real da operação. Feita depois da assinatura, ela já não ajuda a decidir.",
+    "Contrato de gaveta, escritura nunca outorgada, construção não averbada e área diferente da que consta na matrícula são situações comuns. Hoje, várias delas podem ser resolvidas diretamente em cartório, sem processo judicial. É o caso da usucapião extrajudicial e da adjudicação compulsória extrajudicial, criada pela Lei 14.382/2022, que permite obter a escritura de um imóvel já pago quando o vendedor não a assina.",
+    "A locação de imóveis urbanos é regida pela Lei do Inquilinato (Lei 8.245/1991). Um contrato bem escrito define reajuste, garantia, responsabilidade por reparos e regras de saída, e evita a maior parte dos conflitos. Na locação comercial, o empresário pode ter direito à renovação do contrato, o que protege o ponto que ele construiu.",
+    "O ITBI é o imposto municipal cobrado na transferência do imóvel. O STJ decidiu que a base de cálculo é o valor declarado na transação, e não um valor de referência fixado previamente pelo município (Tema 1.113). Conhecer essa regra pode reduzir o custo da compra.",
+    "O trabalho começa por entender a operação: qual imóvel, quem são as partes, como será o pagamento e em que situação estão os documentos. Antes de qualquer etapa, explicamos os riscos, as alternativas e quanto cada uma custa. Não prometemos resultados, porque o desfecho de um processo não depende apenas do advogado.",
+    "Atendemos todo o Brasil de forma online e presencialmente em Maringá (PR)."
+  ],
+  "perguntas": [
+    {
+      "pergunta": "Preciso de escritura pública para comprar um imóvel?",
+      "resposta": "Em regra, sim. A escritura pública é obrigatória na compra de imóveis de valor superior a 30 salários mínimos. A exceção mais comum são os financiamentos bancários, em que o próprio contrato do banco tem força de escritura. Mas a escritura sozinha não basta: a propriedade só passa ao comprador quando ela é registrada na matrícula, no Cartório de Registro de Imóveis."
+    },
+    {
+      "pergunta": "Contrato de gaveta tem validade?",
+      "resposta": "Tem validade entre quem comprou e quem vendeu, mas não transfere a propriedade. Enquanto o imóvel continua em nome do vendedor, ele pode ser penhorado por dívidas dele, entrar no inventário dele ou até ser vendido novamente a outra pessoa. Quem comprou por contrato de gaveta deve regularizar a situação o quanto antes, com a escritura e o registro ou, se o vendedor não colaborar, pelos meios previstos em lei."
+    },
+    {
+      "pergunta": "O que deve ser analisado antes de comprar um imóvel?",
+      "resposta": "A matrícula atualizada, para confirmar quem é o dono e se há penhoras, hipotecas ou outras restrições. Também as certidões do imóvel e dos vendedores, os débitos de IPTU e condomínio e a existência de processos contra quem vende, que podem tornar a venda ineficaz no futuro. Essa análise deve ser feita antes da assinatura e de qualquer pagamento, enquanto ainda é possível negociar ou desistir."
+    },
+    {
+      "pergunta": "Quem paga o ITBI, a escritura e o registro?",
+      "resposta": "Pela lei, as despesas de escritura e registro ficam com o comprador, salvo se o contrato disser outra coisa. Em regra, o ITBI também é pago pelo comprador. O STJ definiu que a base de cálculo do ITBI é o valor declarado na transação, e não um valor de referência fixado previamente pelo município. Por isso, vale conferir o cálculo antes de pagar."
+    },
+    {
+      "pergunta": "Comprei um imóvel com dívida de condomínio ou IPTU. Quem paga?",
+      "resposta": "As dívidas de condomínio e de IPTU acompanham o imóvel. Por isso, quem compra passa a responder por elas, mesmo que sejam anteriores à compra. Quem pagou pode cobrar o valor do vendedor depois, mas o caminho mais seguro é exigir as certidões de quitação antes de fechar o negócio e prever no contrato quem responde por cada débito."
+    },
+    {
+      "pergunta": "Posso desistir da compra de um imóvel na planta?",
+      "resposta": "Sim, mas com custo. A Lei do Distrato (Lei 13.786/2018) permite que a construtora retenha parte do valor pago, em geral até 25%, ou até 50% nos empreendimentos com patrimônio de afetação, além da comissão de corretagem. As condições dependem do contrato e da data em que foi assinado. Por isso, vale analisar o caso antes de formalizar a desistência."
+    },
+    {
+      "pergunta": "Como regularizar um imóvel que não tem escritura?",
+      "resposta": "Depende da situação. Se o imóvel foi pago e o vendedor não assina a escritura, é possível a adjudicação compulsória, inclusive diretamente em cartório. Se não há contrato ou o vendedor não pode ser localizado, a usucapião pode ser o caminho. Construções não averbadas e diferenças de área também podem ser corrigidas na matrícula. O primeiro passo é entender a origem da irregularidade."
+    },
+    {
+      "pergunta": "Quanto tempo é preciso para pedir usucapião?",
+      "resposta": "Varia conforme a situação. Os prazos vão de 2 a 15 anos de posse contínua e sem oposição. Prazos mais curtos se aplicam, por exemplo, a quem usa o imóvel como moradia, tem um contrato que justifique a posse ou ocupa áreas menores e não é dono de outro imóvel. Desde 2015, a usucapião também pode ser feita em cartório, quando não há conflito."
+    },
+    {
+      "pergunta": "O inquilino pode devolver o imóvel antes do fim do contrato?",
+      "resposta": "Pode, mas deve pagar a multa prevista no contrato, proporcional ao tempo que falta para o fim da locação. O inquilino fica dispensado da multa se precisar se mudar por ter sido transferido pelo empregador para outra cidade, desde que avise o proprietário com pelo menos 30 dias de antecedência."
+    },
+    {
+      "pergunta": "O proprietário pode exigir mais de uma garantia no aluguel?",
+      "resposta": "Não. A Lei do Inquilinato permite apenas uma modalidade de garantia por contrato: caução, fiador, seguro-fiança ou cessão de cotas de fundo de investimento. Exigir duas ao mesmo tempo, como fiador e caução, é proibido. A caução em dinheiro também tem limite: no máximo três meses de aluguel."
+    }
+  ],
+  "ordem": 5,
+  "mensagemWhatsapp": "Olá, preciso de orientação sobre direito imobiliário.",
+  "cenas": [
+    {
+      "indice": 1,
+      "rubrica": "Só é dono quem registra"
+    },
+    {
+      "indice": 2,
+      "rubrica": "A análise vem antes da assinatura"
+    },
+    {
+      "indice": 3,
+      "rubrica": "Imóvel irregular tem solução"
+    },
+    {
+      "indice": 4,
+      "rubrica": "Locação"
+    },
+    {
+      "indice": 5,
+      "rubrica": "ITBI"
+    },
+    {
+      "indice": 6,
+      "rubrica": "Como trabalhamos"
+    },
+    {
+      "indice": 7,
+      "rubrica": "Onde atendemos",
+      "foto": "maringa",
+      "fotoAlt": "A Catedral de Maringá ao anoitecer, vista da avenida, com o céu ainda azul."
+    }
+  ],
+  "publicoCurto": "Para pessoas, famílias e empresas que compram, vendem, alugam ou investem em imóveis.",
+  "publicos": [
+    {
+      "titulo": "Quem compra",
+      "texto": "Que quer conhecer os riscos do imóvel e de quem vende antes de assinar e pagar."
+    },
+    {
+      "titulo": "Quem vende",
+      "texto": "Que quer um contrato claro sobre preço, prazos, entrega das chaves e o que acontece se a outra parte desistir."
+    },
+    {
+      "titulo": "Proprietários e inquilinos",
+      "texto": "Que precisam de um contrato de locação bem escrito, ou de orientação quando surge um problema durante a locação."
+    },
+    {
+      "titulo": "Quem tem imóvel irregular",
+      "texto": "Que comprou por contrato de gaveta, não conseguiu a escritura ou tem uma construção que não está na matrícula."
+    },
+    {
+      "titulo": "Empresas",
+      "texto": "Que alugam ou compram imóvel para o negócio e querem proteger o ponto comercial e o investimento."
+    }
+  ]
+}

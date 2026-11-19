@@ -1,0 +1,162 @@
+{
+  "nome": "Real Estate Law",
+  "slug": "real-estate-law",
+  "slugPt": "direito-imobiliario",
+  "resumo": "Analysis, contracts and regularization so that your real estate transaction is carried out with peace of mind.",
+  "servicos": [
+    "Real estate due diligence",
+    "Purchase and sale contracts",
+    "Purchase and sale commitments",
+    "Residential and commercial lease agreements",
+    "Lease renewal and rent review actions",
+    "Eviction",
+    "Property regularization",
+    "Adverse possession (usucapião), in court and out of court",
+    "Compulsory adjudication",
+    "Condominium matters",
+    "Public deeds and registration"
+  ],
+  "assuntos": [
+    {
+      "nome": "Due diligence",
+      "faz": "We analyze the property registration, the certificates for the property and the sellers, debts and lawsuits before signing, while it is still possible to negotiate or walk away."
+    },
+    {
+      "nome": "Purchase and sale",
+      "faz": "We draft and review contracts with clear rules on payment, deadlines, penalties and withdrawal."
+    },
+    {
+      "nome": "Lease",
+      "faz": "We draft residential and commercial lease agreements and act in eviction, rent review and renewal."
+    },
+    {
+      "nome": "Regularization",
+      "faz": "We put the property’s documentation in order: recording of construction, correction of area and updating of the property registration."
+    },
+    {
+      "nome": "Adverse possession",
+      "faz": "We handle the recognition of ownership through possession, at a notary’s office when possible and in court when necessary."
+    },
+    {
+      "nome": "Compulsory adjudication",
+      "faz": "We obtain the deed when the property has been paid for and the seller does not grant it, including directly at a notary’s office."
+    },
+    {
+      "nome": "Condominium",
+      "faz": "We advise unit owners and building managers on charges, the condominium declaration, internal rules and disputes between neighbors."
+    },
+    {
+      "nome": "ITBI and transaction costs",
+      "faz": "We calculate the taxes and notary expenses before the deal, so that the total cost is not a surprise."
+    }
+  ],
+  "corpo": [
+    "Real estate law deals with everything involving the ownership and use of property: purchase, sale, lease, registration and regularization. For most people, a property is the largest investment of their lives. That is why it is an area in which prevention is worth a great deal: it is almost always simpler and cheaper to avoid the problem than to solve it later.",
+    "In Brazil, ownership of a property is only transferred when the deed is registered in the property registration (matrícula), at the Real Estate Registry Office. A private contract, receipt or power of attorney does not make anyone an owner. Until registration is done, the property remains in the seller’s name and can be affected by the seller’s debts, attachments and lawsuits.",
+    "Before buying, it is necessary to check the updated property registration, the certificates for the property and the sellers, IPTU (municipal property tax) and condominium debts and the existence of lawsuits against the seller. This verification, called real estate due diligence, shows the real risk of the transaction. Done after signing, it no longer helps in deciding.",
+    "Unregistered private contracts (contratos de gaveta), deeds that were never granted, unrecorded buildings and an area different from the one in the property registration are common situations. Today, several of them can be resolved directly at a notary’s office, without a lawsuit. This is the case of out-of-court adverse possession and out-of-court compulsory adjudication, created by Law 14,382/2022, which makes it possible to obtain the deed to a property already paid for when the seller does not sign it.",
+    "Leases of urban property are governed by the Tenancy Law (Law 8,245/1991). A well-written contract defines adjustments, guarantees, responsibility for repairs and exit rules, and avoids most conflicts. In commercial leases, the business owner may be entitled to renew the contract, which protects the location they have built up.",
+    "The ITBI is the municipal tax charged on the transfer of property. The STJ (Superior Court of Justice) decided that the tax base is the value declared in the transaction, and not a reference value previously set by the municipality (Theme 1,113). Knowing this rule can reduce the cost of the purchase.",
+    "The work begins with understanding the transaction: which property, who the parties are, how payment will be made and what state the documents are in. Before any step, we explain the risks, the alternatives and how much each one costs. We do not promise results, because the outcome of a proceeding does not depend on the lawyer alone.",
+    "We serve clients throughout Brazil online and in person in Maringá (Paraná)."
+  ],
+  "perguntas": [
+    {
+      "pergunta": "Do I need a public deed to buy a property?",
+      "resposta": "As a rule, yes. A public deed is mandatory for the purchase of properties worth more than 30 minimum wages. The most common exception is bank financing, in which the bank’s own contract has the force of a deed. But the deed alone is not enough: ownership only passes to the buyer when it is registered in the property registration, at the Real Estate Registry Office."
+    },
+    {
+      "pergunta": "Is an unregistered private contract (contrato de gaveta) valid?",
+      "resposta": "It is valid between buyer and seller, but it does not transfer ownership. While the property remains in the seller’s name, it can be attached for the seller’s debts, become part of the seller’s probate or even be sold again to someone else. Anyone who bought under a contrato de gaveta should regularize the situation as soon as possible, with the deed and registration or, if the seller does not cooperate, through the means provided by law."
+    },
+    {
+      "pergunta": "What should be checked before buying a property?",
+      "resposta": "The updated property registration, to confirm who the owner is and whether there are attachments, mortgages or other restrictions. Also the certificates for the property and the sellers, IPTU and condominium debts and the existence of lawsuits against the seller, which could render the sale ineffective in the future. This analysis should be done before signing and before any payment, while it is still possible to negotiate or walk away."
+    },
+    {
+      "pergunta": "Who pays the ITBI, the deed and the registration?",
+      "resposta": "By law, deed and registration expenses are borne by the buyer, unless the contract says otherwise. As a rule, the ITBI is also paid by the buyer. The STJ ruled that the ITBI tax base is the value declared in the transaction, and not a reference value previously set by the municipality. That is why it is worth checking the calculation before paying."
+    },
+    {
+      "pergunta": "I bought a property with condominium or IPTU debts. Who pays?",
+      "resposta": "Condominium and IPTU debts go with the property. That is why the buyer becomes liable for them, even if they predate the purchase. Whoever paid can later recover the amount from the seller, but the safest path is to require certificates of payment before closing the deal and to provide in the contract who is responsible for each debt."
+    },
+    {
+      "pergunta": "Can I back out of buying an off-plan property?",
+      "resposta": "Yes, but at a cost. The Termination Law (Lei do Distrato, Law 13,786/2018) allows the developer to retain part of the amount paid, generally up to 25%, or up to 50% in developments with a segregated estate (patrimônio de afetação), in addition to the brokerage commission. The conditions depend on the contract and on the date it was signed. That is why it is worth analyzing the case before formalizing the withdrawal."
+    },
+    {
+      "pergunta": "How do I regularize a property that has no deed?",
+      "resposta": "It depends on the situation. If the property was paid for and the seller does not sign the deed, compulsory adjudication is possible, including directly at a notary’s office. If there is no contract or the seller cannot be located, adverse possession may be the path. Unrecorded buildings and area differences can also be corrected in the property registration. The first step is to understand the origin of the irregularity."
+    },
+    {
+      "pergunta": "How long does it take to claim adverse possession?",
+      "resposta": "It varies with the situation. Periods range from 2 to 15 years of continuous, unopposed possession. Shorter periods apply, for example, to those who use the property as their home, have a contract that justifies the possession or occupy smaller areas and do not own another property. Since 2015, adverse possession can also be done at a notary’s office, when there is no dispute."
+    },
+    {
+      "pergunta": "Can a tenant return the property before the end of the lease?",
+      "resposta": "Yes, but they must pay the penalty set in the contract, proportional to the time remaining until the end of the lease. The tenant is exempt from the penalty if they need to move because their employer transferred them to another city, provided they give the landlord at least 30 days’ notice."
+    },
+    {
+      "pergunta": "Can a landlord require more than one guarantee on a lease?",
+      "resposta": "No. The Tenancy Law allows only one type of guarantee per contract: security deposit, guarantor, rent guarantee insurance or assignment of investment fund shares. Requiring two at the same time, such as a guarantor and a deposit, is prohibited. A cash deposit is also limited: a maximum of three months’ rent."
+    }
+  ],
+  "ordem": 5,
+  "mensagemWhatsapp": "Hello, I need guidance on real estate law.",
+  "cenas": [
+    {
+      "indice": 1,
+      "rubrica": "Only those who register are owners"
+    },
+    {
+      "indice": 2,
+      "rubrica": "The analysis comes before signing"
+    },
+    {
+      "indice": 3,
+      "rubrica": "Irregular property can be fixed"
+    },
+    {
+      "indice": 4,
+      "rubrica": "Leases"
+    },
+    {
+      "indice": 5,
+      "rubrica": "ITBI"
+    },
+    {
+      "indice": 6,
+      "rubrica": "How we work"
+    },
+    {
+      "indice": 7,
+      "rubrica": "Where we serve",
+      "foto": "maringa",
+      "fotoAlt": "Maringá Cathedral at dusk, seen from the avenue, with the sky still blue."
+    }
+  ],
+  "publicoCurto": "For individuals, families and companies that buy, sell, rent or invest in property.",
+  "publicos": [
+    {
+      "titulo": "Buyers",
+      "texto": "Who want to know the risks of the property and of the seller before signing and paying."
+    },
+    {
+      "titulo": "Sellers",
+      "texto": "Who want a clear contract on price, deadlines, handing over the keys and what happens if the other party backs out."
+    },
+    {
+      "titulo": "Landlords and tenants",
+      "texto": "Who need a well-written lease agreement, or guidance when a problem arises during the lease."
+    },
+    {
+      "titulo": "Owners of irregular property",
+      "texto": "Who bought under an unregistered private contract (contrato de gaveta), could not obtain the deed or have a building that is not recorded in the property registration (matrícula)."
+    },
+    {
+      "titulo": "Companies",
+      "texto": "That rent or buy property for the business and want to protect their business location and investment."
+    }
+  ]
+}

@@ -20,8 +20,9 @@ export const site = {
   // Domínio confirmado no briefing (q8.4).
   url: 'https://www.bertoncinimendonca.adv.br',
   descricao:
-    'Advocacia com atuação em Planejamento Patrimonial e Sucessório e em ' +
-    'Direito Digital. Atendimento online para todo o país e presencial em Maringá, PR.',
+    'Escritório de advocacia em Maringá/PR, com atuação em Planejamento Patrimonial e Sucessório, ' +
+    'Direito Digital, Direito Civil e Contratual, Direito Empresarial e Direito Imobiliário. ' +
+    'Atendimento online para todo o país e presencial em Maringá, PR.',
   idioma: 'pt-BR',
   locale: 'pt_BR',
   // Placeholder: imagem de Open Graph genérica (fundo azul + nome em texto),
@@ -48,6 +49,8 @@ export const site = {
     placeholder: false,
   } satisfies CampoPlaceholder,
   email: { valor: 'contato@bertoncinimendonca.adv.br', placeholder: false } satisfies CampoPlaceholder,
+  // Encarregado de dados (LGPD), da Política de Cookies dos sócios (18/11/2026).
+  encarregado: { valor: 'dpo@bertoncinimendonca.adv.br', placeholder: false } satisfies CampoPlaceholder,
 
   horario: 'Segunda a sexta, 9h às 18h',
 
@@ -58,26 +61,29 @@ export const site = {
     cnpj: { valor: '69.076.965/0001-64', placeholder: false } satisfies CampoPlaceholder,
   },
 
-  /* `area` e `linha` alimentam o bloco "Quem atende" da página de cada
-     área. A divisão vem do briefing (q2_3) e é a mesma que /escritorio/
-     imprime em `atuacao`; `linha` é a bio curta de lá, sem texto novo. */
+  /* `linha` é a bio curta de cada sócio. Desde 18/11/2026 sem divisão por
+     área ou por fase (consultivo × judicial): os sócios pediram que cada
+     um seja apresentado pela formação e qualificação. O campo `area`, que
+     só servia para essa divisão, saiu. */
   socios: [
     {
       nome: 'Juscelino Bertoncini',
       // Briefing q1.7.
       oab: { valor: 'OAB/PR 124.838', placeholder: false } satisfies CampoPlaceholder,
       retrato: '/media/socios/juscelino',
-      area: 'planejamento-patrimonial-e-sucessorio',
-      linha:
-        'Especialista em Direito Empresarial e em Advocacia Consultiva. Trabalha na fase que antecede o processo: contratos, sociedades, imóveis e a organização do patrimônio.',
+      // Miniatura redonda (rosto, 320×320), para listas e autoria.
+      rosto: '/media/socios/juscelino-rosto.jpg',
+      // PROVISÓRIO: aguardando bio do Jus (só a formação, sem a divisão consultivo × judicial).
+      linha: 'Especialista em Direito Empresarial e em Advocacia Consultiva, e pós-graduando em Direito Imobiliário.',
     },
     {
       nome: 'Beatriz Mendonça',
       oab: { valor: 'OAB/PR 124.839', placeholder: false } satisfies CampoPlaceholder,
       retrato: '/media/socios/beatriz',
-      area: 'direito-digital',
+      rosto: '/media/socios/beatriz-rosto.jpg',
+      // Texto dos sócios de 18/11/2026 (primeira frase da bio).
       linha:
-        'Especialista em Direito Processual Civil e pós-graduanda em Direito Digital. Conduz os casos que precisam ir ao Judiciário e atende quem trabalha na internet.',
+        'Advogada com atuação consultiva, preventiva e contenciosa, especialmente nas áreas de Direito Digital, Contratos e Direito Civil.',
     },
   ],
 
@@ -89,18 +95,6 @@ export const site = {
     } satisfies CampoPlaceholder,
     instagramArroba: '@bertoncinimendonca.adv',
   },
-
-  /* Áreas em que o escritório também atua, fora das duas com página
-     própria (retorno de 06/11/2026): ninguém deve concluir que o
-     escritório só faz Planejamento Patrimonial e Direito Digital. */
-  outrasAreas: [
-    'Contratos',
-    'Direito societário',
-    'Direito imobiliário',
-    'Assessoria jurídica empresarial',
-    'Compliance e governança',
-    'Direito civil',
-  ],
 
   /* Os dois avisos que o escritório pediu como obrigatórios (briefing q9.3).
      O primeiro é o texto deles, palavra por palavra. */
@@ -132,10 +126,11 @@ export const formacao: Record<string, readonly string[]> = {
     'Especialista em Advocacia Consultiva pela Legale',
     'Pós-graduando em Direito Imobiliário pela i9',
   ],
+  // Texto dos sócios de 18/11/2026.
   'Beatriz Mendonça': [
-    'Bacharel em Direito pela Universidade Estadual de Maringá (UEM)',
+    'Graduada em Direito pela Universidade Estadual de Maringá (UEM)',
     'Especialista em Direito Processual Civil pela PUC/RS',
-    'Pós-graduanda em Direito Digital pela i9',
+    'Pós-graduanda em Direito Digital',
   ],
 };
 

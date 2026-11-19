@@ -1,21 +1,23 @@
 ---
 /**
- * /en/cookie-policy/ — versão em inglês de /politica-de-cookies/.
+ * /en/cookie-policy/ — tradução fiel de /politica-de-cookies/ (texto
+ * definitivo do escritório, versão 1.0, vigente a partir de 11/09/2026).
  * Manter sincronizada com src/pages/politica-de-cookies.astro: qualquer
- * mudança de conteúdo lá precisa ser feita aqui também.
+ * mudança de conteúdo lá precisa ser feita aqui também. Em caso de
+ * divergência, vale o texto em português.
+ *
+ * Os ids das seções são os mesmos da versão em português: o banner
+ * (AvisoCookies.astro) aponta para `#cookies-utilizados` nos dois idiomas.
  */
 import Base from '~/layouts/Base.astro';
-import { site } from '~/lib/site';
 import '~/styles/politica.css';
 
 const secoes = [
   { id: 'o-que-sao', rotulo: 'What cookies are' },
-  { id: 'o-que-usamos', rotulo: 'What this website uses today' },
-  { id: 'escolha', rotulo: 'The three choices in the notice' },
-  { id: 'terceiros', rotulo: 'Third-party content' },
-  { id: 'controle', rotulo: 'How to control them in your browser' },
-  { id: 'medicao', rotulo: 'If measurement is enabled' },
-  { id: 'falar', rotulo: 'Questions' },
+  { id: 'categorias', rotulo: 'Categories we use' },
+  { id: 'gerenciar', rotulo: 'How to manage your choices' },
+  { id: 'cookies-utilizados', rotulo: 'Cookies used' },
+  { id: 'transferencia', rotulo: 'International transfer' },
 ];
 ---
 
@@ -24,23 +26,20 @@ const secoes = [
   alternativa="/politica-de-cookies/"
   sobreposto={false}
   titulo="Cookie Policy | Bertoncini & Mendonça Advogados"
-  descricao="What cookies the Bertoncini & Mendonça Advogados website uses, what they are for, and how you control your choice."
+  descricao="Cookie Policy of Bertoncini & Mendonça Advogados: what cookies are, the categories we use, how to manage your choices and the cookies used on the website."
 >
   <article class="politica">
     <div class="env">
       <p class="chapeu">Legal document</p>
       <h1>Cookie Policy</h1>
-      <p class="atualizado" data-placeholder="1">
-        <span class="marca-falta">To be defined</span>
-        Date of last update to be filled in when the firm approves the final text.
-      </p>
+      <p class="atualizado">Version 1.0, effective from November 18, 2026</p>
 
-      <div class="ressalva">
+      <div class="texto">
         <p>
-          <strong>This text is still provisional.</strong> It accurately describes
-          what the website does today, but the final text will come from the
-          partners. The passages in red depend on a decision by the firm and are
-          marked as such.
+          Our website always uses necessary cookies and uses the others only with your
+          permission, which can be given or withdrawn at any time through the
+          “<button type="button" class="abrir-preferencias" data-abrir-cookies>Cookie preferences</button>”
+          link in the footer of every page.
         </p>
       </div>
 
@@ -54,142 +53,178 @@ const secoes = [
       </nav>
 
       <div class="texto">
-        <p>
-          Summary, for those who don't want to read the rest: this website does not
-          use advertising cookies, does not track your browsing, and does not sell
-          data. The only record it keeps in your browser is your own answer to the
-          cookie notice, so it doesn't ask again on every page.
-        </p>
-
         <h2 id="o-que-sao">What cookies are</h2>
         <p>
-          Cookies are small files that a website stores in your browser to remember
-          something from one page to the next: which language you chose, that you
-          have already answered a notice, or, in the case of tracking cookies, where
-          you have been.
-        </p>
-        <p>
-          Other technologies play the same role under a different name, such as{' '}
-          <code>localStorage</code>, <code>sessionStorage</code>, and tracking
-          pixels. When this page talks about cookies, it applies to all of them.
+          Cookies are small text files stored in your browser when you visit a
+          website. They allow the website to work, to remember your choices and, if
+          you allow it, to generate statistics and measure ads. We also use the term
+          for similar technologies, such as pixels and local storage. First-party
+          cookies are set by our website; third-party cookies, by other companies
+          whose services we use. Some last only while the browser is open (session
+          cookies); others remain for the period shown in the table (persistent
+          cookies).
         </p>
 
-        <h2 id="o-que-usamos">What this website uses today</h2>
+        <h2 id="categorias">Categories we use</h2>
         <p>
-          <strong>No measurement cookies and no advertising cookies.</strong> All
-          that exists is what is needed to deliver the pages and to remember your
-          choice:
+          <strong>Necessary (always active).</strong> They ensure that the website
+          works and is secure, and they store your choices about cookies. Without them
+          the website does not work as it should. Legal basis: legitimate interest.
         </p>
+        <p>
+          <strong>Analytics (subject to your permission).</strong> We use Google
+          Analytics, through Google Tag Manager, to find out how many people visit the
+          website, which pages are read the most and where visits come from. The
+          reports are aggregated and we do not use this information to identify you.
+        </p>
+        <p>
+          <strong>Advertising and measurement (subject to your permission).</strong> We
+          use the Meta Pixel, the Google Ads tag and the LinkedIn Insight Tag to measure
+          the results of our institutional ads and to show them to people who have
+          already visited the website. These companies may associate this data with
+          your account on their platforms, in accordance with their respective
+          policies.
+        </p>
+        <p>
+          <strong>Third-party content (subject to your permission).</strong> YouTube
+          videos and Instagram and LinkedIn posts embedded in the website are only
+          loaded after you give permission; until then, a notice appears with the
+          option to load the content. The WhatsApp button is a simple link and does
+          not store cookies on our website; when you click it, you are taken to
+          WhatsApp, a Meta service.
+        </p>
+
+        <h2 id="gerenciar">How to manage your choices</h2>
+        <p>
+          On your first visit, a banner lets you accept all cookies, reject
+          non-essential cookies or choose by category, with equal prominence for each
+          option. Withdrawing your permission is as easy as giving it: just click
+          “<button type="button" class="abrir-preferencias" data-abrir-cookies>Cookie preferences</button>”
+          in the footer. You can also block or delete cookies in your browser settings
+          (Chrome, Edge, Firefox, Safari or another), bearing in mind that blocking
+          necessary cookies may affect how the website works.
+        </p>
+
+        <h2 id="cookies-utilizados">Cookies used</h2>
+        {/*
+          A tabela veio VAZIA no documento do cliente. As três primeiras linhas
+          são o que o site grava hoje; as demais são as ferramentas citadas,
+          ainda não instaladas.
+        */}
         <div class="tabela">
           <table>
             <thead>
               <tr>
-                <th scope="col">Source</th>
-                <th scope="col">What it is for</th>
-                <th scope="col">Stores anything in your browser</th>
+                <th scope="col">Cookie</th>
+                <th scope="col">Provider</th>
+                <th scope="col">Category</th>
+                <th scope="col">Purpose</th>
+                <th scope="col">Duration</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <th scope="row">Your cookie choice</th>
-                <td data-rotulo="What it is for">Remembering what you answered in the notice, so it doesn't ask again</td>
-                <td data-rotulo="Stores anything in your browser">
-                  Yes, if you answer the notice. A single record, named{' '}
-                  <code>consentimento</code>, stored on your device and never sent to
-                  anyone
-                </td>
+                <th scope="row"><code>consentimento</code></th>
+                <td data-rotulo="Provider">Bertoncini & Mendonça Advogados (first party)</td>
+                <td data-rotulo="Category">Necessary</td>
+                <td data-rotulo="Purpose">Store your choices about cookies</td>
+                <td data-rotulo="Duration">12 months (local storage)</td>
               </tr>
               <tr>
-                <th scope="row">Vercel (hosting)</th>
-                <td data-rotulo="What it is for">Delivering the pages and protecting the website against overload and attacks</td>
-                <td data-rotulo="Stores anything in your browser">No, during normal browsing</td>
+                <th scope="row"><code>bm-a11y</code></th>
+                <td data-rotulo="Provider">Bertoncini & Mendonça Advogados (first party)</td>
+                <td data-rotulo="Category">Necessary</td>
+                <td data-rotulo="Purpose">Store the accessibility settings you choose (text size, contrast, underlined links)</td>
+                <td data-rotulo="Duration">Persistent, until you clear the website’s data in your browser (local storage)</td>
               </tr>
               <tr>
-                <th scope="row">Contact form</th>
-                <td data-rotulo="What it is for">Sending your message to the firm</td>
-                <td data-rotulo="Stores anything in your browser">No. The data goes out with the submission and nothing is kept in the browser</td>
+                <th scope="row"><code>bm-entrada</code></th>
+                <td data-rotulo="Provider">Bertoncini & Mendonça Advogados (first party)</td>
+                <td data-rotulo="Category">Necessary</td>
+                <td data-rotulo="Purpose">Remember that the opening animation has already been shown, so it is not repeated on every page</td>
+                <td data-rotulo="Duration">Session (session storage)</td>
+              </tr>
+              {/*
+                CONFERIR QUANDO AS TAGS FOREM INSTALADAS: cookies padrão de Google
+                Analytics, Google Ads, Pixel da Meta e LinkedIn Insight Tag. Hoje
+                nenhuma dessas tags está no site. Ver o comentário na versão em
+                português.
+              */}
+              <tr>
+                <th scope="row"><code>_ga</code></th>
+                <td data-rotulo="Provider">Google (Google Analytics)</td>
+                <td data-rotulo="Category">Analytics</td>
+                <td data-rotulo="Purpose">Distinguish visitors to generate aggregated website usage statistics</td>
+                <td data-rotulo="Duration">2 years</td>
+              </tr>
+              <tr>
+                <th scope="row"><code>_ga_&lt;ID&gt;</code></th>
+                <td data-rotulo="Provider">Google (Google Analytics)</td>
+                <td data-rotulo="Category">Analytics</td>
+                <td data-rotulo="Purpose">Keep the session state for website usage statistics</td>
+                <td data-rotulo="Duration">2 years</td>
+              </tr>
+              <tr>
+                <th scope="row"><code>_gcl_au</code></th>
+                <td data-rotulo="Provider">Google (Google Ads)</td>
+                <td data-rotulo="Category">Advertising and measurement</td>
+                <td data-rotulo="Purpose">Measure the results (conversions) of Google Ads ads</td>
+                <td data-rotulo="Duration">3 months</td>
+              </tr>
+              <tr>
+                <th scope="row"><code>_fbp</code></th>
+                <td data-rotulo="Provider">Meta (Meta Pixel)</td>
+                <td data-rotulo="Category">Advertising and measurement</td>
+                <td data-rotulo="Purpose">Identify the browser to measure Meta ads and show them to people who have already visited the website</td>
+                <td data-rotulo="Duration">3 months</td>
+              </tr>
+              <tr>
+                <th scope="row"><code>li_sugr</code></th>
+                <td data-rotulo="Provider">LinkedIn (LinkedIn Insight Tag)</td>
+                <td data-rotulo="Category">Advertising and measurement</td>
+                <td data-rotulo="Purpose">Identify the browser to measure LinkedIn ads</td>
+                <td data-rotulo="Duration">3 months</td>
+              </tr>
+              <tr>
+                <th scope="row"><code>bcookie</code></th>
+                <td data-rotulo="Provider">LinkedIn (LinkedIn Insight Tag)</td>
+                <td data-rotulo="Category">Advertising and measurement</td>
+                <td data-rotulo="Purpose">Identify the browser accessing LinkedIn services</td>
+                <td data-rotulo="Duration">1 year</td>
+              </tr>
+              <tr>
+                <th scope="row"><code>lidc</code></th>
+                <td data-rotulo="Provider">LinkedIn (LinkedIn Insight Tag)</td>
+                <td data-rotulo="Category">Advertising and measurement</td>
+                <td data-rotulo="Purpose">Select the LinkedIn server (data center) that serves the browser</td>
+                <td data-rotulo="Duration">24 hours</td>
+              </tr>
+              <tr>
+                <th scope="row"><code>UserMatchHistory</code></th>
+                <td data-rotulo="Provider">LinkedIn (LinkedIn Insight Tag)</td>
+                <td data-rotulo="Category">Advertising and measurement</td>
+                <td data-rotulo="Purpose">Sync identifiers to show LinkedIn ads to people who have already visited the website</td>
+                <td data-rotulo="Duration">30 days</td>
+              </tr>
+              <tr>
+                <th scope="row"><code>AnalyticsSyncHistory</code></th>
+                <td data-rotulo="Provider">LinkedIn (LinkedIn Insight Tag)</td>
+                <td data-rotulo="Category">Advertising and measurement</td>
+                <td data-rotulo="Purpose">Record when the UserMatchHistory cookie was last synced</td>
+                <td data-rotulo="Duration">30 days</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <p>
-          The data you type into the form is handled as described in the{' '}
-          <a href="/en/privacy-policy/">privacy policy</a>.
-        </p>
 
-        <h2 id="escolha">The three choices in the notice</h2>
+        <h2 id="transferencia">International transfer</h2>
         <p>
-          The notice that appears on your first visit offers three answers, and yours
-          is stored on your device:
-        </p>
-        <ul>
-          <li>
-            <strong>Accept all:</strong> also authorizes measurement cookies, if and
-            when they exist.
-          </li>
-          <li>
-            <strong>Necessary only:</strong> authorizes only what the website needs to
-            work.
-          </li>
-          <li>
-            <strong>Reject:</strong> refuses everything that is not necessary.
-          </li>
-        </ul>
-        <p>
-          Today all three have the same practical effect, because there are no
-          optional cookies on this website. We store the three separately on purpose:
-          on the day there is an intermediate category, your answer is already
-          recorded and you don't need to be asked again.
-        </p>
-        <p>
-          <strong>Refusing does not take away any feature of the website.</strong>
-          Everything remains readable and usable.
-        </p>
-        <p>
-          To change your answer, clear this website's data in your browser. The notice
-          will appear again on your next visit.
-        </p>
-
-        <h2 id="terceiros">Third-party content</h2>
-        <p>
-          The fonts and images are served by the website itself, not by external
-          services. This keeps other companies from learning about your visit.
-        </p>
-        <p>
-          When you click the link to our WhatsApp or our Instagram, you leave this
-          website and the cookie policy of those platforms applies, over which we have
-          no control. Until you click, they receive nothing from this website.
-        </p>
-
-        <h2 id="controle">How to control them in your browser</h2>
-        <p>
-          Every browser lets you block or clear cookies and data for any website,
-          usually under <em>Settings</em>, in the privacy and security section.
-          Blocking everything does not interfere with browsing this website: the
-          notice appears again, because your answer is precisely what stops being
-          stored.
-        </p>
-
-        <h2 id="medicao">If measurement is enabled</h2>
-        <p data-placeholder="1">
-          <span class="marca-falta">To be defined</span>
-          Whether the firm will measure visits to the website and with which tool. No
-          decision has been made, so this page names no tool, no cookie, and no
-          expiration period: that would be made-up information about something that
-          does not exist.
-        </p>
-        <p>What has already been decided about that day, should it come:</p>
-        <ul>
-          <li>this page is updated <strong>beforehand</strong>, with the name of each cookie, its purpose, and its expiration period, and the date at the top changes accordingly;</li>
-          <li>nothing loads before you accept, neither the script nor the cookie;</li>
-          <li>refusing still lets you use the entire website, without losing any feature.</li>
-        </ul>
-
-        <h2 id="falar">Questions</h2>
-        <p>
-          Any question about this policy can be sent to{' '}
-          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>{' '}
-          or through the <a href="/en/contact/">contact page</a>.
+          Google, Meta and LinkedIn may process the data collected by these cookies on
+          servers outside Brazil, mainly in the United States. When you authorize
+          these categories, you are informed in advance of this international nature,
+          as provided for in art. 33, VIII, of the LGPD (Brazil’s General Personal Data
+          Protection Law). The other points about the processing of your data are in
+          the <a href="/en/privacy-policy/">Privacy Policy</a>.
         </p>
       </div>
     </div>

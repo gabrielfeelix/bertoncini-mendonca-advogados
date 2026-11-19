@@ -1,195 +1,500 @@
 ---
 /**
- * Aviso de cookies: três escolhas, guardadas no aparelho. Migrado do
- * protótipo (CSS linhas 457-468, HTML linhas 869-879).
+ * Banner de cookies (primeira camada) e central de preferências (segunda
+ * camada), com o texto definitivo da Política de Cookies do escritório
+ * (versão 1.0, vigente a partir de 11/09/2026; recebida em 18/11/2026).
  *
- * Nasce com o atributo `hidden`: sem JavaScript não há rastreamento
- * nenhum para consentir, então o aviso simplesmente não aparece e não
- * rouba espaço da leitura. A Tarefa 5 remove o `hidden` quando ainda não
- * houver escolha guardada e trata o clique dos três botões.
+ * Regras que o próprio documento do cliente impõe, citando o Guia
+ * Orientativo de Cookies da ANPD:
+ * - os três botões do banner têm o MESMO tamanho e o MESMO destaque (aqui:
+ *   grade de três colunas iguais e um único estilo de botão);
+ * - nenhuma categoria não essencial vem pré-marcada;
+ * - retirar a autorização é tão simples quanto dar: o link "Preferências de
+ *   cookies" do rodapé e o botão flutuante (qualquer [data-abrir-cookies])
+ *   abrem a central com a escolha atual.
  *
- * O texto é provisório e está marcado com `data-placeholder="1"`: o
- * definitivo vem do escritório, com o link real da política.
+ * Os textos moram AQUI, em pt e en, e não em src/lib/i18n.ts. O Base.astro
+ * ainda espalha `tx.cookies` (textos antigos do aviso em inglês) como props;
+ * elas continuam aceitas para não quebrar a chamada, mas só servem para
+ * descobrir o idioma (`linkHref` começando com /en). Pode-se apagar o bloco
+ * `cookies` do i18n.ts e passar `lang` direto quando alguém mexer no Base.
  *
- * Marcações: o id `#aviso` e os três
- * `data-consente="todos|necessarios|nenhum"`.
+ * O aviso nasce com `hidden`: sem JavaScript nada opcional roda, então não
+ * há o que consentir. O id `#aviso` é usado por Acessibilidade.astro (sobe
+ * os botões dela quando o banner está aberto, via `--altura-aviso`).
  *
- * Tarefa 13: a escolha deixou de ser gravada aqui no `localStorage` na mão
- * (protótipo, linhas 1171-1184) e passou por `src/lib/consentimento.ts`,
- * adaptado do projeto da Isabella. As três escolhas continuam as mesmas, a
- * chave do `localStorage` continua `consentimento`, e o
- * `CustomEvent('consentimento')` que o protótipo dispara no `document`
- * continua sendo disparado, com o mesmo `detail`. Quem vier a ligar medição
- * depois escuta esse evento, exatamente como o protótipo previa.
+ * A lógica de gravação está em src/lib/consentimento.ts.
  */
-interface Opcao {
-  /** Valor lido no clique e gravado por `consentimento.ts`. */
-  consente: string;
-  /** Rótulo do botão. */
-  rotulo: string;
-}
+type Idioma = 'pt' | 'en';
 
 interface Props {
-  /** Rótulo acessível da região. */
-  rotulo?: string;
-  /** Texto do aviso. */
-  texto?: string;
-  /** Rótulo do link para a política. */
-  linkRotulo?: string;
-  /** Destino do link para a política. */
+  /** Idioma do banner. Sem ele, é deduzido de `linkHref` ou do endereço. */
+  lang?: Idioma;
+  /** Obsoleta: só usada para deduzir o idioma. */
   linkHref?: string;
-  /** true quando o link ainda é placeholder. */
-  linkPlaceholder?: boolean;
-  /** Ressalva em vermelho, visível enquanto o texto for provisório. */
+  /* Obsoletas, ignoradas (vinham de i18n.ts). */
+  rotulo?: string;
+  texto?: string;
+  linkRotulo?: string;
   ressalva?: string;
-  /** Os três botões de escolha, na ordem. */
-  opcoes?: Opcao[];
-  /** Rótulo do botão que reabre o aviso depois da escolha (LGPD: revogar tem de ser tão fácil quanto aceitar). */
   preferencias?: string;
+  opcoes?: { consente: string; rotulo: string }[];
 }
 
-const {
-  rotulo = 'Aviso de cookies',
-  texto = 'Este site usa cookies para medir visitas. Você escolhe o que aceita.',
-  linkRotulo = 'Saiba mais',
-  linkHref = '/politica-de-cookies/',
-  linkPlaceholder = false,
-  ressalva = 'Texto provisório. O definitivo vem do Juscelino.',
-  opcoes = [
-    { consente: 'todos', rotulo: 'Aceitar todos' },
-    { consente: 'necessarios', rotulo: 'Apenas necessários' },
-    { consente: 'nenhum', rotulo: 'Rejeitar' },
-  ],
-  preferencias = 'Preferências de cookies',
-}: Props = Astro.props;
+const props = Astro.props;
+const lang: Idioma =
+  props.lang ??
+  (props.linkHref?.startsWith('/en') || Astro.url.pathname.startsWith('/en/') ? 'en' : 'pt');
+
+const TEXTOS = {
+  pt: {
+    regiao: 'Aviso de cookies',
+    titulo: 'Sua privacidade importa para nós',
+    textoAntes:
+      'Usamos cookies para o site funcionar e, se você autorizar, para entender como ele é usado, medir nossos anúncios e exibir vídeos e publicações de terceiros. Alguns parceiros, como Google, Meta e LinkedIn, tratam esses dados fora do Brasil. Você pode aceitar todos, rejeitar os não essenciais ou escolher por categoria. Saiba mais na nossa ',
+    textoLink: 'Política de Cookies',
+    textoDepois: '.',
+    aceitar: 'Aceitar todos',
+    rejeitar: 'Rejeitar não essenciais',
+    personalizar: 'Personalizar',
+    centralTitulo: 'Preferências de cookies',
+    centralTexto:
+      'Escolha quais cookies podemos usar. Os necessários ficam sempre ativos, porque sem eles o site não funciona. Os demais só são ativados com a sua autorização, que você pode mudar a qualquer momento pelo link “Preferências de cookies”, no rodapé.',
+    sempreAtivos: 'sempre ativos',
+    ativado: 'ativado',
+    desativado: 'desativado',
+    categorias: {
+      necessarios: {
+        nome: 'Necessários',
+        texto: 'Garantem o funcionamento e a segurança do site e guardam as escolhas que você fizer aqui.',
+      },
+      analiticos: {
+        nome: 'Analíticos',
+        texto:
+          'Ajudam a entender quantas pessoas visitam o site e quais conteúdos são mais lidos, por meio do Google Analytics. Os dados podem ser tratados pelo Google fora do Brasil.',
+      },
+      publicidade: {
+        nome: 'Publicidade e mensuração',
+        texto:
+          'Permitem medir os resultados dos nossos anúncios e exibi-los a quem já visitou o site, por meio de Meta, Google Ads e LinkedIn. Essas empresas podem associar os dados à sua conta nas plataformas delas e tratá-los fora do Brasil.',
+      },
+      terceiros: {
+        nome: 'Conteúdo de terceiros',
+        texto:
+          'Permitem exibir vídeos do YouTube e publicações do Instagram e do LinkedIn dentro do site. Sem esta autorização, esses conteúdos aparecem bloqueados, com opção de carregamento individual.',
+      },
+    },
+    salvar: 'Salvar minhas escolhas',
+    listaCompleta: 'Ver lista completa de cookies',
+    privacidade: 'Política de Privacidade',
+    cookies: 'Política de Cookies',
+    fechar: 'Fechar',
+    rotaCookies: '/politica-de-cookies/',
+    rotaPrivacidade: '/politica-de-privacidade/',
+  },
+  en: {
+    regiao: 'Cookie notice',
+    titulo: 'Your privacy matters to us',
+    textoAntes:
+      'We use cookies to make the website work and, if you allow it, to understand how it is used, measure our ads and display third-party videos and posts. Some partners, such as Google, Meta and LinkedIn, process this data outside Brazil. You can accept all, reject non-essential cookies or choose by category. Learn more in our ',
+    textoLink: 'Cookie Policy',
+    textoDepois: '.',
+    aceitar: 'Accept all',
+    rejeitar: 'Reject non-essential',
+    personalizar: 'Customize',
+    centralTitulo: 'Cookie preferences',
+    centralTexto:
+      'Choose which cookies we may use. Necessary cookies are always active, because the website does not work without them. The others are only activated with your permission, which you can change at any time through the “Cookie preferences” link in the footer.',
+    sempreAtivos: 'always active',
+    ativado: 'on',
+    desativado: 'off',
+    categorias: {
+      necessarios: {
+        nome: 'Necessary',
+        texto: 'They ensure that the website works and is secure, and they store the choices you make here.',
+      },
+      analiticos: {
+        nome: 'Analytics',
+        texto:
+          'They help us understand how many people visit the website and which content is read the most, through Google Analytics. The data may be processed by Google outside Brazil.',
+      },
+      publicidade: {
+        nome: 'Advertising and measurement',
+        texto:
+          'They allow us to measure the results of our ads and show them to people who have already visited the website, through Meta, Google Ads and LinkedIn. These companies may associate the data with your account on their platforms and process it outside Brazil.',
+      },
+      terceiros: {
+        nome: 'Third-party content',
+        texto:
+          'They allow YouTube videos and Instagram and LinkedIn posts to be displayed within the website. Without this permission, this content appears blocked, with an option to load each item individually.',
+      },
+    },
+    salvar: 'Save my choices',
+    listaCompleta: 'See full list of cookies',
+    privacidade: 'Privacy Policy',
+    cookies: 'Cookie Policy',
+    fechar: 'Close',
+    rotaCookies: '/en/cookie-policy/',
+    rotaPrivacidade: '/en/privacy-policy/',
+  },
+} as const;
+
+const tx = TEXTOS[lang];
+const opcionais = ['analiticos', 'publicidade', 'terceiros'] as const;
 ---
 
-<div class="aviso" id="aviso" role="region" aria-label={rotulo} hidden>
-  <p data-placeholder="1">
-    {texto}{' '}
-    <a href={linkHref} data-placeholder={linkPlaceholder ? '1' : undefined}>{linkRotulo}</a>{' '}
-    {ressalva && <span style="color:var(--imperial)">{ressalva}</span>}
+<div class="aviso" id="aviso" role="region" aria-labelledby="aviso-titulo" hidden>
+  <h2 id="aviso-titulo" class="aviso-titulo">{tx.titulo}</h2>
+  <p>
+    {tx.textoAntes}<a href={tx.rotaCookies}>{tx.textoLink}</a>{tx.textoDepois}
   </p>
-  <div class="opcoes">
-    {opcoes.map((opcao) => (
-      <button type="button" data-consente={opcao.consente}>{opcao.rotulo}</button>
-    ))}
+  <div class="botoes-iguais">
+    <button type="button" class="botao-cookie" data-acao="aceitar">{tx.aceitar}</button>
+    <button type="button" class="botao-cookie" data-acao="rejeitar">{tx.rejeitar}</button>
+    <button type="button" class="botao-cookie" data-acao="personalizar" aria-haspopup="dialog">{tx.personalizar}</button>
   </div>
 </div>
 
-<!-- Reabre o aviso depois que a pessoa já escolheu. Pela LGPD, retirar o
-     consentimento tem de ser tão fácil quanto dar: sem isto, quem aceitou
-     não tinha por onde voltar atrás. Canto inferior direito (07/11/2026): a
-     acessibilidade fica no meio da lateral direita, o canto de baixo é livre. -->
-<button type="button" class="cookie-flutuante" data-abrir-cookies aria-label={preferencias} title={preferencias} hidden>
+<dialog class="central" id="central-cookies" aria-labelledby="central-titulo" data-ativado={tx.ativado} data-desativado={tx.desativado}>
+  <div class="central-topo">
+    <h2 id="central-titulo">{tx.centralTitulo}</h2>
+    <button type="button" class="fechar" data-acao="fechar" aria-label={tx.fechar} title={tx.fechar}>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+    </button>
+  </div>
+  <p>{tx.centralTexto}</p>
+
+  <ul class="categorias">
+    <li>
+      <div class="categoria-linha">
+        <p class="categoria-nome" id="cat-necessarios"><strong>{tx.categorias.necessarios.nome}</strong> ({tx.sempreAtivos}).</p>
+        <input type="checkbox" role="switch" class="chave" checked disabled aria-labelledby="cat-necessarios" />
+      </div>
+      <p class="categoria-texto">{tx.categorias.necessarios.texto}</p>
+    </li>
+    {opcionais.map((cat) => (
+      <li>
+        <div class="categoria-linha">
+          <label class="categoria-nome" for={`cat-${cat}`}>
+            <strong>{tx.categorias[cat].nome}</strong> (<span data-estado={cat}>{tx.desativado}</span>).
+          </label>
+          {/* Nenhuma não essencial nasce marcada (Guia da ANPD). */}
+          <input type="checkbox" role="switch" class="chave" id={`cat-${cat}`} data-categoria={cat} aria-describedby={`cat-${cat}-texto`} />
+        </div>
+        <p class="categoria-texto" id={`cat-${cat}-texto`}>{tx.categorias[cat].texto}</p>
+      </li>
+    ))}
+  </ul>
+
+  <div class="botoes-iguais">
+    <button type="button" class="botao-cookie" data-acao="salvar">{tx.salvar}</button>
+    <button type="button" class="botao-cookie" data-acao="aceitar">{tx.aceitar}</button>
+    <button type="button" class="botao-cookie" data-acao="rejeitar">{tx.rejeitar}</button>
+  </div>
+
+  <p class="central-links">
+    <a href={`${tx.rotaCookies}#cookies-utilizados`}>{tx.listaCompleta}</a>
+    <span aria-hidden="true"> · </span>
+    <a href={tx.rotaPrivacidade}>{tx.privacidade}</a>
+    <span aria-hidden="true"> · </span>
+    <a href={tx.rotaCookies}>{tx.cookies}</a>
+  </p>
+</dialog>
+
+<!-- Reabre a central depois que a pessoa já escolheu. Pela LGPD, retirar o
+     consentimento tem de ser tão fácil quanto dar. Canto inferior direito
+     (07/11/2026): a acessibilidade fica no meio da lateral direita. -->
+<button type="button" class="cookie-flutuante" data-abrir-cookies aria-label={tx.centralTitulo} title={tx.centralTitulo} hidden>
   <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20.5 12.3A8.5 8.5 0 1 1 11.7 3.5a3 3 0 0 0 3.4 3.4 3 3 0 0 0 3 3 3 3 0 0 0 2.4 2.4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="8.5" cy="10" r="1.2" fill="currentColor"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/><circle cx="15.8" cy="13" r="1" fill="currentColor"/><circle cx="8.8" cy="15" r=".9" fill="currentColor"/></svg>
 </button>
 
 <script>
-  import { lerEscolha, registrar, type Escolha } from '~/lib/consentimento';
+  import {
+    lerPreferencias,
+    salvarPreferencias,
+    aceitarTodos,
+    rejeitarNaoEssenciais,
+    NADA_AUTORIZADO,
+    CATEGORIAS_OPCIONAIS,
+    type Preferencias,
+  } from '~/lib/consentimento';
 
-  /* O aviso nasce com `hidden` no HTML: sem JavaScript não existe medição
-     nenhuma para consentir, então ele simplesmente não aparece. */
   const caixa = document.getElementById('aviso');
-
+  const central = document.getElementById('central-cookies') as HTMLDialogElement | null;
   const flutuante = document.querySelector<HTMLButtonElement>('.cookie-flutuante');
+
+  /* Respondeu nesta visita: se o navegador bloquear o localStorage, a
+     escolha não fica gravada, mas o banner não deve voltar a cada clique. */
+  let respondeu = false;
+
   const mostrarFlutuante = (sim: boolean) => { if (flutuante) flutuante.hidden = !sim; };
 
-  if (caixa) {
-    /* Qualquer [data-abrir-cookies] (o botão flutuante, o link do rodapé)
-       reabre o aviso para a pessoa mudar a escolha. */
+  const medir = () => {
+    if (caixa) document.documentElement.style.setProperty('--altura-aviso', `${caixa.offsetHeight + 12}px`);
+  };
+
+  const mostrarBanner = (sim: boolean) => {
+    if (!caixa) return;
+    caixa.hidden = !sim;
+    if (sim) medir();
+  };
+
+  const encerrar = () => {
+    respondeu = true;
+    mostrarBanner(false);
+    mostrarFlutuante(true);
+    if (central?.open) central.close();
+  };
+
+  const chaves = () =>
+    central ? Array.from(central.querySelectorAll<HTMLInputElement>('input[data-categoria]')) : [];
+
+  const atualizarEstados = () => {
+    if (!central) return;
+    const ativado = central.dataset.ativado ?? '';
+    const desativado = central.dataset.desativado ?? '';
+    chaves().forEach((chave) => {
+      const estado = central.querySelector(`[data-estado="${chave.dataset.categoria}"]`);
+      if (estado) estado.textContent = chave.checked ? ativado : desativado;
+    });
+  };
+
+  const abrirCentral = () => {
+    if (!central) return;
+    const atual: Preferencias = lerPreferencias() ?? { ...NADA_AUTORIZADO };
+    chaves().forEach((chave) => {
+      const cat = chave.dataset.categoria as keyof Preferencias;
+      chave.checked = atual[cat] === true;
+    });
+    atualizarEstados();
+    mostrarBanner(false);
+    mostrarFlutuante(false);
+    if (!central.open) central.showModal();
+  };
+
+  if (caixa && central) {
+    if (lerPreferencias()) {
+      mostrarFlutuante(true);
+    } else {
+      mostrarBanner(true);
+      new ResizeObserver(medir).observe(caixa);
+    }
+
+    /* O link do rodapé e o botão flutuante abrem direto a central. */
     document.addEventListener('click', (e) => {
       const alvo = (e.target as Element | null)?.closest('[data-abrir-cookies]');
       if (!alvo) return;
       e.preventDefault();
-      caixa.hidden = false;
-      mostrarFlutuante(false);
-      caixa.querySelector<HTMLButtonElement>('[data-consente]')?.focus();
+      abrirCentral();
     });
 
-    if (lerEscolha()) mostrarFlutuante(true);
-    if (!lerEscolha()) {
-      caixa.hidden = false;
-      /* A altura do aviso vai para o CSS: no celular os botões de
-         acessibilidade (Acessibilidade.astro) sobem para cima dele. */
-      const medir = () => document.documentElement.style.setProperty('--altura-aviso', `${caixa.offsetHeight + 12}px`);
-      medir();
-      new ResizeObserver(medir).observe(caixa);
-    }
+    const tratar = (acao: string | undefined) => {
+      if (acao === 'aceitar') { aceitarTodos(); encerrar(); }
+      else if (acao === 'rejeitar') { rejeitarNaoEssenciais(); encerrar(); }
+      else if (acao === 'personalizar') abrirCentral();
+      else if (acao === 'salvar') {
+        const p: Preferencias = { ...NADA_AUTORIZADO };
+        chaves().forEach((chave) => {
+          const cat = chave.dataset.categoria as (typeof CATEGORIAS_OPCIONAIS)[number];
+          if ((CATEGORIAS_OPCIONAIS as readonly string[]).includes(cat)) p[cat] = chave.checked;
+        });
+        salvarPreferencias(p);
+        encerrar();
+      } else if (acao === 'fechar') central.close();
+    };
 
-    caixa.querySelectorAll<HTMLButtonElement>('[data-consente]').forEach((botao) => {
-      botao.addEventListener('click', () => {
-        const valor = botao.dataset.consente as Escolha | undefined;
-        if (!valor) return;
-        /* `registrar` grava a escolha e dispara o `CustomEvent`
-           `consentimento` no `document`, o mesmo contrato do protótipo. */
-        registrar(valor);
-        caixa.hidden = true;
-        mostrarFlutuante(true);
-      });
+    [caixa, central].forEach((raiz) =>
+      raiz.querySelectorAll<HTMLButtonElement>('[data-acao]').forEach((botao) => {
+        botao.addEventListener('click', () => tratar(botao.dataset.acao));
+      }),
+    );
+
+    central.addEventListener('change', atualizarEstados);
+
+    /* Fechou sem escolher (Esc ou o X): se ainda não há resposta, o banner
+       volta; se já há, volta o botão flutuante. */
+    central.addEventListener('close', () => {
+      if (respondeu || lerPreferencias()) mostrarFlutuante(true);
+      else mostrarBanner(true);
     });
   }
 </script>
 
 <style>
-  /* aviso de cookies: três escolhas, guardadas no aparelho. Só existe com
-     JS, sem JS não há rastreamento nenhum para consentir. */
+  /* Banner: primeira camada. Fundo branco, sombra leve, sem filete. */
   .aviso {
     position: fixed;
     z-index: 90;
     right: 16px;
     bottom: 16px;
-    max-width: 420px;
-    padding: 20px 22px;
+    max-width: 560px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    padding: 22px 24px;
     background: #fff;
     color: var(--tinta);
     border: 1px solid var(--linha);
-    border-radius: 18px;
+    border-radius: 6px;
     box-shadow: 0 20px 60px rgba(11, 30, 63, 0.16);
     font-size: 15px;
     line-height: 1.55;
   }
+  .aviso-titulo {
+    font-size: 18px;
+    margin: 0 0 8px;
+  }
   .aviso p {
     margin: 0 0 16px;
   }
-  /* O protótipo deixa este link com a altura da linha (16px). O alvo de
-     toque mínimo do projeto é 44px e vale para todo link clicável, então
-     ele vira inline-flex com 44px de altura. É a única medida alterada em
-     relação ao protótipo nesta seção; a cor, o tamanho da fonte e o texto
-     continuam iguais. */
-  .aviso a {
-    color: var(--apoio);
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
+  .aviso a,
+  .central a {
+    color: var(--azul-medio, #004369);
   }
-  .aviso .opcoes {
-    display: flex;
+
+  /* Três botões de mesmo tamanho e mesmo destaque: colunas iguais e um
+     único estilo. Não trocar a cor de um deles (Guia da ANPD). */
+  .botoes-iguais {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    flex-wrap: wrap;
   }
-  .aviso button {
-    font: 500 14px/1 var(--sans);
-    padding: 13px 16px;
-    border-radius: 999px;
+  .botao-cookie {
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 2px solid var(--azul, #0b1e3f);
+    border-radius: 4px;
+    background: var(--azul, #0b1e3f);
+    color: #fff;
+    font: 500 14px/1.25 var(--fonte, var(--sans));
+    text-align: center;
     cursor: pointer;
-    border: 1px solid var(--tinta);
+    transition: background-color .15s, border-color .15s;
+  }
+  .botao-cookie:hover {
+    background: var(--azul-medio, #004369);
+    border-color: var(--azul-medio, #004369);
+  }
+
+  /* Central: segunda camada, janela modal nativa (<dialog>), que prende o
+     foco e fecha com Esc. */
+  .central {
+    width: min(640px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    padding: 26px 28px;
+    border: 0;
+    border-radius: 6px;
     background: #fff;
     color: var(--tinta);
-    min-height: 44px;
+    box-shadow: 0 20px 60px rgba(11, 30, 63, 0.24);
+    font-size: 15px;
+    line-height: 1.55;
   }
-  .aviso button[data-consente='todos'] {
-    background: var(--tinta);
-    color: #fff;
+  .central::backdrop {
+    background: rgba(11, 30, 63, 0.55);
   }
-  .aviso button:hover {
-    background: var(--apoio);
-    color: #fff;
-    border-color: var(--apoio);
+  .central-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
   }
+  .central h2 {
+    font-size: 22px;
+    margin: 0 0 10px;
+  }
+  .fechar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    margin: -10px -12px 0 0;
+    border: 0;
+    background: none;
+    color: var(--azul, #0b1e3f);
+    cursor: pointer;
+  }
+  .central > p {
+    margin: 0 0 14px;
+  }
+  .categorias {
+    list-style: none;
+    margin: 0 0 20px;
+    padding: 0;
+  }
+  .categorias li {
+    padding: 14px 0;
+    border-top: 1px solid var(--linha);
+  }
+  .categorias li:last-child {
+    border-bottom: 1px solid var(--linha);
+  }
+  .categoria-linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .categoria-nome {
+    margin: 0;
+    color: var(--azul, #0b1e3f);
+    cursor: pointer;
+  }
+  p.categoria-nome {
+    cursor: default;
+  }
+  .categoria-texto {
+    margin: 4px 0 0;
+    color: var(--texto-suave, #5f6670);
+    font-size: 14px;
+  }
+
+  /* Chave liga/desliga: o próprio checkbox, redesenhado. */
+  .chave {
+    appearance: none;
+    flex: none;
+    position: relative;
+    width: 44px;
+    height: 24px;
+    margin: 0;
+    border-radius: 12px;
+    background: #c4cad2;
+    cursor: pointer;
+    transition: background-color .15s;
+  }
+  .chave::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform .15s;
+  }
+  .chave:checked {
+    background: var(--azul-medio, #004369);
+  }
+  .chave:checked::after {
+    transform: translateX(20px);
+  }
+  .chave:disabled {
+    cursor: not-allowed;
+    opacity: .6;
+  }
+  .central-links {
+    margin: 16px 0 0;
+    font-size: 14px;
+  }
+  .central-links a {
+    display: inline-block;
+    padding: 10px 0;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .aviso,
-    .aviso * {
+    .aviso, .aviso *, .central, .central * {
       transition: none !important;
       animation: none !important;
     }
@@ -200,6 +505,13 @@ const {
       right: 12px;
       bottom: 12px;
       max-width: none;
+      padding: 18px;
+    }
+    .botoes-iguais {
+      grid-template-columns: 1fr;
+    }
+    .central {
+      padding: 20px;
     }
   }
 

@@ -10,12 +10,12 @@
  * lado; o monograma do logo aparece bem apagado, vazando de cada faixa.
  *
  * Sem numeração, sem caixa com filete lateral, sem pílulas (memória
- * "visual sem cara de IA"). "Também atuamos em" e a chamada fecham a página.
+ * "visual sem cara de IA"). A chamada fecha a página. Desde 18/11/2026 são
+ * cinco áreas com o mesmo peso, sem "Também atuamos em".
  */
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
 import Chamada from '~/components/Chamada.astro';
-import TambemAtuamos from '~/components/TambemAtuamos.astro';
 import { areasDoIdioma, assuntosDaArea, FOTO_DA_AREA } from '~/lib/areas';
 import { t, rota, type Idioma } from '~/lib/i18n';
 
@@ -50,7 +50,7 @@ const tituloMisto = (nome: string) => {
     baixo
     html={ar.banner}
     apoio={ar.bannerApoio}
-    foto="/media/novas/escritorio-historia.jpg"
+    foto="/media/novas/areas-capa.jpg"
     migalhas={[{ rotulo: ar.migalha }]}
     lang={lang}
   />
@@ -97,10 +97,6 @@ const tituloMisto = (nome: string) => {
       </section>
     );
   })}
-
-  {/* Dentro do rodapé (slot do Base), antes da chamada: as três partes
-      dividem o mesmo fundo, e a luz e o monograma não são cortados. */}
-  <TambemAtuamos slot="rodape" lang={lang} apoio={ar.tambemApoio} prefixo="oa-lista" antesDoRodape />
 
   <Chamada slot="rodape" lang={lang} />
 </Base>

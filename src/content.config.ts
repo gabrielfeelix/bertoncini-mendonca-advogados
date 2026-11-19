@@ -27,6 +27,16 @@ const esquemaArea = z.object({
   /** Frase curta de apoio. Vai para a meta description e para a lista. */
   resumo: z.string().min(1),
   /**
+   * Cabeçalho próprio da página da área, quando o cliente escreveu um
+   * (Direito Digital e Direito Civil e Contratual, nos ajustes de
+   * 18/11/2026). O `titulo` vai como apoio da capa e o `texto` como a
+   * frase de abertura do conteúdo. Ausente, a página usa o `resumo` nos
+   * dois lugares.
+   */
+  chamada: z
+    .object({ titulo: z.string().min(1), texto: z.string().min(1) })
+    .optional(),
+  /**
    * Assuntos da área.
    *
    * Aceita duas formas. A string simples continua valendo (é o que as

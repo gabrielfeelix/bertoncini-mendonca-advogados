@@ -9,7 +9,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { env } from './ambiente';
 import { listarAreasConfirmadas } from './areas';
-import { site } from './site';
 
 /** Bucket da migração 003, com `capas/` e `corpo/`. */
 export const BUCKET = 'artigos';
@@ -23,8 +22,8 @@ const normaliza = (texto: string) =>
   texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 
 /**
- * As categorias que o painel oferece: as áreas com página (na ordem do
- * site), as áreas de "Também atuamos em" e "Informativo".
+ * As categorias que o painel oferece: as cinco áreas (na ordem do site) e
+ * "Informativo".
  *
  * É a lista fechada que mantém o filtro de /conteudos/ limpo: a lista de
  * áreas de lá sai dos dados, e "Direito digital" e "Direito Digital"
@@ -32,7 +31,7 @@ const normaliza = (texto: string) =>
  */
 export async function categoriasDoPainel(): Promise<string[]> {
   const principais = (await listarAreasConfirmadas()).map((a) => a.data.nome);
-  return [...new Set([...principais, ...site.outrasAreas, CATEGORIA_PADRAO])];
+  return [...new Set([...principais, CATEGORIA_PADRAO])];
 }
 
 /**

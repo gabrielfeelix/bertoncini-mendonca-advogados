@@ -56,6 +56,8 @@ export interface Contato {
   nome: string;
   email: string;
   telefone: string;
+  /** Cidade de quem escreve (opcional). */
+  cidade: string;
   assunto: string;
   /** Pessoa física ou empresa. Triagem pedida no briefing (q2.7 e q4.5). */
   perfil: string;
@@ -77,6 +79,7 @@ export function enviaEmailDeContato(
     ['Nome', dados.nome],
     ['E-mail', dados.email],
     ['Telefone', dados.telefone || 'não informado'],
+    ['Cidade', dados.cidade || 'não informada'],
     ['Assunto', dados.assunto || 'não informado'],
     ['Quem escreve', dados.perfil || 'não informado'],
     ['Como conheceu', dados.conheceu || 'não informado'],

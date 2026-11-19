@@ -4,16 +4,18 @@
  * retorno dos sócios de 06/11 (docs/RETORNO-2026-11-06.md na branch v2) e
  * da home do Martinelli:
  *
- *   capa em slides → áreas, já com os serviços (retorno, item 2) e
- *   "também atuamos em" (item 3) → sobre nós, com os sócios dentro (sem
- *   seção própria) → onde atendemos (o equivalente honesto das "unidades"
- *   do Martinelli) → publicações (só em português) → perguntas frequentes
- *   em acordeão com abas (item 5) → newsletter mensal (item 7, só em
- *   português, porque os textos são em português).
+ *   capa em slides → áreas em bento (4×2) → onde
+ *   atendemos (o equivalente honesto das "unidades" do Martinelli) →
+ *   sobre nós, com os sócios dentro (sem seção própria) → publicações (só
+ *   em português) → Instagram → perguntas frequentes → newsletter mensal
+ *   (só em português, porque os textos são em português).
+ *
+ * Ajustes dos sócios de 18/11/2026: cinco áreas com o mesmo peso, sem
+ * "Também atuamos em"; perguntas frequentes só as gerais de atendimento
+ * (as de cada área ficam na página da área), sem abas.
  */
 import Base from '~/layouts/Base.astro';
 import HeroSlides from '~/components/HeroSlides.astro';
-import TambemAtuamos from '~/components/TambemAtuamos.astro';
 import MapaAtendimento from '~/components/MapaAtendimento.astro';
 import FeedInstagram from '~/components/FeedInstagram.astro';
 import CartaoArtigo from '~/components/CartaoArtigo.astro';
@@ -32,17 +34,6 @@ const h = tx.home;
 const areas = await areasDoIdioma(lang);
 const artigos = lang === 'pt' ? (await listarArtigos()).slice(0, 3) : [];
 const escritorio = rota(lang, '/escritorio/');
-
-/* Abas das perguntas: as quatro primeiras de cada área + atendimento. */
-const grupos = [
-  ...areas.map((a) => ({
-    id: `faq-${a.slugPt}`,
-    rotulo: a.data.nome,
-    perguntas: a.data.perguntas.slice(0, 4),
-    mais: `${a.href}#perguntas`,
-  })),
-  { id: 'faq-atendimento', rotulo: h.faqAtendimento, perguntas: h.atendimento, mais: undefined as string | undefined },
-];
 ---
 
 <Base titulo={h.titulo} descricao={tx.descricao} paginaAtual="/" lang={lang} alternativa={lang === 'pt' ? '/en/' : '/'}>
@@ -55,16 +46,22 @@ const grupos = [
         <h2 set:html={h.areasTitulo} />
         <p>{h.areasApoio}</p>
       </div>
-      {/* As duas áreas principais em painéis de foto (07/11/2026): nome e
-          resumo sobre a foto escurecida; os serviços sobem ao passar o mouse
-          ou focar (em tela de toque já aparecem). O painel todo é o link. */}
-      <div class="paineis">
+      {/* Áreas (18/11/2026): QUATRO VERSÕES EM TESTE, escolhidas por
+          ?areas=1..5 (sem parâmetro = 5, a escolhida em 18/11/2026; as outras ficam para a outra sócia opinar). Quando o Gabriel decidir, fica só uma.
+          1: mosaico 12×12 com os serviços no hover (primeira proposta);
+          2: bento 4×2 com o bloco "Não sabe por onde começar?";
+          3: bento 4×2, Planejamento em 3 colunas e Digital alto;
+          4: o mesmo da 3, com os serviços entrando no lugar do resumo no hover;
+          5: faixa, as cinco lado a lado quase na largura da tela; a do mouse
+             se alarga e mostra os serviços, as outras estreitam.
+          O bloco todo é o link da área. */}
+      <div class="bento" data-bento data-variante="5">
         {areas.map((area) => (
           <article class="painel">
-            <img src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="900" loading="lazy" />
+            <img src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="1060" loading="lazy" />
             <div class="painel-texto">
               <h3><a href={area.href}>{area.data.nome}</a></h3>
-              <p class="painel-resumo">{area.data.resumo}</p>
+              <div class="painel-resumo"><p>{area.data.resumo}</p></div>
               <div class="painel-mais">
                 <div>
                   <p class="painel-rotulo">{h.servicos}</p>
@@ -77,11 +74,15 @@ const grupos = [
             </div>
           </article>
         ))}
+        <div class="bento-fale">
+          <h3 set:html={h.bentoTitulo} />
+          <p>{h.bentoTexto}</p>
+          <a class="botao botao-claro" href={rota(lang, '/contato/')}>{h.bentoBotao}</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <TambemAtuamos lang={lang} apoio={h.tambemApoio} prefixo="oa-home" />
 
   <!-- Onde atendemos: mapa do Brasil (online no país todo, presencial em Maringá) -->
   <section class="secao onde">
@@ -107,22 +108,22 @@ const grupos = [
 
   <!-- Sobre nós, com os sócios dentro -->
   <section class="secao secao-cinza">
-    <div class="container duas-colunas">
-      {/* Foto do escritório com a placa de latão (gerada no GPT em 07/11/2026,
-          com o logo aplicado), no lugar da foto dos sócios. */}
+    <div class="container duas-colunas sobre-grade">
+      {/* Estátua da Justiça (18/11/2026), no lugar da foto da placa. */}
       <picture class="sobre-foto">
-        <source srcset="/media/novas/escritorio-placa.webp" type="image/webp" />
-        <img class="foto-escritorio" src="/media/novas/escritorio-placa.jpg" alt={h.fotoEscritorio} width="1600" height="900" loading="lazy" />
+        <source srcset="/media/novas/sobre-justica.avif" type="image/avif" />
+        <source srcset="/media/novas/sobre-justica.webp" type="image/webp" />
+        <img class="foto-escritorio" src="/media/novas/sobre-justica.jpg" alt={h.fotoSobre} width="718" height="1080" loading="lazy" />
       </picture>
       <div>
         <p class="rotulo">{h.sobreRotulo}</p>
         <h2 class="titulo-bloco" set:html={h.sobreTitulo} />
-        {h.sobre.slice(0, 2).map((p) => <p>{p}</p>)}
+        {h.sobre.map((p) => <p>{p}</p>)}
         <ul class="socios-mini">
           {site.socios.map((s, i) => (
             <li>
               <a href={`${escritorio}#${s.nome.split(' ')[0].toLowerCase()}`}>
-                <img src={`${s.retrato}-560.jpg`} alt="" width="560" height="840" loading="lazy" />
+                <img src={s.rosto} alt="" width="320" height="320" loading="lazy" />
                 <span>
                   <strong>{s.nome}</strong>
                   <span>{tx.socio[i === 1 ? 'a' : 'o']} · {s.oab.valor}</span>
@@ -152,33 +153,21 @@ const grupos = [
 
   <FeedInstagram lang={lang} />
 
-  <!-- Perguntas frequentes, com abas -->
-  <section class="secao faq-home" data-faq-abas>
-    <div class="container">
-      <div class="titulo-secao">
-        <h2 set:html={h.faqTitulo} />
-      </div>
-      <div class="abas" role="tablist" aria-label={h.faqAbasAria} hidden>
-        {grupos.map((g, i) => (
-          <button type="button" role="tab" id={`aba-${g.id}`} aria-controls={g.id} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
-            {g.rotulo}
-          </button>
+  {/* Perguntas frequentes: só as gerais de atendimento, em acordeão
+      (18/11/2026). O desenho que era do "Também atuamos em" (faixa
+      azul-noite) saiu em 18/11/2026: dentro do rodapé, as perguntas pareciam
+      parte dele. Agora é uma seção clara própria, título à esquerda. */}
+  <section class="secao faq-home" aria-labelledby="faq-home-titulo">
+    <div class="container faq-grade">
+      <h2 id="faq-home-titulo" set:html={h.faqTitulo} />
+      <div class="faq">
+        {h.atendimento.map((p) => (
+          <details>
+            <summary>{p.pergunta}</summary>
+            <p>{p.resposta}</p>
+          </details>
         ))}
       </div>
-      {grupos.map((g) => (
-        <div class="faq-grupo" id={g.id} role="tabpanel" aria-labelledby={`aba-${g.id}`}>
-          <h3 class="faq-grupo-titulo">{g.rotulo}</h3>
-          <div class="faq">
-            {g.perguntas.map((p) => (
-              <details>
-                <summary>{p.pergunta}</summary>
-                <p>{p.resposta}</p>
-              </details>
-            ))}
-          </div>
-          {g.mais && <p class="faq-mais"><a href={g.mais}>{h.faqVerTodas} <span aria-hidden="true">→</span></a></p>}
-        </div>
-      ))}
     </div>
   </section>
 
@@ -209,35 +198,11 @@ const grupos = [
 </Base>
 
 <script>
-  /* Abas das perguntas (padrão ARIA de tabs). Sem JavaScript as abas ficam
-     escondidas e os grupos aparecem empilhados, cada um com o seu título. */
-  for (const secao of document.querySelectorAll<HTMLElement>('[data-faq-abas]')) {
-    const lista = secao.querySelector<HTMLElement>('[role="tablist"]');
-    const abas = [...secao.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
-    const paineis = abas.map((a) => document.getElementById(a.getAttribute('aria-controls') ?? ''));
-    if (!lista || abas.length < 2) continue;
-    lista.hidden = false;
-    secao.classList.add('com-abas');
-    const ativar = (i: number, foco = false) => {
-      abas.forEach((a, k) => {
-        a.setAttribute('aria-selected', String(k === i));
-        a.tabIndex = k === i ? 0 : -1;
-        if (paineis[k]) paineis[k]!.hidden = k !== i;
-      });
-      if (foco) abas[i].focus();
-    };
-    abas.forEach((a, i) => {
-      a.addEventListener('click', () => ativar(i));
-      a.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') ativar((i + 1) % abas.length, true);
-        if (e.key === 'ArrowLeft') ativar((i - 1 + abas.length) % abas.length, true);
-        if (e.key === 'Home') ativar(0, true);
-        if (e.key === 'End') ativar(abas.length - 1, true);
-      });
-    });
-    ativar(0);
+  /* Versões das áreas (?areas=1..5). Sem parâmetro = 5, que já vem no HTML. */
+  {
+    const v = new URLSearchParams(location.search).get('areas');
+    if (v && /^[1-5]$/.test(v)) document.querySelector('[data-bento]')?.setAttribute('data-variante', v);
   }
-
   /* Newsletter: envia sem sair da página. Sem JS, a API volta para a home
      com ?envio-newsletter=, e este mesmo script mostra o resultado. */
   for (const forma of document.querySelectorAll<HTMLFormElement>('.news-form')) {
@@ -271,61 +236,156 @@ const grupos = [
 </script>
 
 <style>
-  /* ---------- Áreas: painéis de foto ---------- */
-  .paineis { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  /* ---------- Áreas (quatro versões em teste, ver o comentário no HTML) ---------- */
+  /* Base comum. Celular: um por linha. Tablet: duas colunas. */
+  .bento { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .painel, .bento-fale { border-radius: 10px; min-height: 300px; }
   .painel {
-    position: relative; overflow: hidden; border-radius: 8px;
-    min-height: 540px; display: flex; align-items: flex-end;
+    position: relative; overflow: hidden; display: flex; align-items: flex-end;
     background: var(--azul); color: #f8f7f2;
   }
   .painel img {
     position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
     transition: transform .8s cubic-bezier(.2, .8, .2, 1);
   }
-  /* Escurecimento de baixo para cima, na cor da marca: o texto lê sem
-     tingir a foto inteira. */
+  /* Escurecimento de baixo para cima, na cor da marca. */
   .painel::before {
     content: ''; position: absolute; inset: 0; z-index: 1;
-    background: linear-gradient(180deg, rgba(11, 30, 63, 0) 25%, rgba(11, 30, 63, .55) 55%, rgba(11, 30, 63, .94) 100%);
+    background: linear-gradient(180deg, rgba(11, 30, 63, 0) 20%, rgba(11, 30, 63, .55) 55%, rgba(11, 30, 63, .94) 100%);
     transition: background-color .4s ease;
   }
   .painel:hover img, .painel:focus-within img { transform: scale(1.04); }
-  /* Com os serviços abertos o texto sobe: a foto escurece mais. */
-  .painel:hover::before, .painel:focus-within::before { background-color: rgba(11, 30, 63, .35); }
-  .painel-texto { position: relative; z-index: 2; padding: 40px; width: 100%; }
-  .painel h3 { font-size: 36px; font-weight: 300; line-height: 1.12; letter-spacing: -.015em; margin: 0 0 12px; max-width: 16ch; }
+  .painel-texto { position: relative; z-index: 2; padding: 28px; width: 100%; }
+  .painel h3 { font-size: 26px; font-weight: 300; line-height: 1.15; letter-spacing: -.01em; margin: 0 0 10px; max-width: 18ch; }
   .painel h3 a { color: #fff; text-decoration: none; }
-  /* O link do título cobre o painel inteiro. */
+  /* O link do título cobre o bloco inteiro. */
   .painel h3 a::after { content: ''; position: absolute; inset: 0; z-index: 3; }
   .painel h3 a:focus-visible { outline: none; }
   .painel:has(h3 a:focus-visible) { outline: 3px solid var(--azul-claro); outline-offset: 3px; }
-  .painel-resumo { font-size: 17px; line-height: 1.6; color: rgba(248, 247, 242, .85); margin: 0 0 4px; max-width: 44ch; }
-  /* Serviços: fechados (altura 0) até o hover/foco. */
-  .painel-mais { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s ease; }
-  .painel-mais > div { overflow: hidden; }
-  .painel:hover .painel-mais, .painel:focus-within .painel-mais { grid-template-rows: 1fr; }
-  .painel-rotulo { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(248, 247, 242, .65); margin: 22px 0 4px; }
-  .painel-servicos { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; }
-  .painel-servicos li { padding: 8px 0; border-bottom: 1px solid rgba(248, 247, 242, .18); font-size: 14.5px; line-height: 1.4; }
+  .painel-resumo p { font-size: 15px; line-height: 1.55; color: rgba(248, 247, 242, .86); margin: 0; max-width: 44ch; }
   .painel-link {
-    display: inline-block; margin-top: 22px; font-weight: 500; font-size: 15px; color: #fff;
-    padding-bottom: 4px; border-bottom: 1px solid rgba(248, 247, 242, .5);
-    transition: border-color .2s ease;
+    display: inline-block; margin-top: 16px; font-weight: 500; font-size: 15px; color: #fff;
+    padding-bottom: 4px; border-bottom: 1px solid rgba(248, 247, 242, .5); transition: border-color .2s ease;
   }
   .painel:hover .painel-link { border-bottom-color: #fff; }
-  /* Sem mouse (toque), não há hover: os serviços ficam à vista. */
-  @media (hover: none) { .painel-mais { grid-template-rows: 1fr; } }
+  .bento > .painel:nth-child(-n+2) h3 { font-size: 34px; }
+  /* Serviços e bloco "Fale": só nas versões que usam. */
+  .painel-mais, .bento-fale { display: none; }
+
+  /* Versões 1 e 4: resumo e serviços trocam de lugar no hover/foco. */
+  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-resumo,
+  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-mais { display: grid; transition: grid-template-rows .45s ease, opacity .3s ease; }
+  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-resumo { grid-template-rows: 1fr; }
+  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-mais { grid-template-rows: 0fr; opacity: 0; }
+  .painel-resumo > *, .painel-mais > div { overflow: hidden; min-height: 0; }
+  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel:is(:hover, :focus-within) .painel-mais { grid-template-rows: 1fr; opacity: 1; }
+  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel:is(:hover, :focus-within) .painel-resumo { grid-template-rows: 0fr; opacity: 0; }
+  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel:is(:hover, :focus-within)::before { background-color: rgba(11, 30, 63, .35); }
+  .painel-rotulo { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(248, 247, 242, .65); margin: 4px 0 4px; }
+  .painel-servicos { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr; column-gap: 24px; }
+  .painel-servicos li { padding: 6px 0; border-bottom: 1px solid rgba(248, 247, 242, .18); font-size: 14px; line-height: 1.35; }
+  /* Versão 4: nos blocos pequenos cabem quatro serviços; o resto está na página. */
+  .bento[data-variante="4"] > .painel:nth-child(n+3) .painel-servicos li:nth-child(n+5) { display: none; }
+  @media (min-width: 992px) {
+    .bento[data-variante="4"] > .painel:nth-child(1) .painel-servicos { grid-template-columns: 1fr 1fr 1fr; }
+  }
+  /* Sem mouse (toque): resumo e serviços ficam à vista. */
+  @media (hover: none) {
+    .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-mais { grid-template-rows: 1fr; opacity: 1; }
+    .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel:is(:hover, :focus-within) .painel-resumo { grid-template-rows: 1fr; opacity: 1; }
+    .painel-rotulo { margin-top: 16px; }
+  }
+
+  /* Versão 2: bloco de texto "Não sabe por onde começar?". */
+  .bento[data-variante="2"] .bento-fale {
+    position: relative; overflow: hidden; padding: 28px;
+    display: flex; flex-direction: column; justify-content: flex-end; gap: 12px;
+    background: var(--azul-medio); color: rgba(248, 247, 242, .86);
+  }
+  .bento-fale::before {
+    content: ''; position: absolute; top: -24px; right: -28px; width: 150px; height: 163px;
+    background: url('/media/marca/monograma-creme.svg') no-repeat center / contain; opacity: .16;
+  }
+  .bento-fale > * { position: relative; }
+  .bento-fale h3 { color: #fff; font-size: 26px; font-weight: 300; line-height: 1.15; margin: 0; }
+  .bento-fale h3 :global(strong) { font-weight: 700; }
+  .bento-fale p { margin: 0; font-size: 15px; line-height: 1.55; }
+  .bento-fale .botao { align-self: flex-start; margin-top: 6px; }
+
+  @media (min-width: 681px) {
+    .bento { grid-template-columns: 1fr 1fr; }
+    .bento > .painel:nth-child(1), .bento-fale { grid-column: 1 / -1; }
+  }
+
+  @media (min-width: 992px) {
+    /* Versões 3 e 4 (padrão): Planejamento em 3 colunas, Digital alto.
+       Planejamento (3 colunas)          | Digital
+       Civil | Empresarial | Imobiliário | Digital */
+    .bento { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, 320px); }
+    .painel, .bento-fale { min-height: 0; }
+    .bento > .painel:nth-child(1) { grid-column: 1 / 4; grid-row: 1; }
+    .bento > .painel:nth-child(2) { grid-column: 4; grid-row: 1 / 3; }
+    .bento > .painel:nth-child(3) { grid-column: 1; grid-row: 2; }
+    .bento > .painel:nth-child(4) { grid-column: 2; grid-row: 2; }
+    .bento > .painel:nth-child(5) { grid-column: 3; grid-row: 2; }
+    /* Versão 4: blocos um pouco mais altos, para os serviços caberem. */
+    .bento[data-variante="4"] { grid-template-rows: repeat(2, 340px); }
+
+    /* Versão 2: Planejamento em 2 colunas e o bloco "Fale" na casa que sobra. */
+    .bento[data-variante="2"] > .painel:nth-child(1) { grid-column: 1 / 3; }
+    .bento[data-variante="2"] > .painel:nth-child(3) { grid-column: 3; grid-row: 1; }
+    .bento[data-variante="2"] > .painel:nth-child(4) { grid-column: 1; grid-row: 2; }
+    .bento[data-variante="2"] > .painel:nth-child(5) { grid-column: 2; grid-row: 2; }
+    .bento[data-variante="2"] .bento-fale { grid-column: 3; grid-row: 2; }
+
+    /* Versão 5: faixa horizontal, quase na largura toda da tela. */
+    .bento[data-variante="5"] {
+      display: flex; gap: 12px; height: 580px;
+      width: min(calc(100vw - 64px), 1760px);
+      position: relative; left: 50%; transform: translateX(-50%);
+    }
+    /* Movimento (18/11/2026, "mais sutil e orgânico"): expansão mais lenta,
+       com desaceleração longa; a área do mouse cresce menos e as outras
+       encolhem menos; os serviços só entram depois que o bloco abriu. */
+    .bento[data-variante="5"] > .painel { flex: 1 1 0; min-width: 0; transition: flex-grow .9s cubic-bezier(.16, 1, .3, 1); }
+    .bento[data-variante="5"]:is(:hover, :focus-within) > .painel { flex-grow: .88; }
+    .bento[data-variante="5"] > .painel:is(:hover, :focus-within) { flex-grow: 1.9; }
+    .bento[data-variante="5"] .painel img { transition: transform 1.4s cubic-bezier(.16, 1, .3, 1); }
+    .bento[data-variante="5"] .painel:is(:hover, :focus-within) img { transform: scale(1.025); }
+    .bento[data-variante="5"] .painel::before { transition: background-color .8s ease; }
+    /* Largura fixa nos textos: não quebram de linha diferente enquanto o
+       bloco estica. */
+    .bento[data-variante="5"] .painel-resumo p { width: 230px; }
+    .bento[data-variante="5"] .painel-mais { transition: grid-template-rows .7s cubic-bezier(.16, 1, .3, 1), opacity .2s ease; }
+    .bento[data-variante="5"] .painel:is(:hover, :focus-within) .painel-mais { transition: grid-template-rows .7s cubic-bezier(.16, 1, .3, 1) .12s, opacity .5s ease .3s; }
+    .bento[data-variante="5"] .painel-resumo { transition: grid-template-rows .7s cubic-bezier(.16, 1, .3, 1), opacity .25s ease; }
+    .bento[data-variante="5"] > .painel h3 { font-size: 28px; max-width: 14ch; }
+    .bento[data-variante="5"] .painel-servicos { min-width: 300px; grid-template-columns: 1fr 1fr; }
+
+    /* Versão 1: mosaico 12×12, dois altos à esquerda e três largos à direita. */
+    .bento[data-variante="1"] { grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(12, minmax(0, 1fr)); height: 1000px; }
+    .bento[data-variante="1"] > .painel:nth-child(1) { grid-column: 1 / 6; grid-row: 1 / 7; }
+    .bento[data-variante="1"] > .painel:nth-child(2) { grid-column: 6 / 13; grid-row: 1 / 5; }
+    .bento[data-variante="1"] > .painel:nth-child(3) { grid-column: 1 / 6; grid-row: 7 / 13; }
+    .bento[data-variante="1"] > .painel:nth-child(4) { grid-column: 6 / 13; grid-row: 5 / 9; }
+    .bento[data-variante="1"] > .painel:nth-child(5) { grid-column: 6 / 13; grid-row: 9 / 13; }
+    .bento[data-variante="1"] > .painel:is(:nth-child(2), :nth-child(4), :nth-child(5)) .painel-servicos { grid-template-columns: 1fr 1fr; }
+    .bento[data-variante="1"] > .painel:is(:nth-child(2), :nth-child(4), :nth-child(5)) h3 { max-width: none; }
+  }
 
   /* ---------- Sobre nós ---------- */
   .foto-escritorio { border-radius: 14px; box-shadow: 0 24px 50px rgba(11, 30, 63, .16); }
-  /* A foto acompanha a altura do texto ao lado (do rótulo ao botão),
-     cortando as laterais; o enquadramento mantém a placa à vista. */
-  .duas-colunas:has(.sobre-foto) { align-items: stretch; }
-  .sobre-foto { display: block; height: 100%; }
-  .sobre-foto img { width: 100%; height: 100%; object-fit: cover; object-position: 94% center; }
+  /* Foto em pé (a estátua): coluna mais estreita que o texto. A foto
+     acompanha a altura do texto ao lado, cortando em cima e embaixo. */
+  .sobre-grade { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: stretch; }
+  .sobre-foto { display: block; }
+  /* 18/11/2026: mais baixa que o texto, cortando em cima (a estátua e a
+     mesa ficam; sai parte da estante). */
+  .sobre-grade { align-items: center; }
+  .sobre-foto img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; object-position: 50% 100%; }
   .titulo-bloco { font-size: 34px; font-weight: 300; }
   .titulo-bloco :global(strong) { font-weight: 700; }
-  .socios-mini { list-style: none; padding: 0; margin: 22px 0 26px; display: flex; flex-wrap: wrap; gap: 14px 28px; }
+  .socios-mini { list-style: none; padding: 0; margin: 22px 0 26px; display: flex; flex-wrap: wrap; gap: 14px 56px; }
   .socios-mini a { display: flex; align-items: center; gap: 12px; text-decoration: none; }
   .socios-mini img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; object-position: 50% 18%; box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--linha); }
   .socios-mini span { display: grid; }
@@ -349,24 +409,13 @@ const grupos = [
 
   .ver-todas { text-align: center; margin: 40px 0 0; }
 
-  /* ---------- Perguntas frequentes ---------- */
-  .faq-home .container { max-width: 900px; }
-  .abas { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: -12px 0 32px; }
-  .abas button {
-    padding: 10px 18px; border-radius: 999px; cursor: pointer;
-    border: 1px solid var(--linha); background: #fff;
-    font: 500 15px var(--fonte); color: var(--azul);
-    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+  /* ---------- Perguntas frequentes (seção clara, antes do rodapé) ---------- */
+  .faq-grade {
+    display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: 56px; align-items: start;
   }
-  .abas button:hover { border-color: var(--azul-claro); }
-  .abas button[aria-selected='true'] { background: var(--azul); border-color: var(--azul); color: #fff; }
-  .faq-grupo + .faq-grupo { margin-top: 40px; }
-  .com-abas .faq-grupo + .faq-grupo { margin-top: 0; }
-  .com-abas .faq-grupo-titulo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .faq-grupo-titulo { font-size: 20px; margin-bottom: 14px; }
-  .faq-mais { margin: 18px 0 0; text-align: right; }
-  .faq-mais a { font-weight: 500; text-decoration: none; }
-  .faq-mais a:hover { text-decoration: underline; }
+  .faq-grade h2 { font-size: 52px; font-weight: 300; line-height: 1.05; letter-spacing: -.02em; margin: 0; }
+  .faq-grade h2 :global(strong) { display: block; font-weight: 700; }
 
   /* ---------- Newsletter ---------- */
   /* Mora dentro do rodapé (slot "rodape" do Base): fundo e monograma são
@@ -392,22 +441,24 @@ const grupos = [
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
   @media (prefers-reduced-motion: reduce) {
-    .painel img, .painel-mais, .abas button { transition: none; }
+    .painel img, .painel-mais, .painel-resumo { transition: none; }
   }
   /* Empilhado (mesmo ponto de .duas-colunas no v3.css): volta a 16:9. */
-  @media (max-width: 991px) { .sobre-foto img { height: auto; aspect-ratio: 16 / 9; } }
+  @media (max-width: 991px) {
+    .sobre-grade { grid-template-columns: 1fr; }
+    .sobre-foto img { height: auto; min-height: 0; aspect-ratio: 4 / 3; object-position: 60% 62%; }
+    .faq-grade { grid-template-columns: 1fr; gap: 32px; }
+    .faq-grade h2 { font-size: 42px; }
+  }
   @media (max-width: 900px) {
     .onde-grade { grid-template-columns: 1fr; gap: 40px; }
     .news-env { grid-template-columns: 1fr; gap: 24px; }
-    .paineis { grid-template-columns: 1fr; }
-    .painel { min-height: 480px; }
   }
   @media (max-width: 680px) {
     .titulo-bloco { font-size: 28px; }
-    .painel { min-height: 0; }
-    .painel-texto { padding: 220px 22px 26px; }
-    .painel h3 { font-size: 28px; }
-    .painel-servicos { grid-template-columns: 1fr; }
+    .painel { min-height: 280px; }
+    .painel-texto { padding: 22px; }
+    .faq-grade h2 { font-size: 34px; }
     .modos div { grid-template-columns: 1fr; gap: 4px; }
     .onde-titulo { font-size: 32px; }
     .news-linha { flex-direction: column; }

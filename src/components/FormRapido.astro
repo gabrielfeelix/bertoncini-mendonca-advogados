@@ -38,7 +38,7 @@ const escolhido = ASSUNTOS.find((a) => a.toLowerCase() === assuntoPadrao.toLower
 
       <div class="quem">
         <div class="avatares" aria-hidden="true">
-          {site.socios.map((s) => <img src={`${s.retrato}-560.jpg`} alt="" width="560" height="840" loading="lazy" />)}
+          {site.socios.map((s) => <img src={s.rosto} alt="" width="320" height="320" loading="lazy" />)}
         </div>
         <p>Cada mensagem é lida por nós, pessoalmente.</p>
       </div>

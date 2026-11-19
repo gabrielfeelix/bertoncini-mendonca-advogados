@@ -1,0 +1,140 @@
+{
+  "nome": "Civil and Contract Law",
+  "slug": "civil-and-contract-law",
+  "slugPt": "direito-civil-e-contratual",
+  "resumo": "Your rights, your relationships and your agreements deserve legal attention at every stage.",
+  "chamada": {
+    "titulo": "Legal certainty for your relationships, contracts and business.",
+    "texto": "From structuring contracts to resolving disputes, we provide legal counsel to protect your interests and bring certainty to your personal and business relationships."
+  },
+  "servicos": [
+    "Drafting and review of contracts",
+    "Contract negotiation and structuring",
+    "Advisory and risk prevention",
+    "Default and contract termination",
+    "Civil liability and compensation",
+    "Dispute resolution"
+  ],
+  "assuntos": [
+    {
+      "nome": "Drafting and review of contracts",
+      "faz": "Drafting and review of commercial, business and private contracts. Adjustment of clauses, obligations and responsibilities."
+    },
+    {
+      "nome": "Contract negotiation and structuring",
+      "faz": "Counsel in negotiating and formalizing deals. Definition of commercial terms and of the parties’ rights and obligations."
+    },
+    {
+      "nome": "Advisory and risk prevention",
+      "faz": "Analysis of contractual and legal risks. Guidance on obligations, rights and legal relationships."
+    },
+    {
+      "nome": "Default and contract termination",
+      "faz": "Collection and recovery of debts. Contract termination and assessment of losses and damages."
+    },
+    {
+      "nome": "Civil liability and compensation",
+      "faz": "Compensation for material and moral damages. Contractual and non-contractual civil liability."
+    },
+    {
+      "nome": "Dispute resolution",
+      "faz": "Negotiation and out-of-court measures. Representation in court proceedings and defense of interests."
+    }
+  ],
+  "corpo": [
+    "Civil and contract law is present in personal and business relationships, governing rights, obligations and responsibilities. Contracts, negotiations and commitments are part of the routine of companies and individuals, and structuring them properly is essential to avoid conflicts and protect interests.",
+    "In the business environment, the security of contractual relationships directly affects operations, commercial partnerships and the provision of services. In private relationships, civil law sets parameters for the protection of rights, the fulfillment of obligations and compensation for damages.",
+    "Our work seeks to provide legal support at all these stages, from drafting and negotiating contractual instruments to guidance in the face of breaches, disagreements and disputes, through preventive, out-of-court and court measures.",
+    "Drafting contracts requires an understanding of the business, the negotiated terms and the risks involved. We draft and review contractual instruments, seeking to set out clearly the parties’ rights, duties, deadlines, conditions and responsibilities.",
+    "Formalizing a deal involves decisions that can have significant legal and financial effects. We provide counsel in negotiating contractual terms, identifying risks and structuring obligations, contributing to more balanced and secure relationships.",
+    "Preventive legal guidance makes it possible to identify risks before they turn into conflicts. We analyze legal relationships, obligations undertaken and documents, offering direction for decisions and practices aligned with the law and with the client’s interests.",
+    "Failure to fulfill obligations can cause losses and compromise commercial and private relationships. We act in collecting amounts owed, negotiating solutions, terminating contracts and assessing losses and damages, according to the circumstances of each case.",
+    "Civil liability involves the duty to compensate for damage caused to others, whether through breach of contractual obligations or through conduct that violates rights. The work covers analysis of liability, seeking compensation for losses and defending the interests involved.",
+    "When disagreements or disputes arise, we assess the available legal alternatives to seek the most suitable solution. This may involve negotiations, formal notices, out-of-court settlements and representation in court proceedings."
+  ],
+  "perguntas": [
+    {
+      "pergunta": "Why is it important to draw up a contract before closing a deal?",
+      "resposta": "The contract formalizes what was negotiated, establishes rights and obligations and defines each party’s responsibilities. Besides avoiding doubts and divergent interpretations, it makes it possible to anticipate risks and prevent future conflicts."
+    },
+    {
+      "pergunta": "Is a verbal contract legally valid?",
+      "resposta": "Yes. As a rule, contracts do not need to be in writing to be valid, except when the law requires a specific formality. The main challenge is proving the terms of the agreement and the obligations undertaken in the event of a disagreement."
+    },
+    {
+      "pergunta": "I signed a contract but changed my mind. Can I back out?",
+      "resposta": "It depends on the type of contract, the agreed terms and the circumstances in which it was entered into. There are situations in which the law or the contract itself allows withdrawal, but termination without justification may have financial consequences."
+    },
+    {
+      "pergunta": "What can I do when the other party does not fulfill the contract?",
+      "resposta": "It is possible to demand performance of the obligation, negotiate a solution or seek termination of the contract, as the case may be. There may also be a right to compensation for losses resulting from the breach."
+    },
+    {
+      "pergunta": "Can a contract be revised after it is signed?",
+      "resposta": "Yes, in certain circumstances. Revision may be possible when there is a significant contractual imbalance, exceptional situations or abusive clauses, subject to the legal requirements and the nature of the legal relationship."
+    },
+    {
+      "pergunta": "Can I take legal action against a person or company that has not paid a debt?",
+      "resposta": "Yes. Collection can take place through out-of-court or court means, depending on the situation. Documentation of the debt, such as contracts, invoices, receipts and messages, is important to demonstrate the existence of the obligation."
+    },
+    {
+      "pergunta": "In what situations can I hold someone liable for a loss I have suffered?",
+      "resposta": "Civil liability may arise when a person or company causes harm to another through a legally relevant act or omission. This can occur, for example, in accidents, failures in the provision of services, breach of contractual duties or damage caused by products. Whether compensation is possible depends on the circumstances and the legal requirements of each situation."
+    },
+    {
+      "pergunta": "What losses can be compensated?",
+      "resposta": "Compensation may cover material damages, such as expenses, financial losses and loss of profits, and moral damages, when there is a significant injury to personality rights. In certain situations, aesthetic damages may also be recognized. Compensation depends on proof of the loss and on the other applicable legal requirements."
+    },
+    {
+      "pergunta": "Can a contractual dispute be resolved without going to court?",
+      "resposta": "Yes. Negotiation, mediation and out-of-court settlements are alternatives for resolving disputes without the need for a lawsuit. Whether this is feasible depends on the situation and on the parties’ willingness to negotiate."
+    },
+    {
+      "pergunta": "When should I see a lawyer to review a contract?",
+      "resposta": "Ideally, seek guidance before signing, especially when the contract involves significant amounts, long-term obligations, guarantees or financial risks. A prior review makes it possible to identify unfavorable clauses and negotiate more suitable terms."
+    }
+  ],
+  "ordem": 3,
+  "mensagemWhatsapp": "Hello, I need guidance on civil and contract law.",
+  "cenas": [
+    {
+      "indice": 3,
+      "rubrica": "Drafting and review of contracts"
+    },
+    {
+      "indice": 4,
+      "rubrica": "Contract negotiation and structuring"
+    },
+    {
+      "indice": 5,
+      "rubrica": "Advisory and risk prevention"
+    },
+    {
+      "indice": 6,
+      "rubrica": "Default and contract termination"
+    },
+    {
+      "indice": 7,
+      "rubrica": "Civil liability and compensation"
+    },
+    {
+      "indice": 8,
+      "rubrica": "Dispute resolution"
+    }
+  ],
+  "publicoCurto": "We provide counsel on contracts, obligations, civil liability and dispute resolution, in both personal and business relationships.",
+  "publicos": [
+    {
+      "titulo": "Companies and entrepreneurs",
+      "texto": "Companies from different sectors that need to formalize commercial relationships, structure contracts, negotiate obligations and obtain legal guidance for their activities."
+    },
+    {
+      "titulo": "Service providers and self-employed professionals",
+      "texto": "Professionals who hire or provide services and need to set clear terms for work, payment, responsibilities and obligations."
+    },
+    {
+      "titulo": "Individuals",
+      "texto": "People who need legal guidance on contractual relationships, obligations, civil liability, compensation and the protection of rights."
+    }
+  ]
+}

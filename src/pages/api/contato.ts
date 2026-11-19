@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { confirmaRecebimento, enviaEmailDeContato, ErroBrevo, registraContato } from '~/lib/brevo';
+import { confirmaRecebimento, enviaEmailDeContato, ErroBrevo, inscreveNaNewsletter, registraContato } from '~/lib/brevo';
 import { caiuNaIsca, emailPlausivel, excedeuLimite, texto } from '~/lib/antispam';
 import { responde } from '~/lib/resposta';
 import { env, envObrigatoria } from '~/lib/ambiente';
@@ -31,6 +31,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     nome: texto(dados, 'nome', 120),
     email: texto(dados, 'email', 254),
     telefone: texto(dados, 'telefone', 40),
+    cidade: texto(dados, 'cidade', 80),
     assunto: texto(dados, 'assunto', 120),
     perfil: texto(dados, 'perfil', 40),
     conheceu: texto(dados, 'conheceu', 60),
@@ -100,6 +101,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     );
   }
 
+  /* TODO(Supabase): gravar o contato no banco aqui, antes do e-mail, quando
+     o projeto do Supabase for criado (tabela ainda não existe). Gravar
+     primeiro garante que a mensagem não se perde se a Brevo falhar; o
+     formulário também abre o WhatsApp com a mesma mensagem (views/Contato). */
+
   /* Só o aviso para o escritório é obrigatório: se ele falhar, a mensagem se
      perdeu e a pessoa precisa saber para escrever de novo. */
   try {
@@ -122,9 +128,18 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
      log, não erro na tela: o e-mail já chegou ao escritório, e dizer "não
      consegui enviar" faria a pessoa escrever tudo de novo. */
   const lista = env('BREVO_LISTA_CONTATOS_ID');
+  /* Caixa opcional "Quero receber artigos..." (newsletter=1, desmarcada por
+     padrão): inscreve na mesma lista e pela mesma função de /api/newsletter.
+     Sem a lista configurada, só fica no log. */
+  const querNewsletter = dados.get('newsletter') === '1';
+  const listaNews = Number(env('BREVO_LISTA_NEWSLETTER_ID'));
+  if (querNewsletter && !Number.isFinite(listaNews)) console.error('[contato] newsletter pedida, mas BREVO_LISTA_NEWSLETTER_ID ausente');
   const resultados = await Promise.allSettled([
     lista ? registraContato(chave, Number(lista), contato) : Promise.resolve(null),
     confirmaRecebimento(chave, remetente, contato),
+    querNewsletter && Number.isFinite(listaNews) && listaNews > 0
+      ? inscreveNaNewsletter(chave, listaNews, contato.email)
+      : Promise.resolve(null),
   ]);
   for (const r of resultados) {
     if (r.status === 'rejected') {

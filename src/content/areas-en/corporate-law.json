@@ -1,0 +1,183 @@
+{
+  "nome": "Corporate Law",
+  "slug": "corporate-law",
+  "slugPt": "direito-empresarial",
+  "resumo": "Legal certainty for every decision in your business, from incorporation to growth.",
+  "servicos": [
+    "Company formation",
+    "Articles of association and amendments",
+    "Partners’ agreement",
+    "Admission and withdrawal of partners",
+    "Partial dissolution and determination of the departing partner’s share",
+    "Purchase and sale of companies and equity interests",
+    "Corporate due diligence",
+    "Corporate reorganization",
+    "Business contracts",
+    "Corporate governance",
+    "Compliance and integrity programs",
+    "Code of conduct and internal policies",
+    "Whistleblowing channel"
+  ],
+  "assuntos": [
+    {
+      "nome": "Incorporation",
+      "faz": "We define the type of company, draft the articles of association and follow the company’s registration."
+    },
+    {
+      "nome": "Partners’ agreement",
+      "faz": "We write the rules for how the partners coexist: who decides what, how a deadlock is resolved and how someone leaves."
+    },
+    {
+      "nome": "Corporate amendments",
+      "faz": "We handle the admission and withdrawal of partners, capital increases, changes in management and other amendments to the articles of association."
+    },
+    {
+      "nome": "Partner exit",
+      "faz": "We act in withdrawals, expulsions and partial dissolutions, including the valuation of the quotas."
+    },
+    {
+      "nome": "Purchase and sale of companies",
+      "faz": "We analyze the company before the deal and draft the contract with guarantees for both buyer and seller."
+    },
+    {
+      "nome": "Business contracts",
+      "faz": "We draft and review supply, service, distribution, commercial agency and partnership contracts."
+    },
+    {
+      "nome": "Corporate governance",
+      "faz": "We organize how the company makes decisions: the limits of each position, accountability, advisory board and rules for the relationship between partners, family and management."
+    },
+    {
+      "nome": "Compliance",
+      "faz": "We structure integrity programs with a code of conduct, internal policies, a whistleblowing channel and training, adapted to the company’s size and risks."
+    }
+  ],
+  "corpo": [
+    "Corporate law deals with the organization and operation of companies: how they are formed, how the partners relate to one another, how the company is governed, how it contracts and how it grows. It is an area of structure: decisions made when the company is opened, when a contract is signed or when internal rules are defined often determine what happens years later, when a conflict or an opportunity arises.",
+    "The choice between a limited liability company (sociedade limitada), a single-member limited liability company or a corporation (sociedade anônima) affects the partners’ liability, how decisions are made and the possibility of receiving investment. Since 2021, the EIRELI (individual limited liability company) no longer exists, and those who do business alone can form a single-member limited liability company, with no minimum capital requirement.",
+    "In a limited liability company, as a rule, the partners’ personal assets are not liable for the company’s debts. This protection can be lifted by the courts in cases of abuse, such as commingling the company’s accounts with those of the partners or using the company for purposes other than its corporate purpose. Keeping this separation in practice is what preserves the protection.",
+    "The articles of association say how the company operates before third parties. The partners’ agreement says how the partners relate to one another: right of first refusal on the sale of quotas, rules for deadlocks, non-competition, valuation criteria and exit. These are clauses that should be written while there is consensus, because it is precisely in a conflict that they make a difference.",
+    "A partner who leaves remains liable for the company’s obligations for up to two years after their exit is registered. When there is no agreement on the value of the interest, the law provides for partial dissolution and determination of the departing partner’s share (apuração de haveres), which defines how much the withdrawing partner should receive. A well-written partners’ agreement keeps this discussion out of the courts.",
+    "In contracts between companies, the law gives great weight to what the parties agreed. This allows freedom, but it also means that a poorly written clause is unlikely to be corrected later. In long-term contracts, it is also worth providing for the effects of the tax reform transition on prices and adjustments.",
+    "Governance is the set of rules that defines who decides what, how decisions are recorded and how managers are held accountable. It is not exclusive to large companies. In smaller businesses, and especially in family businesses, it separates the roles of partner, manager and family member, and keeps the company from depending on the presence of a single person. Companies with organized governance also find it easier to obtain credit, receive investment or be sold.",
+    "Compliance is the structure that ensures the company complies with the law and with its own rules, and that it identifies problems before they grow. Under the Anti-Corruption Law (Law 12,846/2013), the company is liable for harmful acts against the public administration committed for its benefit, even without the partners’ participation, and the existence of an effective integrity program is taken into account in calculating penalties. The New Public Procurement Law (Law 14,133/2021) requires an integrity program in very large contracts and uses it as a tiebreaker. In addition, companies required to have a CIPA (internal accident and harassment prevention committee) must adopt harassment prevention measures, including a whistleblowing channel (Law 14,457/2022).",
+    "A compliance program only works if it is proportionate to the business. For a small company, it may be a clear code of conduct, a few well-applied policies and a whistleblowing channel. For a larger company, it includes risk mapping, internal controls and periodic training. A program that exists only on paper does not protect the company and, in an investigation, may even weigh against it.",
+    "The work begins with understanding the business: how the company operates, who the partners are, how decisions are made and what the plans are. Before any step, we explain the alternatives, the risks and how much each one costs. We do not promise results, because the outcome of a proceeding does not depend on the lawyer alone.",
+    "We serve clients throughout Brazil online and in person in Maringá (Paraná)."
+  ],
+  "perguntas": [
+    {
+      "pergunta": "What is the best type of company to open?",
+      "resposta": "It depends on the business, the number of partners and the plans for the future. The limited liability company is the most common and suits most cases. The corporation usually makes sense for those who intend to receive investment or have many partners. The type of company is a legal decision, and the tax regime (Simples Nacional, Lucro Presumido or Lucro Real) is an accounting decision. Both should be made together, with the lawyer and the accountant."
+    },
+    {
+      "pergunta": "Can I open a company on my own?",
+      "resposta": "Yes. Since 2021, those who do business alone can form a single-member limited liability company, with no minimum capital requirement and with personal assets kept separate from the company’s. It replaced the former EIRELI. For smaller-scale activities, there is also the MEI (individual microentrepreneur) option, which has limits on revenue and on permitted activities."
+    },
+    {
+      "pergunta": "Is a partner personally liable for the company’s debts?",
+      "resposta": "As a rule, no. In a limited liability company, a partner’s liability is limited to the share capital. This protection can be lifted in situations of abuse, such as commingling the company’s accounts with the partner’s, using the company for purposes other than its corporate purpose or irregularly closing down the business. Labor and tax debts also have their own rules, which may reach partners and managers."
+    },
+    {
+      "pergunta": "What is the difference between the articles of association and a partners’ agreement?",
+      "resposta": "The articles of association are the company’s founding document, registered with the Board of Trade (Junta Comercial). They define the name, capital, partners, purpose and management. The partners’ agreement is a contract among the partners that deals with the relationship between them: right of first refusal on the sale of quotas, resolution of deadlocks, non-competition, criteria for valuing the company and exit rules. Normally, the partners’ agreement is where the clauses that make the most difference in a conflict are found."
+    },
+    {
+      "pergunta": "How does a partner’s exit work?",
+      "resposta": "In a limited liability company with an indefinite term, a partner may withdraw by notifying the others at least 60 days in advance. They are entitled to receive the value of their interest, calculated according to the articles of association or, absent a rule, based on a special balance sheet. Even after leaving, they remain liable for the company’s obligations for up to two years after the exit is registered."
+    },
+    {
+      "pergunta": "Can a partner be expelled from the company?",
+      "resposta": "Yes, when they commit a serious breach or acts that put the company’s continuity at risk. Expulsion can be carried out by the partners holding the majority of the capital, without a lawsuit, provided the articles of association allow for it and the legal formalities are met. Otherwise, expulsion depends on a court decision. In both cases, the expelled partner is entitled to receive the value of their interest."
+    },
+    {
+      "pergunta": "What should I do when a customer does not pay?",
+      "resposta": "The first step is usually out-of-court collection, with a formal notice and, when there is a credit instrument, such as a duplicata (trade bill), check or promissory note, protest at a notary’s office, which is usually effective in pressing for payment. If there is no agreement, the path is the courts. When the debt is in a credit instrument or in a contract signed under the conditions provided by law, enforcement proceedings are possible, which are faster. When it is not, there is the monitory action (ação monitória) or the collection action. Well-written contracts and organized documentation make a difference when it is time to collect."
+    },
+    {
+      "pergunta": "What precautions should I take when buying a company?",
+      "resposta": "The main one is to carry out a complete analysis before closing the deal, the due diligence, which examines debts, lawsuits, contracts, and the tax and labor situation. Anyone who buys a company or its business establishment may inherit tax, labor and other recorded debts. That is why the purchase contract should provide for guarantees, such as withholding part of the price and the seller’s liability for prior debts."
+    },
+    {
+      "pergunta": "Is corporate governance only for large companies?",
+      "resposta": "No. In smaller companies, governance can be simple: defining who decides what, recording important decisions, separating the role of partner from that of manager and reporting regularly. In family businesses, it also organizes the relationship between family and business. Companies with structured governance usually find it easier to obtain credit, receive investment and go through a succession."
+    },
+    {
+      "pergunta": "What is compliance and does my company need it?",
+      "resposta": "Compliance is the set of rules, controls and channels that ensure the company complies with the law and with its own policies. It is required of those who sign high-value contracts with the government and increasingly demanded by large clients and partners. Companies required to have a CIPA must also maintain a whistleblowing channel for harassment cases. The program should be proportionate to the size and risks of each company: for many, a code of conduct, a few well-applied policies and a whistleblowing channel are enough."
+    }
+  ],
+  "ordem": 4,
+  "mensagemWhatsapp": "Hello, I need guidance on corporate law.",
+  "cenas": [
+    {
+      "indice": 1,
+      "rubrica": "The type of company matters"
+    },
+    {
+      "indice": 2,
+      "rubrica": "The company’s assets and the partners’ assets"
+    },
+    {
+      "indice": 3,
+      "rubrica": "Partners’ agreement"
+    },
+    {
+      "indice": 4,
+      "rubrica": "Partner exit"
+    },
+    {
+      "indice": 5,
+      "rubrica": "Business contracts"
+    },
+    {
+      "indice": 6,
+      "rubrica": "Corporate governance"
+    },
+    {
+      "indice": 7,
+      "rubrica": "Compliance and integrity"
+    },
+    {
+      "indice": 8,
+      "rubrica": "A program the size of the company"
+    },
+    {
+      "indice": 9,
+      "rubrica": "How we work"
+    },
+    {
+      "indice": 10,
+      "rubrica": "Where we serve",
+      "foto": "maringa",
+      "fotoAlt": "Maringá Cathedral at dusk, seen from the avenue, with the sky still blue."
+    }
+  ],
+  "publicoCurto": "For companies and entrepreneurs who want to grow with well-structured contracts, corporate structure and operations.",
+  "publicos": [
+    {
+      "titulo": "Those opening a company",
+      "texto": "Who want to choose the right type of company and start with articles of association that reflect what the partners agreed."
+    },
+    {
+      "titulo": "Partners",
+      "texto": "Who want clear rules on decisions, profit distribution, admission and exit, before any disagreement arises."
+    },
+    {
+      "titulo": "Operating companies",
+      "texto": "That need well-written contracts with customers, suppliers and partners, and legal support for day-to-day decisions."
+    },
+    {
+      "titulo": "Those buying or selling a company",
+      "texto": "Who want to know the risks of the business before closing and structure the transaction securely."
+    },
+    {
+      "titulo": "A partner who wants to leave",
+      "texto": "Who needs to leave the company and receive the fair value of their interest."
+    },
+    {
+      "titulo": "Companies that want to grow with structure",
+      "texto": "That are growing in size, contract with the government or serve large clients, and need internal rules, controls and management that does not depend solely on the partners."
+    }
+  ]
+}

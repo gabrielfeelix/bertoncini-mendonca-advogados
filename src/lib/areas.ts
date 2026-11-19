@@ -53,11 +53,15 @@ export function assuntosDaArea(
 
 /**
  * Foto de cada área na v3 (cartão da home e banner da página da área).
- * Fotos de public/media/novas, já usadas nas versões anteriores.
+ * Fotos novas de public/media/areas (ajustes de 18/11/2026), cada uma
+ * também em .webp e .avif.
  */
 export const FOTO_DA_AREA: Record<string, string> = {
-  'planejamento-patrimonial-e-sucessorio': '/media/novas/area-familia.jpg',
-  'direito-digital': '/media/novas/area-dados.jpg',
+  'planejamento-patrimonial-e-sucessorio': '/media/areas/planejamento.jpg',
+  'direito-digital': '/media/areas/digital.jpg',
+  'direito-civil-e-contratual': '/media/areas/civil.jpg',
+  'direito-empresarial': '/media/areas/empresarial.jpg',
+  'direito-imobiliario': '/media/areas/imobiliario.jpg',
 };
 
 /**

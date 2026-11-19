@@ -18,11 +18,6 @@ const areas = await areasDoIdioma(lang);
 const ano = new Date().getFullYear();
 /* A página pode pôr conteúdo no topo do rodapé (a newsletter da home). */
 const temTopo = Astro.slots.has('default');
-/* "Golpe do falso advogado: só falamos…" vira título + texto. */
-const [golpeTitulo, golpeTexto = ''] = tx.rodape.golpe.includes(': ')
-  ? tx.rodape.golpe.split(/: (.*)/s)
-  : [tx.rodape.golpe, ''];
-const golpeFrase = golpeTexto.charAt(0).toUpperCase() + golpeTexto.slice(1);
 ---
 
 <footer class="rodape">
@@ -75,14 +70,19 @@ const golpeFrase = golpeTexto.charAt(0).toUpperCase() + golpeTexto.slice(1);
       avisos lado a lado, cada um com título curto. */}
   <div class="barra">
     <div class="container barra-linha">
+      {/* Linha de registro e encarregado: texto do "Rodapé do site" da
+          Política de Cookies dos sócios (18/11/2026). */}
       <div class="legal">
-        <p class="legal-nome">© {ano} {site.nomeSociedade}</p>
-        <p class="legal-dados">{tx.rodape.inscrita} {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor}</p>
+        <p class="legal-nome">{site.nome}</p>
+        <p class="legal-dados">{tx.rodape.inscrita} {site.registro.oabSociedade.valor} · CNPJ {site.registro.cnpj.valor} · © {ano}</p>
       </div>
-      <p class="politicas">
-        {tx.rodape.politicas.map((item) => <a href={rota(lang, item.chave)}>{item.rotulo}</a>)}
-        <button type="button" class="link-cookies" data-abrir-cookies>{tx.rodape.preferencias}</button>
-      </p>
+      <div class="politicas-env">
+        <p class="politicas">
+          {tx.rodape.politicas.map((item) => <a href={rota(lang, item.chave)}>{item.rotulo}</a>)}
+          <button type="button" class="link-cookies" data-abrir-cookies>{tx.rodape.preferencias}</button>
+        </p>
+        <p class="encarregado">{tx.rodape.encarregado}: <a href={`mailto:${site.encarregado.valor}`}>{site.encarregado.valor}</a></p>
+      </div>
       {/* Assinatura de quem fez o site: "Gabriel Felix" em Dancing Script
           (OFL, hospedada aqui só com as letras usadas) e um aviãozinho de
           papel vermelho com o caminho tracejado dando a volta no nome. O
@@ -110,11 +110,12 @@ const golpeFrase = golpeTexto.charAt(0).toUpperCase() + golpeTexto.slice(1);
     <div class="container barra-avisos">
       <p class="aviso"><strong>{lang === 'en' ? 'Notice' : 'Aviso'}</strong>{tx.aviso}</p>
       {/* Golpe do falso advogado: aviso pedido no briefing (q9.3), discreto,
-          com os canais oficiais. Na página de contato ele aparece completo. */}
+          com os canais oficiais. Texto reescrito em 18/11/2026, mais direto:
+          aguarda aprovação dos sócios. Na página de contato ele aparece completo. */}
       <p class="aviso golpe">
-        <strong>{golpeTitulo}</strong>
-        {golpeFrase} <a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a>{' '}
-        {tx.rodape.golpeE} <a href={`mailto:${site.email.valor}`}>{site.email.valor}</a>. {tx.rodape.golpeFim}
+        <strong>{tx.rodape.golpe}</strong>
+        {tx.rodape.golpeTexto} <a href={`tel:${site.telefoneE164.valor}`}>{site.telefone.valor}</a>{' '}
+        {tx.rodape.golpeE} <a href={`mailto:${site.email.valor}`}>{site.email.valor}</a>.
       </p>
     </div>
   </div>
@@ -136,7 +137,8 @@ const golpeFrase = golpeTexto.charAt(0).toUpperCase() + golpeTexto.slice(1);
 </script>
 
 <style is:global>
-  /* Com o "Também atuamos em" dentro (/areas/): o rodapé ganha a diagonal
+  /* Com uma seção marcada .antes-do-rodape dentro (as perguntas
+     frequentes da home, 18/11/2026): o rodapé ganha a diagonal
      no topo e avança sobre a faixa de cima, que aparece na cunha. Global
      porque o :has() com filho de outro componente não sobrevive ao escopo. */
   footer.rodape:has(> .antes-do-rodape) {
@@ -144,9 +146,9 @@ const golpeFrase = golpeTexto.charAt(0).toUpperCase() + golpeTexto.slice(1);
     margin-top: calc(-1 * var(--corte));
     clip-path: polygon(0 var(--corte), 100% 0, 100% 100%, 0 100%);
   }
-  /* Filete entre o "Também atuamos em" e a chamada. */
+  /* Filete entre essa seção e a chamada ou a newsletter que vem depois. */
   footer.rodape > .antes-do-rodape + .chamada { padding-top: 0; }
-  footer.rodape > .antes-do-rodape + .chamada > .container { border-top: 1px solid rgba(248, 247, 242, .12); padding-top: 56px; }
+  footer.rodape > .antes-do-rodape + :is(.chamada, .news) > .container { border-top: 1px solid rgba(248, 247, 242, .12); padding-top: 56px; }
   @media (max-width: 991px) { footer.rodape:has(> .antes-do-rodape) { --corte: 40px; } }
   @media (max-width: 680px) { footer.rodape:has(> .antes-do-rodape) { --corte: 28px; } }
 
@@ -208,6 +210,8 @@ const golpeFrase = golpeTexto.charAt(0).toUpperCase() + golpeTexto.slice(1);
   .legal-nome { color: rgba(255, 255, 255, .9); font-weight: 500; }
   .legal-dados { color: rgba(255, 255, 255, .55); margin-top: 3px !important; }
   .politicas { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+  .encarregado { color: rgba(255, 255, 255, .55); margin-top: 4px !important; }
+  .encarregado a { color: rgba(255, 255, 255, .75); }
   /* Avisos: duas colunas, título curto em negrito, texto apagado. */
   .barra-avisos {
     display: grid; grid-template-columns: 1fr 1fr; gap: 12px 48px;

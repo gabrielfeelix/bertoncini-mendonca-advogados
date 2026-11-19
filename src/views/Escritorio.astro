@@ -4,12 +4,16 @@
  * perfil dos sócios. Missão e valores são texto dos sócios (briefing q3.1
  * e q3.2); formação, do briefing (q1.7a e q1.7b). Sem história e sem
  * números, e sem dividir os sócios por área (retorno de 06/11/2026).
+ *
+ * Ajustes dos sócios de 18/11/2026: capa com a apresentação (Opção 2),
+ * "Quem somos" com o texto novo e a foto dos dois, missão nova, "O que não
+ * aceitamos" discreto ao pé dos valores e bios sem a divisão consultivo ×
+ * judicial.
  */
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
 import Chamada from '~/components/Chamada.astro';
 import { site } from '~/lib/site';
-import { areasDoIdioma } from '~/lib/areas';
 import { t, type Idioma } from '~/lib/i18n';
 
 interface Props {
@@ -18,8 +22,6 @@ interface Props {
 const { lang } = Astro.props;
 const tx = t(lang);
 const e = tx.escritorio;
-const areas = await areasDoIdioma(lang);
-const outras = tx.outrasAreas;
 
 const perfis = site.socios.map((socio, i) => ({
   socio,
@@ -38,8 +40,9 @@ const perfis = site.socios.map((socio, i) => ({
   alternativa={lang === 'pt' ? '/en/firm/' : '/escritorio/'}
 >
   <BannerPagina
-    html={e.banner}
-    apoio={e.missao}
+    rotulo={e.bannerRotulo}
+    titulo={e.banner}
+    apoio={e.bannerApoio}
     foto="/media/hero/socios-1600.jpg"
     posicao="80% 12%"
     posicaoCelular="80% 0%"
@@ -49,28 +52,18 @@ const perfis = site.socios.map((socio, i) => ({
   />
 
   <section class="secao">
-    <div class="container duas-colunas">
+    <div class="container duas-colunas quem-grade">
       <div>
         <p class="rotulo">{e.rotulo}</p>
         <h2 class="titulo-bloco">{site.nome}</h2>
-        <p>
-          {e.intro}{' '}
-          {areas.map((a, i) => (
-            <>{i > 0 && ` ${e.e} `}<a href={a.href}>{a.data.nome}</a></>
-          ))}.
-        </p>
-        <p>
-          {e.tambem} {outras.slice(0, -1).join(', ').toLowerCase()} {e.e} {outras.at(-1)?.toLowerCase()}.
-        </p>
-        <p>{tx.atendimento}, {tx.presencialEm} {site.cidade}/{site.estado}.</p>
+        {e.quemSomos.map((p) => <p>{p}</p>)}
       </div>
-      {/* Painel da marca, como a pasta do manual de identidade: azul-noite,
-          monograma grande quase transparente e o logo em creme. Fica até
-          chegar uma foto própria do escritório. */}
-      <div class="painel-marca" aria-hidden="true">
-        <img class="pm-mono" src="/media/marca/monograma-creme.svg" alt="" width="254" height="276" />
-        <img class="pm-logo" src="/media/marca/lockup-creme.svg" alt="" width="550" height="196" />
-      </div>
+      {/* Os dois sócios (foto de 18/11/2026), no lugar do painel da marca. */}
+      <picture class="quem-foto">
+        <source srcset="/media/novas/socios-juntos.avif" type="image/avif" />
+        <source srcset="/media/novas/socios-juntos.webp" type="image/webp" />
+        <img src="/media/novas/socios-juntos.jpg" alt={e.fotoSocios} width="1400" height="2100" loading="lazy" />
+      </picture>
     </div>
   </section>
 
@@ -113,6 +106,14 @@ const perfis = site.socios.map((socio, i) => ({
           </div>
         ))}
       </dl>
+      {/* "O que não aceitamos" (briefing q3.5). Os sócios pediram para tirar do
+          destaque antigo e aproximar dos valores; o Gabriel achou que, numa
+          frase pequena, parecia que o escritório nem queria dizer. Fecha a
+          seção "Como atuamos" com rótulo e a frase em letra grande. */}
+      <div class="recusa">
+        <h3 class="recusa-titulo">{e.recusaRotulo}</h3>
+        <p>{e.recusa}</p>
+      </div>
     </div>
   </section>
 
@@ -139,33 +140,19 @@ const perfis = site.socios.map((socio, i) => ({
     </div>
   </section>
 
-  {/* "O que não aceitamos" (briefing q3.5): a posição do escritório fecha a
-      página, dentro do rodapé azul-noite (slot do Base), com a diagonal no
-      topo e um filete antes da chamada, como o "Também atuamos em" em /areas/. */}
-  <section slot="rodape" class="recusa-faixa antes-do-rodape" aria-labelledby="recusa-titulo">
-    <div class="container">
-      <p class="recusa-rotulo" id="recusa-titulo">{e.recusaRotulo.replace(/\.$/, '')}</p>
-      <p class="recusa-frase">{e.recusa}</p>
-    </div>
-  </section>
-
   <Chamada slot="rodape" lang={lang} />
 </Base>
 
 <style>
   .titulo-bloco { font-size: 30px; }
-  .painel-marca {
-    position: relative; overflow: hidden;
-    display: grid; place-items: center;
-    aspect-ratio: 16 / 11; border-radius: 14px;
-    background:
-      radial-gradient(120% 90% at 100% 100%, rgba(81, 116, 147, .35) 0%, rgba(81, 116, 147, 0) 60%),
-      linear-gradient(135deg, #0b1e3f 0%, #0f2a4f 55%, #004369 100%);
-    box-shadow: 0 24px 50px rgba(11, 30, 63, .18);
+  /* Foto em pé dos sócios: coluna mais estreita que o texto, acompanhando
+     a altura dele. */
+  .quem-grade { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: stretch; }
+  .quem-foto { display: block; }
+  .quem-foto img {
+    width: 100%; height: 100%; min-height: 560px; object-fit: cover; object-position: 50% 30%;
+    border-radius: 14px; box-shadow: 0 24px 50px rgba(11, 30, 63, .16);
   }
-  .pm-mono { position: absolute; right: -8%; top: 50%; height: 150%; width: auto; transform: translateY(-50%); opacity: .08; }
-  .pm-logo { position: relative; width: 58%; height: auto; }
-
   .perfis { display: grid; gap: 48px; max-width: 980px; margin: 0 auto; }
   .perfil { display: grid; grid-template-columns: 300px 1fr; gap: 40px; align-items: start; scroll-margin-top: calc(var(--altura-barra) + 24px); }
   .perfil + .perfil { padding-top: 48px; border-top: 1px solid var(--linha); }
@@ -211,7 +198,6 @@ const perfis = site.socios.map((socio, i) => ({
   .valor:nth-child(2) { transform: translateY(36px); }
   .valor h3 { font-size: 24px; font-weight: 700; margin: 0 0 10px; color: #fff; }
   .valor p { margin: 0; font-size: 16px; line-height: 1.65; color: rgba(248, 247, 242, .72); }
-
   /* ---------- Como atuamos ---------- */
   .atuacao-grade { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 56px; align-items: start; }
   .atuacao-titulo { font-size: 40px; font-weight: 300; line-height: 1.1; letter-spacing: -.015em; margin: 0 0 16px; }
@@ -220,11 +206,14 @@ const perfis = site.socios.map((socio, i) => ({
   .atuacao div { padding: 20px 0; border-top: 1px solid var(--linha); }
   .atuacao dt { font-size: 17px; font-weight: 700; color: var(--azul); margin-bottom: 6px; }
   .atuacao dd { margin: 0; font-size: 16px; line-height: 1.6; color: var(--texto-suave); }
-
-  /* ---------- O que não aceitamos (dentro do rodapé) ---------- */
-  .recusa-faixa { position: relative; z-index: 1; padding: 150px 0 88px; color: #f8f7f2; }
-  .recusa-rotulo { margin: 0 0 18px; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #9fb6cc; }
-  .recusa-frase { margin: 0; max-width: 24ch; font-size: 46px; font-weight: 300; line-height: 1.15; letter-spacing: -.02em; color: #fff; }
+  /* O que não aceitamos: linha inteira embaixo dos valores, mesma grade
+     (rótulo à esquerda, frase grande à direita), separada por filete azul. */
+  .recusa {
+    grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: 56px; align-items: baseline; margin-top: 24px; padding-top: 40px; border-top: 2px solid var(--azul);
+  }
+  .recusa-titulo { font-size: 24px; font-weight: 700; color: var(--azul); margin: 0; }
+  .recusa p { margin: 0; font-size: 30px; font-weight: 300; line-height: 1.3; letter-spacing: -.01em; color: var(--azul); max-width: 30ch; }
 
   @media (max-width: 991px) {
     .missao-bloco, .atuacao-grade { grid-template-columns: 1fr; gap: 16px; }
@@ -233,8 +222,9 @@ const perfis = site.socios.map((socio, i) => ({
     .valores { margin-left: 0; }
     .missao-luz { width: 600px; right: -260px; bottom: -260px; }
     .atuacao-grade { gap: 32px; }
-    .recusa-faixa { padding: 112px 0 64px; }
-    .recusa-frase { font-size: 36px; }
+    .recusa { grid-template-columns: 1fr; gap: 12px; }
+    .quem-grade { grid-template-columns: 1fr; }
+    .quem-foto img { height: auto; min-height: 0; aspect-ratio: 4 / 5; max-height: 640px; object-position: 50% 25%; }
   }
   @media (max-width: 680px) {
     .missao-secao { padding: 88px 0 96px; --corte: 28px; }
@@ -245,7 +235,6 @@ const perfis = site.socios.map((socio, i) => ({
     .valores, .atuacao { grid-template-columns: 1fr; gap: 0; }
     .valor { padding: 18px 0 22px; }
     .atuacao-titulo { font-size: 32px; }
-    .recusa-faixa { padding: 84px 0 52px; }
-    .recusa-frase { font-size: 28px; }
+    .recusa p { font-size: 24px; }
   }
 </style>

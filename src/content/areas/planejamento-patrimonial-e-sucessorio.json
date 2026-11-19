@@ -1,158 +1,155 @@
 {
   "nome": "Planejamento Patrimonial e Sucessório",
   "slug": "planejamento-patrimonial-e-sucessorio",
-  "resumo": "Organizar em vida o que, sem organização, vira inventário e disputa entre herdeiros.",
+  "resumo": "Patrimônio organizado, família protegida e empresa preparada para a próxima geração.",
   "servicos": [
-    "Planejamento patrimonial",
     "Diagnóstico patrimonial",
+    "Planejamento sucessório",
     "Holding patrimonial e familiar",
-    "Doação",
-    "Doação com reserva de usufruto",
+    "Doação e doação com reserva de usufruto",
     "Testamento",
-    "Inventário",
-    "Escrituras públicas",
-    "Acordo de sócios",
-    "Atos societários"
+    "Pacto antenupcial e alteração de regime de bens",
+    "Acordo de sócios e sucessão na empresa familiar",
+    "Inventário e partilha",
+    "Escrituras públicas"
   ],
   "assuntos": [
     {
-      "nome": "Holding familiar",
-      "faz": "Fazer a conta antes: custo de constituir e manter, contra o que de fato economiza."
+      "nome": "Diagnóstico patrimonial",
+      "faz": "Levantamos quais bens existem, em nome de quem estão e o que aconteceria com eles hoje, sem nenhum planejamento."
     },
     {
-      "nome": "Empresa familiar e acordo de sócios",
-      "faz": "Escrever quem administra e como os herdeiros entram, enquanto todos estão de acordo."
+      "nome": "Holding familiar",
+      "faz": "Avaliamos se faz sentido: o custo de constituir e manter, comparado ao que efetivamente se economiza."
+    },
+    {
+      "nome": "Doação e usufruto",
+      "faz": "Antecipamos a transmissão dos bens mantendo com o doador o uso e a renda enquanto viver."
+    },
+    {
+      "nome": "Testamento",
+      "faz": "Registramos a vontade sobre o destino dos bens, respeitando a parte reservada por lei aos herdeiros necessários."
+    },
+    {
+      "nome": "Regime de bens",
+      "faz": "Elaboramos pactos antenupciais e conduzimos a alteração do regime de bens, considerando os efeitos na sucessão."
+    },
+    {
+      "nome": "Empresa familiar",
+      "faz": "Definimos em acordo de sócios quem administra e como os herdeiros entram na sociedade, enquanto todos estão de acordo."
+    },
+    {
+      "nome": "ITCMD",
+      "faz": "Calculamos o imposto de cada alternativa antes da decisão, e não quando já não há escolha."
     },
     {
       "nome": "Inventário e partilha",
-      "faz": "Abrir e conduzir, em cartório quando os herdeiros concordam, na Justiça quando não."
-    },
-    {
-      "nome": "Testamento e doação",
-      "faz": "Escrever a transmissão respeitando a legítima, que testamento nenhum afasta."
-    },
-    {
-      "nome": "Compra de imóvel",
-      "faz": "Analisar matrícula, certidões e vendedores antes da assinatura, enquanto ainda dá para negociar."
-    },
-    {
-      "nome": "Contratos",
-      "faz": "Os instrumentos que ligam bens, sócios e família, incluindo pacto antenupcial e regime de bens."
-    },
-    {
-      "nome": "Direito imobiliário",
-      "faz": "Transferência, usufruto e regularização dos imóveis que entram na partilha."
-    },
-    {
-      "nome": "Societário e tributário",
-      "faz": "Medir o ITCMD de cada caminho antes de escolher, e não quando já não há escolha."
+      "faz": "Conduzimos em cartório quando há consenso e na Justiça quando não há."
     }
   ],
   "corpo": [
-    "Planejamento patrimonial e sucessório é decidir em vida o destino do patrimônio, em vez de deixar que a lei e o Judiciário decidam depois. É uma área de prevenção: quase tudo o que ela resolve seria, mais tarde, um inventário demorado, um imposto maior que o necessário ou uma discussão entre pessoas da mesma família.",
-    "Ela reúne assuntos que costumam ser tratados separadamente e que, na prática, são o mesmo problema visto de ângulos diferentes: direito civil e sucessório, imobiliário, tributário, societário e os contratos que ligam tudo isso.",
-    "O inventário é o procedimento que transfere os bens de quem morreu para os herdeiros. Quando todos os herdeiros são maiores e capazes e estão de acordo, ele pode ser feito em cartório, por escritura pública, o que é sensivelmente mais rápido. Havendo herdeiro menor ou incapaz, ou discordância entre os herdeiros, o caminho é o judicial.",
-    "A existência de testamento, por muito tempo, levava o inventário necessariamente ao Judiciário. O Provimento CNJ 149/2023 e a Resolução CNJ 571/2024 abriram hipóteses de via extrajudicial mesmo havendo testamento ou interessado incapaz, observadas condições específicas e, em geral, manifestação do Ministério Público. É um ponto em que a regra mudou há pouco e em que vale examinar o caso concreto antes de presumir o caminho judicial.",
-    "Antes disso há o que se pode fazer em vida. Doação com reserva de usufruto, testamento, pacto antenupcial, alteração de regime de bens e a constituição de uma holding familiar são instrumentos para organizar a transmissão, definir quem administra o que e reduzir a chance de litígio. Cada um tem custo, efeito tributário e limite legal próprios: a legítima dos herdeiros necessários, por exemplo, não pode ser afastada por testamento.",
-    "O ITCMD, imposto estadual sobre herança e doação, costuma ser o fator que define o momento e a forma da transmissão. Planejar não é deixar de pagar imposto: é saber qual é o custo de cada caminho antes de escolher, e não descobri-lo quando já não há escolha.",
-    "Na empresa familiar, a sucessão também é uma questão societária. O acordo de sócios, as regras para a entrada de herdeiros e a definição de quem administra depois evitam que a morte ou a saída de um sócio paralise o negócio. São cláusulas que se escrevem com todos de acordo, antes de qualquer conflito.",
-    "Na compra de um imóvel, a análise vem antes da assinatura: matrícula atualizada, certidões do imóvel e dos vendedores, débitos de condomínio e de IPTU, e a situação de quem vende perante a Justiça. Essa verificação, a due diligence imobiliária, mostra o risco da operação enquanto ainda é possível negociar ou desistir.",
-    "Atendemos todo o país, de forma online, e presencialmente em Maringá.",
-    "O trabalho começa por entender o que existe: quais bens, em nome de quem, com que dívidas e quais pessoas envolvidas. Explicamos as opções, o que cada uma exige e o que custa, antes de começar. Nenhum resultado é prometido, porque nenhum advogado decide sozinho o desfecho de um processo."
+    "Planejamento patrimonial e sucessório é decidir em vida o destino do patrimônio, em vez de deixar essa decisão para a lei e o Judiciário. É uma área preventiva: muito do que ela resolve se tornaria, mais tarde, um inventário demorado, um imposto maior que o necessário ou um conflito familiar.",
+    "Doação com reserva de usufruto, testamento, pacto antenupcial, alteração de regime de bens e holding familiar são instrumentos para organizar a transmissão, definir quem administra cada bem e reduzir o risco de litígio. Não existe um modelo que sirva para todos. Cada instrumento tem custo, efeito tributário e limites legais próprios, e a escolha depende da composição do patrimônio e da família.",
+    "Metade do patrimônio é reservada por lei aos herdeiros necessários (descendentes, ascendentes e cônjuge). É a chamada legítima, e nenhum testamento ou doação pode afastá-la. O planejamento organiza a transmissão dentro desse limite e decide livremente sobre a outra metade.",
+    "O ITCMD, imposto estadual sobre heranças e doações, costuma definir o momento e a forma da transmissão. Com a reforma tributária, a cobrança passou a ser obrigatoriamente progressiva: quanto maior o valor transmitido, maior a alíquota. Planejar não é deixar de pagar imposto. É conhecer o custo de cada caminho antes de escolher.",
+    "Na empresa familiar, a sucessão também é uma questão societária. O acordo de sócios, as regras de entrada de herdeiros e a definição de quem administrará o negócio evitam que o falecimento de um sócio paralise a empresa. São cláusulas que devem ser escritas enquanto há consenso.",
+    "Quando não houve planejamento, ou para concluir o que foi planejado, o inventário transfere os bens de quem faleceu para os herdeiros. Havendo consenso, pode ser feito em cartório, por escritura pública, o que costuma ser bem mais rápido. Desde a Resolução CNJ 571/2024, isso é possível em alguns casos mesmo com testamento ou herdeiro menor, observadas condições específicas. Havendo discordância, o caminho é a Justiça.",
+    "O trabalho começa pelo diagnóstico: quais bens existem, em nome de quem, com quais dívidas e quais pessoas estão envolvidas. Antes de qualquer etapa, apresentamos as alternativas, o que cada uma exige e quanto custa. Não prometemos resultados, porque o desfecho de um processo não depende apenas do advogado.",
+    "Atendemos todo o Brasil de forma online e presencialmente em Maringá (PR)."
   ],
   "perguntas": [
     {
-      "pergunta": "O inventário precisa ser feito na Justiça?",
-      "resposta": "Nem sempre. Quando todos os herdeiros são maiores e capazes e estão de acordo, o inventário pode ser feito em cartório, por escritura pública. Havendo herdeiro menor ou incapaz, ou discordância, o caminho é judicial. Existindo testamento, a regra geral também era a via judicial, mas o Provimento CNJ 149/2023 e a Resolução CNJ 571/2024 passaram a admitir a via extrajudicial em hipóteses específicas. Vale examinar o caso antes de presumir."
+      "pergunta": "O que é planejamento patrimonial e sucessório?",
+      "resposta": "É a organização, em vida, de como o patrimônio será administrado e transmitido aos herdeiros. Em vez de deixar que a lei e o inventário definam tudo depois, a própria pessoa decide, dentro dos limites legais, quem fica com o quê, quem administra os bens e em que momento a transmissão acontece. O objetivo é reduzir custos, prazos e o risco de conflito familiar."
     },
     {
-      "pergunta": "Posso deixar meus bens para quem eu quiser em testamento?",
-      "resposta": "Só em parte. Havendo herdeiros necessários (descendentes, ascendentes e cônjuge), metade do patrimônio é a legítima e pertence a eles por lei. O testamento dispõe livremente da outra metade. Sem herdeiros necessários, a liberdade é total."
+      "pergunta": "Planejamento sucessório é só para quem tem muito patrimônio?",
+      "resposta": "Não. Uma família com um único imóvel também pode enfrentar um inventário demorado ou uma divergência entre herdeiros. O que muda com o tamanho do patrimônio são os instrumentos indicados: para alguns casos basta um testamento ou uma doação. Para outros, faz sentido uma estrutura mais complexa, como uma holding."
     },
     {
-      "pergunta": "Vale a pena abrir uma holding familiar?",
-      "resposta": "Depende do patrimônio e do objetivo. Uma holding pode facilitar a administração, organizar a sucessão e, em alguns casos, reduzir o custo tributário da transmissão. Mas tem custo de constituição e de manutenção, e a economia tributária não é automática: depende do tipo de bem, da atividade e da legislação do estado. É uma conta que se faz antes, não uma solução padrão."
+      "pergunta": "Quem faz planejamento não precisa de inventário?",
+      "resposta": "Depende do instrumento escolhido. Os bens doados em vida ou transferidos para uma holding deixam de fazer parte do inventário, porque já não pertencem à pessoa quando ela falece. O testamento, por outro lado, não dispensa o inventário: ele orienta a partilha, mas os bens continuam precisando ser inventariados."
     },
     {
-      "pergunta": "Doar os bens em vida evita o inventário?",
-      "resposta": "Pode evitar, se a doação alcançar todo o patrimônio e for feita com as cautelas devidas. A doação incide ITCMD no momento em que é feita, respeita o limite da legítima e costuma ser acompanhada de reserva de usufruto, para que quem doou continue usando o bem e recebendo seus frutos enquanto viver."
+      "pergunta": "Posso deixar meus bens para quem eu quiser?",
+      "resposta": "Em parte. Quem tem herdeiros necessários (filhos e demais descendentes, pais e demais ascendentes, e cônjuge) deve reservar a eles metade do patrimônio, a chamada legítima. Sobre a outra metade, a pessoa pode dispor livremente, por testamento ou doação, em favor de qualquer pessoa ou instituição."
     },
     {
-      "pergunta": "Quanto tempo demora um inventário?",
-      "resposta": "O extrajudicial, com documentação em ordem e acordo entre os herdeiros, costuma se resolver em poucos meses. O judicial depende da comarca, da complexidade do patrimônio e de haver ou não disputa, e pode levar anos. A lei prevê que o inventário seja aberto em até dois meses da morte, e o atraso costuma gerar multa sobre o ITCMD."
+      "pergunta": "Vale a pena constituir uma holding familiar?",
+      "resposta": "Para alguns patrimônios, sim. Para outros, não. A holding pode facilitar a administração dos bens e a sucessão, mas tem custos de constituição e manutenção, obrigações contábeis e tributação própria. A imunidade de ITBI na transferência dos imóveis para a holding também tem limites. Por isso, a decisão deve vir depois de comparar o custo da estrutura com o que ela efetivamente economiza."
     },
     {
-      "pergunta": "Holding realmente protege o patrimônio?",
-      "resposta": "Ela organiza, mas não blinda. A holding muda a titularidade dos bens e facilita a administração e a sucessão, mas não serve para esconder patrimônio de credor: uma operação feita para fraudar dívida que já existe pode ser desfeita pela Justiça. A proteção que ela oferece vem da organização, de um contrato social bem escrito e de regras claras entre os herdeiros."
+      "pergunta": "O que é doação com reserva de usufruto?",
+      "resposta": "É a doação em que a pessoa transfere a propriedade do bem aos herdeiros, mas mantém para si o direito de usá-lo e de receber a renda dele enquanto viver. Com o falecimento, o usufruto se extingue e os herdeiros passam a ter a propriedade plena, sem que o bem precise passar por inventário. A doação pode incluir cláusulas que protegem o patrimônio, como a de que o bem não se comunica com o cônjuge do herdeiro."
     },
     {
-      "pergunta": "Posso doar um imóvel e continuar morando nele?",
-      "resposta": "Sim. A doação com reserva de usufruto transfere a propriedade e mantém com quem doou o direito de usar o imóvel e de receber os aluguéis enquanto viver. Quando o usufrutuário morre, o usufruto se extingue e a propriedade fica inteira com quem recebeu a doação, sem inventário daquele bem."
+      "pergunta": "O planejamento serve para não pagar imposto?",
+      "resposta": "Não. A transmissão de bens, seja por herança ou por doação, está sujeita ao ITCMD, imposto estadual. O que o planejamento permite é conhecer o custo de cada alternativa e escolher o momento e a forma da transmissão de maneira informada. Com a reforma tributária, o ITCMD passou a ter alíquotas obrigatoriamente progressivas, o que torna essa análise ainda mais importante."
     },
     {
-      "pergunta": "Posso impedir que meu filho venda o imóvel que recebeu?",
-      "resposta": "Em alguns casos. Na doação e no testamento é possível incluir cláusulas de inalienabilidade, impenhorabilidade e incomunicabilidade. Sobre a legítima dos herdeiros necessários, porém, o testamento só pode impor essas restrições declarando uma justa causa. A cláusula também limita quem recebe, então a decisão depende do objetivo da família."
+      "pergunta": "O inventário pode ser feito em cartório?",
+      "resposta": "Sim, quando os herdeiros estão de acordo sobre a partilha. O inventário em cartório, feito por escritura pública e com a participação de advogado, costuma ser bem mais rápido do que o judicial. Desde 2024, ele é possível em alguns casos mesmo havendo testamento ou herdeiro menor, desde que cumpridas condições específicas. Havendo discordância entre os herdeiros, o caminho é a Justiça."
     },
     {
-      "pergunta": "Pacto antenupcial realmente protege o patrimônio?",
-      "resposta": "Ele define o regime de bens do casamento e, com isso, o que é de cada um e o que é comum num divórcio. Precisa ser feito por escritura pública antes do casamento. Sozinho, ele não afasta todos os efeitos na herança: dependendo do regime, o cônjuge continua sendo herdeiro. Funciona melhor combinado com o restante do planejamento."
+      "pergunta": "Existe prazo para abrir o inventário?",
+      "resposta": "Sim. A lei prevê que o inventário seja aberto em até dois meses após o falecimento. O descumprimento não impede que ele seja feito depois, mas muitos estados cobram multa sobre o ITCMD quando o prazo não é respeitado. Enquanto o inventário não é concluído, os herdeiros não conseguem vender ou transferir os bens normalmente."
     },
     {
-      "pergunta": "Preciso fazer testamento mesmo tendo filhos?",
-      "resposta": "Não é obrigatório, mas costuma ser útil. Com filhos, metade do patrimônio é a legítima deles; a outra metade pode ir para quem você escolher, inclusive para um dos filhos. O testamento também indica qual bem fica com quem dentro da parte de cada um e pode nomear tutor para filho menor."
-    },
-    {
-      "pergunta": "O que acontece com as minhas contas e arquivos digitais quando eu morrer?",
-      "resposta": "Ainda não há lei específica sobre herança digital no Brasil. O que tem valor econômico, como criptoativos, saldo em plataformas e direitos autorais, entra no inventário. Contas pessoais seguem as regras de cada plataforma e decisões judiciais caso a caso. Por isso vale deixar por escrito o que deve acontecer com cada conta e quem pode acessá-la."
+      "pergunta": "O regime de bens do casamento interfere na herança?",
+      "resposta": "Sim, e muito. Dependendo do regime, o cônjuge pode ter direito à meação (metade dos bens comuns, que já é dele), à herança ou a ambos, inclusive concorrendo com os filhos. Na união estável, o companheiro tem os mesmos direitos sucessórios do cônjuge. Por isso, a escolha ou a alteração do regime de bens, e o pacto antenupcial, fazem parte do planejamento sucessório."
     }
   ],
   "ordem": 1,
   "mensagemWhatsapp": "Olá, preciso de orientação sobre planejamento patrimonial e sucessório.",
   "cenas": [
     {
-      "indice": 2,
-      "rubrica": "Inventário"
-    },
-    {
-      "indice": 3,
-      "rubrica": "Inventário com testamento"
-    },
-    {
-      "indice": 4,
+      "indice": 1,
       "rubrica": "O que se faz em vida"
     },
     {
-      "indice": 5,
+      "indice": 2,
+      "rubrica": "Os limites da lei"
+    },
+    {
+      "indice": 3,
       "rubrica": "ITCMD"
     },
     {
+      "indice": 4,
+      "rubrica": "Empresa familiar"
+    },
+    {
+      "indice": 5,
+      "rubrica": "Inventário"
+    },
+    {
       "indice": 6,
-      "rubrica": "Empresa familiar e sócios"
+      "rubrica": "Como trabalhamos"
     },
     {
       "indice": 7,
-      "rubrica": "Compra de imóvel"
-    },
-    {
-      "indice": 8,
       "rubrica": "Onde atendemos",
       "foto": "maringa",
       "fotoAlt": "A Catedral de Maringá ao anoitecer, vista da avenida, com o céu ainda azul."
     }
   ],
-  "publicoCurto": "Empresários e famílias com patrimônio a organizar, dividir ou proteger.",
+  "publicoCurto": "Atendemos famílias e empresários em todas as etapas do planejamento sucessório.",
   "publicos": [
     {
       "titulo": "Empresários",
-      "texto": "Que querem separar o patrimônio pessoal do da empresa, organizar a sucessão no negócio e saber o custo tributário de cada caminho antes de escolher."
+      "texto": "Que querem separar o patrimônio pessoal do da empresa, preparar a sucessão no negócio e conhecer o custo tributário de cada caminho antes de decidir."
     },
     {
       "titulo": "Famílias",
-      "texto": "Que querem decidir em vida como os bens serão divididos, diminuir a chance de disputa entre herdeiros e o tempo e o custo de um inventário."
+      "texto": "Que querem definir em vida como o patrimônio será transmitido, com menos risco de conflito entre herdeiros e um inventário mais simples."
     },
     {
-      "titulo": "Quem compra ou regulariza imóvel",
-      "texto": "Que precisa analisar documentos e riscos antes de assinar, ou colocar em ordem um imóvel que está irregular."
+      "titulo": "Casais",
+      "texto": "Que querem escolher ou alterar o regime de bens sabendo o efeito disso sobre o patrimônio e a sucessão."
+    },
+    {
+      "titulo": "Herdeiros",
+      "texto": "Que precisam abrir e conduzir um inventário e querem entender o caminho mais adequado, em cartório ou na Justiça."
     }
   ]
 }

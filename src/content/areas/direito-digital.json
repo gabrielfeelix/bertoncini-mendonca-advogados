@@ -1,162 +1,163 @@
 {
   "nome": "Direito Digital",
   "slug": "direito-digital",
-  "resumo": "Para quem vive e trabalha na internet: contratos, marca, dados pessoais e o que fazer quando algo dá errado.",
+  "resumo": "Seu negócio no digital, com estrutura jurídica para crescer e seus direitos protegidos em cada conexão.",
+  "chamada": {
+    "titulo": "Assessoria jurídica para quem empreende e desenvolve negócios no ambiente digital.",
+    "texto": "Da estruturação de contratos e parcerias à proteção de marcas, conteúdos e direitos, acompanhamos os desafios jurídicos de quem faz negócios na internet."
+  },
   "servicos": [
-    "Registro de marca",
-    "Recuperação de contas em redes sociais",
-    "Alvará judicial para publicidade envolvendo menores",
-    "Elaboração e revisão de contratos para negócios digitais",
-    "Contratos de publicidade e coprodução",
-    "Assessoria jurídica para influenciadores e empresas digitais"
+    "Assessoria jurídica para negócios digitais",
+    "Contratos digitais e e-commerce",
+    "Proteção de dados e LGPD",
+    "Propriedade intelectual e marcas",
+    "Publicidade e influência digital",
+    "Inteligência artificial e compliance digital",
+    "Redes sociais",
+    "Publicidade envolvendo menores"
   ],
   "assuntos": [
     {
-      "nome": "Criadores de conteúdo",
-      "faz": "Contrato com marcas, conta banida, conteúdo copiado e alvará para participação de criança."
+      "nome": "Assessoria jurídica para negócios digitais",
+      "faz": "Estruturação jurídica de negócios e operações digitais. Assessoria preventiva e consultiva."
+    },
+    {
+      "nome": "Contratos digitais e e-commerce",
+      "faz": "Elaboração e revisão de contratos. Termos de uso e políticas de privacidade. Recuperação de contas suspensas ou restringidas em Marketplace."
     },
     {
       "nome": "Proteção de dados e LGPD",
-      "faz": "Mapear o que a empresa coleta hoje, definir base legal e dar conta do pedido do titular no prazo."
+      "faz": "Adequação à LGPD. Políticas e documentos de proteção de dados."
     },
     {
-      "nome": "Propriedade intelectual",
-      "faz": "Registrar a marca no INPI e definir em contrato a quem pertence o que foi criado."
+      "nome": "Propriedade intelectual e marcas",
+      "faz": "Registro de marcas no INPI. Proteção de direitos autorais e conteúdos."
     },
     {
-      "nome": "Contratos eletrônicos e e-commerce",
-      "faz": "Termo de uso que descreve o negócio real, e a prova de que o outro lado concordou."
+      "nome": "Publicidade e influência digital",
+      "faz": "Contratos de publicidade, patrocínio e coprodução. Assessoria jurídica para marcas, agências e criadores."
     },
     {
-      "nome": "Crimes cibernéticos",
-      "faz": "Preservar a prova primeiro, porque é a etapa que mais se perde por demora, e depois remover e identificar."
+      "nome": "Inteligência artificial e compliance digital",
+      "faz": "Orientação jurídica sobre uso de inteligência artificial. Políticas internas e governança digital."
     },
     {
-      "nome": "Redes sociais e internet",
-      "faz": "Uso indevido de imagem, perfil falso e conteúdo ofensivo: remoção e responsabilização."
+      "nome": "Redes sociais",
+      "faz": "Recuperação de contas suspensas ou restringidas. Remoção de conteúdos e proteção de direitos."
     },
     {
-      "nome": "Inteligência artificial",
-      "faz": "Quais dados alimentam o sistema, de quem é o resultado e quem responde pelo erro."
-    },
-    {
-      "nome": "Compliance digital",
-      "faz": "Política escrita com rotina de aplicação, plano de resposta a incidente e revisão periódica."
+      "nome": "Publicidade envolvendo menores",
+      "faz": "Orientação jurídica e obtenção de alvará judicial."
     }
   ],
   "corpo": [
-    "Direito digital é o conjunto de regras que alcança o que empresas e pessoas fazem por meio da internet: os dados que coletam, o conteúdo que publicam, os contratos que assinam sem papel e os danos que sofrem ou causam em ambiente eletrônico.",
-    "Para quem trabalha com conteúdo, o perfil é fonte de renda, e os problemas jurídicos são próprios: contrato de publicidade e de parceria com marcas, conta desativada ou restringida pela plataforma, conteúdo copiado por outra pessoa, uso indevido da marca e, quando há criança em conteúdo publicitário, o alvará judicial que costuma ser exigido para a participação dela. Cada caso tem um caminho, extrajudicial ou judicial, e o primeiro passo costuma ser reunir a prova do que aconteceu.",
-    "A Lei 13.709/2018, a LGPD, exige base legal para cada tratamento de dado pessoal, informação clara ao titular, registro das operações e resposta aos pedidos de acesso, correção e exclusão. A adequação começa por um mapeamento: o que a empresa coleta hoje, por que coleta, com quem compartilha e por quanto tempo guarda. Sem esse inventário não há como definir base legal, escrever um aviso de privacidade honesto nem responder a um titular dentro do prazo.",
-    "Propriedade intelectual, no ambiente digital, é o que protege a marca, o software, o texto, a imagem e a identidade visual de um negócio. Registrar a marca no INPI, definir em contrato a quem pertence o que foi criado e reagir a uso indevido são medidas que valem mais antes do problema do que depois dele.",
-    "Contratos eletrônicos e e-commerce envolvem termos de uso, política de privacidade, regras de entrega e de troca, e a prova de que o outro lado de fato concordou. Um termo de uso copiado de outro site costuma não descrever o que aquele negócio realmente faz, e é justamente nesse descompasso que ele deixa de proteger.",
-    "Crimes cibernéticos, uso indevido de imagem, perfis falsos e conteúdo ofensivo em redes sociais têm caminhos próprios: preservação da prova, pedido de remoção, identificação do responsável e, quando cabe, responsabilização. A preservação da prova é a etapa que mais se perde por demora, e é a que sustenta todas as outras.",
-    "O uso de inteligência artificial levanta questões que já são jurídicas hoje: quais dados alimentam o sistema, de quem é o resultado gerado, o que se informa ao cliente e quem responde por um erro. A regulação ainda está em construção no Brasil, e o que existe de obrigação vem principalmente da LGPD e das regras gerais de responsabilidade.",
-    "Compliance digital reúne tudo isso em rotina: políticas escritas, controles de acesso, plano de resposta a incidente de segurança e revisão periódica. Documento arquivado sem rotina de aplicação não produz efeito nenhum, nem prático nem jurídico.",
-    "Atendemos todo o país, de forma online, e presencialmente em Maringá.",
-    "O trabalho começa por um diagnóstico do que já existe. Muita coisa costuma estar em uso sem estar escrita, e a primeira entrega é enxergar o que a empresa faz hoje."
+    "O Direito Digital envolve as relações jurídicas estabelecidas no ambiente tecnológico e suas repercussões nas atividades de empresas, profissionais e pessoas.",
+    "Para os negócios, abrange a estruturação de operações digitais, contratos, proteção de dados, propriedade intelectual, publicidade e uso de novas tecnologias. Para profissionais e pessoas físicas, também contempla a proteção de direitos relacionados à imagem, ao conteúdo e à presença nas plataformas digitais.",
+    "Nossa atuação combina assessoria preventiva e consultiva com medidas extrajudiciais e judiciais, conforme as necessidades de cada situação.",
+    "Acompanhamento jurídico de empresas que atuam na internet, incluindo estruturação de operações, revisão de práticas comerciais, contratos, parcerias e prevenção de riscos.",
+    "Elaboração e revisão de termos de uso, contratos e políticas aplicáveis às operações digitais, considerando o funcionamento do negócio e a legislação de consumo e proteção de dados.",
+    "Análise das operações de tratamento de dados pessoais, identificação das bases legais aplicáveis e elaboração de políticas e procedimentos para adequação à LGPD.",
+    "Registro de marcas, proteção de direitos autorais e definição contratual sobre titularidade e utilização de conteúdos, materiais e criações.",
+    "Estruturação jurídica de campanhas e relações comerciais entre marcas, agências e criadores de conteúdo, incluindo contratos, direitos de imagem, entregas e responsabilidades.",
+    "Orientação sobre riscos jurídicos relacionados ao uso de inteligência artificial, dados pessoais e propriedade intelectual, além da elaboração de políticas e diretrizes internas.",
+    "Atuação em situações envolvendo bloqueio de contas, perfis falsos, uso indevido de imagem e conteúdo, incluindo preservação de provas, pedidos de remoção e medidas judiciais cabíveis.",
+    "Orientação sobre os requisitos legais para participação de menores em campanhas publicitárias e produções de conteúdo, incluindo procedimentos para obtenção de autorização judicial."
   ],
   "perguntas": [
     {
-      "pergunta": "Alguém criou um perfil falso com meu nome e minha foto. O que posso fazer?",
-      "resposta": "Primeiro, guardar a prova: o link do perfil e capturas de tela com data e, quando o caso pede, ata notarial. Depois, denunciar à plataforma. Se o perfil não sair do ar, ou se for preciso saber quem está por trás dele, o Marco Civil da Internet permite pedir à Justiça a remoção e os dados de acesso do responsável."
+      "pergunta": "Por que uma empresa que atua na internet precisa de assessoria jurídica?",
+      "resposta": "Negócios digitais também precisam de contratos bem estruturados, proteção de dados, regularidade nas relações comerciais e proteção da propriedade intelectual. A assessoria jurídica ajuda a prevenir problemas e a estruturar o negócio para crescer com mais segurança."
     },
     {
-      "pergunta": "Minha conta foi banida ou restringida. Dá para recuperar pela Justiça?",
-      "resposta": "Muitas vezes, sim. Quando a plataforma desativa a conta sem explicar o motivo ou sem dar chance de defesa, e o recurso interno não resolve, é possível pedir o restabelecimento na Justiça, às vezes em caráter de urgência. O desfecho depende do caso e dos termos de uso; a análise começa pelo histórico da conta e pelas mensagens trocadas com a plataforma."
+      "pergunta": "Preciso registrar a marca do meu negócio digital?",
+      "resposta": "O registro no INPI é a principal forma de proteger juridicamente uma marca no Brasil. Ele garante ao titular o direito de uso exclusivo no respectivo segmento de atuação, evitando que terceiros utilizem sinais iguais ou semelhantes em determinadas circunstâncias."
     },
     {
-      "pergunta": "Recebi uma proposta de parceria com uma marca. O que verificar antes de aceitar?",
-      "resposta": "O que exatamente você vai entregar e em que prazo; por quanto tempo e em quais canais a marca pode usar a sua imagem e o seu conteúdo; se há exclusividade; como e quando o pagamento acontece; e o que acontece se uma das partes quiser encerrar antes. Vale conferir também como a publicação deve ser identificada como publicidade."
+      "pergunta": "O que fazer se minha conta no Instagram ou em outra rede social for suspensa?",
+      "resposta": "O primeiro passo é identificar o motivo da suspensão e reunir documentos e registros que demonstrem a titularidade da conta e eventual irregularidade da medida. Dependendo do caso, é possível buscar a recuperação por vias administrativas ou judiciais."
     },
     {
-      "pergunta": "A LGPD se aplica à minha empresa, mesmo sendo pequena?",
-      "resposta": "Sim. A LGPD não tem corte por porte ou faturamento: alcança quem trata dados pessoais, e isso inclui cadastro de cliente, currículo recebido, lista de e-mails e imagem de câmera. O que muda com o porte é a proporção das medidas, não a existência da obrigação. A ANPD editou regras simplificadas para agentes de pequeno porte."
+      "pergunta": "Influenciadores digitais precisam de contratos com as marcas?",
+      "resposta": "Sim. O contrato estabelece as obrigações de cada parte, entregas, remuneração, prazos, direitos de imagem, uso do conteúdo e responsabilidades. Isso reduz ambiguidades e previne conflitos durante e após a parceria."
     },
     {
-      "pergunta": "Por onde começa a adequação à LGPD?",
-      "resposta": "Pelo mapeamento: quais dados pessoais a empresa coleta, com que finalidade, com quem compartilha e por quanto tempo guarda. Sem esse inventário não há como definir base legal, escrever aviso de privacidade nem responder a um pedido de titular."
+      "pergunta": "Posso utilizar imagens, vídeos ou músicas encontrados na internet no meu conteúdo?",
+      "resposta": "Não necessariamente. O fato de um conteúdo estar disponível na internet não significa que seu uso seja livre. Imagens, vídeos, músicas e textos podem estar protegidos por direitos autorais, sendo necessário observar as condições de utilização ou obter autorização."
     },
     {
-      "pergunta": "Sofri um vazamento de dados. O que preciso fazer?",
-      "resposta": "Conter o incidente, registrar o que aconteceu e avaliar o risco aos titulares. Havendo risco relevante, a LGPD exige comunicação à ANPD e aos titulares afetados, em prazo razoável. A documentação do que foi feito, e de quando, costuma ser decisiva na avaliação da autoridade."
+      "pergunta": "Meu negócio digital precisa estar adequado à LGPD?",
+      "resposta": "Sim, se realiza operações de tratamento de dados pessoais, como coleta de informações de clientes, leads ou usuários. A LGPD estabelece regras para esse tratamento, e o negócio deve adotar medidas compatíveis com suas atividades e responsabilidades."
     },
     {
-      "pergunta": "Preciso registrar minha marca?",
-      "resposta": "O registro no INPI é o que garante o uso exclusivo da marca em todo o país dentro da classe registrada. Sem ele, o uso apenas prolongado cria uma proteção bem mais frágil, e existe o risco concreto de um terceiro registrar antes e exigir que você pare de usar o próprio nome."
+      "pergunta": "Preciso de termos de uso e política de privacidade no meu site ou plataforma?",
+      "resposta": "Esses documentos são importantes para estabelecer as regras de utilização do serviço e informar como os dados pessoais são coletados, utilizados e armazenados. A necessidade e o conteúdo devem considerar as características da operação digital."
     },
     {
-      "pergunta": "Posso usar em contrato o texto gerado por inteligência artificial?",
-      "resposta": "Como ponto de partida, sim; como versão final, não. O texto gerado não conhece o caso concreto, costuma reproduzir cláusulas incompatíveis entre si e às vezes cita norma que não existe ou já foi revogada. A revisão por advogado é o que transforma o rascunho em documento que se sustenta."
+      "pergunta": "Posso utilizar inteligência artificial na minha empresa sem riscos jurídicos?",
+      "resposta": "O uso de ferramentas de inteligência artificial exige atenção a questões como proteção de dados pessoais, direitos autorais, confidencialidade e responsabilidade pelas informações produzidas. A adoção de diretrizes internas ajuda a estabelecer limites e reduzir riscos."
     },
     {
-      "pergunta": "Posso colocar dados de clientes no ChatGPT?",
-      "resposta": "Com cuidado. Inserir dado pessoal numa ferramenta de inteligência artificial é tratamento de dado pela LGPD: precisa de base legal, de informação ao titular e de atenção ao que o fornecedor faz com o que recebe. O caminho mais seguro costuma ser anonimizar antes, usar versões corporativas com contrato de tratamento de dados e ter uma regra interna sobre o que pode ser inserido."
+      "pergunta": "É possível remover da internet um conteúdo que utiliza minha imagem ou minha marca indevidamente?",
+      "resposta": "Sim. Dependendo das circunstâncias, é possível solicitar a remoção do conteúdo diretamente à plataforma e, quando necessário, buscar medidas judiciais. A estratégia depende da natureza da violação e das provas disponíveis."
     },
     {
-      "pergunta": "Minha empresa precisa de um encarregado de dados (DPO)?",
-      "resposta": "Pela LGPD, a regra é que sim. A ANPD dispensou os agentes de pequeno porte dessa indicação, desde que mantenham um canal de comunicação com os titulares. Mesmo dispensada, a empresa precisa saber quem responde internamente pelos pedidos e pelos incidentes."
-    },
-    {
-      "pergunta": "Quem é dono de um conteúdo criado por inteligência artificial?",
-      "resposta": "Ainda não há resposta fechada no Brasil. A Lei de Direitos Autorais protege obras criadas por pessoas, e o conteúdo gerado sem contribuição criativa humana relevante tem proteção incerta. Em trabalho feito com IA, o que define a titularidade na prática é o contrato entre quem encomendou e quem produziu, junto com os termos da ferramenta usada."
+      "pergunta": "Preciso de autorização judicial para divulgar imagens de crianças e adolescentes em campanhas publicitárias?",
+      "resposta": "A participação de crianças e adolescentes em publicidade pode exigir autorização judicial, conforme as características da atividade e as exigências legais aplicáveis. É importante avaliar previamente o projeto para identificar os requisitos e evitar irregularidades."
     }
   ],
   "ordem": 2,
   "mensagemWhatsapp": "Olá, preciso de orientação sobre direito digital.",
   "cenas": [
     {
-      "indice": 1,
-      "rubrica": "Criadores de conteúdo"
-    },
-    {
-      "indice": 2,
-      "rubrica": "Proteção de dados"
-    },
-    {
       "indice": 3,
-      "rubrica": "Propriedade intelectual"
+      "rubrica": "Assessoria jurídica para negócios digitais"
     },
     {
       "indice": 4,
-      "rubrica": "Contratos e e-commerce"
+      "rubrica": "Contratos digitais e e-commerce"
     },
     {
       "indice": 5,
-      "rubrica": "Quando algo dá errado"
+      "rubrica": "Proteção de dados e LGPD"
     },
     {
       "indice": 6,
-      "rubrica": "Inteligência artificial"
+      "rubrica": "Propriedade intelectual e marcas"
     },
     {
       "indice": 7,
-      "rubrica": "Compliance digital"
+      "rubrica": "Publicidade, influência digital e parcerias"
     },
     {
       "indice": 8,
-      "rubrica": "Onde atendemos",
-      "foto": "maringa",
-      "fotoAlt": "A Catedral de Maringá ao anoitecer, vista da avenida, com o céu ainda azul."
+      "rubrica": "Inteligência artificial e compliance digital"
+    },
+    {
+      "indice": 9,
+      "rubrica": "Redes sociais e proteção de direitos na internet"
+    },
+    {
+      "indice": 10,
+      "rubrica": "Publicidade envolvendo crianças e adolescentes"
     }
   ],
-  "publicoCurto": "Criadores de conteúdo, infoprodutores, e-commerces, agências e empresas que dependem da internet.",
+  "publicoCurto": "Atuamos ao lado de empresas, profissionais e criadores de conteúdo nas relações e nos desafios do ambiente digital.",
   "publicos": [
     {
+      "titulo": "Empresas e negócios digitais",
+      "texto": "Empresas de tecnologia, e-commerces, plataformas digitais, agências e negócios que utilizam a internet como parte de suas operações."
+    },
+    {
+      "titulo": "Agências, produtoras e assessorias",
+      "texto": "Agências de publicidade, marketing e comunicação, produtoras de conteúdo e assessorias que atuam na intermediação de negócios e campanhas digitais."
+    },
+    {
       "titulo": "Criadores de conteúdo e infoprodutores",
-      "texto": "Contrato de publicidade e de parceria, registro de marca, conta banida ou restringida, conteúdo copiado e alvará para a participação de criança em publicidade."
-    },
-    {
-      "titulo": "E-commerces e empresas",
-      "texto": "Termos de uso, política de privacidade, adequação à LGPD e uso de inteligência artificial no atendimento e na operação."
-    },
-    {
-      "titulo": "Agências e assessorias",
-      "texto": "Contratos com clientes e com criadores, direitos sobre o que é produzido e responsabilidade pelo que é publicado."
+      "texto": "Influenciadores, produtores de conteúdo e profissionais que comercializam cursos, produtos e serviços pela internet."
     },
     {
       "titulo": "Pessoas",
-      "texto": "Perfil falso, conta invadida, foto publicada sem autorização e ofensa na internet."
+      "texto": "Pessoas que precisam de orientação jurídica em questões envolvendo redes sociais, imagem, conteúdo e proteção de direitos no ambiente digital."
     }
   ]
 }

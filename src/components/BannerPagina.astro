@@ -31,6 +31,9 @@ interface Props {
   video?: string;
   /** Enquadramento da foto (CSS background-position). */
   posicao?: string;
+  /** Rótulo pequeno acima do título, só na capa alta (ex.: "O escritório"
+      sobre a frase de apresentação). */
+  rotulo?: string;
   /** Linha de apoio sob o título, só na capa alta. */
   apoio?: string;
   /** Enquadramento da foto da capa alta no celular, onde ela ocupa a
@@ -49,6 +52,7 @@ const {
   video,
   posicao = 'center',
   apoio,
+  rotulo,
   posicaoCelular,
 } = Astro.props;
 const tx = t(lang);
@@ -69,6 +73,7 @@ const tx = t(lang);
   )}
   {alto && <img class="banner-foto" src={foto} alt="" style={`--posicao:${posicao};--posicao-celular:${posicaoCelular ?? posicao}`} />}
   <div class="container">
+    {(alto || cheio) && rotulo && <p class="banner-rotulo">{rotulo}</p>}
     {html ? <h1 set:html={html} /> : <h1>{titulo}</h1>}
     {(alto || cheio) && apoio && <p class="banner-apoio">{apoio}</p>}
     {/* Conteúdo extra da capa alta (ex.: a busca da Central de Conteúdos). */}

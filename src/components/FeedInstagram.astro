@@ -20,7 +20,9 @@
  * acrescenta setas e bolinhas; sem ele, a fileira continua rolável. Não
  * anda sozinho.
  *
- * Sem nenhum post (lista curada vazia e sem API), não renderiza nada.
+ * Sem nenhum post (lista curada vazia e sem API), a faixa fica só com o
+ * chamado para seguir o perfil do escritório: texto à esquerda, botão à
+ * direita, sem grade vazia (18/11/2026).
  *
  * Uso: <FeedInstagram lang={lang} />  (props opcionais abaixo).
  */
@@ -85,6 +87,24 @@ const formatoData = new Intl.DateTimeFormat(tx.locale, { day: 'numeric', month: 
    Brasília): meio-dia evita o salto. */
 const quando = (data: string) => new Date(data.length === 10 ? `${data}T12:00:00-03:00` : data);
 ---
+
+{posts.length === 0 && (
+  <section class="insta insta-so-perfil" aria-labelledby={id}>
+    <div class="container insta-chamada">
+      <div>
+        <p class="insta-rotulo">{tx.rotulo}</p>
+        <h2 id={id} set:html={titulo} />
+        <p class="insta-apoio">{texto}</p>
+      </div>
+      <div class="insta-acao">
+        <a class="botao" href={perfil.url} target="_blank" rel="noopener noreferrer">
+          {tx.botao}<span class="sr"> {tx.novaAba}</span>
+        </a>
+        <p class="insta-arroba">{perfil.arroba}</p>
+      </div>
+    </div>
+  </section>
+)}
 
 {posts.length > 0 && (
   <section class="insta" aria-labelledby={id}>
@@ -235,6 +255,16 @@ const quando = (data: string) => new Date(data.length === 10 ? `${data}T12:00:00
   /* Cinza claro: na home ela vem entre Publicações (branco) e Perguntas
      (branco), alternando o ritmo. O creme saiu em 07/11/2026. */
   .insta { background: var(--fundo-cinza); padding: 80px 0; overflow: hidden; }
+
+  /* Sem posts: uma linha só, chamado à esquerda e o botão à direita. */
+  .insta-so-perfil { padding: 64px 0; }
+  .insta-chamada { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 56px; align-items: center; }
+  .insta-chamada .insta-apoio { margin-bottom: 0; max-width: 60ch; }
+  .insta-acao { text-align: center; }
+  @media (max-width: 680px) {
+    .insta-chamada { grid-template-columns: 1fr; }
+    .insta-acao { text-align: left; }
+  }
 
   .insta-env {
     display: grid;

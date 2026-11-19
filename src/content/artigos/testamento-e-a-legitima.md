@@ -1,11 +1,10 @@
 ---
 titulo: "Testamento: até onde vai a liberdade de escolher"
 resumo: "Havendo herdeiros necessários, metade do patrimônio já tem destino definido por lei. O testamento dispõe da outra metade, e é nessa metade que ele resolve problemas."
-capa: /media/capas/testamento.jpg
-capaLargura: 1600
-capaAltura: 1200
-capaAlt: "Close-up da ponta dourada de uma caneta-tinteiro sobre uma folha de papel branco escrita à mão em tinta preta."
-capaCredito: "Foto: Petar Milošević, CC BY-SA 4.0, via Wikimedia Commons"
+capa: /media/capas/testamento-regime.jpg
+capaLargura: 611
+capaAltura: 1080
+capaAlt: "Foto em preto e branco de uma mão assinando com caneta um documento impresso sobre a mesa, enquanto outra pessoa apoia a mão ao lado da folha."
 categoria: "Planejamento patrimonial e sucessório"
 autor: ""
 publicadoEm: 2026-07-21

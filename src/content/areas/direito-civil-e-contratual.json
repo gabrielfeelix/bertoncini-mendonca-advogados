@@ -1,0 +1,139 @@
+{
+  "nome": "Direito Civil e Contratual",
+  "slug": "direito-civil-e-contratual",
+  "resumo": "Seus direitos, suas relações e seus acordos merecem atenção jurídica em cada etapa.",
+  "chamada": {
+    "titulo": "Segurança jurídica para suas relações, contratos e negócios.",
+    "texto": "Da estruturação de contratos à resolução de conflitos, oferecemos assessoria jurídica para proteger seus interesses e dar segurança às suas relações pessoais e empresariais."
+  },
+  "servicos": [
+    "Elaboração e revisão de contratos",
+    "Negociação e estruturação contratual",
+    "Consultoria e prevenção de riscos",
+    "Inadimplemento e rescisão contratual",
+    "Responsabilidade civil e indenizações",
+    "Resolução de conflitos"
+  ],
+  "assuntos": [
+    {
+      "nome": "Elaboração e revisão de contratos",
+      "faz": "Elaboração e revisão de contratos comerciais, empresariais e particulares. Adequação de cláusulas, obrigações e responsabilidades."
+    },
+    {
+      "nome": "Negociação e estruturação contratual",
+      "faz": "Assessoria na negociação e formalização de negócios. Definição de condições comerciais, direitos e obrigações das partes."
+    },
+    {
+      "nome": "Consultoria e prevenção de riscos",
+      "faz": "Análise de riscos contratuais e jurídicos. Orientação sobre obrigações, direitos e relações jurídicas."
+    },
+    {
+      "nome": "Inadimplemento e rescisão contratual",
+      "faz": "Cobrança e recuperação de créditos. Rescisão contratual e apuração de perdas e danos."
+    },
+    {
+      "nome": "Responsabilidade civil e indenizações",
+      "faz": "Reparação de danos materiais e morais. Responsabilidade civil contratual e extracontratual."
+    },
+    {
+      "nome": "Resolução de conflitos",
+      "faz": "Negociação e medidas extrajudiciais. Representação em processos judiciais e defesa de interesses."
+    }
+  ],
+  "corpo": [
+    "O Direito Civil e Contratual está presente nas relações pessoais e empresariais, disciplinando direitos, obrigações e responsabilidades. Contratos, negociações e compromissos assumidos fazem parte da rotina de empresas e pessoas, e sua adequada estruturação é fundamental para evitar conflitos e proteger interesses.",
+    "No ambiente empresarial, a segurança das relações contratuais influencia diretamente as operações, as parcerias comerciais e a prestação de serviços. Já nas relações particulares, o Direito Civil estabelece parâmetros para a proteção de direitos, o cumprimento de obrigações e a reparação de danos.",
+    "Nossa atuação busca oferecer suporte jurídico em todas essas etapas, desde a elaboração e negociação de instrumentos contratuais até a orientação diante de descumprimentos, divergências e conflitos, por meio de medidas preventivas, extrajudiciais e judiciais.",
+    "A elaboração de contratos exige compreensão do negócio, das condições negociadas e dos riscos envolvidos. Atuamos na criação e revisão de instrumentos contratuais, buscando estabelecer com clareza os direitos, deveres, prazos, condições e responsabilidades das partes.",
+    "A formalização de um negócio envolve decisões que podem produzir efeitos jurídicos e financeiros relevantes. Prestamos assessoria na negociação de condições contratuais, identificação de riscos e estruturação de obrigações, contribuindo para relações mais equilibradas e seguras.",
+    "A orientação jurídica preventiva permite identificar riscos antes que se transformem em conflitos. Analisamos relações jurídicas, obrigações assumidas e documentos, oferecendo direcionamento para decisões e práticas alinhadas à legislação e aos interesses do cliente.",
+    "O descumprimento de obrigações pode gerar prejuízos e comprometer relações comerciais e particulares. Atuamos na cobrança de valores, negociação de soluções, rescisão de contratos e apuração de perdas e danos, conforme as circunstâncias de cada caso.",
+    "A responsabilidade civil envolve o dever de reparar danos causados a terceiros, seja pelo descumprimento de obrigações contratuais, seja por condutas que violem direitos. A atuação abrange a análise da responsabilidade, a busca pela reparação de prejuízos e a defesa dos interesses envolvidos.",
+    "Quando surgem divergências ou disputas, avaliamos as alternativas jurídicas disponíveis para buscar a solução mais adequada. A atuação pode envolver negociações, notificações, acordos extrajudiciais e representação em processos judiciais."
+  ],
+  "perguntas": [
+    {
+      "pergunta": "Por que é importante elaborar um contrato antes de fechar um negócio?",
+      "resposta": "O contrato formaliza o que foi negociado, estabelece direitos e obrigações e define as responsabilidades de cada parte. Além de evitar dúvidas e interpretações divergentes, permite antecipar riscos e prevenir conflitos futuros."
+    },
+    {
+      "pergunta": "Um contrato verbal tem validade jurídica?",
+      "resposta": "Sim. Em regra, os contratos não dependem de forma escrita para serem válidos, salvo quando a lei exigir formalidade específica. O principal desafio é comprovar os termos do acordo e as obrigações assumidas em caso de divergência."
+    },
+    {
+      "pergunta": "Assinei um contrato, mas me arrependi. Posso desistir?",
+      "resposta": "Depende do tipo de contrato, das condições pactuadas e das circunstâncias da contratação. Existem situações em que a lei ou o próprio contrato permitem a desistência, mas a rescisão sem justificativa pode gerar consequências financeiras."
+    },
+    {
+      "pergunta": "O que posso fazer quando a outra parte não cumpre o contrato?",
+      "resposta": "É possível exigir o cumprimento da obrigação, negociar uma solução ou buscar a rescisão contratual, conforme o caso. Também pode haver direito à indenização por prejuízos decorrentes do descumprimento."
+    },
+    {
+      "pergunta": "É possível revisar um contrato depois de assinado?",
+      "resposta": "Sim, em determinadas circunstâncias. A revisão pode ser cabível quando houver desequilíbrio contratual relevante, situações excepcionais ou cláusulas abusivas, observados os requisitos legais e a natureza da relação jurídica."
+    },
+    {
+      "pergunta": "Posso cobrar judicialmente uma pessoa ou empresa que não pagou uma dívida?",
+      "resposta": "Sim. A cobrança pode ocorrer por meios extrajudiciais ou judiciais, dependendo da situação. A documentação da dívida, como contratos, notas fiscais, comprovantes e mensagens, é importante para demonstrar a existência da obrigação."
+    },
+    {
+      "pergunta": "Em quais situações posso responsabilizar alguém por um prejuízo que sofri?",
+      "resposta": "A responsabilidade civil pode surgir quando uma pessoa ou empresa causa prejuízo a outra por uma ação ou omissão juridicamente relevante. Isso pode ocorrer, por exemplo, em acidentes, falhas na prestação de serviços, descumprimento de deveres contratuais ou danos causados por produtos. A possibilidade de indenização depende das circunstâncias e dos requisitos legais de cada situação."
+    },
+    {
+      "pergunta": "Quais prejuízos podem ser objeto de indenização?",
+      "resposta": "A indenização pode abranger danos materiais, como despesas, perdas financeiras e lucros cessantes, e danos morais, quando houver lesão relevante a direitos da personalidade. Em determinadas situações, também podem ser reconhecidos danos estéticos. A reparação depende da demonstração do prejuízo e dos demais requisitos legais aplicáveis."
+    },
+    {
+      "pergunta": "É possível resolver um conflito contratual sem entrar na Justiça?",
+      "resposta": "Sim. A negociação, a mediação e os acordos extrajudiciais são alternativas para solucionar conflitos sem a necessidade de um processo judicial. A viabilidade depende da situação e da disposição das partes em negociar."
+    },
+    {
+      "pergunta": "Quando devo procurar um advogado para analisar um contrato?",
+      "resposta": "O ideal é buscar orientação antes de assinar, especialmente quando o contrato envolve valores relevantes, obrigações de longo prazo, garantias ou riscos financeiros. A análise prévia permite identificar cláusulas desfavoráveis e negociar condições mais adequadas."
+    }
+  ],
+  "ordem": 3,
+  "mensagemWhatsapp": "Olá, preciso de orientação sobre direito civil e contratual.",
+  "cenas": [
+    {
+      "indice": 3,
+      "rubrica": "Elaboração e revisão de contratos"
+    },
+    {
+      "indice": 4,
+      "rubrica": "Negociação e estruturação contratual"
+    },
+    {
+      "indice": 5,
+      "rubrica": "Consultoria e prevenção de riscos"
+    },
+    {
+      "indice": 6,
+      "rubrica": "Inadimplemento e rescisão contratual"
+    },
+    {
+      "indice": 7,
+      "rubrica": "Responsabilidade civil e indenizações"
+    },
+    {
+      "indice": 8,
+      "rubrica": "Resolução de conflitos"
+    }
+  ],
+  "publicoCurto": "Oferecemos assessoria em contratos, obrigações, responsabilidade civil e resolução de conflitos, tanto nas relações pessoais quanto empresariais.",
+  "publicos": [
+    {
+      "titulo": "Empresas e empreendedores",
+      "texto": "Empresas de diferentes segmentos que precisam formalizar relações comerciais, estruturar contratos, negociar obrigações e obter orientação jurídica para suas atividades."
+    },
+    {
+      "titulo": "Prestadores de serviços e profissionais autônomos",
+      "texto": "Profissionais que contratam ou prestam serviços e precisam estabelecer condições claras de trabalho, remuneração, responsabilidades e obrigações."
+    },
+    {
+      "titulo": "Pessoas físicas",
+      "texto": "Pessoas que necessitam de orientação jurídica em relações contratuais, obrigações, responsabilidade civil, indenizações e proteção de direitos."
+    }
+  ]
+}

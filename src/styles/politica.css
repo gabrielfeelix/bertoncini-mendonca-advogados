@@ -21,8 +21,20 @@
 .politica table { width: 100%; border-collapse: collapse; font-size: 15px; }
 .politica th, .politica td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--linha); }
 .politica th { background: var(--fundo-cinza); color: var(--azul); }
+.politica tbody th { background: none; font-weight: 500; }
+.politica .tabela-larga table { min-width: 720px; }
+/* Lista de definições e itens das políticas: espaço entre itens longos. */
+.politica .texto li + li { margin-top: 6px; }
+/* "Preferências de cookies" citado no texto abre a central de preferências
+   (AvisoCookies.astro) e tem cara de link, não de botão. */
+.politica .abrir-preferencias {
+  background: none; border: 0; padding: 0; margin: 0;
+  font: inherit; color: var(--azul-medio); text-decoration: underline; cursor: pointer;
+}
+.politica .abrir-preferencias:hover { color: var(--azul); }
 @media (max-width: 680px) {
   .politica h1 { font-size: 30px; }
+  .politica .tabela-larga table { min-width: 0; }
   /* No celular a tabela de três colunas virava colunas de uma palavra e
      rolava de lado escondida. Cada linha vira um bloco; o nome da coluna
      vem do data-rotulo de cada célula. */

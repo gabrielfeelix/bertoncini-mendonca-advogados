@@ -11,6 +11,14 @@
  * As páginas que usam esta view são renderizadas a cada pedido
  * (prerender = false), porque a mensagem de resultado precisa existir no
  * HTML de quem volta do 303.
+ *
+ * WhatsApp (18/11/2026, reunião do Gabriel): com JavaScript, ao enviar, a
+ * página abre também o WhatsApp do escritório com a mensagem montada a
+ * partir do que a pessoa preencheu, mesmo se a API falhar. A janela abre
+ * na própria ação do envio, para o navegador não bloquear; se bloquear, o
+ * resultado traz o link "Abrir o WhatsApp". Sem JavaScript, só a API.
+ * O botão continua "Enviar mensagem": sem JavaScript não há WhatsApp, e o
+ * texto de apoio avisa do WhatsApp.
  */
 import Base from '~/layouts/Base.astro';
 import BannerPagina from '~/components/BannerPagina.astro';
@@ -19,7 +27,6 @@ import Seletor from '~/components/Seletor.astro';
 import { CAMPOS_ISCA } from '~/lib/antispam';
 import { site } from '~/lib/site';
 import { areasDoIdioma } from '~/lib/areas';
-import { outrasAreas } from '~/lib/outras-areas';
 import { t, rota, type Idioma } from '~/lib/i18n';
 
 interface Props {
@@ -33,19 +40,14 @@ const envio = Astro.url.searchParams.get('envio-contato');
 const motivo = Astro.url.searchParams.get('motivo-contato');
 const mensagemErro = c.erros[motivo ?? ''] ?? c.erros.envio;
 
-const valores = { nome: '', email: '', telefone: '', assunto: '', perfil: '', conheceu: '', mensagem: '' };
+const valores = { nome: '', email: '', telefone: '', cidade: '', assunto: '', perfil: '', conheceu: '', mensagem: '', newsletter: '' };
 
 const areas = await areasDoIdioma(lang);
-/* As áreas pequenas ("Também atuamos em") também são assunto: o painel delas
-   manda ?assunto=<chave> para cá. */
-const outras = outrasAreas(lang);
-const ASSUNTOS = [...areas.map((a) => a.data.nome), ...outras.map((o) => o.nome), c.outroAssunto, c.naoSei];
+const ASSUNTOS = [...areas.map((a) => a.data.nome), c.outroAssunto, c.naoSei];
 
 /* A página da área manda ?assunto=<slug em português>: quem vem de lá chega com o assunto escolhido. */
 const areaDoLink = areas.find((a) => a.slugPt === Astro.url.searchParams.get('assunto'));
 if (areaDoLink) valores.assunto = areaDoLink.data.nome;
-const outraDoLink = outras.find((o) => o.chave === Astro.url.searchParams.get('assunto'));
-if (outraDoLink) valores.assunto = outraDoLink.nome;
 
 /* Sem JavaScript, quem erra volta com o que digitou (a API devolve em v-<campo>). */
 if (envio === 'erro') {
@@ -55,10 +57,19 @@ if (envio === 'erro') {
 }
 /* Mapa ?assunto= → opção, para o navegador marcar o assunto quando a página
    chega pré-gerada (prévia em /v3), onde o servidor não lê a URL. */
-const mapaAssuntos = Object.fromEntries([
-  ...areas.map((a) => [a.slugPt, a.data.nome]),
-  ...outras.map((o) => [o.chave, o.nome]),
-]);
+const mapaAssuntos = Object.fromEntries(areas.map((a) => [a.slugPt, a.data.nome]));
+
+/* Base do link do WhatsApp (sem o texto padrão) e os rótulos da mensagem montada. */
+const whatsBase = site.whatsapp.valor.split('?')[0];
+const rotulosZap = {
+  ...c.zap,
+  assunto: c.assunto,
+  perfil: c.perfil,
+  telefone: c.telefone,
+  cidade: c.cidade,
+  email: c.email,
+  mensagem: c.mensagem,
+};
 const houveCorte = envio === 'erro' && Astro.url.searchParams.get('corte-contato') === '1';
 const campoComErro =
   motivo === 'email' ? 'email' : motivo === 'faltando' ? (valores.nome ? 'mensagem' : 'nome') : null;
@@ -103,6 +114,12 @@ const erroEm = (campo: string) =>
           data-enviando={c.enviando}
           data-sem-conexao={c.semConexao}
           data-erros={JSON.stringify(c.erros)}
+          data-whats={whatsBase}
+          data-zap={JSON.stringify(rotulosZap)}
+          data-ok-whats={c.okWhats}
+          data-whats-bloqueado={c.whatsBloqueado}
+          data-whats-falhou={c.whatsFalhou}
+          data-abrir-whats={c.abrirWhats}
         >
           <input type="hidden" name="idioma" value={lang} />
           <div class="linha-2">
@@ -115,9 +132,17 @@ const erroEm = (campo: string) =>
               <input id="telefone" name="telefone" type="tel" autocomplete="tel" maxlength="40" value={valores.telefone} />
             </div>
           </div>
-          <div>
-            <label for="email">{c.email} *</label>
-            <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" value={valores.email} {...erroEm('email')} />
+          {/* Cidade (18/11/2026): a política de privacidade lista "cidade" entre
+              os dados do formulário; o campo faltava. Opcional. */}
+          <div class="linha-2">
+            <div>
+              <label for="email">{c.email} *</label>
+              <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" value={valores.email} {...erroEm('email')} />
+            </div>
+            <div>
+              <label for="cidade">{c.cidade}</label>
+              <input id="cidade" name="cidade" type="text" autocomplete="address-level2" maxlength="80" value={valores.cidade} />
+            </div>
           </div>
           <div class="linha-2">
             <div>
@@ -152,9 +177,17 @@ const erroEm = (campo: string) =>
           </div>
 
           <Seletor />
+          {/* Caixa opcional, desmarcada (Política de Cookies dos sócios,
+              18/11/2026). Só em português: a newsletter é só em português. */}
+          {lang === 'pt' && (
+            <label class="caixa">
+              <input type="checkbox" name="newsletter" value="1" checked={valores.newsletter === '1'} />
+              <span>{c.newsletter}</span>
+            </label>
+          )}
           <div><button type="submit" class="botao">{c.enviar}</button></div>
           <p class="nota">
-            {c.nota} <a href={rota(lang, '/politica-de-privacidade/')}>{c.notaLink}</a>.
+            {c.nota} <a href={rota(lang, '/politica-de-privacidade/')}>{c.notaLink}</a>. {c.notaPatrocinio}
           </p>
         </form>
       </div>
@@ -175,7 +208,7 @@ const erroEm = (campo: string) =>
               <span class="canal-icone"><Icone nome="email" tamanho={18} /></span>
               <div>
                 <strong>{c.email}</strong>
-                <a href={`mailto:${site.email.valor}`} set:html={site.email.valor.replace('@', '@<wbr>')} />
+                <a class="email" href={`mailto:${site.email.valor}`}>{site.email.valor}</a>
               </div>
             </li>
             <li>
@@ -229,8 +262,44 @@ const erroEm = (campo: string) =>
   if (forma && resultado && botao) {
     const textos = forma.dataset;
     const erros = JSON.parse(textos.erros ?? '{}') as Record<string, string>;
+    const zap = JSON.parse(textos.zap ?? '{}') as Record<string, string>;
+
+    /* Mensagem do WhatsApp: saudação pela hora local, nome e os campos
+       preenchidos, um por linha. Campo vazio não entra. */
+    const montarZap = (dados: FormData) => {
+      const campo = (nome: string) => String(dados.get(nome) ?? '').trim();
+      const hora = new Date().getHours();
+      const saudacao = hora < 12 ? zap.bomDia : hora < 18 ? zap.boaTarde : zap.boaNoite;
+      const linhas = [`${saudacao} ${zap.meuNome} ${campo('nome')}.`];
+      for (const nome of ['assunto', 'perfil', 'cidade', 'telefone', 'email', 'mensagem']) {
+        const valor = campo(nome);
+        if (valor) linhas.push(`${zap[nome]}: ${valor}`);
+      }
+      return `${textos.whats}?text=${encodeURIComponent(linhas.join('\n'))}`;
+    };
+
+    /* Resultado com o link do WhatsApp no fim (janela bloqueada ou API fora). */
+    const mostrarComLink = (texto: string, link: string) => {
+      resultado.textContent = `${texto} `;
+      const a = document.createElement('a');
+      a.href = link;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = textos.abrirWhats ?? '';
+      resultado.append(a);
+    };
+
     forma.addEventListener('submit', async (evento) => {
       evento.preventDefault();
+      const dados = new FormData(forma);
+      const linkZap = montarZap(dados);
+      /* Abre já, ainda dentro do evento de envio: depois do fetch o
+         navegador trataria como janela não pedida e bloquearia. */
+      /* Sem o 'noopener' nas opções: com ele o retorno é sempre null e não
+         daria para saber se o navegador bloqueou. O opener é cortado logo depois. */
+      const janela = window.open(linkZap, '_blank');
+      if (janela) janela.opener = null;
+      const abriu = janela !== null;
       botao.disabled = true;
       resultado.hidden = false;
       resultado.classList.remove('falhou');
@@ -238,20 +307,21 @@ const erroEm = (campo: string) =>
       try {
         const resposta = await fetch('/api/contato', {
           method: 'POST',
-          body: new FormData(forma),
+          body: dados,
           headers: { accept: 'application/json' },
         });
-        const dados = (await resposta.json().catch(() => ({}))) as { codigo?: string };
+        const corpo = (await resposta.json().catch(() => ({}))) as { codigo?: string };
         if (resposta.ok) {
           forma.reset();
-          resultado.textContent = textos.ok ?? '';
+          if (abriu) resultado.textContent = textos.okWhats ?? '';
+          else mostrarComLink(textos.whatsBloqueado ?? '', linkZap);
         } else {
           resultado.classList.add('falhou');
-          resultado.textContent = erros[dados.codigo ?? ''] ?? erros.envio;
+          mostrarComLink(`${erros[corpo.codigo ?? ''] ?? erros.envio} ${textos.whatsFalhou ?? ''}`, linkZap);
         }
       } catch {
         resultado.classList.add('falhou');
-        resultado.textContent = textos.semConexao ?? '';
+        mostrarComLink(`${textos.semConexao ?? ''} ${textos.whatsFalhou ?? ''}`, linkZap);
       } finally {
         botao.disabled = false;
         resultado.focus();
@@ -261,6 +331,15 @@ const erroEm = (campo: string) =>
 </script>
 
 <style>
+  /* Lateral mais larga (18/11/2026): o e-mail cabe numa linha só, sem
+     separar "contato" de "@bertoncinimendonca.adv.br". */
+  .secao > .com-lateral { grid-template-columns: minmax(0, 1fr) 400px; }
+  .canais .email { white-space: nowrap; }
+  .caixa { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; font-weight: 400; line-height: 1.5; color: var(--texto); cursor: pointer; }
+  .caixa input { flex: none; width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--azul); }
+  .resultado :global(a) { font-weight: 500; }
+  @media (max-width: 991px) { .secao > .com-lateral { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 420px) { .canais .email { font-size: 14px; } .widget { padding: 22px 18px; } }
   .canais { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 16px; }
   .canais li { display: flex; gap: 12px; align-items: flex-start; border: 0 !important; }
   .canais div { display: grid; gap: 2px; font-size: 15px; }

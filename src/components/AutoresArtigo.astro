@@ -29,10 +29,10 @@ const autores = autoresDoArtigo(Astro.props.autor).map((socio) => ({
       {autores.map((a) => (
         <li class="autor">
           <img
-            src={`${a.socio.retrato}-560.jpg`}
+            src={a.socio.rosto}
             alt=""
-            width="560"
-            height="840"
+            width="320"
+            height="320"
             loading="lazy"
           />
           <div class="autor-texto">

@@ -2,7 +2,8 @@
 /**
  * Capa da home em slides (v3).
  *
- * Três slides: o escritório e as duas áreas. Troca sozinho a cada
+ * Um slide institucional (Opção 2 dos sócios, 18/11/2026) e um por área,
+ * na ordem das áreas: título = `resumo`, texto = `publicoCurto`. Troca sozinho a cada
  * `intervalo` ms, com crossfade; setas, bolinhas e arrastar no celular.
  *
  * Cor: só a paleta do manual de marca (marca/identidade-visual.pdf):
@@ -15,7 +16,7 @@
  * troca sozinho e não faz fade. Sem JavaScript, fica só o primeiro slide.
  */
 import { site } from '../lib/site';
-import { areasDoIdioma } from '../lib/areas';
+import { areasDoIdioma, FOTO_DA_AREA } from '../lib/areas';
 import { t, rota, type Idioma } from '../lib/i18n';
 
 interface Props {
@@ -28,24 +29,20 @@ const tx = t(lang);
 const contato = rota(lang, '/contato/');
 
 const areas = await areasDoIdioma(lang);
-const FOTO: Record<string, string> = {
-  'planejamento-patrimonial-e-sucessorio': '/media/novas/area-bens.jpg',
-  'direito-digital': '/media/novas/area-presenca.jpg',
-};
 
 const slides = [
   {
-    foto: '/media/novas/escritorio-valores.jpg',
-    rotulo: site.nomeSociedade,
-    titulo: tx.hero.titulo,
-    texto: `${tx.atendimento} ${tx.presencialEm} ${site.cidade}/${site.estado}.`,
+    foto: '/media/novas/escritorio-sala.jpg',
+    rotulo: site.nome,
+    titulo: tx.hero.institucionalTitulo,
+    texto: tx.hero.institucionalTexto,
     botoes: [
       { rotulo: tx.hero.conhecaEscritorio, href: rota(lang, '/escritorio/'), claro: true },
       { rotulo: tx.hero.faleConosco, href: contato },
     ],
   },
   ...areas.map((area) => ({
-    foto: FOTO[area.slugPt] ?? '/media/novas/escritorio-historia.jpg',
+    foto: FOTO_DA_AREA[area.slugPt] ?? '/media/novas/escritorio-sala.jpg',
     rotulo: area.data.nome,
     titulo: area.data.resumo,
     texto: area.data.publicoCurto ?? '',

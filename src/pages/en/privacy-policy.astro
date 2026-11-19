@@ -1,26 +1,90 @@
 ---
 /**
- * /en/privacy-policy/ — versão em inglês de /politica-de-privacidade/.
+ * /en/privacy-policy/ — tradução fiel de /politica-de-privacidade/ (texto
+ * definitivo do escritório, versão 1.0, vigente a partir de 11/09/2026).
  * Manter sincronizada com src/pages/politica-de-privacidade.astro: qualquer
- * mudança de conteúdo lá precisa ser feita aqui também.
+ * mudança de conteúdo lá precisa ser feita aqui também. Em caso de
+ * divergência, vale o texto em português.
  */
 import Base from '~/layouts/Base.astro';
-import { site } from '~/lib/site';
 import '~/styles/politica.css';
 
+const DPO = 'dpo@bertoncinimendonca.adv.br';
+
 const secoes = [
-  { id: 'quem-trata', rotulo: 'Who processes your data' },
-  { id: 'dados', rotulo: 'What data we collect' },
-  { id: 'finalidade', rotulo: 'What we use it for' },
-  { id: 'base-legal', rotulo: 'On what legal basis' },
-  { id: 'sigilo', rotulo: 'Attorney confidentiality' },
-  { id: 'compartilhamento', rotulo: 'Who we share it with' },
-  { id: 'prazo', rotulo: 'How long we keep it' },
-  { id: 'direitos', rotulo: 'Your rights' },
-  { id: 'encarregado', rotulo: 'Data protection officer' },
-  { id: 'seguranca', rotulo: 'Security' },
-  { id: 'mudancas', rotulo: 'Changes to this policy' },
-  { id: 'falar', rotulo: 'How to reach us' },
+  { id: 'quem-somos', rotulo: 'Who we are and what this Policy is for' },
+  { id: 'definicoes', rotulo: 'Definitions' },
+  { id: 'dados', rotulo: 'What data we process, for what purpose and on what legal basis' },
+  { id: 'familiares', rotulo: 'Data of family members, children and adolescents, and sensitive data' },
+  { id: 'compartilhamento', rotulo: 'Who we share your data with' },
+  { id: 'transferencia', rotulo: 'International transfer' },
+  { id: 'prazo', rotulo: 'How long we keep your data' },
+  { id: 'seguranca', rotulo: 'Security and incidents' },
+  { id: 'direitos', rotulo: 'Your rights and how to exercise them' },
+  { id: 'whatsapp', rotulo: 'WhatsApp, communications and scams' },
+  { id: 'encarregado', rotulo: 'Data Protection Officer, changes and applicable law' },
+];
+
+/* Table "Situation | Data processed | Purposes | Legal basis (LGPD)". */
+const tratamentos = [
+  {
+    situacao: 'Provision of legal services',
+    dados: 'Identification and personal details (name, CPF, RG, marital status, marital property regime, occupation, address), contact details, personal and corporate documents, asset and financial information (assets, equity interests, debts, income, income tax returns), information about the family, and the content of conversations and documents sent',
+    finalidades: 'Analyze the case; prepare legal opinions, contracts, shareholders’ agreements, wills, deeds, corporate structures and other instruments; represent you before notary and registry offices, commercial registries, public bodies and the Judiciary',
+    base: 'Performance of a contract (art. 7, V); regular exercise of rights (art. 7, VI); compliance with a legal obligation (art. 7, II)',
+  },
+  {
+    situacao: 'Engagement, conflict of interest and billing',
+    dados: 'Name, CPF or CNPJ, address, contact details, billing and payment data',
+    finalidades: 'Prepare the fee proposal and engagement agreement; check for conflicts of interest, as required by the rules of legal ethics; issue invoices; collect payment; comply with tax and accounting obligations',
+    base: 'Preliminary procedures and performance of a contract (art. 7, V); legal obligation (art. 7, II); legitimate interest (art. 7, IX)',
+  },
+  {
+    situacao: 'People related to the client and third parties (spouses, partners, heirs, business partners, opposing parties, witnesses)',
+    dados: 'Identification, personal details and the data needed for the matter, received from the client or obtained from public sources',
+    finalidades: 'Provide the service engaged by the client',
+    base: 'Regular exercise of rights (art. 7, VI); legitimate interest (art. 7, IX)',
+  },
+  {
+    situacao: 'Contact through the website, e-mail, telephone or WhatsApp',
+    dados: 'Name, telephone, e-mail, city and the description you give of your case',
+    finalidades: 'Reply, schedule a meeting and prepare a proposal',
+    base: 'Preliminary procedures to a contract, at the data subject’s request (art. 7, V); legitimate interest (art. 7, IX)',
+  },
+  {
+    situacao: 'Newsletter, articles and invitations',
+    dados: 'Name, e-mail and areas of interest',
+    finalidades: 'Send informative legal content, within the limits of Provision No. 205/2021 of the Federal Council of the Brazilian Bar Association (OAB)',
+    base: 'Consent (art. 7, I), revocable at any time; for current clients, legitimate interest (art. 7, IX), with an unsubscribe option in every message',
+  },
+  {
+    situacao: 'Browsing the website',
+    dados: 'IP address, device, browser, pages visited, source of the visit and cookie identifiers',
+    finalidades: 'Operation and security of the website; with your permission, usage statistics, ad measurement and display of third-party content',
+    base: 'Legitimate interest for necessary cookies (art. 7, IX); consent for the others (art. 7, I)',
+  },
+  {
+    situacao: 'Suppliers and partners (correspondent lawyers, experts, accountants, appraisers)',
+    dados: 'Name, CPF or CNPJ, contact details, professional registration and bank details',
+    finalidades: 'Engage, manage the relationship and pay',
+    base: 'Performance of a contract (art. 7, V); legal obligation (art. 7, II)',
+  },
+  {
+    situacao: 'Applicants for jobs and internships',
+    dados: 'Résumé, contact details, education and experience',
+    finalidades: 'Conduct selection processes',
+    base: 'Preliminary procedures to a contract, at the data subject’s request (art. 7, V)',
+  },
+];
+
+/* Table "Data | Retention period". */
+const prazos = [
+  { dados: 'Client and case documents and information', prazo: 'During the contract and for up to 10 years after the service ends (art. 205 of the Civil Code), or for a longer period if you request it, as is common with wills and succession planning' },
+  { dados: 'Tax and accounting documents', prazo: 'At least 5 years, as required by tax law' },
+  { dados: 'Contacts of people who did not go on to engage us', prazo: '12 months after the last contact' },
+  { dados: 'Newsletter subscription', prazo: 'Until the subscription is cancelled' },
+  { dados: 'Résumés', prazo: '12 months after receipt' },
+  { dados: 'Record of your cookie choices', prazo: '12 months, when the banner is shown again' },
 ];
 ---
 
@@ -29,26 +93,13 @@ const secoes = [
   alternativa="/politica-de-privacidade/"
   sobreposto={false}
   titulo="Privacy Policy | Bertoncini & Mendonça Advogados"
-  descricao="How Bertoncini & Mendonça Advogados handles the personal data of people who use this website: what data is collected, for what purpose, on what legal basis, and what your rights are."
+  descricao="Privacy Policy of Bertoncini & Mendonça Advogados: what personal data we process, why, who we share it with, how long we keep it and how to exercise your rights."
 >
   <article class="politica">
     <div class="env">
       <p class="chapeu">Legal document</p>
       <h1>Privacy Policy</h1>
-      <p class="atualizado" data-placeholder="1">
-        <span class="marca-falta">To be defined</span>
-        Date of last update to be filled in when the firm approves the final text.
-      </p>
-
-      <div class="ressalva">
-        <p>
-          <strong>This text is still provisional.</strong> It follows the structure
-          required by the LGPD (Brazil's General Data Protection Law, Law
-          13,709/2018) and describes what this website actually does. The passages
-          in red depend on a decision by the firm and are marked as such. The final
-          text will come from the partners.
-        </p>
-      </div>
+      <p class="atualizado">Version 1.0, effective from November 18, 2026</p>
 
       <nav class="sumario" aria-label="Sections of this policy">
         <h2>On this page</h2>
@@ -60,248 +111,304 @@ const secoes = [
       </nav>
 
       <div class="texto">
+        <h2 id="quem-somos">Who we are and what this Policy is for</h2>
         <p>
-          This policy explains what happens to your data when you use this website,
-          especially when you fill out the contact form or sign up for our article
-          mailing list. It describes how the website really works and was written to
-          be read.
+          <strong>BERTONCINI & MENDONÇA ADVOGADOS</strong>, a law firm registered with
+          the Brazilian Bar Association (OAB), Paraná Section, under No. 24,788,
+          enrolled in the CNPJ under No. 69.076.965/0001-64, headquartered in the city
+          of Maringá, Paraná (the “Firm” or “we”), provides judicial and
+          out-of-court legal services in civil and contract law, digital law, estate
+          and succession planning, real estate law and corporate law.
+        </p>
+        <p>
+          This Policy explains, in a straightforward way, what personal data we
+          process, why we process it, who we share it with, how long we keep it and how
+          you can exercise your rights. It applies to clients and prospective clients;
+          to family members, heirs, business partners and other people whose data
+          reaches us in the course of a matter; to opposing parties and third parties
+          involved in the matters we advise on; to suppliers, partners and applicants;
+          and to anyone who visits our website or our social media, or who talks to us
+          by WhatsApp and e-mail (the “Data Subject” or “you”).
+        </p>
+        <p>
+          The use of cookies and similar technologies is detailed in our{' '}
+          <a href="/en/cookie-policy/">Cookie Policy</a>, which forms part of this
+          document.
+        </p>
+        <p>
+          In most situations, the Firm acts as controller, because it decides how and
+          why data is processed in order to provide the services engaged. When a
+          corporate client gives us data on its employees or on third parties for a
+          purpose it defines, such as an internal audit, we may act as processor,
+          following that client’s instructions.
+        </p>
+        <p>
+          Everything you entrust to us in the course of a matter is protected by the
+          attorney confidentiality provided for in the Statute of the Legal Profession
+          (Law No. 8,906/1994) and in the OAB Code of Ethics and Discipline. This
+          protection is in addition to the safeguards of the General Personal Data
+          Protection Law.
         </p>
 
-        <h2 id="quem-trata">Who processes your data</h2>
-        <p>
-          The data controller, as defined in Article 5, VI, of Law 13,709/2018, is the
-          law firm below. The controller is the party that decides what is collected
-          and for what purpose.
-        </p>
+        <h2 id="definicoes">Definitions</h2>
+        <p>For ease of reading, these terms have the following meaning in this Policy:</p>
         <ul>
-          <li>{site.nomeSociedade}</li>
-          <li data-placeholder={site.registro.oabSociedade.placeholder ? '1' : undefined}>
-            Registration with the OAB (the Brazilian Bar Association): {site.registro.oabSociedade.valor}
-          </li>
-          <li data-placeholder={site.registro.cnpj.placeholder ? '1' : undefined}>
-            CNPJ (Brazilian company registration number) {site.registro.cnpj.valor}
-          </li>
-          <li data-placeholder={site.email.placeholder ? '1' : undefined}>
-            Email: {site.email.valor}
-          </li>
-          <li>{site.cidade}, {site.estado}</li>
-        </ul>
-        <p data-placeholder="1">
-          <span class="marca-falta">To be defined</span>
-          Full address of the main office to be filled in. The firm has not yet
-          provided the address for in-person meetings.
-        </p>
-
-        <h2 id="dados">What data we collect</h2>
-        <h3>Data you give us</h3>
-        <p>
-          These are the fields of the contact form, and only those. No other data is
-          requested anywhere else on the website:
-        </p>
-        <ul>
-          <li><strong>Name:</strong> so we know how to address you in our reply.</li>
-          <li><strong>Email:</strong> so we can reply.</li>
-          <li><strong>Phone:</strong> optional, if you prefer to be contacted by phone.</li>
-          <li><strong>Subject:</strong> optional, to give context before we read your message.</li>
-          <li><strong>Message:</strong> whatever you write.</li>
-        </ul>
-        <p>
-          If you sign up for our article mailing list, we collect <strong>only your
-          email address</strong>.
-        </p>
-        <p>
-          If you prefer to talk over WhatsApp, the conversation takes place inside the
-          app and is governed by the platform's privacy policy, over which we have no
-          control. Whatever you write to us there is handled by us with the same care
-          described here.
-        </p>
-
-        <h3>Data collected automatically</h3>
-        <p>
-          <strong>At this time, none.</strong> No analytics tool is enabled on this
-          website: no Google Analytics, no heat map, no social media pixel. The cookie
-          notice asks for your choice and stores your answer in your own browser, so it
-          doesn't ask again on every page, and that answer never leaves your device.
-        </p>
-        <p data-placeholder="1">
-          <span class="marca-falta">To be defined</span>
-          Whether the firm will measure visits to the website and, if so, with which
-          tool. Until that decision is made, this policy names no measurement tool,
-          because none is in use. On the day one is enabled, this passage and the{' '}
-          <a href="/en/cookie-policy/">cookie policy</a> must be updated first.
-        </p>
-        <p>
-          <strong>We do not ask for sensitive data</strong> in the form, as defined in
-          Article 5, II, of the LGPD. A message you send us may still contain sensitive
-          information by the very nature of the matter, and in that case it is handled
-          under the attorney confidentiality described below.
-        </p>
-
-        <h2 id="finalidade">What we use it for</h2>
-        <ul>
-          <li>Reading your message and replying.</li>
-          <li>Continuing the conversation about the matter you brought to us.</li>
-          <li>Sending the articles on our mailing list, if you asked for them.</li>
-          <li>Keeping the website running and protected against automated submissions.</li>
-        </ul>
-        <p>
-          <strong>We do not sell your data</strong>, we do not hand it over for
-          third-party advertising, and we do not use your email address for messages
-          you did not ask for.
-        </p>
-
-        <h2 id="base-legal">On what legal basis</h2>
-        <p>The LGPD requires a justification for each processing activity. Ours are:</p>
-        <ul>
-          <li>
-            <strong>Preliminary procedures related to a contract</strong>
-            (Article 7, V): when you write to us asking for guidance, processing your
-            data is what allows us to reply.
-          </li>
-          <li>
-            <strong>Consent</strong> (Article 7, I): for the article mailing list, which
-            is sent only to those who asked for it, and for any cookie that is not
-            necessary for the website to work.
-          </li>
-          <li>
-            <strong>Compliance with a legal or regulatory obligation</strong> (Article
-            7, II): for what the law and the rules of the OAB require us to record and
-            keep.
-          </li>
-          <li>
-            <strong>Regular exercise of rights</strong> (Article 7, VI): to keep a
-            record of what was discussed, should it become necessary in legal
-            proceedings.
-          </li>
-          <li>
-            <strong>Legitimate interest</strong> (Article 7, IX): to protect the website
-            against abuse, such as automated form submissions by bots.
-          </li>
+          <li><strong>LGPD</strong>: Law No. 13,709/2018, Brazil’s General Personal Data Protection Law.</li>
+          <li><strong>ANPD</strong>: the National Data Protection Authority, the body that oversees compliance with the LGPD.</li>
+          <li><strong>Personal data</strong>: information relating to an identified or identifiable natural person, such as name, CPF, e-mail or IP address.</li>
+          <li><strong>Sensitive personal data</strong>: data on racial or ethnic origin, religious belief, political opinion, membership of a trade union or of a religious, philosophical or political organization, health, sex life, genetic or biometric data.</li>
+          <li><strong>Processing</strong>: any operation carried out with personal data, such as collection, use, storage, sharing and deletion.</li>
+          <li><strong>Controller</strong>: whoever makes the decisions about the processing. Processor: whoever processes data on behalf of the controller.</li>
+          <li><strong>Data Protection Officer</strong>: the person appointed by the Firm to act as the communication channel with data subjects and with the ANPD.</li>
+          <li><strong>Cookies</strong>: small files stored in the browser when you visit a website, explained in the <a href="/en/cookie-policy/">Cookie Policy</a>.</li>
         </ul>
 
-        <h2 id="sigilo">Attorney confidentiality</h2>
+        <h2 id="dados">What data we process, for what purpose and on what legal basis</h2>
         <p>
-          What you tell us is protected by attorney confidentiality, a duty set out in
-          Article 34, VII, of the Brazilian Attorneys' Statute (Estatuto da Advocacia,
-          Law 8,906/1994) and in the OAB Code of Ethics and Discipline. This duty is
-          stricter than the LGPD and does not depend on your having hired the firm: it
-          applies from the very first message.
+          We process only the data needed for each purpose, and each processing
+          operation relies on one of the legal bases of arts. 7 and 11 of the LGPD. As
+          a rule, the data comes from you; it may also come from whoever engaged us,
+          from public sources (property registrations, commercial registries, court
+          records, notary and registry offices) or from automated tools on the website.
         </p>
+        <div class="tabela tabela-larga">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Situation</th>
+                <th scope="col">Data processed</th>
+                <th scope="col">Purposes</th>
+                <th scope="col">Legal basis (LGPD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tratamentos.map((linha) => (
+                <tr>
+                  <th scope="row">{linha.situacao}</th>
+                  <td data-rotulo="Data processed">{linha.dados}</td>
+                  <td data-rotulo="Purposes">{linha.finalidades}</td>
+                  <td data-rotulo="Legal basis (LGPD)">{linha.base}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <p>
-          In practice, this means that the content of what you write is not discussed
-          outside the firm, is not used as an example, and does not appear in any of
-          our publications.
+          We do not make decisions based solely on automated processing that affect
+          your interests. All legal work is conducted and reviewed by the Firm’s
+          lawyers.
         </p>
 
-        <h2 id="compartilhamento">Who we share it with</h2>
+        <h2 id="familiares">Data of family members, children and adolescents, and sensitive data</h2>
         <p>
-          Only with those needed for the website to work. They are technology
-          providers, who process the data on our behalf and may not use it for their
-          own purposes:
+          Estate and succession planning often involves the whole family. To structure
+          a gift, a will, a family holding company or a probate proceeding, we may need
+          data on children, grandchildren, stepchildren, spouses and former spouses,
+          including children and adolescents, even if these people are not our
+          clients.
+        </p>
+        <p>
+          <strong>Children and adolescents.</strong> This data is always processed in
+          the best interest of the child or adolescent (art. 14 of the LGPD) and
+          limited to the minimum necessary, such as identifying an heir or donee.
+          Processing may rely on the legal bases of arts. 7 and 11 of the LGPD, in
+          accordance with CD/ANPD Statement No. 1/2023. Where the basis is consent, it
+          will be given by at least one parent or by the legal guardian. Our website is
+          not directed at people under 18, who should not send us data through it.
+        </p>
+        <p>
+          <strong>Sensitive data.</strong> Some services require sensitive data, such
+          as health information for guardianship, supported decision-making or advance
+          healthcare directives, or religious beliefs that must be respected in
+          testamentary provisions. We process this data only when indispensable, with
+          access restricted to the lawyers responsible for the case, on the basis of
+          the regular exercise of rights in contracts and in judicial, administrative
+          or arbitration proceedings (art. 11, II, “d”), compliance with a legal
+          obligation (art. 11, II, “a”) or, where no other basis applies, your specific
+          and highlighted consent (art. 11, I).
+        </p>
+        <p>
+          We do not ask for sensitive data through the website. For this reason, we ask
+          that you do not describe health matters or other sensitive information in the
+          contact form; these details can be dealt with in a meeting, already under
+          attorney confidentiality.
+        </p>
+        <p>
+          <strong>Data of other people that you send us.</strong> When you share data
+          of family members or third parties, you declare that you are entitled to do
+          so for the purpose of the matter. In these situations, the attorney
+          confidentiality guaranteed by the Statute of the Legal Profession may limit
+          what we tell these third parties about the service engaged, always within
+          what the law allows.
+        </p>
+
+        <h2 id="compartilhamento">Who we share your data with</h2>
+        <p>
+          We do not sell personal data. We share only what is necessary for each
+          purpose, always preserving attorney confidentiality, with:
         </p>
         <ul>
-          <li><strong>Vercel:</strong> hosts the website and delivers it to your browser.</li>
-          <li>
-            <strong>Brevo:</strong> sends the firm the message you wrote in the form,
-            sends you the confirmation of receipt, and manages the article mailing list.
-          </li>
+          <li>Notary and registry offices, commercial registries, public bodies and the Judiciary, when the service requires it, such as when executing deeds, registering corporate amendments or paying taxes.</li>
+          <li>Professionals who support the case, such as accountants, property appraisers, experts, translators, correspondent lawyers and partner law firms, all bound by confidentiality.</li>
+          <li>Technology suppliers acting as processors, including Hostinger (institutional e-mail), Microsoft (document editing and storage), Vercel (website hosting), Brevo (sending contact form messages and the newsletter) and the management, electronic signature and accounting systems. Any artificial intelligence tools used are engaged under a confidentiality obligation, without the Firm’s data being used to train their models, and every output is reviewed by a lawyer.</li>
+          <li>Google, Meta and LinkedIn, only with respect to the browsing data collected by the cookies you authorize, in accordance with the <a href="/en/cookie-policy/">Cookie Policy</a>.</li>
+          <li>Authorities, upon a legal request or court order, and third parties, when necessary for the regular exercise of the Firm’s rights.</li>
         </ul>
         <p>
-          No advertising service receives data from this website, under any
-          circumstances.
-        </p>
-        <p>
-          The two providers above keep servers outside Brazil, which constitutes an{' '}
-          <strong>international transfer of data</strong> (Article 33 of the LGPD).
-        </p>
-        <p>
-          Other than that, we share data only when required by law or a court order,
-          and within the limits allowed by attorney confidentiality.
+          We do not send lists of clients or contacts to advertising platforms, for
+          example to build custom audiences, and we do not nominate clients to legal
+          publications or rankings without prior and specific authorization.
         </p>
 
-        <h2 id="prazo">How long we keep it</h2>
-        <p data-placeholder="1">
-          <span class="marca-falta">To be defined</span>
-          The retention periods for each type of data are to be defined by the firm.
-          This decision combines statutes of limitations, the attorney's duty to keep
-          records, and the firm's internal policy, and it is not for whoever built the
-          website to settle. Until the periods are defined, this policy states no
-          figure.
+        <h2 id="transferencia">International transfer</h2>
+        <p>
+          Some tools we use store or process data outside Brazil, mainly in the United
+          States. This is the case with Microsoft’s OneDrive, Hostinger’s e-mail, Vercel, which hosts the website, and Brevo, which sends contact form messages and the newsletter,
+          which may involve processing on servers abroad, and with the services of
+          Google (Analytics, Ads and YouTube), Meta (Facebook, Instagram and WhatsApp)
+          and LinkedIn.
         </p>
         <p>
-          What already applies, regardless of the period chosen: the email address on
-          the article mailing list is kept until you unsubscribe, and the link to do so
-          is in the footer of every message. Once the period for each piece of data has
-          passed, it is deleted or anonymized.
+          These transfers follow art. 33 of the LGPD and take place through standard
+          contractual clauses approved by CD/ANPD Resolution No. 19/2024 or another
+          valid mechanism. For non-essential cookies, the transfer also relies on the
+          consent you give in the banner, having been informed in advance of the
+          international nature of the operation (art. 33, VIII). If you would like to
+          know which suppliers and countries are involved, write to our Data
+          Protection Officer.
         </p>
 
-        <h2 id="direitos">Your rights</h2>
-        <p>Article 18 of the LGPD ensures that you may, at any time, ask us to:</p>
+        <h2 id="prazo">How long we keep your data</h2>
+        <p>
+          We keep data for as long as it is needed for the purpose and, after that,
+          for the period required by law or necessary for the defense of rights. The
+          reference periods are:
+        </p>
+        <div class="tabela">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Retention period</th>
+              </tr>
+            </thead>
+            <tbody>
+              {prazos.map((linha) => (
+                <tr>
+                  <th scope="row">{linha.dados}</th>
+                  <td data-rotulo="Retention period">{linha.prazo}</td>
+                </tr>
+              ))}
+              <tr>
+                <th scope="row">Cookies</th>
+                <td data-rotulo="Retention period">As set out in the table in the <a href="/en/cookie-policy/#cookies-utilizados">Cookie Policy</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Once the period ends, the data is deleted or anonymized, except in the cases
+          of retention under art. 16 of the LGPD, such as compliance with a legal
+          obligation and the regular exercise of rights.
+        </p>
+
+        <h2 id="seguranca">Security and incidents</h2>
+        <p>
+          We adopt technical and administrative measures appropriate to the size of
+          the Firm and to the nature of the data we process: two-factor authentication
+          on all accounts, encryption of data in transit and of data stored on
+          OneDrive, access to each case restricted to those working on it, devices
+          with up-to-date systems and encrypted disks, as well as a duty of
+          confidentiality for everyone with access to the Firm’s information and
+          contracts with data protection clauses with our suppliers.
+        </p>
+        <p>
+          No system is completely immune to failure. If a security incident occurs
+          that may result in relevant risk or harm, we will notify the ANPD and the
+          affected data subjects within the period set by CD/ANPD Resolution No.
+          15/2024, currently 3 business days, explaining what happened and the
+          measures taken.
+        </p>
+        <p>
+          If you suspect any misuse of your data involving the Firm, write immediately
+          to <a href={`mailto:${DPO}`}>{DPO}</a>.
+        </p>
+
+        <h2 id="direitos">Your rights and how to exercise them</h2>
+        <p>
+          You may request, at any time, by e-mail to{' '}
+          <a href={`mailto:${DPO}`}>{DPO}</a>:
+        </p>
         <ul>
-          <li><strong>confirm</strong> whether we process your data and give you <strong>access</strong> to it;</li>
-          <li><strong>correct</strong> incomplete, inaccurate, or outdated data;</li>
-          <li><strong>anonymize, block, or delete</strong> data that is unnecessary or processed in breach of the law;</li>
-          <li><strong>port</strong> your data to another provider;</li>
-          <li><strong>delete</strong> data processed on the basis of your consent;</li>
-          <li><strong>tell you who</strong> we share your data with;</li>
-          <li><strong>withdraw your consent</strong>, without invalidating the processing carried out before;</li>
-          <li><strong>object</strong> to processing you consider improper.</li>
+          <li>confirmation that we process your data and access to it;</li>
+          <li>correction of incomplete, inaccurate or outdated data;</li>
+          <li>anonymization, blocking or deletion of unnecessary or excessive data, or of data processed in breach of the LGPD;</li>
+          <li>data portability, under the ANPD’s regulations;</li>
+          <li>deletion of data processed on the basis of your consent and revocation of that consent;</li>
+          <li>information about who we share your data with and about the possibility of not consenting and its consequences;</li>
+          <li>objection to processing that breaches the LGPD and review of decisions made solely on the basis of automated processing.</li>
         </ul>
         <p>
-          Some of these requests are limited by the attorney's duty to keep records and
-          by attorney confidentiality. When that is the case, we explain what the limit
-          is and why it exists, instead of simply refusing.
+          We may ask for information to confirm your identity before responding, so
+          that your data is not handed over to someone else. Confirmation of
+          processing and access in simplified form are provided immediately; the full
+          statement, within 15 days (art. 19 of the LGPD).
         </p>
-        <p data-placeholder="1">
-          <span class="marca-falta">To be defined</span>
-          Response time for data subject requests to be defined by the firm. The LGPD
-          sets a deadline only for requests for confirmation and access in simplified
-          form (fifteen days, Article 19, I). For the others, the deadline is whatever
-          the firm commits to, and it has not committed to one yet.
+        <p>
+          Some requests may be met only in part where there is a duty of attorney
+          confidentiality, a legal obligation to retain data, a need to defend rights
+          in proceedings, or data of other people involved. In these cases, we will
+          explain why. You may also file a complaint with the ANPD.
         </p>
 
-        <h2 id="encarregado">Data protection officer</h2>
+        <h2 id="whatsapp">WhatsApp, communications and scams</h2>
         <p>
-          Article 41 of the LGPD requires the controller to appoint the person to
-          contact about data protection, and to make that appointment public.
+          <strong>WhatsApp.</strong> We use WhatsApp Business for scheduling and
+          day-to-day matters. WhatsApp is a Meta service, which processes conversation
+          data as a controller, in accordance with its own privacy policy. For
+          documents containing health information, bank details or asset details, we
+          prefer institutional e-mail or a secure OneDrive sharing link.
         </p>
-        <p data-placeholder="1">
-          <span class="marca-falta">To be defined</span>
-          Who the firm's data protection officer (encarregado) is and through which
-          channel they can be reached. The appointment is the partners' decision. Until
-          it is made, this policy names no one, because naming the wrong person is
-          worse than admitting that the appointment is pending.
+        <p>
+          <strong>Communications.</strong> You can stop receiving our articles and
+          invitations at any time, through the unsubscribe link in every message or by
+          writing to the Data Protection Officer’s e-mail. Messages about the progress
+          of your case continue to be sent for as long as there is a contract.
         </p>
+        <p>
+          <strong>Beware of scams.</strong> Criminals have been using the names and
+          photos of lawyers, and even real case data, to ask for payments. For this
+          reason, keep these rules in mind:
+        </p>
+        <ul>
+          <li>We never ask for payment to release funds, court release orders, compensation or inheritances.</li>
+          <li>Fees are charged only by boleto or PIX in the name of BERTONCINI & MENDONÇA ADVOGADOS, CNPJ 69.076.965/0001-64.</li>
+          <li>Our e-mails are sent exclusively from the @bertoncinimendonca.adv.br domain, and our official telephone number is <a href="tel:+5544988157540">+55 (44) 98815-7540</a>.</li>
+          <li>If in doubt, call one of the official numbers before clicking on links, sending data or paying.</li>
+        </ul>
 
-        <h2 id="seguranca">Security</h2>
+        <h2 id="encarregado">Data Protection Officer, changes and applicable law</h2>
         <p>
-          The website is served entirely over an encrypted connection (HTTPS). The form
-          is protected against automated submissions and limits the number of
-          submissions per device. Access to the messages received is restricted to
-          people who work at the firm.
+          Data Protection Officer: Juscelino Bertoncini. Deputy Data Protection
+          Officer: Beatriz Mendonça. E-mail: <a href={`mailto:${DPO}`}>{DPO}</a>.
+          Mailing address: Rua Marechal Deodoro, 530, apartamento 142, Zona 7,
+          Maringá/PR, CEP 87.030-020, Brazil.
         </p>
         <p>
-          No system is immune to incidents. If one occurs that may pose a significant
-          risk to you, we will notify you and the ANPD (the Brazilian data protection
-          authority), as required by Article 48 of the LGPD.
-        </p>
-
-        <h2 id="mudancas">Changes to this policy</h2>
-        <p>
-          If the website starts doing something different with your data, this text
-          changes accordingly, and so does the date at the top of the page. Significant
-          changes are announced on the website itself.
-        </p>
-
-        <h2 id="falar">How to reach us</h2>
-        <p>
-          For any questions about privacy, or to exercise the rights above, write to{' '}
-          <a href={`mailto:${site.email.valor}`} data-placeholder={site.email.placeholder ? '1' : undefined}>{site.email.valor}</a>{' '}
-          or use the <a href="/en/contact/">contact page</a>.
+          <strong>Changes.</strong> This Policy may be updated to reflect changes in
+          the law, in our services or in the tools we use. The version and effective
+          date are always shown at the beginning of the document, and relevant changes
+          will be highlighted on the website and, where appropriate, communicated by
+          e-mail.
         </p>
         <p>
-          You may also file a complaint directly with the{' '}
-          <a href="https://www.gov.br/anpd/" rel="noopener" target="_blank">ANPD</a>.
+          <strong>Governing law and jurisdiction.</strong> This Policy is governed by
+          Brazilian law, in particular the LGPD, the Brazilian Civil Rights Framework
+          for the Internet (Law No. 12,965/2014) and the Statute of the Legal
+          Profession (Law No. 8,906/1994). The courts of the Judicial District of
+          Maringá, Paraná, are chosen as the forum, without prejudice to the data
+          subject’s right to bring proceedings in the courts of their domicile where
+          the law so guarantees and the right to petition the ANPD.
         </p>
       </div>
     </div>
