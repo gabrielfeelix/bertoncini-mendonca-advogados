@@ -22,7 +22,7 @@
  * A RLS. Esta rota usa o token do editor, nunca a chave de serviço.
  */
 import type { APIRoute } from 'astro';
-import { configSupabase, editorAtual } from '~/lib/painel-auth';
+import { configSupabase, editorAtual, podePublicar } from '~/lib/painel-auth';
 import {
   ErroPainel,
   arquivoDoCampo,
@@ -32,6 +32,7 @@ import {
   disparaRebuild,
   enviaImagem,
   responde,
+  newsletterAoPublicar,
 } from '~/lib/painel-artigo';
 import {
   destinoAceito,
@@ -134,6 +135,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (!data) return erro('nao-achei');
     anterior = data;
   }
+  /* Estagiário escreve só rascunho: não publica nem mexe em texto publicado
+     (a RLS da migração 009 recusaria do mesmo jeito; aqui vira recado claro). */
+  if (!podePublicar(editor) && (publicar || anterior?.estado === 'publicado')) {
+    return erro('permissao');
+  }
 
   // ── capa ─────────────────────────────────────────────────────────────
   let capa: string | null = texto('capa', 500) || null;
@@ -214,7 +220,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
      só aparece depois do build. Rascunho de rascunho não precisa. */
   const eraPublicado = anterior?.estado === 'publicado';
   const gancho = publicar || eraPublicado ? await disparaRebuild() : 'ok';
-  const feito = publicar ? 'publicado' : eraPublicado ? 'despublicado' : 'rascunho';
+  /* Primeira publicação: newsletter automática para a lista (só uma vez). */
+  const news = publicar ? await newsletterAoPublicar(cliente, slug) : 'ja-enviada';
+  const feito = publicar ? (news === 'enviada' ? 'publicado-news' : 'publicado') : eraPublicado ? 'despublicado' : 'rascunho';
+  const avisoNews = news === 'falhou' ? '&aviso=newsletter-falhou' : '';
 
-  return responde(request, `/painel/?feito=${feito}${avisoDoGancho(gancho)}`);
+  return responde(request, `/painel/?feito=${feito}${avisoDoGancho(gancho) || avisoNews}`);
 };

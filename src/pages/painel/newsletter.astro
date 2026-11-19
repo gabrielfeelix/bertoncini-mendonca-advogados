@@ -1,0 +1,89 @@
+---
+/**
+ * `/painel/newsletter/` — Leads da newsletter (18/11/2026).
+ *
+ * Os inscritos moram na lista da Brevo (BREVO_LISTA_NEWSLETTER_ID), que é
+ * de onde sai o e-mail de cada artigo novo. Entram pelo formulário do
+ * rodapé do site e pela caixa "Quero receber artigos" do contato. A página
+ * só lê; descadastro é feito pela própria pessoa, no link do e-mail.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import AbasLeads from '~/components/painel/AbasLeads.astro';
+import { editorAtual } from '~/lib/painel-auth';
+import { env } from '~/lib/ambiente';
+
+const editor = await editorAtual(Astro.cookies);
+if (!editor) return Astro.redirect('/painel/entrar/', 303);
+
+interface Inscrito {
+  email: string;
+  createdAt: string;
+  emailBlacklisted: boolean;
+  listUnsubscribed?: number[];
+}
+
+const chave = env('BREVO_API_KEY');
+const lista = Number(env('BREVO_LISTA_NEWSLETTER_ID'));
+let inscritos: Inscrito[] = [];
+let falha = '';
+if (!chave || !Number.isFinite(lista)) {
+  falha = 'A Brevo não está configurada neste ambiente.';
+} else {
+  try {
+    const r = await fetch(`https://api.brevo.com/v3/contacts/lists/${lista}/contacts?limit=500&sort=desc`, {
+      headers: { 'api-key': chave, accept: 'application/json' },
+    });
+    if (!r.ok) throw new Error(`Brevo ${r.status}`);
+    inscritos = ((await r.json()) as { contacts?: Inscrito[] }).contacts ?? [];
+  } catch (e) {
+    console.error('[painel] newsletter: falha ao ler a lista', e);
+    falha = 'Não consegui ler a lista da newsletter agora. Tente de novo em instantes.';
+  }
+}
+const saiu = (i: Inscrito) => i.emailBlacklisted || (i.listUnsubscribed ?? []).includes(lista);
+const ativos = inscritos.filter((i) => !saiu(i)).length;
+const dia = (iso: string) =>
+  new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Sao_Paulo' }).format(new Date(iso));
+---
+
+<Painel titulo="Leads · Newsletter" editor={editor}>
+  <div class="pnl-cabeca">
+    <div>
+      <h1 class="pnl-titulo">Leads</h1>
+      <p class="pnl-sub" style="margin: 0">
+        {falha ? 'Lista indisponível.' : `${ativos} ${ativos === 1 ? 'pessoa recebe' : 'pessoas recebem'} a newsletter`}
+      </p>
+    </div>
+  </div>
+
+  <AbasLeads atual="newsletter" />
+
+  {falha && <p class="pnl-recado pnl-recado--erro" role="alert">{falha}</p>}
+  <p class="pnl-dica" style="margin: 0 0 16px">
+    Cada texto novo publicado no painel é enviado por e-mail para quem está nesta lista, 10 minutos depois da publicação. A pessoa pode sair pelo link no rodapé de qualquer envio.
+  </p>
+
+  <div class="pnl-cartao" style="padding: 0">
+    <div class="pnl-rolagem">
+      <table class="pnl-tabela">
+        <thead>
+          <tr><th>E-mail</th><th class="pnl-col-media">Inscrição</th><th>Situação</th></tr>
+        </thead>
+        <tbody>
+          {inscritos.length === 0 && (
+            <tr><td class="pnl-tabela__vazio" colspan="3">{falha ? 'A lista não pôde ser lida.' : 'Ninguém inscrito ainda. As inscrições aparecem aqui assim que alguém se cadastra pelo site.'}</td></tr>
+          )}
+          {inscritos.map((i) => (
+            <tr>
+              <td><a class="pnl-usuarios__email" href={`mailto:${i.email}`}>{i.email}</a></td>
+              <td class="pnl-col-media pnl-tabela__num">{dia(i.createdAt)}</td>
+              <td>{saiu(i) ? <span class="pnl-dica">Cancelou a inscrição</span> : 'Recebe'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</Painel>

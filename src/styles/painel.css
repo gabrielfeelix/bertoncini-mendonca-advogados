@@ -438,3 +438,24 @@ textarea.pnl-campo { resize: vertical; line-height: 1.55; }
 @media (prefers-reduced-motion: reduce) {
   .pnl *, .pnl *::before, .pnl *::after { transition: none !important; animation: none !important; }
 }
+
+/* Usuários (18/11/2026): papel como texto, ações em botões, modais de formulário. */
+.pnl-usuarios__papel { font-size: 14px; color: var(--pnl-texto, #0B1E3F); }
+.pnl-usuarios__acoes { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.pnl-usuarios__acoes .pnl-btn { padding: 7px 12px; font-size: 13.5px; text-decoration: none; }
+.pnl-btn--perigo-leve { color: #a1253a; border-color: rgba(161, 37, 58, .35); }
+.pnl-btn--perigo-leve:hover { background: #fbeaec; }
+.pnl-dialogo--form { width: min(520px, calc(100vw - 32px)); }
+.pnl-dialogo--form .entrada__form { display: grid; gap: 16px; }
+.pnl-dialogo__titulo { margin: 0 0 6px; font-size: 22px; font-weight: 400; color: #0B1E3F; }
+.pnl-dialogo[open]:not(:modal) { position: static; margin: 24px 0; box-shadow: 0 10px 40px rgba(11, 30, 63, .12); }
+.pnl-papeis { border: 0; padding: 0; margin: 12px 0 20px; display: grid; gap: 8px; }
+.pnl-papel { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid #E3E6EA; border-radius: 8px; cursor: pointer; }
+.pnl-papel:has(input:checked) { border-color: #004369; background: #f3f7fa; }
+.pnl-papel input { margin-top: 4px; accent-color: #004369; }
+.pnl-papel span { display: grid; gap: 2px; }
+.pnl-papel strong { color: #0B1E3F; font-size: 15px; }
+.pnl-papel span span { color: #5B6B7F; font-size: 13.5px; }
+.pnl-dialogo--form .pnl-dialogo__acoes { display: flex; flex-direction: row; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+.pnl-dialogo--form .pnl-dialogo__acoes .pnl-btn { width: auto; flex: 0 0 auto; }
+.pnl-dialogo--form #gerar-senha { margin-top: 4px; }

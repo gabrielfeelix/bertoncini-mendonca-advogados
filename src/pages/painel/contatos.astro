@@ -1,4 +1,5 @@
 ---
+import AbasLeads from '~/components/painel/AbasLeads.astro';
 /**
  * `/painel/contatos/` — as mensagens do formulário de contato do site.
  *
@@ -16,7 +17,7 @@
 export const prerender = false;
 
 import Painel from '~/layouts/Painel.astro';
-import { editorAtual } from '~/lib/painel-auth';
+import { editorAtual, podeApagar } from '~/lib/painel-auth';
 import { ERROS, FEITOS } from '~/lib/painel-artigo';
 
 const editor = await editorAtual(Astro.cookies);
@@ -97,13 +98,15 @@ const resumo =
       : `${naoLidos} ${naoLidos === 1 ? 'não lida' : 'não lidas'} de ${contagem(contatos.length)}.`;
 ---
 
-<Painel titulo="Contatos" editor={editor}>
+<Painel titulo="Leads · Contatos" editor={editor}>
   <div class="pnl-cabeca">
     <div>
-      <h1 class="pnl-titulo">Contatos</h1>
+      <h1 class="pnl-titulo">Leads</h1>
       <p class="pnl-sub" style="margin: 0">{resumo}</p>
     </div>
   </div>
+
+  <AbasLeads atual="contatos" />
 
   {feito && FEITOS[feito] && <p class="pnl-recado pnl-recado--ok" role="status">{FEITOS[feito]}</p>}
   {erro && <p class="pnl-recado pnl-recado--erro" role="alert">{ERROS[erro] ?? ERROS.salvar}</p>}
@@ -167,13 +170,13 @@ const resumo =
                         {c.lido ? 'Marcar como não lida' : 'Marcar como lida'}
                       </button>
                     </form>
-                    <details class="pnl-contato__apagar">
+                    {podeApagar(editor) && <details class="pnl-contato__apagar">
                       <summary>Apagar</summary>
                       <form method="post" action="/api/painel/contato">
                         <input type="hidden" name="id" value={c.id} />
                         <button class="pnl-btn pnl-btn--perigo" type="submit" name="acao" value="apagar">Apagar de vez</button>
                       </form>
-                    </details>
+                    </details>}
                   </div>
                 </td>
               </tr>

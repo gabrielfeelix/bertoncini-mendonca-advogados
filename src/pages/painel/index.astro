@@ -22,7 +22,7 @@
 export const prerender = false;
 
 import Painel from '~/layouts/Painel.astro';
-import { editorAtual } from '~/lib/painel-auth';
+import { editorAtual, podePublicar } from '~/lib/painel-auth';
 import { ERROS, FEITOS } from '~/lib/painel-artigo';
 import { FORMATOS, ROTA_CONTEUDOS, NOME_CONTEUDOS, autoresDoArtigo, type Formato } from '~/lib/artigos';
 
@@ -140,10 +140,16 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'texto' : 'textos'}`;
     <form method="post" action="/api/painel/lote" id="lote">
       <div class="pnl-lote" id="barra-lote">
         <span class="pnl-lote__quantos" id="quantos">Marque textos para agir em vários de uma vez.</span>
-        <button class="pnl-btn" type="submit" name="acao" value="publicar">Publicar</button>
-        <button class="pnl-btn" type="submit" name="acao" value="rascunho">Voltar a rascunho</button>
-        <input type="hidden" name="confirma" value="" id="confirma" />
-        <button class="pnl-btn pnl-btn--perigo" type="submit" name="acao" value="apagar" id="apagar-lote">Apagar</button>
+        {podePublicar(editor) ? (
+          <>
+            <button class="pnl-btn" type="submit" name="acao" value="publicar">Publicar</button>
+            <button class="pnl-btn" type="submit" name="acao" value="rascunho">Voltar a rascunho</button>
+            <input type="hidden" name="confirma" value="" id="confirma" />
+            <button class="pnl-btn pnl-btn--perigo" type="submit" name="acao" value="apagar" id="apagar-lote">Apagar</button>
+          </>
+        ) : (
+          <span class="pnl-dica">Como estagiário, você escreve rascunhos; quem publica é um editor ou administrador.</span>
+        )}
       </div>
 
       <div class="pnl-rolagem">

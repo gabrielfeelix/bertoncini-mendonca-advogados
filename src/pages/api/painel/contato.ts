@@ -9,7 +9,7 @@
  * padrão nas rotas de servidor), como nas outras rotas do painel.
  */
 import type { APIRoute } from 'astro';
-import { configSupabase, editorAtual } from '~/lib/painel-auth';
+import { configSupabase, editorAtual, podeApagar } from '~/lib/painel-auth';
 import { responde } from '~/lib/painel-artigo';
 
 export const prerender = false;
@@ -31,6 +31,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   const acao = String(dados.get('acao') ?? '') as (typeof ACOES)[number];
+  if (acao === 'apagar' && !podeApagar(editor)) return responde(request, `${LISTA}?erro=permissao`, 'permissao');
   const id = Number(dados.get('id'));
   if (!ACOES.includes(acao) || !Number.isSafeInteger(id) || id <= 0) {
     return responde(request, `${LISTA}?erro=salvar`, 'salvar');

@@ -82,12 +82,34 @@ export function apagaSessao(cookies: AstroCookies): void {
   cookies.delete(COOKIE_ATUALIZA, { path: '/' });
 }
 
+/**
+ * Papéis do painel (migração 009). A defesa real é a RLS do banco; estas
+ * funções servem para as rotas recusarem cedo, com mensagem clara, e para
+ * a interface esconder o que a pessoa não pode usar.
+ */
+export type Papel = 'administrador' | 'editor' | 'estagiario';
+export const NOMES_PAPEL: Record<Papel, string> = {
+  administrador: 'Administrador',
+  editor: 'Editor',
+  estagiario: 'Estagiário',
+};
+export const DESCRICAO_PAPEL: Record<Papel, string> = {
+  administrador: 'Tudo, inclusive criar e remover usuários.',
+  editor: 'Escreve, publica e apaga artigos; vê e apaga contatos.',
+  estagiario: 'Escreve rascunhos; não publica nem apaga nada.',
+};
+export const podePublicar = (e: { papel: Papel }) => e.papel !== 'estagiario';
+export const podeApagar = (e: { papel: Papel }) => e.papel !== 'estagiario';
+export const podeGerirUsuarios = (e: { papel: Papel }) => e.papel === 'administrador';
+
 export interface Editor {
   id: string;
   email: string;
   nome: string;
   /** Foto do avatar (migração 008); `null` = iniciais. */
   foto: string | null;
+  /** Papel no painel (migração 009). */
+  papel: Papel;
   /** Token de acesso válido, já renovado se preciso. */
   token: string;
   /** Cliente que fala com o banco como este editor. */
@@ -140,7 +162,7 @@ export async function editorAtual(cookies: AstroCookies): Promise<Editor | null>
      não tem acesso ao painel" em vez de mostrar uma lista vazia. */
   const { data: linha } = await cliente
     .from('editores')
-    .select('nome, foto')
+    .select('nome, foto, papel')
     .eq('id', sessao.usuario.id)
     .maybeSingle();
   if (!linha) return null;
@@ -150,6 +172,7 @@ export async function editorAtual(cookies: AstroCookies): Promise<Editor | null>
     email: sessao.usuario.email ?? '',
     nome: linha.nome as string,
     foto: (linha.foto as string | null) ?? null,
+    papel: ((linha.papel as Papel | null) ?? 'editor'),
     token: sessao.token,
     cliente,
   };

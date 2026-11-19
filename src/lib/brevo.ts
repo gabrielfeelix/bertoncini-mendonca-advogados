@@ -24,7 +24,16 @@
  * O sintoma é 401 com code "unauthorized" citando o IP.
  */
 
+import { layoutEmail, paragrafo, dados as dadosEmail, citacao, botao, nota, rotuloSecao, escapa, urlAbsoluta } from './email-layout';
+
 const BASE = 'https://api.brevo.com/v3';
+
+/** Link do WhatsApp a partir do telefone digitado no formulário (Brasil). */
+function zapDe(telefone: string): string | null {
+  let n = telefone.replace(/\D/g, '');
+  if (n.length === 10 || n.length === 11) n = '55' + n;
+  return n.length >= 12 ? `https://wa.me/${n}` : null;
+}
 
 export class ErroBrevo extends Error {
   constructor(
@@ -100,19 +109,18 @@ export function enviaEmailDeContato(
       'Mensagem:',
       dados.mensagem,
     ].join('\n'),
-    htmlContent: [
-      '<div style="font-family:Georgia,serif;font-size:15px;line-height:1.6">',
-      '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse">',
-      ...linhas.map(
-        ([r, v]) =>
-          `<tr><td style="padding:2px 12px 2px 0;color:#517493">${r}</td>` +
-          `<td style="padding:2px 0"><strong>${escapa(v)}</strong></td></tr>`,
-      ),
-      '</table>',
-      '<p style="margin:16px 0 4px;color:#517493">Mensagem</p>',
-      `<p style="margin:0;white-space:pre-wrap">${escapa(dados.mensagem)}</p>`,
-      '</div>',
-    ].join(''),
+    htmlContent: layoutEmail({
+      preheader: `${dados.nome}${dados.assunto ? ` · ${dados.assunto}` : ''}: ${dados.mensagem.slice(0, 90)}`,
+      rotulo: 'Novo contato pelo site',
+      titulo: dados.nome,
+      corpo:
+        dadosEmail(linhas) +
+        rotuloSecao('Mensagem') +
+        citacao(dados.mensagem) +
+        botao('Responder por e-mail', `mailto:${dados.email}?subject=${encodeURIComponent('Re: ' + (dados.assunto || 'Contato pelo site'))}`) +
+        (zapDe(dados.telefone) ? botao('Chamar no WhatsApp', zapDe(dados.telefone)!, true) : '') +
+        nota('Responder a este e-mail também responde direto para quem escreveu. A mensagem está guardada no painel, em Contatos.'),
+    }),
     tags: ['formulario-contato'],
   });
 }
@@ -162,7 +170,7 @@ export function confirmaRecebimento(
   const corpo = [
     `Prezado(a) ${primeiroNome},`,
     '',
-    'Confirmamos o recebimento da sua mensagem. Um dos sócios vai lê-la e',
+    'Confirmamos o recebimento da sua mensagem. O escritório vai lê-la e',
     'responder pelo e-mail que você informou.',
     '',
     'Esta mensagem é apenas um aviso automático de recebimento. Ela não',
@@ -177,17 +185,17 @@ export function confirmaRecebimento(
     to: [{ email: dados.email, name: dados.nome }],
     subject: 'Recebemos sua mensagem',
     textContent: corpo.join('\n'),
-    htmlContent:
-      '<div style="font-family:Georgia,serif;font-size:15px;line-height:1.6;color:#0B1E3F">' +
-      `<p>Prezado(a) ${escapa(primeiroNome)},</p>` +
-      '<p>Confirmamos o recebimento da sua mensagem. Um dos sócios vai lê-la e ' +
-      'responder pelo e-mail que você informou.</p>' +
-      '<p style="color:#517493">Esta mensagem é apenas um aviso automático de ' +
-      'recebimento. Ela não constitui orientação jurídica nem estabelece relação ' +
-      'de patrocínio.</p>' +
-      '<p style="color:#517493;margin-bottom:4px">Foi isto que chegou até nós:</p>' +
-      `<p style="margin:0;white-space:pre-wrap;padding-left:12px;border-left:2px solid #E3E6EA">${escapa(dados.mensagem)}</p>` +
-      '</div>',
+    htmlContent: layoutEmail({
+      preheader: 'Confirmamos o recebimento da sua mensagem.',
+      rotulo: 'Mensagem recebida',
+      titulo: `Obrigado, ${primeiroNome}.`,
+      corpo:
+        paragrafo('Confirmamos o recebimento da sua mensagem. O escritório vai lê-la e responder pelo e-mail que você informou.') +
+        rotuloSecao('O que chegou até nós') +
+        citacao(dados.mensagem) +
+        botao('Conhecer o escritório', urlAbsoluta('/escritorio/')) +
+        nota('Esta mensagem é apenas um aviso automático de recebimento. Ela não constitui orientação jurídica nem estabelece relação de patrocínio. Se precisar complementar algo, responda a este e-mail.'),
+    }),
     tags: ['confirmacao-contato'],
   });
 }
@@ -202,7 +210,7 @@ function confirmaRecebimentoEmIngles(
   const corpo = [
     `Dear ${primeiroNome},`,
     '',
-    'We confirm that we have received your message. One of the partners will',
+    'We confirm that we have received your message. The firm will',
     'read it and reply to the e-mail address you provided.',
     '',
     'This is an automatic acknowledgment of receipt only. It does not',
@@ -217,16 +225,17 @@ function confirmaRecebimentoEmIngles(
     to: [{ email: dados.email, name: dados.nome }],
     subject: 'We have received your message',
     textContent: corpo.join('\n'),
-    htmlContent:
-      '<div style="font-family:Georgia,serif;font-size:15px;line-height:1.6;color:#0B1E3F">' +
-      `<p>Dear ${escapa(primeiroNome)},</p>` +
-      '<p>We confirm that we have received your message. One of the partners will ' +
-      'read it and reply to the e-mail address you provided.</p>' +
-      '<p style="color:#517493">This is an automatic acknowledgment of receipt only. ' +
-      'It does not constitute legal advice or create an attorney-client relationship.</p>' +
-      '<p style="color:#517493;margin-bottom:4px">This is what we received:</p>' +
-      `<p style="margin:0;white-space:pre-wrap;padding-left:12px;border-left:2px solid #E3E6EA">${escapa(dados.mensagem)}</p>` +
-      '</div>',
+    htmlContent: layoutEmail({
+      preheader: 'We have received your message.',
+      rotulo: 'Message received',
+      titulo: `Thank you, ${primeiroNome}.`,
+      corpo:
+        paragrafo('We confirm that we have received your message. The firm will read it and reply to the e-mail address you provided.') +
+        rotuloSecao('What we received') +
+        citacao(dados.mensagem) +
+        botao('About the firm', urlAbsoluta('/en/firm/')) +
+        nota('This is an automatic acknowledgment of receipt only. It does not constitute legal advice or create an attorney-client relationship.'),
+    }),
     tags: ['confirmacao-contato', 'en'],
   });
 }
@@ -259,13 +268,15 @@ export function enviaBoasVindas(
       'Se não foi você quem se inscreveu, ignore esta mensagem. Sem uma',
       'confirmação sua, nada mais será enviado depois do descadastro.',
     ].join('\n'),
-    htmlContent:
-      '<div style="font-family:Georgia,serif;font-size:15px;line-height:1.6;color:#0B1E3F">' +
-      '<p>Sua inscrição está confirmada.</p>' +
-      '<p>Você vai receber os textos que publicamos, escritos para quem não é da área. ' +
-      'Para sair da lista, use o link no rodapé de qualquer envio.</p>' +
-      '<p style="color:#517493">Se não foi você quem se inscreveu, ignore esta mensagem.</p>' +
-      '</div>',
+    htmlContent: layoutEmail({
+      preheader: 'Sua inscrição está confirmada.',
+      rotulo: 'Newsletter',
+      titulo: 'Inscrição confirmada',
+      corpo:
+        paragrafo('Você vai receber, por e-mail, cada texto novo que o escritório publicar: artigos escritos para quem não é da área, com o essencial de cada assunto.') +
+        botao('Ver as publicações', urlAbsoluta('/conteudos/')) +
+        nota('Para sair da lista, use o link no rodapé de qualquer envio. Se não foi você quem se inscreveu, ignore esta mensagem.'),
+    }),
     tags: ['boas-vindas-newsletter'],
   });
 }
@@ -281,7 +292,7 @@ export function enviaBoasVindas(
 export function enviaBoasVindasAoPainel(
   chave: string,
   remetente: { nome: string; email: string },
-  dados: { nome: string; email: string; painel: string; linkSenha: string; quemCriou: string },
+  dados: { nome: string; email: string; painel: string; linkSenha: string; quemCriou: string; papel?: string },
 ) {
   const primeiroNome = dados.nome.split(' ')[0] || dados.nome;
   return chama('/smtp/email', chave, {
@@ -301,19 +312,16 @@ export function enviaBoasVindasAoPainel(
       '',
       'Se o link vencer, use "Esqueci minha senha" na tela de entrada do painel.',
     ].join('\n'),
-    htmlContent:
-      '<div style="font-family:Georgia,serif;font-size:15px;line-height:1.6;color:#0B1E3F">' +
-      `<p>Olá, ${escapa(primeiroNome)}.</p>` +
-      `<p>${escapa(dados.quemCriou)} criou o seu acesso ao painel do site, onde se publicam os textos ` +
-      'e se leem as mensagens do formulário de contato.</p>' +
-      '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px">' +
-      `<tr><td style="padding:2px 12px 2px 0;color:#517493">Login</td><td><strong>${escapa(dados.email)}</strong></td></tr>` +
-      `<tr><td style="padding:2px 12px 2px 0;color:#517493">Painel</td><td><a href="${escapa(dados.painel)}">${escapa(dados.painel)}</a></td></tr>` +
-      '</table>' +
-      `<p><a href="${escapa(dados.linkSenha)}" style="color:#004369">Definir a minha senha</a></p>` +
-      '<p style="color:#517493">O link vale por uma hora e só pode ser usado uma vez. Se ele vencer, ' +
-      'use "Esqueci minha senha" na tela de entrada do painel.</p>' +
-      '</div>',
+    htmlContent: layoutEmail({
+      preheader: `${dados.quemCriou} criou o seu acesso ao painel do site.`,
+      rotulo: 'Acesso ao painel',
+      titulo: `Boas-vindas, ${primeiroNome}.`,
+      corpo:
+        paragrafo(`${escapa(dados.quemCriou)} criou o seu acesso ao painel do site, onde se publicam os textos da Central de Conteúdos e se leem as mensagens do formulário de contato.`) +
+        dadosEmail([['Login', dados.email], ...(dados.papel ? ([['Papel', dados.papel]] as [string, string][]) : []), ['Painel', dados.painel]]) +
+        botao('Definir minha senha', dados.linkSenha) +
+        nota('O link vale por uma hora e só pode ser usado uma vez. Se ele vencer, use "Esqueci minha senha" na tela de entrada do painel.'),
+    }),
     tags: ['boas-vindas-painel'],
   });
 }
@@ -328,10 +336,57 @@ export function inscreveNaNewsletter(chave: string, listaId: number, email: stri
   });
 }
 
-function escapa(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+
+export interface ArtigoNewsletter {
+  titulo: string;
+  resumo: string;
+  categoria: string;
+  /** URL absoluta do artigo no site. */
+  url: string;
+  /** URL da capa (absoluta ou caminho do site); opcional. */
+  capa?: string | null;
+  capaAlt?: string | null;
+}
+
+/** HTML da newsletter de um artigo (também usado no envio de teste). */
+export function htmlNewsletter(a: ArtigoNewsletter): string {
+  return layoutEmail({
+    preheader: a.resumo,
+    rotulo: a.categoria || 'Novo texto',
+    titulo: a.titulo,
+    imagem: a.capa ? { src: urlAbsoluta(a.capa), alt: a.capaAlt || a.titulo } : undefined,
+    corpo: paragrafo(escapa(a.resumo)) + botao('Ler o artigo', a.url),
+    descadastro: true,
+  });
+}
+
+/**
+ * Newsletter de um artigo recém-publicado: cria uma campanha na Brevo para
+ * a lista da newsletter e dispara na hora. Com `teste`, só manda um envio
+ * de teste para esse endereço (a campanha fica em rascunho na Brevo).
+ * Devolve o id da campanha.
+ */
+export async function disparaNewsletterDoArtigo(
+  chave: string,
+  remetente: { nome: string; email: string },
+  listaId: number,
+  artigo: ArtigoNewsletter,
+  teste?: string,
+): Promise<number> {
+  const campanha = (await chama('/emailCampaigns', chave, {
+    name: `Newsletter · ${artigo.titulo}`.slice(0, 250),
+    subject: artigo.titulo,
+    previewText: artigo.resumo.slice(0, 140),
+    sender: { name: remetente.nome, email: remetente.email },
+    replyTo: remetente.email,
+    htmlContent: htmlNewsletter(artigo),
+    recipients: { listIds: [listaId] },
+    tag: 'newsletter-artigo',
+    /* Agendada para 10 minutos depois: tempo de o site terminar de se
+       atualizar, para o botão "Ler o artigo" nunca levar a uma página que
+       ainda não existe. No teste não agenda (fica em rascunho). */
+    ...(teste ? {} : { scheduledAt: new Date(Date.now() + 10 * 60 * 1000).toISOString() }),
+  })) as { id: number };
+  if (teste) await chama(`/emailCampaigns/${campanha.id}/sendTest`, chave, { emailTo: [teste] });
+  return campanha.id;
 }

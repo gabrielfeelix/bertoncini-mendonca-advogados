@@ -30,7 +30,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { env } from '~/lib/ambiente';
 import { emailPlausivel } from '~/lib/antispam';
 import { enviaBoasVindasAoPainel, ErroBrevo } from '~/lib/brevo';
-import { configSupabase, editorAtual } from '~/lib/painel-auth';
+import { configSupabase, editorAtual, podeGerirUsuarios, NOMES_PAPEL, type Papel } from '~/lib/painel-auth';
 import { responde } from '~/lib/painel-artigo';
 import { CAMINHO_USUARIOS, COOKIE_NOVO, type NovoUsuario } from '~/lib/painel-usuarios';
 
@@ -71,6 +71,8 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 
   const editor = await editorAtual(cookies);
   if (!editor) return responde(request, '/painel/entrar/?erro=sessao', 'sessao');
+  /* Só administrador gere usuários (migração 009). */
+  if (!podeGerirUsuarios(editor)) return responde(request, '/painel/?erro=permissao', 'permissao');
 
   const admin = clienteAdmin(cfg.url);
   if (!admin) {
@@ -86,12 +88,34 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
   }
 
   const acao = String(dados.get('acao') ?? '');
+  const PAPEIS: Papel[] = ['administrador', 'editor', 'estagiario'];
+  const papelDoForm = (): Papel => {
+    const p = String(dados.get('papel') ?? '') as Papel;
+    return PAPEIS.includes(p) ? p : 'editor';
+  };
+  /* Nunca deixar o painel sem administrador. */
+  const ultimoAdmin = async (id: string) => {
+    const { data } = await admin.from('editores').select('id').eq('papel', 'administrador');
+    return (data ?? []).length <= 1 && (data ?? []).some((e) => e.id === id);
+  };
+
+  /* ── trocar papel ──────────────────────────────────────────────────── */
+  if (acao === 'papel') {
+    const id = String(dados.get('id') ?? '').trim();
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return responde(request, `${LISTA}?erro=salvar`, 'salvar');
+    const papel = papelDoForm();
+    if (papel !== 'administrador' && (await ultimoAdmin(id))) return responde(request, `${LISTA}?erro=ultimo-admin`, 'ultimo-admin');
+    const { error } = await admin.from('editores').update({ papel }).eq('id', id);
+    if (error) return responde(request, `${LISTA}?erro=salvar`, 'salvar');
+    return responde(request, `${LISTA}?feito=papel`);
+  }
 
   /* ── remover ───────────────────────────────────────────────────────── */
   if (acao === 'remover') {
     const id = String(dados.get('id') ?? '').trim();
     if (!/^[0-9a-f-]{36}$/i.test(id)) return responde(request, `${LISTA}?erro=salvar`, 'salvar');
     if (id === editor.id) return responde(request, `${LISTA}?erro=usuario-si`, 'usuario-si');
+    if (await ultimoAdmin(id)) return responde(request, `${LISTA}?erro=ultimo-admin`, 'ultimo-admin');
 
     /* Só remove quem é editor: a rota não serve para apagar qualquer conta
        do projeto por id. */
@@ -152,7 +176,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     return responde(request, `${LISTA}?erro=usuario-criar`, 'usuario-criar');
   }
 
-  const { error: erroEditor } = await admin.from('editores').upsert({ id, nome }, { onConflict: 'id' });
+  const { error: erroEditor } = await admin.from('editores').upsert({ id, nome, papel: papelDoForm() }, { onConflict: 'id' });
   if (erroEditor) {
     console.error('[painel] falha ao gravar em editores', erroEditor.message);
     return responde(request, `${LISTA}?erro=usuario-criar`, 'usuario-criar');
@@ -177,7 +201,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       await enviaBoasVindasAoPainel(
         chave,
         { nome: env('BREVO_REMETENTE_NOME') ?? 'Site Bertoncini & Mendonça', email: remetenteEmail },
-        { nome, email, painel: new URL('/painel/', url.origin).toString(), linkSenha: link, quemCriou: editor.nome },
+        { nome, email, painel: new URL('/painel/', url.origin).toString(), linkSenha: link, quemCriou: editor.nome, papel: NOMES_PAPEL[papelDoForm()] },
       );
       boasVindas = 'enviado';
     } catch (erro) {

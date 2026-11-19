@@ -11,6 +11,9 @@ import { env } from './ambiente';
 import { listarAreasConfirmadas } from './areas';
 
 /** Bucket da migração 003, com `capas/` e `corpo/`. */
+import { disparaNewsletterDoArtigo, ErroBrevo } from './brevo';
+import { site } from './site';
+
 export const BUCKET = 'artigos';
 
 /* ── categorias ──────────────────────────────────────────────────────── */
@@ -83,12 +86,16 @@ export const ERROS: Record<string, string> = {
   'usuario-si': 'Você não pode remover o seu próprio acesso. Peça a outra pessoa do painel.',
   'usuario-remover': 'Não consegui remover o acesso. Tente de novo.',
   'usuario-nao-achei': 'Essa pessoa não está mais na lista do painel.',
+  'ultimo-admin': 'O painel precisa de pelo menos um administrador. Promova outra pessoa antes.',
+  permissao: 'Seu papel no painel não permite essa ação. Peça a um administrador.',
+  'newsletter-falhou': 'O texto foi publicado, mas o e-mail da newsletter não saiu. Avise o administrador.',
   'contato-nao-achei': 'Essa mensagem não existe mais, ou esta conta não tem permissão para mexer nela.',
 };
 
 /** Avisos de sucesso, em `?feito=`. */
 export const FEITOS: Record<string, string> = {
-  publicado: 'Texto publicado. O site se atualiza em alguns minutos.',
+  publicado: 'Texto publicado. O site se atualiza em cerca de dois minutos.',
+  'publicado-news': 'Texto publicado. O e-mail da newsletter sai em 10 minutos, quando o site já estiver atualizado.',
   rascunho: 'Rascunho guardado. Ele não aparece no site.',
   despublicado: 'O texto voltou a ser rascunho e sai do site na próxima atualização, em alguns minutos.',
   apagado: 'Texto apagado.',
@@ -98,6 +105,7 @@ export const FEITOS: Record<string, string> = {
   senha: 'Senha trocada.',
   'usuario-criado': 'Acesso criado.',
   perfil: 'Perfil atualizado.',
+  papel: 'Papel atualizado.',
   'foto-removida': 'Foto removida. O painel volta a mostrar as suas iniciais.',
   'usuario-removido': 'Acesso removido. A pessoa não entra mais no painel.',
   'contato-lido': 'Mensagem marcada como lida.',
@@ -241,3 +249,51 @@ export async function disparaRebuild(): Promise<'ok' | 'sem-gancho' | 'falhou'> 
 /** Sufixo do destino quando o rebuild não aconteceu, para a lista avisar. */
 export const avisoDoGancho = (resultado: 'ok' | 'sem-gancho' | 'falhou') =>
   resultado === 'ok' ? '' : `&aviso=${resultado === 'sem-gancho' ? 'gancho' : 'gancho-falhou'}`;
+
+/**
+ * Newsletter automática (18/11/2026): na PRIMEIRA vez que um texto é
+ * publicado, dispara a campanha da Brevo para a lista da newsletter e marca
+ * `newsletter_enviada_em` (migração 009), para nunca reenviar. Falha da
+ * Brevo não desfaz a publicação: vira aviso no painel.
+ */
+export async function newsletterAoPublicar(
+  cliente: SupabaseClient,
+  slug: string,
+): Promise<'enviada' | 'ja-enviada' | 'sem-brevo' | 'falhou'> {
+  const chave = env('BREVO_API_KEY');
+  const lista = Number(env('BREVO_LISTA_NEWSLETTER_ID'));
+  const remetenteEmail = env('BREVO_REMETENTE_EMAIL');
+  if (!chave || !remetenteEmail || !Number.isFinite(lista) || lista <= 0) return 'sem-brevo';
+
+  const { data: a, error } = await cliente
+    .from('artigos')
+    .select('titulo, resumo, categoria, capa, capa_alt, estado, newsletter_enviada_em')
+    .eq('slug', slug)
+    .maybeSingle();
+  if (error || !a || a.estado !== 'publicado') return 'falhou';
+  if (a.newsletter_enviada_em) return 'ja-enviada';
+
+  try {
+    await disparaNewsletterDoArtigo(
+      chave,
+      { nome: env('BREVO_REMETENTE_NOME') ?? site.nome, email: remetenteEmail },
+      lista,
+      {
+        titulo: a.titulo as string,
+        resumo: a.resumo as string,
+        categoria: a.categoria as string,
+        url: new URL(`/conteudos/${slug}/`, site.url).toString(),
+        capa: a.capa as string | null,
+        capaAlt: a.capa_alt as string | null,
+      },
+    );
+  } catch (erro) {
+    /* Lista ainda vazia: não há para quem enviar. Não é falha e não marca
+       como enviada (o texto não teve leitores para receber). */
+    if (erro instanceof ErroBrevo && /no contacts/i.test(erro.corpo)) return 'ja-enviada';
+    console.error('[painel] newsletter não saiu', erro);
+    return 'falhou';
+  }
+  await cliente.from('artigos').update({ newsletter_enviada_em: new Date().toISOString() }).eq('slug', slug);
+  return 'enviada';
+}

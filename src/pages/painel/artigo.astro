@@ -16,7 +16,7 @@ export const prerender = false;
 
 import Painel from '~/layouts/Painel.astro';
 import FormArtigo, { type ArtigoDoPainel } from '~/components/painel/FormArtigo.astro';
-import { editorAtual } from '~/lib/painel-auth';
+import { editorAtual, podePublicar, podeApagar } from '~/lib/painel-auth';
 import { ERROS, categoriasDoPainel } from '~/lib/painel-artigo';
 import { markdownParaHtml } from '~/lib/markdown-editor';
 import { hrefArtigo } from '~/lib/artigos';
@@ -53,9 +53,11 @@ const tituloDaTela = artigo ? 'Editar texto' : 'Novo texto';
     {artigo?.estado === 'publicado' && (
       <a class="pnl-btn" href={hrefArtigo(artigo.slug)} target="_blank" rel="noopener">Ver no site</a>
     )}
-    <button class="pnl-btn pnl-btn--principal" type="submit" form="form-artigo" name="acao" value="publicar">
-      {artigo?.estado === 'publicado' ? 'Salvar no site' : 'Publicar'}
-    </button>
+    {podePublicar(editor) && (
+      <button class="pnl-btn pnl-btn--principal" type="submit" form="form-artigo" name="acao" value="publicar">
+        {artigo?.estado === 'publicado' ? 'Salvar no site' : 'Publicar'}
+      </button>
+    )}
   </div>
 
   {erro && <p class="pnl-recado pnl-recado--erro" role="alert">{ERROS[erro] ?? ERROS.salvar}</p>}
@@ -63,9 +65,9 @@ const tituloDaTela = artigo ? 'Editar texto' : 'Novo texto';
     <p class="pnl-recado pnl-recado--erro" role="alert">Não consegui abrir o texto: {erroLeitura}</p>
   ) : (
     <>
-      <FormArtigo artigo={artigo} categorias={categorias} />
+      <FormArtigo artigo={artigo} categorias={categorias} podePublicar={podePublicar(editor)} />
 
-      {artigo && (
+      {artigo && podeApagar(editor) && (
         <details class="pnl-apagar">
           <summary>Apagar este texto</summary>
           <p>O texto sai do painel e do site. Não tem volta.</p>

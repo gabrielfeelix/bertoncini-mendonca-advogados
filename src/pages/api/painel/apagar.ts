@@ -10,7 +10,7 @@
  * arquivo órfão custa menos que uma imagem quebrada.
  */
 import type { APIRoute } from 'astro';
-import { configSupabase, editorAtual } from '~/lib/painel-auth';
+import { configSupabase, editorAtual, podeApagar } from '~/lib/painel-auth';
 import { avisoDoGancho, disparaRebuild, responde } from '~/lib/painel-artigo';
 
 export const prerender = false;
@@ -20,6 +20,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   const editor = await editorAtual(cookies);
   if (!editor) return responde(request, '/painel/entrar/?erro=sessao', 'sessao');
+  if (!podeApagar(editor)) return responde(request, '/painel/?erro=permissao', 'permissao');
 
   let slug = '';
   try {

@@ -20,12 +20,18 @@ import Painel from '~/layouts/Painel.astro';
 import CampoSenha from '~/components/painel/CampoSenha.astro';
 import Avatar from '~/components/painel/Avatar.astro';
 import MedidorSenha from '~/components/painel/MedidorSenha.astro';
-import { editorAtual } from '~/lib/painel-auth';
+import { editorAtual, podeGerirUsuarios, NOMES_PAPEL, DESCRICAO_PAPEL, type Papel } from '~/lib/painel-auth';
 import { ERROS, FEITOS } from '~/lib/painel-artigo';
 import { CAMINHO_USUARIOS, COOKIE_NOVO, type NovoUsuario } from '~/lib/painel-usuarios';
 
 const editor = await editorAtual(Astro.cookies);
 if (!editor) return Astro.redirect('/painel/entrar/', 303);
+if (!podeGerirUsuarios(editor)) return Astro.redirect('/painel/?erro=permissao', 303);
+/* Sem JavaScript os modais abrem pela URL (?novo=1, ?papel=<id>, ?remover=<id>). */
+const abrirNovo = Astro.url.searchParams.get('novo') === '1';
+const abrirPapel = Astro.url.searchParams.get('papel');
+const abrirRemover = Astro.url.searchParams.get('remover');
+const PAPEIS = Object.keys(NOMES_PAPEL) as Papel[];
 
 const erro = Astro.url.searchParams.get('erro');
 const feito = Astro.url.searchParams.get('feito');
@@ -47,6 +53,7 @@ interface Linha {
   nome: string;
   email: string;
   foto: string | null;
+  papel: Papel;
   criado_em: string;
   ultimo_acesso: string | null;
 }
@@ -77,6 +84,7 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'pessoa' : 'pessoas'} com aces
       <h1 class="pnl-titulo">Usuários</h1>
       <p class="pnl-sub" style="margin: 0">{error ? 'Não consegui ler a lista.' : contagem(editores.length)}</p>
     </div>
+    <a class="pnl-btn pnl-btn--principal" href="?novo=1" data-abre="dlg-novo">Novo usuário</a>
   </div>
 
   {erro && <p class="pnl-recado pnl-recado--erro" role="alert">{ERROS[erro] ?? ERROS.salvar}</p>}
@@ -127,7 +135,7 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'pessoa' : 'pessoas'} com aces
           <tr>
             <th>Nome</th>
             <th>E-mail (login)</th>
-            <th class="pnl-col-media">Desde</th>
+            <th>Papel</th>
             <th class="pnl-col-media">Último acesso</th>
             <th><span class="pnl-oculto">Ações</span></th>
           </tr>
@@ -148,19 +156,12 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'pessoa' : 'pessoas'} com aces
                 </div>
               </td>
               <td><a class="pnl-usuarios__email" href={`mailto:${u.email}`}>{u.email}</a></td>
-              <td class="pnl-col-media pnl-tabela__num">{dia(u.criado_em)}</td>
+              <td><span class="pnl-usuarios__papel">{NOMES_PAPEL[u.papel] ?? u.papel}</span></td>
               <td class="pnl-col-media pnl-tabela__num">{quando(u.ultimo_acesso)}</td>
-              <td>
+              <td class="pnl-usuarios__acoes">
+                <a class="pnl-btn" href={`?papel=${u.id}`} data-abre={`dlg-papel-${u.id}`}>Alterar papel</a>
                 {u.id !== editor.id && (
-                  <details class="pnl-contato__apagar">
-                    <summary>Remover</summary>
-                    <form method="post" action="/api/painel/usuarios">
-                      <input type="hidden" name="acao" value="remover" />
-                      <input type="hidden" name="id" value={u.id} />
-                      <p class="pnl-dica" style="margin: 0 0 8px">{u.nome} deixa de entrar no painel.</p>
-                      <button class="pnl-btn pnl-btn--perigo" type="submit">Remover de vez</button>
-                    </form>
-                  </details>
+                  <a class="pnl-btn pnl-btn--perigo-leve" href={`?remover=${u.id}`} data-abre={`dlg-remover-${u.id}`}>Remover</a>
                 )}
               </td>
             </tr>
@@ -170,9 +171,10 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'pessoa' : 'pessoas'} com aces
     </div>
   </div>
 
-  <section class="pnl-cartao pnl-conta" style="margin-top: 32px">
-    <h2 class="pnl-feito__titulo">Novo usuário</h2>
-    <p class="pnl-sub">A pessoa entra com o e-mail e a senha provisória, ou define a própria senha pelo link do e-mail de boas-vindas.</p>
+  {/* Modais (UI própria; sem JS abrem pela URL, como bloco na página). */}
+  <dialog class="pnl-dialogo pnl-dialogo--form" id="dlg-novo" open={abrirNovo || undefined} aria-labelledby="dlg-novo-t">
+    <h2 class="pnl-dialogo__titulo" id="dlg-novo-t">Novo usuário</h2>
+    <p class="pnl-sub">A pessoa recebe um e-mail de boas-vindas com o login e um link para definir a própria senha.</p>
     <form class="entrada__form" method="post" action="/api/painel/usuarios">
       <input type="hidden" name="acao" value="criar" />
       <div>
@@ -184,17 +186,86 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'pessoa' : 'pessoas'} com aces
         <input class="pnl-campo" id="novo-email" type="email" name="email" required maxlength="254" autocomplete="off" />
       </div>
       <div>
+        <label class="pnl-rotulo" for="novo-papel">Papel</label>
+        <select data-seletor class="pnl-campo" id="novo-papel" name="papel">
+          {PAPEIS.map((p) => <option value={p} selected={p === 'editor'}>{NOMES_PAPEL[p]}</option>)}
+        </select>
+        <p class="pnl-dica" id="novo-papel-dica">{DESCRICAO_PAPEL.editor}</p>
+      </div>
+      <div>
         <CampoSenha id="novo-senha-campo" nome="senha" rotulo="Senha provisória" autocomplete="new-password" minimo={8} />
         <MedidorSenha alvo="novo-senha-campo" />
         <p class="pnl-dica" id="dica-gerar">Deixe em branco para o painel gerar uma.</p>
         <button class="pnl-btn" type="button" id="gerar-senha" hidden>Gerar senha</button>
       </div>
-      <button class="pnl-btn pnl-btn--principal" type="submit">Criar acesso</button>
+      <p class="pnl-dialogo__acoes">
+        <a class="pnl-btn" href="/painel/usuarios/" data-fecha>Cancelar</a>
+        <button class="pnl-btn pnl-btn--principal" type="submit">Criar acesso</button>
+      </p>
     </form>
-  </section>
+  </dialog>
+
+  {editores.map((u) => (
+    <>
+      <dialog class="pnl-dialogo pnl-dialogo--form" id={`dlg-papel-${u.id}`} open={abrirPapel === u.id || undefined} aria-labelledby={`dlg-papel-${u.id}-t`}>
+        <h2 class="pnl-dialogo__titulo" id={`dlg-papel-${u.id}-t`}>Papel de {u.nome}</h2>
+        <form method="post" action="/api/painel/usuarios">
+          <input type="hidden" name="acao" value="papel" />
+          <input type="hidden" name="id" value={u.id} />
+          <fieldset class="pnl-papeis">
+            <legend class="pnl-oculto">Papel</legend>
+            {PAPEIS.map((p) => (
+              <label class="pnl-papel">
+                <input type="radio" name="papel" value={p} checked={u.papel === p} />
+                <span><strong>{NOMES_PAPEL[p]}</strong><span>{DESCRICAO_PAPEL[p]}</span></span>
+              </label>
+            ))}
+          </fieldset>
+          <p class="pnl-dialogo__acoes">
+            <a class="pnl-btn" href="/painel/usuarios/" data-fecha>Cancelar</a>
+            <button class="pnl-btn pnl-btn--principal" type="submit">Salvar papel</button>
+          </p>
+        </form>
+      </dialog>
+      {u.id !== editor.id && (
+        <dialog class="pnl-dialogo" id={`dlg-remover-${u.id}`} open={abrirRemover === u.id || undefined} aria-labelledby={`dlg-remover-${u.id}-t`}>
+          <h2 class="pnl-dialogo__titulo" id={`dlg-remover-${u.id}-t`}>Remover {u.nome}?</h2>
+          <p>{u.nome} deixa de entrar no painel. Os textos que essa pessoa escreveu continuam no site.</p>
+          <form method="post" action="/api/painel/usuarios" class="pnl-dialogo__acoes">
+            <input type="hidden" name="acao" value="remover" />
+            <input type="hidden" name="id" value={u.id} />
+            <a class="pnl-btn" href="/painel/usuarios/" data-fecha>Cancelar</a>
+            <button class="pnl-btn pnl-btn--perigo" type="submit">Remover acesso</button>
+          </form>
+        </dialog>
+      )}
+    </>
+  ))}
+  <script type="application/json" id="dados-papeis" set:html={JSON.stringify(DESCRICAO_PAPEL)} />
 </Painel>
 
 <script>
+  /* Modais: com JS, os links "data-abre" abrem o <dialog> como modal (foco
+     preso, Esc fecha) em vez de recarregar a página. */
+  document.querySelectorAll<HTMLAnchorElement>('[data-abre]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const d = document.getElementById(link.dataset.abre!) as HTMLDialogElement | null;
+      if (!d) return;
+      e.preventDefault();
+      if (d.open) d.close();
+      d.showModal();
+    });
+  });
+  document.querySelectorAll<HTMLDialogElement>('dialog.pnl-dialogo').forEach((d) => {
+    /* Aberto pela URL (sem JS ou link direto): vira modal de verdade. */
+    if (d.hasAttribute('open')) { d.close(); d.showModal(); history.replaceState(null, '', location.pathname); }
+    d.querySelectorAll<HTMLElement>('[data-fecha]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); d.close(); }));
+    d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
+  });
+  const dicas = JSON.parse(document.getElementById('dados-papeis')?.textContent ?? '{}') as Record<string, string>;
+  const papel = document.getElementById('novo-papel') as HTMLSelectElement | null;
+  papel?.addEventListener('change', () => { document.getElementById('novo-papel-dica')!.textContent = dicas[papel.value] ?? ''; });
+
   /* Senha em branco é gerada no servidor; por isso o campo deixa de ser
      obrigatório (o CampoSenha nasce com `required`). */
   const campo = document.getElementById('novo-senha-campo') as HTMLInputElement | null;

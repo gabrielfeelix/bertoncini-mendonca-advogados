@@ -8,8 +8,8 @@
  * sem ele, a segunda etapa em /painel/confirmar-exclusao/.
  */
 import type { APIRoute } from 'astro';
-import { configSupabase, editorAtual } from '~/lib/painel-auth';
-import { avisoDoGancho, disparaRebuild, responde } from '~/lib/painel-artigo';
+import { configSupabase, editorAtual, podePublicar } from '~/lib/painel-auth';
+import { avisoDoGancho, disparaRebuild, newsletterAoPublicar, responde } from '~/lib/painel-artigo';
 
 export const prerender = false;
 
@@ -32,6 +32,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const slugs = [...new Set(dados.getAll('slugs').map((s) => String(s).trim().slice(0, 80)).filter(Boolean))].slice(0, 200);
 
   if (!ACOES.includes(acao)) return responde(request, '/painel/?erro=salvar', 'salvar');
+  /* Estagiário não publica, não despublica e não apaga (migração 009). */
+  if (!podePublicar(editor)) return responde(request, '/painel/?erro=permissao', 'permissao');
   if (slugs.length === 0) return responde(request, '/painel/?erro=nenhum', 'nenhum');
   /* Apagar sem confirmação (sem JavaScript, o <dialog> não abriu): segunda
      etapa numa página própria, com os textos listados e "Apagar de vez". */
@@ -60,5 +62,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
      apagados estava publicado. */
   const mexeuNoSite = acao !== 'apagar' || data.some((a) => a.estado === 'publicado');
   const gancho = mexeuNoSite ? await disparaRebuild() : 'ok';
-  return responde(request, `/painel/?feito=${acao === 'apagar' ? 'apagado' : 'lote'}${avisoDoGancho(gancho)}`);
+  /* Publicar em lote também dispara a newsletter de quem ainda não teve. */
+  let avisoNews = '';
+  if (acao === 'publicar') {
+    for (const slug of slugs) if ((await newsletterAoPublicar(editor.cliente, slug)) === 'falhou') avisoNews = '&aviso=newsletter-falhou';
+  }
+  return responde(request, `/painel/?feito=${acao === 'apagar' ? 'apagado' : 'lote'}${avisoDoGancho(gancho) || avisoNews}`);
 };

@@ -37,11 +37,13 @@ export interface ArtigoDoPainel {
 }
 
 interface Props {
+  /** Estagiário não publica (migração 009). */
+  podePublicar?: boolean;
   artigo: ArtigoDoPainel | null;
   categorias: string[];
 }
 
-const { artigo, categorias } = Astro.props;
+const { artigo, categorias, podePublicar = true } = Astro.props;
 const a = artigo;
 const publicado = a?.estado === 'publicado';
 
@@ -277,11 +279,17 @@ const urlBase = new URL(ROTA_CONTEUDOS, site.url).toString();
   </fieldset>
 
   <div class="pnl-acoes">
-    <button class="pnl-btn" type="submit" name="acao" value="rascunho">{publicado ? 'Tirar do site (voltar a rascunho)' : 'Guardar rascunho'}</button>
-    <button class="pnl-btn pnl-btn--principal" type="submit" name="acao" value="publicar">{publicado ? 'Salvar no site' : 'Publicar no site'}</button>
+    {(podePublicar || !publicado) && (
+      <button class="pnl-btn" type="submit" name="acao" value="rascunho">{publicado ? 'Tirar do site (voltar a rascunho)' : 'Guardar rascunho'}</button>
+    )}
+    {podePublicar && (
+      <button class="pnl-btn pnl-btn--principal" type="submit" name="acao" value="publicar">{publicado ? 'Salvar no site' : 'Publicar no site'}</button>
+    )}
     <p class="pnl-acoes__estado" id="estado" role="alert"></p>
     <p class="pnl-dica" style="flex-basis: 100%">
-      Rascunho fica só no painel. Publicar coloca o texto no site, alguns minutos depois, quando o site termina de ser atualizado.
+      {podePublicar
+        ? 'Rascunho fica só no painel. Publicar coloca o texto no site em cerca de dois minutos e, na primeira publicação, envia o e-mail para quem assina a newsletter.'
+        : 'Rascunho fica só no painel. Um editor ou administrador revisa e publica.'}
     </p>
   </div>
 </form>

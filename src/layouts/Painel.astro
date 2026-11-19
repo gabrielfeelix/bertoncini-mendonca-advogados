@@ -24,7 +24,7 @@ interface Props {
   /** Título da aba. */
   titulo: string;
   /** Quem está logado. Ausente nas telas de entrada. */
-  editor?: { nome: string; email: string; foto?: string | null };
+  editor?: { nome: string; email: string; papel?: string; foto?: string | null };
   /** Página de tela estreita e centrada (entrar, senha). */
   estreita?: boolean;
 }
@@ -40,7 +40,7 @@ const menu = [
     rotulo: 'Artigos',
     atual: /^\/painel\/(artigo\/|confirmar-exclusao\/)?$/.test(caminho),
   },
-  { href: '/painel/contatos/', rotulo: 'Contatos', atual: caminho.startsWith('/painel/contatos') },
+  { href: '/painel/contatos/', rotulo: 'Leads', atual: caminho.startsWith('/painel/contatos') || caminho.startsWith('/painel/newsletter') },
 ];
 const primeiroNome = editor?.nome.trim().split(/\s+/)[0] ?? '';
 ---
@@ -90,7 +90,9 @@ const primeiroNome = editor?.nome.trim().split(/\s+/)[0] ?? '';
                 </span>
               </div>
               <a class="pnl-usuario__item" href="/painel/conta/" aria-current={caminho.startsWith('/painel/conta') ? 'page' : undefined}>Minha conta</a>
-              <a class="pnl-usuario__item" href="/painel/usuarios/" aria-current={caminho.startsWith('/painel/usuarios') ? 'page' : undefined}>Usuários</a>
+              {editor.papel === 'administrador' && (
+                <a class="pnl-usuario__item" href="/painel/usuarios/" aria-current={caminho.startsWith('/painel/usuarios') ? 'page' : undefined}>Usuários</a>
+              )}
               <form method="post" action="/api/painel/sair">
                 <button class="pnl-usuario__item" type="submit">Sair</button>
               </form>
