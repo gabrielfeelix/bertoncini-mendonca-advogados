@@ -113,9 +113,9 @@ const escritorio = rota(lang, '/escritorio/');
     <div class="container duas-colunas sobre-grade">
       {/* Estátua da Justiça (18/11/2026), no lugar da foto da placa. */}
       <picture class="sobre-foto">
-        <source srcset="/media/novas/sobre-justica.avif" type="image/avif" />
-        <source srcset="/media/novas/sobre-justica.webp" type="image/webp" />
-        <img class="foto-escritorio" src="/media/novas/sobre-justica.jpg" alt={h.fotoSobre} width="718" height="1080" loading="lazy" />
+        <source srcset="/media/novas/sobre-socios.avif" type="image/avif" />
+        <source srcset="/media/novas/sobre-socios.webp" type="image/webp" />
+        <img class="foto-escritorio" src="/media/novas/sobre-socios.jpg" alt={h.fotoSobre} width="1200" height="1200" loading="lazy" />
       </picture>
       <div>
         <p class="rotulo">{h.sobreRotulo}</p>
@@ -417,7 +417,7 @@ const escritorio = rota(lang, '/escritorio/');
   /* 18/11/2026: mais baixa que o texto, cortando em cima (a estátua e a
      mesa ficam; sai parte da estante). */
   .sobre-grade { align-items: center; }
-  .sobre-foto img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; object-position: 50% 100%; }
+  .sobre-foto img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; object-position: 50% 20%; }
   .titulo-bloco { font-size: 34px; font-weight: 300; }
   .titulo-bloco :global(strong) { font-weight: 700; }
   .socios-mini { list-style: none; padding: 0; margin: 22px 0 26px; display: flex; flex-wrap: wrap; gap: 14px 56px; }
@@ -482,7 +482,7 @@ const escritorio = rota(lang, '/escritorio/');
   /* Empilhado (mesmo ponto de .duas-colunas no v3.css): volta a 16:9. */
   @media (max-width: 991px) {
     .sobre-grade { grid-template-columns: 1fr; }
-    .sobre-foto img { height: auto; min-height: 0; aspect-ratio: 4 / 3; object-position: 60% 62%; }
+    .sobre-foto img { height: auto; min-height: 0; aspect-ratio: 4 / 3; object-position: 50% 15%; }
     .faq-grade { grid-template-columns: 1fr; gap: 32px; }
     .faq-grade h2 { font-size: 42px; }
   }
