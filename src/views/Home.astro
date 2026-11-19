@@ -352,7 +352,16 @@ const escritorio = rota(lang, '/escritorio/');
     }
     .bento[data-variante="5"] > .painel { flex: 1 1 0; min-width: 0; transition: flex-grow .6s cubic-bezier(.4, 0, .2, 1); }
     .bento[data-variante="5"] > .painel:is(:hover, :focus-within) { flex-grow: 1.8; }
-    .bento[data-variante="5"] > .painel h3 { font-size: 28px; max-width: 14ch; }
+    .bento[data-variante="5"] > .painel h3 { font-size: 28px; }
+    /* Texto travado na largura do card ENCOLHIDO (18/11/2026): com o card
+       estreitando, o título e o resumo quebravam de linha a cada quadro da
+       animação. A largura sai da faixa (container query): (faixa − 4 vãos)
+       ÷ (4 cards × 1 + 1 aberto × 1,8) − padding. Assim nada quebra de
+       linha enquanto um card estica; só a foto e o fundo mudam. */
+    .bento[data-variante="5"] { container-type: inline-size; }
+    .bento[data-variante="5"] > .painel :is(h3, .painel-resumo p) {
+      width: calc((100cqi - 48px) / 5.8 - 56px); max-width: none;
+    }
     .bento[data-variante="5"] .painel img { transition: transform 1s cubic-bezier(.4, 0, .2, 1); }
     .bento[data-variante="5"] .painel:is(:hover, :focus-within) img { transform: scale(1.03); }
     .bento[data-variante="5"] .painel-troca { display: grid; grid-template-columns: minmax(0, 1fr); }
