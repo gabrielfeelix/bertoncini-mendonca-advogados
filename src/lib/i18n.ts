@@ -196,8 +196,8 @@ const pt = {
     sociosTitulo: 'Nossos <strong>Sócios</strong>',
     formacao: 'Formação',
     bios: [
-      // PROVISÓRIO: aguardando bio do Jus (só a formação, sem a divisão consultivo × judicial).
-      'Especialista em Direito Empresarial pela PUC/RS e em Advocacia Consultiva pela Legale, e pós-graduando em Direito Imobiliário.',
+      // Texto do Jus (18/11/2026).
+      'Advogado com foco em Planejamento Patrimonial e Sucessório, Direito Imobiliário e Contratos, atuando desde a estruturação preventiva até a condução de litígios. Assessora famílias, empresários e investidores na organização e proteção do patrimônio, na estruturação da sucessão familiar e empresarial e na segurança jurídica de operações imobiliárias. Também atua em inventários, regularização de imóveis e resolução de conflitos, tanto na esfera extrajudicial quanto judicial.',
       // Texto dos sócios de 18/11/2026.
       'Advogada com atuação consultiva, preventiva e contenciosa, especialmente nas áreas de Direito Digital, Contratos e Direito Civil. Assessora empresas, profissionais e criadores de conteúdo na estruturação de negócios e relações jurídicas, proteção de ativos intelectuais, registro de marcas e adequação de atividades ao ambiente digital. Também atua na prevenção e resolução de conflitos, tanto na esfera extrajudicial quanto judicial.',
     ],
@@ -205,8 +205,8 @@ const pt = {
       [
         'Bacharel em Direito pela Universidade Estadual de Maringá (UEM)',
         'Especialista em Direito Empresarial pela PUC/RS',
-        'Especialista em Advocacia Consultiva pela Legale',
-        'Pós-graduando em Direito Imobiliário pela i9',
+        'Especialista em Advocacia Consultiva',
+        'Pós-graduando em Direito Imobiliário',
       ],
       // Texto dos sócios de 18/11/2026.
       [
@@ -453,16 +453,15 @@ const en: Textos = {
     sociosTitulo: 'Our <strong>Partners</strong>',
     formacao: 'Education',
     bios: [
-      // PROVISÓRIO: aguardando bio do Jus (só a formação, sem a divisão consultivo × judicial).
-      'Specialist in Business Law (PUC/RS) and in Advisory Legal Practice (Legale), and graduate student in Real Estate Law.',
+      'Lawyer focused on Estate and Succession Planning, Real Estate Law and Contracts, working from preventive structuring through to the handling of litigation. He advises families, business owners and investors on organizing and protecting their assets, structuring family and business succession and ensuring the legal certainty of real estate transactions. He also handles probate proceedings, property regularization and dispute resolution, both out of court and in court.',
       'Lawyer with an advisory, preventive and litigation practice, especially in Digital Law, Contracts and Civil Law. Advises companies, professionals and content creators on structuring businesses and legal relationships, protecting intellectual assets, registering trademarks and adapting their activities to the digital environment. Also works on preventing and resolving disputes, both out of court and in court.',
     ],
     formacoes: [
       [
         'Bachelor of Laws, State University of Maringá (UEM)',
         'Specialization in Business Law, PUC/RS',
-        'Specialization in Advisory Legal Practice, Legale',
-        'Graduate studies in Real Estate Law (in progress), i9',
+        'Specialization in Advisory Legal Practice',
+        'Graduate studies in Real Estate Law (in progress)',
       ],
       [
         'Bachelor of Laws, State University of Maringá (UEM)',

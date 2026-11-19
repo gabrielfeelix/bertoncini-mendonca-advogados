@@ -75,8 +75,7 @@ export const site = {
       retrato: '/media/socios/juscelino',
       // Miniatura redonda (rosto, 320×320), para listas e autoria.
       rosto: '/media/socios/juscelino-rosto.jpg',
-      // PROVISÓRIO: aguardando bio do Jus (só a formação, sem a divisão consultivo × judicial).
-      linha: 'Especialista em Direito Empresarial e em Advocacia Consultiva, e pós-graduando em Direito Imobiliário.',
+      linha: 'Advogado com foco em Planejamento Patrimonial e Sucessório, Direito Imobiliário e Contratos, da estruturação preventiva à condução de litígios.',
     },
     {
       nome: 'Beatriz Mendonça',
@@ -125,8 +124,8 @@ export const formacao: Record<string, readonly string[]> = {
   'Juscelino Bertoncini': [
     'Bacharel em Direito pela Universidade Estadual de Maringá (UEM)',
     'Especialista em Direito Empresarial pela PUC/RS',
-    'Especialista em Advocacia Consultiva pela Legale',
-    'Pós-graduando em Direito Imobiliário pela i9',
+    'Especialista em Advocacia Consultiva',
+    'Pós-graduando em Direito Imobiliário',
   ],
   // Texto dos sócios de 18/11/2026.
   'Beatriz Mendonça': [
