@@ -23,6 +23,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
+import { avisa, pergunta } from './painel-dialogo';
 import {
   destinoAceito,
   htmlParaMarkdown,
@@ -170,6 +171,8 @@ export function montaEditor(): void {
     });
     bloco.value = editor.isActive('heading', { level: 2 }) ? 'h2' : editor.isActive('heading', { level: 3 }) ? 'h3' : 'p';
     bloco.disabled = emMarkdown();
+    // O seletor do painel (Seletor.astro) redesenha o valor sem disparar `change`.
+    bloco.dispatchEvent(new Event('seletor:atualiza'));
   }
   editor.on('selectionUpdate', sincroniza);
   editor.on('transaction', sincroniza);
@@ -189,17 +192,32 @@ export function montaEditor(): void {
         case 'orderedList': c.toggleOrderedList().run(); break;
         case 'link': {
           if (editor.isActive('link')) { c.unsetLink().run(); break; }
-          const destino = window.prompt('Endereço do link (começando com https://)', 'https://');
-          if (!destino || destino === 'https://') break;
-          if (!destinoAceito(destino)) { window.alert('Esse endereço não é aceito.'); break; }
-          c.extendMarkRange('link').setLink({ href: destino.trim() }).run();
-          break;
+          void pedeLink();
+          return;
         }
         case 'imagem': $<HTMLInputElement>('#ed-arquivo').click(); break;
       }
       sincroniza();
     });
   });
+
+  /* Link: o endereço é pedido no modal do painel (nada de prompt nativo).
+     O Tiptap guarda a seleção no estado; `focus()` a devolve depois. */
+  async function pedeLink() {
+    const destino = await pergunta({
+      titulo: 'Inserir link',
+      campo: { rotulo: 'Endereço do link (começando com https://)', valor: 'https://', tipo: 'url' },
+      confirmar: 'Inserir',
+    });
+    if (!destino || destino.trim() === 'https://') { editor.commands.focus(); return; }
+    if (!destinoAceito(destino)) {
+      await avisa('Endereço não aceito', 'Esse endereço não pode ser usado como link.');
+      editor.commands.focus();
+      return;
+    }
+    editor.chain().focus().extendMarkRange('link').setLink({ href: destino.trim() }).run();
+    sincroniza();
+  }
 
   bloco.addEventListener('change', () => {
     const c = editor.chain().focus();
@@ -239,7 +257,13 @@ export function montaEditor(): void {
       const resposta = await fetch('/api/painel/imagem', { method: 'POST', body: dados, headers: { Accept: 'application/json' } });
       const r = (await resposta.json()) as { ok: boolean; url?: string; mensagem?: string };
       if (!r.ok || !r.url || !imagemAceita(r.url)) throw new Error(r.mensagem ?? 'envio recusado');
-      const alt = window.prompt('O que esta imagem mostra? (para quem usa leitor de tela)') ?? '';
+      const alt =
+        (await pergunta({
+          titulo: 'Descrição da imagem',
+          texto: 'Para quem usa leitor de tela. Deixe em branco se a imagem for só decorativa.',
+          campo: { rotulo: 'O que esta imagem mostra?' },
+          confirmar: 'Inserir imagem',
+        })) ?? '';
       editor.chain().focus().setImage({ src: r.url, alt: alt.trim() }).run();
       recado.textContent = '';
     } catch (e) {
@@ -388,10 +412,21 @@ export function montaEditor(): void {
 
   // ── apagar ────────────────────────────────────────────────────────────
   const formApagar = document.querySelector<HTMLFormElement>('#form-apagar');
-  formApagar?.addEventListener('submit', (e) => {
+  let apagarConfirmado = false;
+  formApagar?.addEventListener('submit', async (e) => {
+    if (apagarConfirmado) return;
+    e.preventDefault();
     const nome = formApagar.querySelector<HTMLButtonElement>('button')?.dataset.titulo ?? 'este texto';
-    if (!window.confirm(`Apagar "${nome}"? Isso não tem volta.`)) e.preventDefault();
-    else mexido = false;
+    const sim = await pergunta({
+      titulo: 'Apagar este texto',
+      texto: `Apagar "${nome}"? Ele sai do painel e do site. Isso não pode ser desfeito.`,
+      confirmar: 'Apagar de vez',
+      perigo: true,
+    });
+    if (!sim) return;
+    apagarConfirmado = true;
+    mexido = false;
+    formApagar.requestSubmit();
   });
 
   sincroniza();

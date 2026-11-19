@@ -270,6 +270,54 @@ export function enviaBoasVindas(
   });
 }
 
+/**
+ * Boas-vindas de quem ganhou acesso ao painel (criado em /painel/usuarios/).
+ *
+ * A senha provisória NÃO vai no e-mail: e-mail fica guardado em caixas e
+ * servidores de terceiros. Vão o login, o endereço do painel e um link de
+ * uso único para a pessoa definir a própria senha (gerado pelo Supabase,
+ * vale por uma hora). Vencido o link, "Esqueci minha senha" gera outro.
+ */
+export function enviaBoasVindasAoPainel(
+  chave: string,
+  remetente: { nome: string; email: string },
+  dados: { nome: string; email: string; painel: string; linkSenha: string; quemCriou: string },
+) {
+  const primeiroNome = dados.nome.split(' ')[0] || dados.nome;
+  return chama('/smtp/email', chave, {
+    sender: { name: remetente.nome, email: remetente.email },
+    to: [{ email: dados.email, name: dados.nome }],
+    subject: 'Seu acesso ao painel do site',
+    textContent: [
+      `Olá, ${primeiroNome}.`,
+      '',
+      `${dados.quemCriou} criou o seu acesso ao painel do site, onde se publicam os textos e se leem as mensagens do formulário de contato.`,
+      '',
+      `Login: ${dados.email}`,
+      `Painel: ${dados.painel}`,
+      '',
+      'Para definir a sua senha, abra o link abaixo. Ele vale por uma hora e só pode ser usado uma vez:',
+      dados.linkSenha,
+      '',
+      'Se o link vencer, use "Esqueci minha senha" na tela de entrada do painel.',
+    ].join('\n'),
+    htmlContent:
+      '<div style="font-family:Georgia,serif;font-size:15px;line-height:1.6;color:#0B1E3F">' +
+      `<p>Olá, ${escapa(primeiroNome)}.</p>` +
+      `<p>${escapa(dados.quemCriou)} criou o seu acesso ao painel do site, onde se publicam os textos ` +
+      'e se leem as mensagens do formulário de contato.</p>' +
+      '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px">' +
+      `<tr><td style="padding:2px 12px 2px 0;color:#517493">Login</td><td><strong>${escapa(dados.email)}</strong></td></tr>` +
+      `<tr><td style="padding:2px 12px 2px 0;color:#517493">Painel</td><td><a href="${escapa(dados.painel)}">${escapa(dados.painel)}</a></td></tr>` +
+      '</table>' +
+      `<p><a href="${escapa(dados.linkSenha)}" style="color:#004369">Definir a minha senha</a></p>` +
+      '<p style="color:#517493">O link vale por uma hora e só pode ser usado uma vez. Se ele vencer, ' +
+      'use "Esqueci minha senha" na tela de entrada do painel.</p>' +
+      '</div>',
+    tags: ['boas-vindas-painel'],
+  });
+}
+
 /** Inscreve um e-mail na lista da newsletter. */
 export function inscreveNaNewsletter(chave: string, listaId: number, email: string) {
   return chama('/contacts', chave, {

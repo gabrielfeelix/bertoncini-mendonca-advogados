@@ -3,9 +3,9 @@
  * (publicar, voltar a rascunho, apagar). Veio da seleção em massa do CMS de
  * origem; aqui é um formulário comum, que funciona sem JavaScript.
  *
- * Apagar em lote pede a caixa "confirmo" (com JavaScript, um `confirm()`
- * preenche por ela): é a única ação do painel que some com vários textos
- * num clique só.
+ * Apagar em lote pede confirmação, porque é a única ação do painel que some
+ * com vários textos num clique só: com JavaScript, um <dialog> na lista;
+ * sem ele, a segunda etapa em /painel/confirmar-exclusao/.
  */
 import type { APIRoute } from 'astro';
 import { configSupabase, editorAtual } from '~/lib/painel-auth';
@@ -33,8 +33,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   if (!ACOES.includes(acao)) return responde(request, '/painel/?erro=salvar', 'salvar');
   if (slugs.length === 0) return responde(request, '/painel/?erro=nenhum', 'nenhum');
+  /* Apagar sem confirmação (sem JavaScript, o <dialog> não abriu): segunda
+     etapa numa página própria, com os textos listados e "Apagar de vez". */
   if (acao === 'apagar' && dados.get('confirma') !== '1') {
-    return responde(request, '/painel/?erro=confirma', 'confirma');
+    const consulta = new URLSearchParams(slugs.map((s) => ['slugs', s]));
+    return responde(request, `/painel/confirmar-exclusao/?${consulta}`, 'confirma');
   }
 
   const tabela = editor.cliente.from('artigos');

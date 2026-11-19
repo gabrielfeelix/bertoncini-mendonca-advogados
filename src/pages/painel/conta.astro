@@ -1,0 +1,124 @@
+---
+/**
+ * `/painel/conta/` — Minha conta.
+ *
+ * Dois cartões:
+ * - Perfil: a foto grande e redonda (ou as iniciais), "Trocar foto" e
+ *   "Remover foto", e o nome. Vai para /api/painel/perfil, que recorta a
+ *   foto em 320×320 no servidor.
+ * - Senha: atual, nova e repetida, com o campo de olho e o medidor de
+ *   força de /painel/nova-senha/. Vai para /api/painel/conta.
+ *
+ * Funciona sem JavaScript: "Trocar foto" é o rótulo do campo de arquivo, e
+ * a foto escolhida sobe com "Salvar perfil". Com JavaScript, a prévia
+ * aparece na hora e a foto sobe sozinha ao ser escolhida.
+ *
+ * Sem sessão de editor, manda para a entrada.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import Avatar from '~/components/painel/Avatar.astro';
+import CampoSenha from '~/components/painel/CampoSenha.astro';
+import MedidorSenha from '~/components/painel/MedidorSenha.astro';
+import { editorAtual } from '~/lib/painel-auth';
+import { ERROS, FEITOS } from '~/lib/painel-artigo';
+
+const editor = await editorAtual(Astro.cookies);
+if (!editor) return Astro.redirect('/painel/entrar/', 303);
+
+const erro = Astro.url.searchParams.get('erro');
+const feito = Astro.url.searchParams.get('feito');
+---
+
+<Painel titulo="Minha conta" editor={editor}>
+  <h1 class="pnl-titulo">Minha conta</h1>
+  <p class="pnl-sub">Como você aparece no painel, e a sua senha.</p>
+
+  {feito && FEITOS[feito] && <p class="pnl-recado pnl-recado--ok" role="status">{FEITOS[feito]}</p>}
+  {erro && <p class="pnl-recado pnl-recado--erro" role="alert">{ERROS[erro] ?? ERROS.salvar}</p>}
+
+  <div class="pnl-conta-grade">
+    <section class="pnl-cartao pnl-perfil" aria-labelledby="titulo-perfil">
+      <p class="pnl-rotulo-sec" id="titulo-perfil">Perfil</p>
+
+      <form method="post" action="/api/painel/perfil" enctype="multipart/form-data" id="form-perfil">
+        <input type="hidden" name="acao" value="salvar" />
+        <div class="pnl-perfil__topo">
+          <div class="pnl-perfil__foto" id="perfil-foto">
+            <Avatar nome={editor.nome} foto={editor.foto} tamanho={112} />
+          </div>
+          <div class="pnl-perfil__quem">
+            <p class="pnl-perfil__nome">{editor.nome}</p>
+            <p class="pnl-perfil__email">{editor.email}</p>
+            <div class="pnl-perfil__acoes">
+              <input class="pnl-oculto pnl-perfil__arquivo" type="file" id="perfil-arquivo" name="foto" accept="image/jpeg,image/png,image/webp,image/avif" />
+              <label class="pnl-btn" for="perfil-arquivo">{editor.foto ? 'Trocar foto' : 'Enviar foto'}</label>
+              {editor.foto && (
+                <button class="pnl-btn pnl-btn--sutil" type="submit" form="form-remover-foto">Remover foto</button>
+              )}
+            </div>
+            <p class="pnl-dica" id="perfil-dica">JPG, PNG ou WebP, até 4 MB. A foto é recortada em quadrado e reduzida.</p>
+          </div>
+        </div>
+
+        <div class="pnl-perfil__campo">
+          <label class="pnl-rotulo" for="perfil-nome">Nome</label>
+          <input class="pnl-campo" id="perfil-nome" name="nome" value={editor.nome} required maxlength="80" autocomplete="name" />
+          <p class="pnl-dica">Aparece no menu do painel e na lista de usuários.</p>
+        </div>
+
+        <button class="pnl-btn pnl-btn--principal" type="submit" id="perfil-salvar">Salvar perfil</button>
+      </form>
+
+      {/* Fora do formulário do perfil: formulário não pode conter outro. */}
+      <form method="post" action="/api/painel/perfil" id="form-remover-foto" hidden>
+        <input type="hidden" name="acao" value="remover-foto" />
+      </form>
+    </section>
+
+    <section class="pnl-cartao" aria-labelledby="titulo-senha">
+      <p class="pnl-rotulo-sec" id="titulo-senha">Trocar a senha</p>
+      <p class="pnl-sub">Pelo menos 8 caracteres. Misturar letras, números e símbolos ajuda.</p>
+
+      <form class="entrada__form" method="post" action="/api/painel/conta">
+        {/* O navegador associa a senha ao login certo ao oferecer para guardar. */}
+        <input type="hidden" name="email" value={editor.email} autocomplete="username" />
+        <CampoSenha id="senha-atual" nome="senha_atual" rotulo="Senha atual" autocomplete="current-password" />
+        <div>
+          <CampoSenha id="senha" nome="senha" rotulo="Nova senha" autocomplete="new-password" minimo={8} />
+          <MedidorSenha alvo="senha" />
+        </div>
+        <CampoSenha id="senha2" nome="senha2" rotulo="Repita a nova senha" autocomplete="new-password" minimo={8} />
+        <button class="pnl-btn pnl-btn--principal" type="submit">Trocar a senha</button>
+      </form>
+    </section>
+  </div>
+</Painel>
+
+<script>
+  /* Com JavaScript: prévia imediata e envio ao escolher a foto. */
+  const arquivo = document.getElementById('perfil-arquivo') as HTMLInputElement | null;
+  const form = document.getElementById('form-perfil') as HTMLFormElement | null;
+  const caixaFoto = document.getElementById('perfil-foto');
+  const dica = document.getElementById('perfil-dica');
+  const salvar = document.getElementById('perfil-salvar') as HTMLButtonElement | null;
+
+  arquivo?.addEventListener('change', () => {
+    const escolhido = arquivo.files?.[0];
+    if (!escolhido || !form || !caixaFoto || !dica || !salvar) return;
+    if (escolhido.size > 4 * 1024 * 1024) {
+      dica.textContent = 'Essa imagem passa de 4 MB. Escolha uma menor.';
+      arquivo.value = '';
+      return;
+    }
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(escolhido);
+    img.alt = '';
+    const avatar = caixaFoto.querySelector('.pnl-avatar');
+    if (avatar) avatar.replaceChildren(img);
+    dica.textContent = 'Enviando a foto…';
+    salvar.disabled = true;
+    form.requestSubmit();
+  });
+</script>

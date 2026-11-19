@@ -86,6 +86,8 @@ export interface Editor {
   id: string;
   email: string;
   nome: string;
+  /** Foto do avatar (migração 008); `null` = iniciais. */
+  foto: string | null;
   /** Token de acesso válido, já renovado se preciso. */
   token: string;
   /** Cliente que fala com o banco como este editor. */
@@ -138,7 +140,7 @@ export async function editorAtual(cookies: AstroCookies): Promise<Editor | null>
      não tem acesso ao painel" em vez de mostrar uma lista vazia. */
   const { data: linha } = await cliente
     .from('editores')
-    .select('nome')
+    .select('nome, foto')
     .eq('id', sessao.usuario.id)
     .maybeSingle();
   if (!linha) return null;
@@ -147,6 +149,7 @@ export async function editorAtual(cookies: AstroCookies): Promise<Editor | null>
     id: sessao.usuario.id,
     email: sessao.usuario.email ?? '',
     nome: linha.nome as string,
+    foto: (linha.foto as string | null) ?? null,
     token: sessao.token,
     cliente,
   };

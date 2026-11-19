@@ -69,11 +69,21 @@ export const ERROS: Record<string, string> = {
   'imagem-tipo': 'A imagem precisa ser JPG, PNG, WebP ou AVIF.',
   'imagem-grande': 'A imagem passa de 4 MB. Reduza o tamanho e envie de novo.',
   'imagem-envio': 'Não consegui enviar a imagem. Tente de novo.',
-  confirma: 'Para apagar vários textos de uma vez, marque "confirmo" ao lado do botão.',
+  confirma: 'Confirme a exclusão antes de apagar.',
   nenhum: 'Nenhum texto foi marcado.',
   gancho: 'O gancho de deploy não está configurado: o site não vai se atualizar sozinho.',
   'gancho-falhou': 'A Vercel não aceitou o pedido de atualização do site. Tente de novo em instantes.',
   salvar: 'Não consegui salvar. Tente de novo.',
+  'senha-atual': 'A senha atual não confere.',
+  'sem-chave': 'A chave de administração do Supabase (SUPABASE_SERVICE_ROLE_KEY) não está configurada neste ambiente.',
+  'usuario-nome': 'Informe o nome de quem vai usar o painel.',
+  'usuario-email': 'Confira o e-mail: ele é o login da pessoa.',
+  'usuario-existe': 'Esse e-mail já tem acesso ao painel.',
+  'usuario-criar': 'Não consegui criar o acesso. Tente de novo.',
+  'usuario-si': 'Você não pode remover o seu próprio acesso. Peça a outra pessoa do painel.',
+  'usuario-remover': 'Não consegui remover o acesso. Tente de novo.',
+  'usuario-nao-achei': 'Essa pessoa não está mais na lista do painel.',
+  'contato-nao-achei': 'Essa mensagem não existe mais, ou esta conta não tem permissão para mexer nela.',
 };
 
 /** Avisos de sucesso, em `?feito=`. */
@@ -86,6 +96,13 @@ export const FEITOS: Record<string, string> = {
   reconstruindo: 'Pedido enviado. O site se atualiza em alguns minutos.',
   saiu: 'Você saiu do painel.',
   senha: 'Senha trocada.',
+  'usuario-criado': 'Acesso criado.',
+  perfil: 'Perfil atualizado.',
+  'foto-removida': 'Foto removida. O painel volta a mostrar as suas iniciais.',
+  'usuario-removido': 'Acesso removido. A pessoa não entra mais no painel.',
+  'contato-lido': 'Mensagem marcada como lida.',
+  'contato-nao-lido': 'Mensagem marcada como não lida.',
+  'contato-apagado': 'Mensagem apagada.',
 };
 
 /* ── resposta ────────────────────────────────────────────────────────── */

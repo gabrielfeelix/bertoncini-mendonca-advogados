@@ -31,6 +31,12 @@
 }
 .pnl-pular:focus { left: 0; }
 
+/* Só para leitor de tela. */
+.pnl-oculto {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
 .pnl :focus-visible { outline: 3px solid var(--azul-claro); outline-offset: 2px; }
 
 /* ── cabeçalho ─────────────────────────────────────────────────────── */
@@ -49,12 +55,79 @@
   font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
   padding-left: 16px; border-left: 1px solid rgba(248, 247, 242, 0.3);
 }
+/* Avatar: foto redonda ou iniciais em azul-noite (Avatar.astro). */
+.pnl-avatar {
+  display: inline-grid; place-items: center; flex: none;
+  width: var(--avatar); height: var(--avatar); border-radius: 50%; overflow: hidden;
+  background: var(--azul); color: var(--creme);
+}
+.pnl-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pnl-avatar__iniciais { font-size: calc(var(--avatar) * 0.38); font-weight: 500; letter-spacing: 0.04em; line-height: 1; }
+/* No cabeçalho (fundo azul-noite), um aro claro separa o círculo do fundo. */
+.pnl-topo .pnl-avatar { box-shadow: 0 0 0 1.5px rgba(248, 247, 242, 0.55); }
+
+/* Menu do usuário. Sem JS: avatar, nome e links em linha no cabeçalho. */
+.pnl-usuario { position: relative; }
+.pnl-usuario__lista { display: flex; align-items: center; gap: 4px 12px; flex-wrap: wrap; }
+.pnl-usuario__quem { display: flex; align-items: center; gap: 10px; }
+.pnl-usuario__quem > span:last-child { display: grid; line-height: 1.25; }
+.pnl-usuario__nome { font-size: 15px; font-weight: 500; }
+.pnl-usuario__email { font-size: 13px; opacity: 0.75; overflow-wrap: anywhere; }
+.pnl-usuario form { margin: 0; }
+.pnl-usuario__item {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px;
+  font: inherit; font-size: 15px; color: var(--creme); text-decoration: underline; text-underline-offset: 3px;
+  background: none; border: 0; cursor: pointer;
+}
+
+/* Com JS: botão no canto e a lista como menu suspenso. */
+.pnl-usuario__botao {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 8px 4px 4px;
+  font: inherit; font-size: 15px; font-weight: 500; color: var(--creme);
+  background: none; border: 1px solid transparent; border-radius: 999px; cursor: pointer;
+}
+.pnl-usuario__botao[hidden] { display: none; }
+.pnl-usuario__botao:hover { border-color: rgba(248, 247, 242, 0.35); }
+.pnl-usuario__botao[aria-expanded='true'] { border-color: rgba(248, 247, 242, 0.55); }
+.pnl-usuario__seta { opacity: 0.8; transition: transform 0.15s ease; }
+.pnl-usuario__botao[aria-expanded='true'] .pnl-usuario__seta { transform: rotate(180deg); }
+.pnl-usuario--js .pnl-usuario__lista {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; width: 280px;
+  display: grid; gap: 0; padding: 6px 0;
+  background: #fff; color: var(--texto); border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(11, 30, 63, 0.22), 0 2px 6px rgba(11, 30, 63, 0.08);
+}
+.pnl-usuario--js .pnl-usuario__lista[hidden] { display: none; }
+.pnl-usuario--js .pnl-usuario__quem { padding: 10px 16px 12px; border-bottom: 1px solid var(--linha); margin-bottom: 6px; }
+.pnl-usuario--js .pnl-usuario__nome { color: var(--azul); }
+.pnl-usuario--js .pnl-usuario__email { color: var(--texto-suave); opacity: 1; }
+.pnl-usuario--js .pnl-usuario__item {
+  display: flex; width: 100%; padding: 0 16px; color: var(--azul); text-decoration: none; text-align: left;
+}
+.pnl-usuario--js .pnl-usuario__item:hover, .pnl-usuario--js .pnl-usuario__item:focus-visible { background: var(--fundo-cinza); outline: none; }
+.pnl-usuario--js .pnl-usuario__item[aria-current='page'] { font-weight: 500; }
+.pnl-usuario--js form { border-top: 1px solid var(--linha); margin-top: 6px; padding-top: 6px; }
+@media (max-width: 560px) {
+  .pnl-usuario__primeiro { display: none; }
+  .pnl-usuario:not(.pnl-usuario--js) .pnl-usuario__email { display: none; }
+}
+
 .pnl-topo__acoes { display: flex; align-items: center; gap: 12px; }
 .pnl-topo__acoes form { margin: 0; }
 .pnl-topo__quem { font-size: 14px; opacity: 0.85; }
 @media (max-width: 560px) {
   .pnl-topo__secao, .pnl-topo__quem { display: none; }
 }
+
+/* Menu: texto claro, a seção atual sublinhada. Sem fundo nem pílula. */
+.pnl-menu { display: flex; gap: 4px; margin-right: auto; }
+.pnl-menu__item {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
+  color: rgba(248, 247, 242, 0.8); text-decoration: none; font-size: 15px;
+  border-bottom: 2px solid transparent;
+}
+.pnl-menu__item:hover { color: #fff; }
+.pnl-menu__item[aria-current='page'] { color: #fff; border-bottom-color: rgba(248, 247, 242, 0.7); }
 
 /* ── página ────────────────────────────────────────────────────────── */
 .pnl-pagina { max-width: var(--coluna); margin: 0 auto; padding: 32px 16px 96px; }
@@ -141,6 +214,9 @@ textarea.pnl-campo { resize: vertical; line-height: 1.55; }
 .pnl-forca__barra--forte { background: var(--azul-medio); }
 
 /* ── lista ─────────────────────────────────────────────────────────── */
+.pnl-cabeca__titulo { display: flex; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; }
+.pnl-cabeca__titulo .pnl-titulo { margin: 0; }
+.pnl-cabeca__conta { margin: 0; font-size: 15px; color: var(--texto-suave); }
 .pnl-cabeca { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
 .pnl-cabeca__acoes { display: flex; gap: 10px; flex-wrap: wrap; }
 .pnl-cabeca__acoes form { margin: 0; }
@@ -149,9 +225,12 @@ textarea.pnl-campo { resize: vertical; line-height: 1.55; }
   display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
   padding: 14px 16px; border-bottom: 1px solid var(--linha);
 }
-.pnl-fer label { display: grid; gap: 4px; font-size: 13px; font-weight: 500; color: var(--azul-claro); }
+.pnl-fer > label, .pnl-fer__campo { display: grid; gap: 4px; font-size: 13px; font-weight: 500; color: var(--azul-claro); }
+/* Rótulo separado do select: o seletor próprio dentro de um <label> fecharia
+   ao ser clicado (o clique no rótulo devolve o foco ao select nativo). */
 .pnl-fer__busca { flex: 1 1 220px; }
 .pnl-fer select.pnl-campo { width: auto; min-width: 150px; }
+.pnl-fer .seletor-gatilho { min-height: 44px; }
 .pnl-fer__conta { margin-left: auto; font-size: 14px; color: var(--texto-suave); align-self: center; }
 
 .pnl-lote {
@@ -184,6 +263,91 @@ textarea.pnl-campo { resize: vertical; line-height: 1.55; }
 @media (max-width: 760px) {
   .pnl-col-media { display: none; }
 }
+
+/* ── contatos ──────────────────────────────────────────────────────── */
+/* Cada mensagem é um <tbody> com duas linhas: os dados e, embaixo, o
+   texto na largura toda. Não lida: fundo levemente frio e nome em peso
+   médio; lida: tudo em peso normal. */
+.pnl-contatos tbody { border-bottom: 1px solid var(--linha); }
+.pnl-contatos tbody:last-child { border-bottom: 0; }
+.pnl-contatos td { border-bottom: 0; vertical-align: top; }
+.pnl-contatos tbody:hover { background: #fbfbf9; }
+.pnl-contatos tbody:hover tr { background: transparent; }
+.pnl-contatos .pnl-contato--novo { background: #f3f7fa; }
+.pnl-contatos .pnl-contato--novo:hover { background: #eef3f7; }
+.pnl-contato__nome { color: var(--azul); }
+.pnl-contato--novo .pnl-contato__nome { font-weight: 500; }
+.pnl-contato__meio { display: grid; gap: 2px; font-size: 14.5px; }
+.pnl-contato__meio a { color: var(--azul-medio); word-break: break-all; }
+.pnl-contato__estado { display: block; font-size: 13px; color: var(--texto-suave); margin-top: 2px; }
+.pnl-contato--novo .pnl-contato__estado { color: var(--azul-medio); font-weight: 500; }
+.pnl-contato__msg td { padding-top: 0; padding-bottom: 14px; }
+.pnl-contato__texto { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--texto); max-width: 78ch; }
+.pnl-contato__msg details summary { cursor: pointer; list-style: none; }
+.pnl-contato__msg details summary::-webkit-details-marker { display: none; }
+.pnl-contato__mais { color: var(--azul-medio); font-size: 14px; text-decoration: underline; white-space: nowrap; }
+.pnl-contato__msg details[open] .pnl-contato__corte { display: none; }
+.pnl-contato__msg summary .pnl-contato__texto { display: inline; }
+.pnl-contato__msg details[open] .pnl-contato__mais--abre,
+.pnl-contato__msg details:not([open]) .pnl-contato__mais--fecha { display: none; }
+.pnl-contato__msg details[open] > .pnl-contato__texto { margin-top: 6px; }
+.pnl-contato__acoes { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; justify-content: flex-end; }
+.pnl-contato__acoes form { margin: 0; }
+.pnl-contato__apagar summary { display: inline-flex; min-height: 44px; align-items: center; padding: 0 6px; color: var(--perigo); cursor: pointer; font-size: 15px; }
+.pnl-contato__apagar[open] summary { margin-bottom: 6px; }
+
+/* ── conta e usuários ───────────────────────────────────────────────── */
+.pnl-conta { max-width: 560px; }
+
+/* Minha conta: perfil e senha lado a lado no desktop, empilhados no celular. */
+.pnl-conta-grade { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .pnl-conta-grade { grid-template-columns: minmax(0, 1fr); } }
+.pnl-perfil form { display: grid; gap: 24px; }
+.pnl-perfil__topo { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+.pnl-perfil__foto .pnl-avatar { box-shadow: 0 0 0 4px #fff, 0 0 0 5px var(--linha); }
+.pnl-perfil__quem { flex: 1 1 220px; min-width: 0; }
+.pnl-perfil__nome { margin: 0; font-size: 22px; font-weight: 300; color: var(--azul); line-height: 1.2; }
+.pnl-perfil__email { margin: 2px 0 14px; font-size: 14.5px; color: var(--texto-suave); overflow-wrap: anywhere; }
+.pnl-perfil__acoes { display: flex; gap: 10px; flex-wrap: wrap; }
+.pnl-perfil__acoes label.pnl-btn { cursor: pointer; }
+.pnl-perfil__arquivo:focus-visible + label { outline: 3px solid var(--azul-claro); outline-offset: 2px; }
+.pnl-perfil__campo { padding-top: 20px; border-top: 1px solid var(--linha); }
+.pnl-perfil form > .pnl-btn--principal { justify-self: start; }
+.pnl-btn--sutil { border-color: transparent; color: var(--texto-suave); }
+.pnl-btn--sutil:hover { border-color: var(--borda-campo); color: var(--perigo); }
+.pnl-novo { margin-bottom: 24px; }
+.pnl-usuarios__quem { display: flex; align-items: center; gap: 12px; }
+.pnl-novo__dados { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 20px; margin: 16px 0; }
+.pnl-novo__dados dt { font-size: 14px; color: var(--azul-claro); padding-top: 10px; }
+.pnl-novo__dados dd { margin: 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; min-width: 0; }
+.pnl-novo__dados code { font-size: 15px; background: var(--fundo-cinza); padding: 8px 10px; border-radius: 4px; overflow-wrap: anywhere; }
+.pnl-novo__link { font-size: 13px !important; max-width: 100%; }
+@media (max-width: 560px) {
+  .pnl-novo__dados { grid-template-columns: 1fr; gap: 4px; }
+  .pnl-novo__dados dt { padding-top: 8px; }
+}
+.pnl-usuarios__email { color: var(--azul-medio); word-break: break-all; }
+#gerar-senha { margin-top: 10px; }
+
+/* ── seletor próprio (Seletor.astro) no painel ─────────────────────── */
+/* Mesma altura e borda dos campos do painel; texto em azul como eles. */
+.pnl .seletor-gatilho { min-height: 44px; padding: 9px 12px; border-color: var(--borda-campo); color: var(--azul); }
+.pnl .seletor-lista { z-index: 60; }
+.pnl-fer .seletor { min-width: 170px; }
+.ed__barra .seletor { min-width: 140px; }
+.ed__barra .seletor-gatilho { min-height: 40px; padding: 6px 10px; font-size: 14px; }
+
+/* ── confirmação (modal do painel e página sem JS) ─────────────────── */
+.pnl-dialogo {
+  width: min(440px, calc(100vw - 32px)); padding: 24px; border: 0; border-radius: 6px;
+  background: #fff; color: var(--texto); box-shadow: 0 18px 50px rgba(11, 30, 63, 0.25);
+}
+.pnl-dialogo::backdrop { background: rgba(11, 30, 63, 0.45); }
+.pnl-dialogo p { margin: 0 0 20px; }
+.pnl-dialogo__campo { margin: 0 0 20px; }
+.pnl-dialogo__acoes { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin: 0; }
+.pnl-exclusao__lista { margin: 0 0 24px; padding-left: 20px; }
+.pnl-exclusao__lista li + li { margin-top: 4px; }
 
 /* ── formulário do artigo ──────────────────────────────────────────── */
 .pnl-volta { display: inline-flex; min-height: 44px; align-items: center; font-size: 15px; color: var(--azul-claro); text-decoration: none; }

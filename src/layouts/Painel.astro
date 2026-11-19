@@ -17,17 +17,32 @@
 import '~/styles/v3.css';
 import '~/styles/painel.css';
 import { site } from '~/lib/site';
+import Seletor from '~/components/Seletor.astro';
+import Avatar from '~/components/painel/Avatar.astro';
 
 interface Props {
   /** Título da aba. */
   titulo: string;
-  /** Nome de quem está logado. Ausente nas telas de entrada. */
-  editor?: string;
+  /** Quem está logado. Ausente nas telas de entrada. */
+  editor?: { nome: string; email: string; foto?: string | null };
   /** Página de tela estreita e centrada (entrar, senha). */
   estreita?: boolean;
 }
 
 const { titulo, editor, estreita = false } = Astro.props;
+
+/* Menu do painel. "Artigos" vale para a lista e para o formulário de um
+   texto; "Contatos" para as mensagens do formulário do site. */
+const caminho = Astro.url.pathname;
+const menu = [
+  {
+    href: '/painel/',
+    rotulo: 'Artigos',
+    atual: /^\/painel\/(artigo\/|confirmar-exclusao\/)?$/.test(caminho),
+  },
+  { href: '/painel/contatos/', rotulo: 'Contatos', atual: caminho.startsWith('/painel/contatos') },
+];
+const primeiroNome = editor?.nome.trim().split(/\s+/)[0] ?? '';
 ---
 
 <!doctype html>
@@ -49,11 +64,37 @@ const { titulo, editor, estreita = false } = Astro.props;
           <span class="pnl-topo__secao">Painel</span>
         </a>
         {editor && (
-          <div class="pnl-topo__acoes">
-            <span class="pnl-topo__quem">{editor}</span>
-            <form method="post" action="/api/painel/sair">
-              <button class="pnl-btn pnl-btn--claro" type="submit">Sair</button>
-            </form>
+          <nav class="pnl-menu" aria-label="Seções do painel">
+            {menu.map((m) => (
+              <a class="pnl-menu__item" href={m.href} aria-current={m.atual ? 'page' : undefined}>{m.rotulo}</a>
+            ))}
+          </nav>
+        )}
+        {editor && (
+          /* Menu do usuário. Sem JavaScript: avatar, nome e os três links
+             visíveis em linha. Com JavaScript: o botão (avatar + primeiro
+             nome + seta) abre a lista como menu suspenso; Esc fecha, setas
+             andam entre os itens, clique fora fecha. */
+          <div class="pnl-usuario" id="menu-usuario">
+            <button class="pnl-usuario__botao" type="button" aria-expanded="false" aria-controls="menu-usuario-lista" hidden>
+              <Avatar nome={editor.nome} foto={editor.foto} tamanho={34} />
+              <span class="pnl-usuario__primeiro">{primeiroNome}</span>
+              <svg class="pnl-usuario__seta" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </button>
+            <div class="pnl-usuario__lista" id="menu-usuario-lista">
+              <div class="pnl-usuario__quem">
+                <Avatar nome={editor.nome} foto={editor.foto} tamanho={40} />
+                <span>
+                  <span class="pnl-usuario__nome">{editor.nome}</span>
+                  <span class="pnl-usuario__email">{editor.email}</span>
+                </span>
+              </div>
+              <a class="pnl-usuario__item" href="/painel/conta/" aria-current={caminho.startsWith('/painel/conta') ? 'page' : undefined}>Minha conta</a>
+              <a class="pnl-usuario__item" href="/painel/usuarios/" aria-current={caminho.startsWith('/painel/usuarios') ? 'page' : undefined}>Usuários</a>
+              <form method="post" action="/api/painel/sair">
+                <button class="pnl-usuario__item" type="submit">Sair</button>
+              </form>
+            </div>
           </div>
         )}
       </div>
@@ -62,5 +103,54 @@ const { titulo, editor, estreita = false } = Astro.props;
     <main id="conteudo" class:list={['pnl-pagina', { 'pnl-pagina--estreita': estreita }]}>
       <slot />
     </main>
+    {/* Dropdown próprio para todo <select data-seletor> do painel. */}
+    <Seletor />
+    <script>
+      /* Liga o menu do usuário. Sem este script, os links ficam à vista. */
+      const caixa = document.getElementById('menu-usuario');
+      const botao = caixa?.querySelector<HTMLButtonElement>('.pnl-usuario__botao');
+      const lista = caixa?.querySelector<HTMLElement>('.pnl-usuario__lista');
+      if (caixa && botao && lista) {
+        const itens = [...lista.querySelectorAll<HTMLElement>('.pnl-usuario__item')];
+        caixa.classList.add('pnl-usuario--js');
+        botao.hidden = false;
+        lista.hidden = true;
+
+        const abre = (foco?: 'primeiro' | 'ultimo') => {
+          lista.hidden = false;
+          botao.setAttribute('aria-expanded', 'true');
+          if (foco) itens[foco === 'primeiro' ? 0 : itens.length - 1].focus();
+        };
+        const fecha = (devolveFoco = false) => {
+          if (lista.hidden) return;
+          lista.hidden = true;
+          botao.setAttribute('aria-expanded', 'false');
+          if (devolveFoco) botao.focus();
+        };
+
+        botao.addEventListener('click', () => (lista.hidden ? abre() : fecha()));
+        botao.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowDown') { e.preventDefault(); abre('primeiro'); }
+          if (e.key === 'ArrowUp') { e.preventDefault(); abre('ultimo'); }
+        });
+        lista.addEventListener('keydown', (e) => {
+          const i = itens.indexOf(document.activeElement as HTMLElement);
+          if (e.key === 'ArrowDown') { e.preventDefault(); itens[(i + 1) % itens.length].focus(); }
+          if (e.key === 'ArrowUp') { e.preventDefault(); itens[(i - 1 + itens.length) % itens.length].focus(); }
+          if (e.key === 'Home') { e.preventDefault(); itens[0].focus(); }
+          if (e.key === 'End') { e.preventDefault(); itens[itens.length - 1].focus(); }
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !lista.hidden) fecha(true);
+        });
+        document.addEventListener('click', (e) => {
+          if (!caixa.contains(e.target as Node)) fecha();
+        });
+        // Tab para fora do menu fecha.
+        caixa.addEventListener('focusout', (e) => {
+          if (!caixa.contains(e.relatedTarget as Node | null)) fecha();
+        });
+      }
+    </script>
   </body>
 </html>

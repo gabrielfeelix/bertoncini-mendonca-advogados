@@ -49,6 +49,8 @@
     gatilho.setAttribute('aria-expanded', 'false');
     gatilho.setAttribute('aria-controls', `${base}-lista`);
     if (rotuloId) gatilho.setAttribute('aria-labelledby', rotuloId);
+    /* Sem <label> (ex.: a barra do editor do painel), vale o aria-label do select. */
+    else if (select.getAttribute('aria-label')) gatilho.setAttribute('aria-label', select.getAttribute('aria-label')!);
     if (select.disabled) gatilho.setAttribute('aria-disabled', 'true');
     /* Mesmo raio do nativo: cada formulário arredonda os campos do seu jeito. */
     gatilho.style.borderRadius = getComputedStyle(select).borderRadius;
@@ -246,6 +248,14 @@
     /* Clique no <label for> (ou validação do navegador) foca o nativo: passa para o gatilho. */
     select.addEventListener('focus', () => gatilho.focus());
     select.addEventListener('change', mostraValor);
+    /* Quem muda o valor ou o `disabled` por script (sem `change`) avisa com
+       este evento, e o gatilho se redesenha. */
+    select.addEventListener('seletor:atualiza', () => {
+      gatilho.tabIndex = select.disabled ? -1 : 0;
+      gatilho.toggleAttribute('aria-disabled', select.disabled);
+      if (select.disabled) fecha();
+      mostraValor();
+    });
     /* form.reset() não dispara change: relê o valor depois que o reset termina. */
     select.form?.addEventListener('reset', () => window.setTimeout(() => { fecha(); mostraValor(); }, 0));
 

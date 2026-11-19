@@ -44,7 +44,7 @@ const htmlInicial = artigo ? markdownParaHtml(artigo.corpo) : '';
 const tituloDaTela = artigo ? 'Editar texto' : 'Novo texto';
 ---
 
-<Painel titulo={artigo?.titulo ?? tituloDaTela} editor={editor.nome}>
+<Painel titulo={artigo?.titulo ?? tituloDaTela} editor={editor}>
   <a class="pnl-volta" href="/painel/">← Todos os textos</a>
 
   <div class="pnl-barra-artigo">

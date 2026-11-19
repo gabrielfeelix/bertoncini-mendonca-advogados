@@ -1,0 +1,233 @@
+---
+/**
+ * `/painel/usuarios/` — quem tem acesso ao painel, e o "Novo usuário".
+ *
+ * A lista vem da função `editores_com_email()` (migração 007), chamada com
+ * a sessão do editor: junta `editores` com o e-mail de `auth.users` sem a
+ * página precisar da chave secreta. Criar e remover vão para
+ * /api/painel/usuarios, a única rota que usa a chave secreta.
+ *
+ * Depois de criar, a senha provisória e o link de definir senha aparecem
+ * UMA vez: vêm num cookie de vida curta que esta página lê e apaga.
+ *
+ * Funciona sem JavaScript: senha em branco é gerada no servidor, e remover
+ * pede um segundo clique (<details> com "Remover de vez"). Com JavaScript,
+ * ganha o botão "Gerar senha", o medidor de força e o "Copiar".
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import CampoSenha from '~/components/painel/CampoSenha.astro';
+import Avatar from '~/components/painel/Avatar.astro';
+import MedidorSenha from '~/components/painel/MedidorSenha.astro';
+import { editorAtual } from '~/lib/painel-auth';
+import { ERROS, FEITOS } from '~/lib/painel-artigo';
+import { CAMINHO_USUARIOS, COOKIE_NOVO, type NovoUsuario } from '~/lib/painel-usuarios';
+
+const editor = await editorAtual(Astro.cookies);
+if (!editor) return Astro.redirect('/painel/entrar/', 303);
+
+const erro = Astro.url.searchParams.get('erro');
+const feito = Astro.url.searchParams.get('feito');
+
+/* Lido uma vez e apagado: recarregar a página não mostra a senha de novo. */
+let novo: NovoUsuario | null = null;
+const cookieNovo = Astro.cookies.get(COOKIE_NOVO);
+if (cookieNovo) {
+  try {
+    novo = cookieNovo.json() as NovoUsuario;
+  } catch {
+    novo = null;
+  }
+  Astro.cookies.delete(COOKIE_NOVO, { path: CAMINHO_USUARIOS });
+}
+
+interface Linha {
+  id: string;
+  nome: string;
+  email: string;
+  foto: string | null;
+  criado_em: string;
+  ultimo_acesso: string | null;
+}
+
+const { data, error } = await editor.cliente.rpc('editores_com_email');
+const editores = (data ?? []) as Linha[];
+if (error) console.error('[painel] falha ao listar editores', error.message);
+
+const quando = (iso: string | null) =>
+  iso
+    ? new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'America/Sao_Paulo',
+      }).format(new Date(iso))
+    : 'Nunca entrou';
+const dia = (iso: string) =>
+  new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Sao_Paulo' }).format(new Date(iso));
+const contagem = (n: number) => `${n} ${n === 1 ? 'pessoa' : 'pessoas'} com acesso`;
+---
+
+<Painel titulo="Usuários" editor={editor}>
+  <div class="pnl-cabeca">
+    <div>
+      <h1 class="pnl-titulo">Usuários</h1>
+      <p class="pnl-sub" style="margin: 0">{error ? 'Não consegui ler a lista.' : contagem(editores.length)}</p>
+    </div>
+  </div>
+
+  {erro && <p class="pnl-recado pnl-recado--erro" role="alert">{ERROS[erro] ?? ERROS.salvar}</p>}
+  {feito && FEITOS[feito] && !novo && <p class="pnl-recado pnl-recado--ok" role="status">{FEITOS[feito]}</p>}
+  {error && <p class="pnl-recado pnl-recado--erro" role="alert">Não consegui ler a lista: {error.message}</p>}
+
+  {novo && (
+    <section class="pnl-cartao pnl-novo" role="status" aria-labelledby="novo-titulo">
+      <h2 class="pnl-feito__titulo" id="novo-titulo">Acesso criado para {novo.nome}</h2>
+      {novo.boasVindas === 'enviado' && (
+        <p>Mandamos para {novo.email} um e-mail de boas-vindas com o login, o endereço do painel e um link para a pessoa definir a própria senha.</p>
+      )}
+      {novo.boasVindas === 'sem-brevo' && (
+        <p class="pnl-recado pnl-recado--erro">E-mail de boas-vindas não enviado: Brevo não configurado. Repasse à pessoa o login e o link abaixo.</p>
+      )}
+      {novo.boasVindas === 'falhou' && (
+        <p class="pnl-recado pnl-recado--erro">O e-mail de boas-vindas não pôde ser enviado. Repasse à pessoa o login e o link abaixo.</p>
+      )}
+      <dl class="pnl-novo__dados">
+        <dt>Login</dt>
+        <dd><code>{novo.email}</code></dd>
+        <dt>Senha provisória</dt>
+        <dd>
+          <code id="novo-senha">{novo.senha}</code>
+          <button class="pnl-btn pnl-novo__copia" type="button" data-copia="novo-senha" hidden>Copiar</button>
+        </dd>
+        {novo.link && (
+          <>
+            <dt>Link para definir a senha</dt>
+            <dd>
+              <code id="novo-link" class="pnl-novo__link">{novo.link}</code>
+              <button class="pnl-btn pnl-novo__copia" type="button" data-copia="novo-link" hidden>Copiar</button>
+            </dd>
+          </>
+        )}
+      </dl>
+      <p class="pnl-dica">
+        A senha aparece só desta vez. Ela nunca vai por e-mail; se for repassá-la, use um canal seguro.
+        {novo.link && ' O link vale por uma hora e só pode ser usado uma vez; vencido, a pessoa usa "Esqueci minha senha" na entrada do painel.'}
+      </p>
+    </section>
+  )}
+
+  <div class="pnl-cartao" style="padding: 0">
+    <div class="pnl-rolagem">
+      <table class="pnl-tabela">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>E-mail (login)</th>
+            <th class="pnl-col-media">Desde</th>
+            <th class="pnl-col-media">Último acesso</th>
+            <th><span class="pnl-oculto">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {editores.length === 0 && (
+            <tr><td class="pnl-tabela__vazio" colspan="5">{error ? 'A lista não pôde ser lida.' : 'Ninguém na lista.'}</td></tr>
+          )}
+          {editores.map((u) => (
+            <tr>
+              <td>
+                <div class="pnl-usuarios__quem">
+                  <Avatar nome={u.nome} foto={u.foto} tamanho={40} />
+                  <span>
+                    <span class="pnl-contato__nome">{u.nome}</span>
+                    {u.id === editor.id && <span class="pnl-contato__estado">Você</span>}
+                  </span>
+                </div>
+              </td>
+              <td><a class="pnl-usuarios__email" href={`mailto:${u.email}`}>{u.email}</a></td>
+              <td class="pnl-col-media pnl-tabela__num">{dia(u.criado_em)}</td>
+              <td class="pnl-col-media pnl-tabela__num">{quando(u.ultimo_acesso)}</td>
+              <td>
+                {u.id !== editor.id && (
+                  <details class="pnl-contato__apagar">
+                    <summary>Remover</summary>
+                    <form method="post" action="/api/painel/usuarios">
+                      <input type="hidden" name="acao" value="remover" />
+                      <input type="hidden" name="id" value={u.id} />
+                      <p class="pnl-dica" style="margin: 0 0 8px">{u.nome} deixa de entrar no painel.</p>
+                      <button class="pnl-btn pnl-btn--perigo" type="submit">Remover de vez</button>
+                    </form>
+                  </details>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <section class="pnl-cartao pnl-conta" style="margin-top: 32px">
+    <h2 class="pnl-feito__titulo">Novo usuário</h2>
+    <p class="pnl-sub">A pessoa entra com o e-mail e a senha provisória, ou define a própria senha pelo link do e-mail de boas-vindas.</p>
+    <form class="entrada__form" method="post" action="/api/painel/usuarios">
+      <input type="hidden" name="acao" value="criar" />
+      <div>
+        <label class="pnl-rotulo" for="novo-nome">Nome</label>
+        <input class="pnl-campo" id="novo-nome" name="nome" required maxlength="80" autocomplete="off" />
+      </div>
+      <div>
+        <label class="pnl-rotulo" for="novo-email">E-mail (é o login)</label>
+        <input class="pnl-campo" id="novo-email" type="email" name="email" required maxlength="254" autocomplete="off" />
+      </div>
+      <div>
+        <CampoSenha id="novo-senha-campo" nome="senha" rotulo="Senha provisória" autocomplete="new-password" minimo={8} />
+        <MedidorSenha alvo="novo-senha-campo" />
+        <p class="pnl-dica" id="dica-gerar">Deixe em branco para o painel gerar uma.</p>
+        <button class="pnl-btn" type="button" id="gerar-senha" hidden>Gerar senha</button>
+      </div>
+      <button class="pnl-btn pnl-btn--principal" type="submit">Criar acesso</button>
+    </form>
+  </section>
+</Painel>
+
+<script>
+  /* Senha em branco é gerada no servidor; por isso o campo deixa de ser
+     obrigatório (o CampoSenha nasce com `required`). */
+  const campo = document.getElementById('novo-senha-campo') as HTMLInputElement | null;
+  const gerar = document.getElementById('gerar-senha') as HTMLButtonElement | null;
+  if (campo) campo.required = false;
+  if (campo && gerar) {
+    gerar.hidden = false;
+    document.getElementById('dica-gerar')!.textContent = 'Deixe em branco para o painel gerar uma, ou gere aqui para ver antes.';
+    gerar.addEventListener('click', () => {
+      // Sem caracteres ambíguos (0/O, 1/l/I), fácil de ditar ou copiar.
+      const alfabeto = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      campo.value = Array.from(bytes, (b) => alfabeto[b % alfabeto.length]).join('');
+      campo.type = 'text';
+      document.querySelector(`[data-olho="${campo.id}"]`)?.setAttribute('aria-pressed', 'true');
+      campo.dispatchEvent(new Event('senha-gerada'));
+      campo.focus();
+      campo.select();
+    });
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-copia]').forEach((botao) => {
+    if (!navigator.clipboard) return;
+    botao.hidden = false;
+    botao.addEventListener('click', async () => {
+      const texto = document.getElementById(botao.dataset.copia!)?.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(texto);
+        botao.textContent = 'Copiado';
+        setTimeout(() => { botao.textContent = 'Copiar'; }, 2000);
+      } catch {
+        botao.textContent = 'Não copiou';
+      }
+    });
+  });
+</script>

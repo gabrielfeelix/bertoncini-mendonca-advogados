@@ -1,0 +1,52 @@
+---
+/**
+ * Medidor de força da senha: três traços que acendem e uma frase.
+ *
+ * Saiu de /painel/nova-senha/ para ser o mesmo em /painel/conta/ e no
+ * "Novo usuário". Sem JavaScript, fica só a dica de 8 caracteres.
+ */
+interface Props {
+  /** `id` do campo de senha que o medidor acompanha. */
+  alvo: string;
+}
+const { alvo } = Astro.props;
+---
+
+<div data-medidor={alvo}>
+  <div class="pnl-forca" aria-hidden="true">
+    <span class="pnl-forca__barra" data-forca="1"></span>
+    <span class="pnl-forca__barra" data-forca="2"></span>
+    <span class="pnl-forca__barra" data-forca="3"></span>
+  </div>
+  <p class="pnl-dica" data-forca-texto aria-live="polite">Pelo menos 8 caracteres.</p>
+</div>
+
+<script>
+  /** Força grosseira: tamanho, e se mistura tipos de caractere. */
+  const forca = (v: string) => {
+    if (v.length < 8) return 0;
+    const tipos = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter((r) => r.test(v)).length;
+    if (v.length >= 14 && tipos >= 3) return 3;
+    if (v.length >= 12 || tipos >= 3) return 2;
+    return 1;
+  };
+  const CLASSES = ['', 'pnl-forca__barra--fraca', 'pnl-forca__barra--media', 'pnl-forca__barra--forte'];
+  const FRASES = ['Curta demais: precisa de 8 ou mais.', 'Serve, mas dá para melhorar.', 'Boa senha.', 'Senha forte.'];
+
+  document.querySelectorAll<HTMLElement>('[data-medidor]').forEach((medidor) => {
+    const campo = document.getElementById(medidor.dataset.medidor!) as HTMLInputElement | null;
+    if (!campo) return;
+    const atualiza = () => {
+      const n = forca(campo.value);
+      medidor.querySelectorAll<HTMLElement>('[data-forca]').forEach((b) => {
+        b.className = 'pnl-forca__barra';
+        if (n >= Number(b.dataset.forca)) b.classList.add(CLASSES[n]);
+      });
+      medidor.querySelector('[data-forca-texto]')!.textContent =
+        campo.value.length === 0 ? 'Pelo menos 8 caracteres.' : FRASES[n];
+    };
+    campo.addEventListener('input', atualiza);
+    /* "Gerar senha" preenche o campo por script; ele avisa com este evento. */
+    campo.addEventListener('senha-gerada', atualiza);
+  });
+</script>

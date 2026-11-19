@@ -8,7 +8,8 @@
  *
  * - a lista é montada no servidor, com a sessão do cookie, e funciona sem
  *   JavaScript (busca e filtros por GET, ações em lote por POST). O script
- *   no fim só filtra enquanto se digita e confirma antes de apagar;
+ *   no fim só filtra enquanto se digita e abre a confirmação de apagar
+ *   num <dialog>; sem ele, apagar passa por /painel/confirmar-exclusao/;
  * - a edição abre em /painel/artigo/ em vez da gaveta lateral: o
  *   formulário é renderizado no servidor e precisa de página própria para
  *   funcionar sem JavaScript (o próprio CMS de origem já mantinha essa
@@ -81,9 +82,14 @@ const nomesAutores = (autor: string) =>
 const contagem = (n: number) => `${n} ${n === 1 ? 'texto' : 'textos'}`;
 ---
 
-<Painel titulo={NOME_CONTEUDOS} editor={editor.nome}>
+<Painel titulo={NOME_CONTEUDOS} editor={editor}>
   <div class="pnl-cabeca">
-    <h1 class="pnl-titulo">{NOME_CONTEUDOS}</h1>
+    <div class="pnl-cabeca__titulo">
+      <h1 class="pnl-titulo">{NOME_CONTEUDOS}</h1>
+      <p class="pnl-cabeca__conta" id="mostrando" aria-live="polite">
+        {visiveis.length === todos.length ? contagem(todos.length) : `Mostrando ${visiveis.length} de ${contagem(todos.length)}`}
+      </p>
+    </div>
     <div class="pnl-cabeca__acoes">
       <a class="pnl-btn" href={ROTA_CONTEUDOS} target="_blank" rel="noopener">Ver no site</a>
       <form method="post" action="/api/painel/publica">
@@ -104,34 +110,31 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'texto' : 'textos'}`;
         Buscar
         <input class="pnl-campo" type="search" name="q" value={busca} placeholder="Título, endereço ou área" id="busca" />
       </label>
-      <label>
-        Estado
-        <select class="pnl-campo" name="estado" id="filtro-estado">
+      <div class="pnl-fer__campo">
+        <label for="filtro-estado">Estado</label>
+        <select data-seletor class="pnl-campo" name="estado" id="filtro-estado">
           <option value="">Todos</option>
           <option value="publicado" selected={filtroEstado === 'publicado'}>No site</option>
           <option value="rascunho" selected={filtroEstado === 'rascunho'}>Rascunhos</option>
         </select>
-      </label>
-      <label>
-        Formato
-        <select class="pnl-campo" name="formato" id="filtro-formato">
+      </div>
+      <div class="pnl-fer__campo">
+        <label for="filtro-formato">Formato</label>
+        <select data-seletor class="pnl-campo" name="formato" id="filtro-formato">
           <option value="">Todos</option>
           {Object.entries(FORMATOS).map(([valor, f]) => (
             <option value={valor} selected={filtroFormato === valor}>{f.plural}</option>
           ))}
         </select>
-      </label>
-      <label>
-        Ordem
-        <select class="pnl-campo" name="ordem" id="filtro-ordem">
+      </div>
+      <div class="pnl-fer__campo">
+        <label for="filtro-ordem">Ordem</label>
+        <select data-seletor class="pnl-campo" name="ordem" id="filtro-ordem">
           <option value="">Mais novos primeiro</option>
           <option value="antigos" selected={antigosPrimeiro}>Mais antigos primeiro</option>
         </select>
-      </label>
+      </div>
       <noscript><button class="pnl-btn" type="submit">Filtrar</button></noscript>
-      <span class="pnl-fer__conta" id="mostrando" aria-live="polite">
-        {visiveis.length === todos.length ? contagem(todos.length) : `${visiveis.length} de ${contagem(todos.length)}`}
-      </span>
     </form>
 
     <form method="post" action="/api/painel/lote" id="lote">
@@ -139,7 +142,7 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'texto' : 'textos'}`;
         <span class="pnl-lote__quantos" id="quantos">Marque textos para agir em vários de uma vez.</span>
         <button class="pnl-btn" type="submit" name="acao" value="publicar">Publicar</button>
         <button class="pnl-btn" type="submit" name="acao" value="rascunho">Voltar a rascunho</button>
-        <label class="pnl-marca" id="confirma-rotulo"><input type="checkbox" name="confirma" value="1" id="confirma" /> confirmo</label>
+        <input type="hidden" name="confirma" value="" id="confirma" />
         <button class="pnl-btn pnl-btn--perigo" type="submit" name="acao" value="apagar" id="apagar-lote">Apagar</button>
       </div>
 
@@ -192,6 +195,15 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'texto' : 'textos'}`;
       </div>
     </form>
   </div>
+
+  <dialog class="pnl-dialogo" id="confirma-apagar" aria-labelledby="confirma-titulo">
+    <h2 class="pnl-feito__titulo" id="confirma-titulo">Apagar textos</h2>
+    <p id="confirma-texto">Apagar os textos selecionados? Isso não pode ser desfeito.</p>
+    <div class="pnl-dialogo__acoes">
+      <button class="pnl-btn" type="button" id="confirma-nao" autofocus>Cancelar</button>
+      <button class="pnl-btn pnl-btn--perigo" type="button" id="confirma-sim">Apagar de vez</button>
+    </div>
+  </dialog>
 </Painel>
 
 <script>
@@ -226,7 +238,7 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'texto' : 'textos'}`;
       if (ok) n++;
     }
     const total = Number(mostrando.dataset.total ?? linhas.length);
-    mostrando.textContent = n === total ? contagem(total) : `${n} de ${contagem(total)}`;
+    mostrando.textContent = n === total ? contagem(total) : `Mostrando ${n} de ${contagem(total)}`;
     atualizaLote();
   }
   mostrando.dataset.total = String(linhas.length);
@@ -242,7 +254,7 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'texto' : 'textos'}`;
     const marcadas = visiveis.filter((c) => c.checked).length;
     barra.querySelectorAll<HTMLButtonElement>('button').forEach((b) => { b.disabled = marcadas === 0; });
     quantos.textContent = marcadas
-      ? `${marcadas} ${marcadas === 1 ? 'texto marcado' : 'textos marcados'}`
+      ? `${marcadas} ${marcadas === 1 ? 'selecionado' : 'selecionados'}`
       : 'Marque textos para agir em vários de uma vez.';
     marcaTodos.checked = visiveis.length > 0 && marcadas === visiveis.length;
     marcaTodos.indeterminate = marcadas > 0 && marcadas < visiveis.length;
@@ -259,18 +271,32 @@ const contagem = (n: number) => `${n} ${n === 1 ? 'texto' : 'textos'}`;
     if ((e.target as HTMLInputElement).name === 'slugs') atualizaLote();
   });
 
-  // Com JavaScript, "confirmo" vira uma pergunta na hora de apagar.
-  $('#confirma-rotulo').hidden = true;
+  // Com JavaScript, apagar abre o <dialog> do painel antes de enviar. Sem
+  // ele, a rota manda para /painel/confirmar-exclusao/ (segunda etapa).
+  const dialogo = $<HTMLDialogElement>('#confirma-apagar');
+  const confirma = $<HTMLInputElement>('#confirma');
   lote.addEventListener('submit', (e) => {
     const acao = (e.submitter as HTMLButtonElement | null)?.value;
-    if (acao !== 'apagar') return;
+    if (acao !== 'apagar' || confirma.value === '1' || typeof dialogo.showModal !== 'function') return;
+    e.preventDefault();
     const n = caixas().filter((c) => c.checked).length;
-    if (!confirm(`Apagar ${n === 1 ? 'o texto marcado' : `os ${n} textos marcados`}? Isso não tem volta.`)) {
-      e.preventDefault();
-      return;
-    }
-    $<HTMLInputElement>('#confirma').checked = true;
+    $('#confirma-texto').textContent =
+      `Apagar ${n === 1 ? 'o texto selecionado' : `${n} textos selecionados`}? Isso não pode ser desfeito.`;
+    dialogo.showModal();
   });
+  $('#confirma-sim').addEventListener('click', () => {
+    confirma.value = '1';
+    dialogo.close();
+    // `submit()` não leva o botão clicado: a ação vai num campo próprio.
+    const acao = document.createElement('input');
+    acao.type = 'hidden';
+    acao.name = 'acao';
+    acao.value = 'apagar';
+    lote.append(acao);
+    linhas.filter((l) => l.hidden).forEach((l) => { l.querySelector<HTMLInputElement>('input[name=slugs]')!.checked = false; });
+    lote.submit();
+  });
+  $('#confirma-nao').addEventListener('click', () => dialogo.close());
   // Caixas escondidas pelo filtro não entram na ação.
   lote.addEventListener('submit', () => {
     linhas.filter((l) => l.hidden).forEach((l) => { l.querySelector<HTMLInputElement>('input[name=slugs]')!.checked = false; });

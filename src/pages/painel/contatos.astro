@@ -1,0 +1,202 @@
+---
+/**
+ * `/painel/contatos/` — as mensagens do formulário de contato do site.
+ *
+ * `/api/contato` grava cada envio na tabela `contatos` (migração 006) antes
+ * de mandar o e-mail; aqui os editores leem, do mais novo para o mais
+ * antigo. Mesma sessão em cookie de `/painel/`: a leitura passa pela RLS com
+ * o token do editor, e quem não é editor não vê nada.
+ *
+ * Funciona sem JavaScript: a mensagem longa abre num <details>, marcar
+ * lida/não lida é um formulário, e apagar pede um segundo clique (o
+ * <details> "Apagar" abre o botão de confirmar).
+ *
+ * Sem sessão de editor, manda para a entrada.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import { editorAtual } from '~/lib/painel-auth';
+import { ERROS, FEITOS } from '~/lib/painel-artigo';
+
+const editor = await editorAtual(Astro.cookies);
+if (!editor) return Astro.redirect('/painel/entrar/', 303);
+
+const params = Astro.url.searchParams;
+const erro = params.get('erro');
+const feito = params.get('feito');
+
+interface Contato {
+  id: number;
+  criado_em: string;
+  nome: string;
+  email: string;
+  telefone: string | null;
+  cidade: string | null;
+  assunto: string | null;
+  perfil: string | null;
+  conheceu: string | null;
+  mensagem: string;
+  newsletter: boolean;
+  idioma: string;
+  lido: boolean;
+}
+
+/* Teto de segurança para a página não crescer sem fim; com o volume de um
+   escritório, 500 mensagens são anos. Passando disso, as mais antigas
+   saem da tela, não do banco. */
+const LIMITE = 500;
+
+const { data, error } = await editor.cliente
+  .from('contatos')
+  .select('id, criado_em, nome, email, telefone, cidade, assunto, perfil, conheceu, mensagem, newsletter, idioma, lido')
+  .order('criado_em', { ascending: false })
+  .limit(LIMITE);
+
+const contatos = (data ?? []) as Contato[];
+if (error) console.error('[painel] falha ao listar contatos', error.message);
+const naoLidos = contatos.filter((c) => !c.lido).length;
+
+/* Data e hora no fuso de Brasília, seja qual for o fuso do servidor. */
+const quando = (iso: string) =>
+  new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Sao_Paulo',
+  }).format(new Date(iso));
+
+/* Link do WhatsApp: só dígitos. Número brasileiro digitado sem o 55 (DDD +
+   8 ou 9 dígitos) ganha o código do país; quem digitou com "+" já trouxe o
+   seu. Sem dígitos suficientes, fica só o texto. */
+function linkWhatsApp(telefone: string | null): string | null {
+  if (!telefone) return null;
+  const digitos = telefone.replace(/\D/g, '');
+  if (digitos.length < 8) return null;
+  const internacional = telefone.trim().startsWith('+') || digitos.startsWith('00');
+  const numero = internacional
+    ? digitos.replace(/^00/, '')
+    : digitos.length === 10 || digitos.length === 11
+      ? `55${digitos}`
+      : digitos;
+  return `https://wa.me/${numero}`;
+}
+
+/* Mensagem curta aparece inteira; longa mostra o começo e abre o resto. */
+const CORTE = 220;
+const comeco = (texto: string) => texto.slice(0, CORTE).replace(/\s+\S*$/, '') + '…';
+
+const contagem = (n: number) => `${n} ${n === 1 ? 'mensagem' : 'mensagens'}`;
+const resumo =
+  contatos.length === 0
+    ? 'Nenhuma mensagem ainda.'
+    : naoLidos === 0
+      ? `${contagem(contatos.length)}, todas lidas.`
+      : `${naoLidos} ${naoLidos === 1 ? 'não lida' : 'não lidas'} de ${contagem(contatos.length)}.`;
+---
+
+<Painel titulo="Contatos" editor={editor}>
+  <div class="pnl-cabeca">
+    <div>
+      <h1 class="pnl-titulo">Contatos</h1>
+      <p class="pnl-sub" style="margin: 0">{resumo}</p>
+    </div>
+  </div>
+
+  {feito && FEITOS[feito] && <p class="pnl-recado pnl-recado--ok" role="status">{FEITOS[feito]}</p>}
+  {erro && <p class="pnl-recado pnl-recado--erro" role="alert">{ERROS[erro] ?? ERROS.salvar}</p>}
+  {error && <p class="pnl-recado pnl-recado--erro" role="alert">Não consegui ler as mensagens: {error.message}</p>}
+  {contatos.length === LIMITE && (
+    <p class="pnl-recado" role="status">Mostrando as {LIMITE} mensagens mais recentes. As anteriores continuam guardadas no banco.</p>
+  )}
+
+  <div class="pnl-cartao" style="padding: 0">
+    <div class="pnl-rolagem">
+      <table class="pnl-tabela pnl-contatos">
+        <thead>
+          <tr>
+            <th>Recebida</th>
+            <th>Quem</th>
+            <th class="pnl-col-media">Cidade</th>
+            <th>Assunto</th>
+            <th class="pnl-col-media">Quem escreve</th>
+            <th class="pnl-col-media">Como conheceu</th>
+            <th class="pnl-col-media">Newsletter</th>
+            <th><span class="pnl-oculto">Ações</span></th>
+          </tr>
+        </thead>
+        {contatos.length === 0 && (
+          <tbody>
+            <tr>
+              <td class="pnl-tabela__vazio" colspan="8">
+                {error ? 'A lista não pôde ser lida.' : 'Nenhuma mensagem ainda. Elas aparecem aqui assim que alguém escreve pelo formulário do site.'}
+              </td>
+            </tr>
+          </tbody>
+        )}
+        {contatos.map((c) => {
+          const wa = linkWhatsApp(c.telefone);
+          const longa = c.mensagem.length > CORTE;
+          return (
+            <tbody id={`contato-${c.id}`} class:list={{ 'pnl-contato--novo': !c.lido }}>
+              <tr>
+                <td class="pnl-tabela__num">
+                  {quando(c.criado_em)}
+                  <span class="pnl-contato__estado">{c.lido ? 'Lida' : 'Não lida'}</span>
+                </td>
+                <td>
+                  <div class="pnl-contato__meio">
+                    <span class="pnl-contato__nome">{c.nome}</span>
+                    <a href={`mailto:${c.email}`}>{c.email}</a>
+                    {c.telefone && (wa ? <a href={wa} target="_blank" rel="noopener">{c.telefone}</a> : <span>{c.telefone}</span>)}
+                    {c.idioma === 'en' && <span class="pnl-contato__estado">Escreveu pelo site em inglês</span>}
+                  </div>
+                </td>
+                <td class="pnl-col-media">{c.cidade ?? <span class="pnl-tabela__num">não informada</span>}</td>
+                <td>{c.assunto ?? <span class="pnl-tabela__num">não informado</span>}</td>
+                <td class="pnl-col-media">{c.perfil ?? <span class="pnl-tabela__num">não informado</span>}</td>
+                <td class="pnl-col-media">{c.conheceu ?? <span class="pnl-tabela__num">não informado</span>}</td>
+                <td class="pnl-col-media">{c.newsletter ? 'Quer receber' : 'Não'}</td>
+                <td>
+                  <div class="pnl-contato__acoes">
+                    <form method="post" action="/api/painel/contato">
+                      <input type="hidden" name="id" value={c.id} />
+                      <button class="pnl-btn" type="submit" name="acao" value={c.lido ? 'nao-lido' : 'lido'}>
+                        {c.lido ? 'Marcar como não lida' : 'Marcar como lida'}
+                      </button>
+                    </form>
+                    <details class="pnl-contato__apagar">
+                      <summary>Apagar</summary>
+                      <form method="post" action="/api/painel/contato">
+                        <input type="hidden" name="id" value={c.id} />
+                        <button class="pnl-btn pnl-btn--perigo" type="submit" name="acao" value="apagar">Apagar de vez</button>
+                      </form>
+                    </details>
+                  </div>
+                </td>
+              </tr>
+              <tr class="pnl-contato__msg">
+                <td colspan="8">
+                  {longa ? (
+                    <details>
+                      <summary>
+                        <span class="pnl-contato__corte pnl-contato__texto">{comeco(c.mensagem)} </span>
+                        <span class="pnl-contato__mais pnl-contato__mais--abre">Ver mensagem inteira</span>
+                        <span class="pnl-contato__mais pnl-contato__mais--fecha">Recolher</span>
+                      </summary>
+                      <p class="pnl-contato__texto">{c.mensagem}</p>
+                    </details>
+                  ) : (
+                    <p class="pnl-contato__texto">{c.mensagem}</p>
+                  )}
+                </td>
+              </tr>
+            </tbody>
+          );
+        })}
+      </table>
+    </div>
+  </div>
+</Painel>

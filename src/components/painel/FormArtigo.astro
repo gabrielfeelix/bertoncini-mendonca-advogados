@@ -116,7 +116,7 @@ const urlBase = new URL(ROTA_CONTEUDOS, site.url).toString();
         <div class="ed">
           {/* A barra é revelada pelo script; sem JavaScript o textarea abaixo é o editor. */}
           <div class="ed__barra" role="toolbar" aria-label="Formatação" hidden>
-            <select class="pnl-campo ed__bloco" id="ed-bloco" aria-label="Tipo de bloco">
+            <select data-seletor class="pnl-campo ed__bloco" id="ed-bloco" aria-label="Tipo de bloco">
               <option value="p">Parágrafo</option>
               <option value="h2">Título</option>
               <option value="h3">Subtítulo</option>
@@ -151,7 +151,7 @@ const urlBase = new URL(ROTA_CONTEUDOS, site.url).toString();
     <div class="pnl-linha">
       <label class="pnl-rotulo" for="c-formato">Formato</label>
       <div>
-        <select class="pnl-campo" id="c-formato" name="formato">
+        <select data-seletor class="pnl-campo" id="c-formato" name="formato">
           {Object.entries(FORMATOS).map(([valor, f]) => (
             <option value={valor} selected={(a?.formato ?? 'artigo') === valor}>{f.singular}</option>
           ))}
@@ -163,7 +163,7 @@ const urlBase = new URL(ROTA_CONTEUDOS, site.url).toString();
     <div class="pnl-linha">
       <label class="pnl-rotulo" for="c-categoria">Categoria</label>
       <div>
-        <select class="pnl-campo" id="c-categoria" name="categoria">
+        <select data-seletor class="pnl-campo" id="c-categoria" name="categoria">
           {categorias.map((c) => <option value={c} selected={c === categoriaAtual}>{c}</option>)}
         </select>
         <p class="pnl-dica">A área do texto. Aparece no cartão e no filtro "Área".</p>

@@ -1,0 +1,43 @@
+---
+/**
+ * `/painel/confirmar-exclusao/` — segunda etapa de "Apagar" em lote para
+ * quem está sem JavaScript (com ele, a confirmação é o <dialog> da lista).
+ *
+ * Recebe os endereços em `?slugs=`, mostra os títulos e só apaga com o
+ * botão "Apagar de vez", que reenvia para /api/painel/lote com `confirma=1`.
+ * Um GET nunca apaga nada.
+ */
+export const prerender = false;
+
+import Painel from '~/layouts/Painel.astro';
+import { editorAtual } from '~/lib/painel-auth';
+
+const editor = await editorAtual(Astro.cookies);
+if (!editor) return Astro.redirect('/painel/entrar/', 303);
+
+const slugs = [...new Set(Astro.url.searchParams.getAll('slugs').map((s) => s.trim().slice(0, 80)).filter(Boolean))].slice(0, 200);
+if (slugs.length === 0) return Astro.redirect('/painel/?erro=nenhum', 303);
+
+const { data } = await editor.cliente.from('artigos').select('slug, titulo').in('slug', slugs);
+const achados = (data ?? []) as { slug: string; titulo: string }[];
+if (achados.length === 0) return Astro.redirect('/painel/?erro=nao-achei', 303);
+
+const n = achados.length;
+const frase = n === 1 ? 'Confirmar exclusão de 1 texto' : `Confirmar exclusão de ${n} textos`;
+---
+
+<Painel titulo={frase} editor={editor}>
+  <section class="pnl-cartao pnl-conta">
+    <h1 class="pnl-feito__titulo">{frase}</h1>
+    <p>{n === 1 ? 'Este texto vai ser apagado' : 'Estes textos vão ser apagados'}. Isso não pode ser desfeito.</p>
+    <ul class="pnl-exclusao__lista">
+      {achados.map((a) => <li>{a.titulo}</li>)}
+    </ul>
+    <form method="post" action="/api/painel/lote" class="pnl-dialogo__acoes">
+      <input type="hidden" name="confirma" value="1" />
+      {achados.map((a) => <input type="hidden" name="slugs" value={a.slug} />)}
+      <a class="pnl-btn" href="/painel/">Cancelar</a>
+      <button class="pnl-btn pnl-btn--perigo" type="submit" name="acao" value="apagar">Apagar de vez</button>
+    </form>
+  </section>
+</Painel>

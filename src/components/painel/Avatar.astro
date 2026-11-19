@@ -1,0 +1,31 @@
+---
+/**
+ * Avatar redondo de quem usa o painel: a foto (migração 008) ou, sem foto,
+ * as iniciais num círculo azul-noite. Decorativo para leitor de tela: o
+ * nome sempre aparece em texto ao lado, então a imagem leva `alt=""`.
+ */
+interface Props {
+  nome: string;
+  foto?: string | null;
+  /** Diâmetro em px. */
+  tamanho?: number;
+  class?: string;
+}
+const { nome, foto, tamanho = 36, class: classe } = Astro.props;
+
+const partes = nome.trim().split(/\s+/).filter(Boolean);
+const iniciais =
+  ((partes[0]?.[0] ?? '') + (partes.length > 1 ? partes[partes.length - 1][0] : '')).toUpperCase() || '?';
+---
+
+<span
+  class:list={['pnl-avatar', classe]}
+  style={`--avatar: ${tamanho}px`}
+  aria-hidden="true"
+>
+  {foto ? (
+    <img src={foto} alt="" width={tamanho} height={tamanho} loading="lazy" decoding="async" />
+  ) : (
+    <span class="pnl-avatar__iniciais">{iniciais}</span>
+  )}
+</span>
