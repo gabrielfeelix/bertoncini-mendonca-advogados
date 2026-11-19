@@ -30,7 +30,9 @@ export const site = {
   // (o WhatsApp é o canal principal do escritório e usa essa prévia). Não é
   // arte aprovada pelo cliente — troca por uma foto/arte real antes de
   // publicar.
-  imagemPadrao: { valor: '/og-padrao.jpg', placeholder: true } satisfies CampoPlaceholder,
+  // 18/11/2026: só o símbolo BM centralizado no azul-noite. O WhatsApp corta
+  // a prévia num quadrado; com o nome por extenso, as letras saíam cortadas.
+  imagemPadrao: { valor: '/og-simbolo.jpg', placeholder: false } satisfies CampoPlaceholder,
 
   cidade: 'Maringá',
   estado: 'PR',
