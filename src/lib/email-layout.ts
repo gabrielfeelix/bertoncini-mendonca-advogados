@@ -81,7 +81,9 @@ interface Opcoes {
 export function layoutEmail(o: Opcoes): string {
   const logo = urlAbsoluta('/media/marca/logo-email.png');
   const rodapeLegal =
-    `${escapa(site.nome)} · Sociedade de advogados ${escapa(site.registro.oabSociedade.valor)}<br>` +
+    /* Registro da SOCIEDADE na OAB/PR (não é a inscrição de um sócio) e CNPJ. */
+    `${escapa(site.nome)} · Sociedade de advogados ${escapa(site.registro.oabSociedade.valor)} · CNPJ ${escapa(site.registro.cnpj.valor)}<br>` +
+    `WhatsApp <a href="${site.whatsapp.valor.split('?')[0]}" style="color:${CINZA}">${escapa(site.telefone.valor)}</a> · ` +
     `${escapa(site.cidade)}/${escapa(site.estado)} · <a href="${site.url}" style="color:${CINZA}">${site.url.replace(/^https?:\/\//, '')}</a>`;
   return `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
