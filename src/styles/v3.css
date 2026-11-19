@@ -379,9 +379,9 @@ ul { margin: 0 0 1em; padding-left: 1.2em; }
 ::view-transition-new(root) { mix-blend-mode: normal; }
 ::view-transition-old(root) { animation: none; }
 ::view-transition-new(root) {
-  animation: pagina-entra .55s cubic-bezier(.22, .61, .36, 1) both;
+  animation: pagina-entra .35s cubic-bezier(.22, .61, .36, 1) both;
 }
-::view-transition-group(topo) { animation-duration: .45s; }
+::view-transition-group(topo) { animation-duration: .3s; }
 
 @keyframes pagina-entra {
   from { opacity: 0; transform: translateY(8px); }

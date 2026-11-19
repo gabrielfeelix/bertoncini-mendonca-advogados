@@ -61,13 +61,15 @@ const escritorio = rota(lang, '/escritorio/');
             <img src={FOTO_DA_AREA[area.slugPt]} alt="" width="1600" height="1060" loading="lazy" />
             <div class="painel-texto">
               <h3><a href={area.href}>{area.data.nome}</a></h3>
-              <div class="painel-resumo"><p>{area.data.resumo}</p></div>
-              <div class="painel-mais">
-                <div>
-                  <p class="painel-rotulo">{h.servicos}</p>
-                  <ul class="painel-servicos">
-                    {area.data.servicos.slice(0, 6).map((s) => <li>{s}</li>)}
-                  </ul>
+              <div class="painel-troca">
+                <div class="painel-resumo"><p>{area.data.resumo}</p></div>
+                <div class="painel-mais">
+                  <div>
+                    <p class="painel-rotulo">{h.servicos}</p>
+                    <ul class="painel-servicos">
+                      {area.data.servicos.slice(0, 6).map((s) => <li>{s}</li>)}
+                    </ul>
+                  </div>
                 </div>
               </div>
               <span class="painel-link" aria-hidden="true">{tx.hero.conhecaArea}</span>
@@ -273,14 +275,14 @@ const escritorio = rota(lang, '/escritorio/');
   .painel-mais, .bento-fale { display: none; }
 
   /* Versões 1 e 4: resumo e serviços trocam de lugar no hover/foco. */
-  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-resumo,
-  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-mais { display: grid; transition: grid-template-rows .45s ease, opacity .3s ease; }
-  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-resumo { grid-template-rows: 1fr; }
-  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-mais { grid-template-rows: 0fr; opacity: 0; }
+  .bento:is([data-variante="1"], [data-variante="4"]) .painel-resumo,
+  .bento:is([data-variante="1"], [data-variante="4"]) .painel-mais { display: grid; transition: grid-template-rows .45s ease, opacity .3s ease; }
+  .bento:is([data-variante="1"], [data-variante="4"]) .painel-resumo { grid-template-rows: 1fr; }
+  .bento:is([data-variante="1"], [data-variante="4"]) .painel-mais { grid-template-rows: 0fr; opacity: 0; }
   .painel-resumo > *, .painel-mais > div { overflow: hidden; min-height: 0; }
-  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel:is(:hover, :focus-within) .painel-mais { grid-template-rows: 1fr; opacity: 1; }
-  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel:is(:hover, :focus-within) .painel-resumo { grid-template-rows: 0fr; opacity: 0; }
-  .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel:is(:hover, :focus-within)::before { background-color: rgba(11, 30, 63, .35); }
+  .bento:is([data-variante="1"], [data-variante="4"]) .painel:is(:hover, :focus-within) .painel-mais { grid-template-rows: 1fr; opacity: 1; }
+  .bento:is([data-variante="1"], [data-variante="4"]) .painel:is(:hover, :focus-within) .painel-resumo { grid-template-rows: 0fr; opacity: 0; }
+  .bento:is([data-variante="1"], [data-variante="4"]) .painel:is(:hover, :focus-within)::before { background-color: rgba(11, 30, 63, .35); }
   .painel-rotulo { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(248, 247, 242, .65); margin: 4px 0 4px; }
   .painel-servicos { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr; column-gap: 24px; }
   .painel-servicos li { padding: 6px 0; border-bottom: 1px solid rgba(248, 247, 242, .18); font-size: 14px; line-height: 1.35; }
@@ -291,8 +293,8 @@ const escritorio = rota(lang, '/escritorio/');
   }
   /* Sem mouse (toque): resumo e serviços ficam à vista. */
   @media (hover: none) {
-    .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel-mais { grid-template-rows: 1fr; opacity: 1; }
-    .bento:is([data-variante="1"], [data-variante="4"], [data-variante="5"]) .painel:is(:hover, :focus-within) .painel-resumo { grid-template-rows: 1fr; opacity: 1; }
+    .bento:is([data-variante="1"], [data-variante="4"]) .painel-mais { grid-template-rows: 1fr; opacity: 1; }
+    .bento:is([data-variante="1"], [data-variante="4"]) .painel:is(:hover, :focus-within) .painel-resumo { grid-template-rows: 1fr; opacity: 1; }
     .painel-rotulo { margin-top: 16px; }
   }
 
@@ -338,29 +340,34 @@ const escritorio = rota(lang, '/escritorio/');
     .bento[data-variante="2"] > .painel:nth-child(5) { grid-column: 2; grid-row: 2; }
     .bento[data-variante="2"] .bento-fale { grid-column: 3; grid-row: 2; }
 
-    /* Versão 5: faixa horizontal, quase na largura toda da tela. */
+    /* Versão 5: faixa horizontal, quase na largura toda da tela.
+       Revisão de 18/11/2026 (estava com atraso e cortando texto): só a
+       largura anima (0,6s, sem atraso). Resumo e serviços ficam na MESMA
+       célula da grade e só trocam por opacidade, sem animar altura, então
+       o texto não pula. Nada de largura fixa no texto. */
     .bento[data-variante="5"] {
       display: flex; gap: 12px; height: 580px;
       width: min(calc(100vw - 64px), 1760px);
       position: relative; left: 50%; transform: translateX(-50%);
     }
-    /* Movimento (18/11/2026, "mais sutil e orgânico"): expansão mais lenta,
-       com desaceleração longa; a área do mouse cresce menos e as outras
-       encolhem menos; os serviços só entram depois que o bloco abriu. */
-    .bento[data-variante="5"] > .painel { flex: 1 1 0; min-width: 0; transition: flex-grow .9s cubic-bezier(.16, 1, .3, 1); }
-    .bento[data-variante="5"]:is(:hover, :focus-within) > .painel { flex-grow: .88; }
-    .bento[data-variante="5"] > .painel:is(:hover, :focus-within) { flex-grow: 1.9; }
-    .bento[data-variante="5"] .painel img { transition: transform 1.4s cubic-bezier(.16, 1, .3, 1); }
-    .bento[data-variante="5"] .painel:is(:hover, :focus-within) img { transform: scale(1.025); }
-    .bento[data-variante="5"] .painel::before { transition: background-color .8s ease; }
-    /* Largura fixa nos textos: não quebram de linha diferente enquanto o
-       bloco estica. */
-    .bento[data-variante="5"] .painel-resumo p { width: 230px; }
-    .bento[data-variante="5"] .painel-mais { transition: grid-template-rows .7s cubic-bezier(.16, 1, .3, 1), opacity .2s ease; }
-    .bento[data-variante="5"] .painel:is(:hover, :focus-within) .painel-mais { transition: grid-template-rows .7s cubic-bezier(.16, 1, .3, 1) .12s, opacity .5s ease .3s; }
-    .bento[data-variante="5"] .painel-resumo { transition: grid-template-rows .7s cubic-bezier(.16, 1, .3, 1), opacity .25s ease; }
+    .bento[data-variante="5"] > .painel { flex: 1 1 0; min-width: 0; transition: flex-grow .6s cubic-bezier(.4, 0, .2, 1); }
+    .bento[data-variante="5"] > .painel:is(:hover, :focus-within) { flex-grow: 1.8; }
     .bento[data-variante="5"] > .painel h3 { font-size: 28px; max-width: 14ch; }
-    .bento[data-variante="5"] .painel-servicos { min-width: 300px; grid-template-columns: 1fr 1fr; }
+    .bento[data-variante="5"] .painel img { transition: transform 1s cubic-bezier(.4, 0, .2, 1); }
+    .bento[data-variante="5"] .painel:is(:hover, :focus-within) img { transform: scale(1.03); }
+    .bento[data-variante="5"] .painel-troca { display: grid; grid-template-columns: minmax(0, 1fr); }
+    .bento[data-variante="5"] .painel-troca > * { grid-area: 1 / 1; align-self: end; }
+    .bento[data-variante="5"] .painel-mais { display: block; opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
+    .bento[data-variante="5"] .painel-resumo { display: block; transition: opacity .3s ease; }
+    .bento[data-variante="5"] .painel:is(:hover, :focus-within) .painel-mais { opacity: 1; visibility: visible; transition: opacity .35s ease .15s, visibility 0s; }
+    .bento[data-variante="5"] .painel:is(:hover, :focus-within) .painel-resumo { opacity: 0; }
+    /* Quatro serviços, uma coluna: a lista fica com altura parecida com a do
+       resumo (as duas dividem o mesmo espaço), sem vão sob o título. Os
+       demais estão na página da área. */
+    .bento[data-variante="5"] .painel-servicos { min-width: 300px; grid-template-columns: 1fr; }
+    .bento[data-variante="5"] .painel-servicos li:nth-child(n+5) { display: none; }
+    .bento[data-variante="5"] .painel-servicos li { padding: 5px 0; }
+    .bento[data-variante="5"] .painel-rotulo { margin-top: 0; }
 
     /* Versão 1: mosaico 12×12, dois altos à esquerda e três largos à direita. */
     .bento[data-variante="1"] { grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(12, minmax(0, 1fr)); height: 1000px; }
